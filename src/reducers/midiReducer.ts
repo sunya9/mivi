@@ -10,7 +10,10 @@ type MidiAction =
       };
     };
 
-export function midiReducer(state: MidiState, action: MidiAction): MidiState {
+export function midiReducer(
+  state: MidiState | undefined,
+  action: MidiAction,
+): MidiState | undefined {
   switch (action.type) {
     case "UPDATE_MIDI":
       return {
@@ -19,6 +22,7 @@ export function midiReducer(state: MidiState, action: MidiAction): MidiState {
         tracks: action.payload.tracks,
       };
     case "UPDATE_TRACK_SETTINGS":
+      if (!state) return state;
       return {
         ...state,
         tracks: state.tracks.map((track) =>

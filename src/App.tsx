@@ -48,10 +48,7 @@ export const App = () => {
 
 const useApp = () => {
   const [fileStorage, { midi, initialAudioHandler }] = use(loadDb);
-  const [midiState, dispatch] = useReducer(midiReducer, {
-    name: midi?.name || "",
-    tracks: midi?.tracks || [],
-  });
+  const [midiState, dispatch] = useReducer(midiReducer, midi);
   const [audioHandler, setAudioHandler] = useState(initialAudioHandler);
 
   const setAudio = useCallback(
@@ -132,7 +129,6 @@ const AppInternal = () => {
       >
         <ResizablePanel>
           <LeftPane
-            tracks={midiState.tracks}
             onMidiSelect={onMidiSelect}
             setAudioFile={setAudio}
             midiState={midiState}
@@ -142,12 +138,7 @@ const AppInternal = () => {
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel>
-          <RightPane
-            onRecordingStart={() => {}}
-            onRecordingStop={() => {}}
-            midiState={midiState}
-            audioHandler={audioHandler}
-          />
+          <RightPane midiState={midiState} audioHandler={audioHandler} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

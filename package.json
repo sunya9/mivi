@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@radix-ui/react-menubar": "^1.1.4",
+    "@radix-ui/react-select": "^2.1.4",
     "@radix-ui/react-slider": "^1.2.2",
     "@radix-ui/react-slot": "^1.1.1",
     "@tonejs/midi": "^2.0.28",
@@ -20,6 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.469.0",
+    "media-codecs": "^2.0.2",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 
 interface Props {
-  tracks: MidiTrack[];
   onMidiSelect: (file: File) => void;
   onTrackChange: (track: MidiTrack) => void;
   setAudioFile: (file: File) => void;
@@ -13,7 +12,6 @@ interface Props {
 }
 
 export function LeftPane({
-  tracks,
   setAudioFile,
   onMidiSelect,
   onTrackChange,
@@ -66,7 +64,7 @@ export function LeftPane({
       </div>
 
       <div className="space-y-2">
-        {tracks.map((track) => (
+        {midiState?.tracks.map((track) => (
           <TrackItem
             key={track.id}
             track={track}
@@ -83,7 +81,7 @@ export function LeftPane({
         ))}
       </div>
 
-      {tracks.length === 0 && (
+      {midiState?.tracks.length === 0 && (
         <div className="py-4 text-center text-gray-500">Select a MIDI file</div>
       )}
     </div>
