@@ -1,18 +1,18 @@
 import { formatTime } from "@/lib/utils";
 import { AudioHandler } from "@/lib/AudioHandler";
-import Canvas from "@/components/Canvas";
+import { Canvas } from "@/components/Canvas";
 import { Button } from "@/components/ui/button";
 import { Pause, Play } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useEffect, useMemo, useState } from "react";
 import { MidiState } from "@/types/midi";
 import { useMidiVisualizer } from "@/lib/useMidiVisualizer";
-import { Renderer } from "@/types/renderer";
+import { RendererCreator } from "@/renderers/Renderer";
 
 interface Props {
   audioHandler?: AudioHandler;
   midiState?: MidiState;
-  rendererCreator: (context: CanvasRenderingContext2D) => Renderer;
+  rendererCreator: RendererCreator;
 }
 
 export const MidiVisualizer = ({

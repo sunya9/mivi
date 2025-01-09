@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from "react";
 
-import { Renderer } from "@/types/renderer";
+import { Renderer } from "@/renderers/Renderer";
 import { useState } from "react";
 
 import { useRef } from "react";

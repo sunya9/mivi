@@ -1,6 +1,8 @@
-import { ParticlesRenderer } from "@/renderers/ParticlesRenderer";
-import { PianoRollRenderer } from "@/renderers/PianoRollRenderer";
-import { WaveformRenderer } from "@/renderers/WaveformRenderer";
+import {
+  ParticlesRenderer,
+  PianoRollRenderer,
+  WaveformRenderer,
+} from "@/renderers";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -16,7 +18,7 @@ export const formatTime = (timeInSeconds: number): string => {
 
 export const getRendererFromName = (
   name: string,
-  context: CanvasRenderingContext2D,
+  context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 ) => {
   switch (name) {
     case "pianoRoll":

@@ -14,5 +14,6 @@ export interface MidiTrack {
 
 export interface MidiState {
   name: string;
+  duration: number;
   tracks: MidiTrack[];
 }

@@ -1,10 +1,12 @@
+export type SerializedAudio = AudioHandler["serialize"];
+
 export class AudioHandler {
   private audioSource: AudioBufferSourceNode | null = null;
   private startTime = 0;
   private pauseTime = 0;
   constructor(
     private readonly audioContext: AudioContext,
-    private readonly audioBuffer: AudioBuffer,
+    readonly audioBuffer: AudioBuffer,
     readonly audio: File,
   ) {}
 
@@ -49,5 +51,18 @@ export class AudioHandler {
 
   get getDuration(): number {
     return this.audioBuffer.duration;
+  }
+
+  get serialize() {
+    return {
+      length: this.audioBuffer.length,
+      sampleRate: this.audioBuffer.sampleRate,
+      numberOfChannels: this.audioBuffer.numberOfChannels,
+      duration: this.audioBuffer.duration,
+      channels: Array.from(
+        { length: this.audioBuffer.numberOfChannels },
+        (_, i) => this.audioBuffer.getChannelData(i),
+      ),
+    } as const;
   }
 }

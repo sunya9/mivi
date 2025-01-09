@@ -83,6 +83,7 @@ const useApp = () => {
       });
       const newMidiState: MidiState = {
         name: file.name,
+        duration: midi.duration,
         tracks,
       };
       dispatch({

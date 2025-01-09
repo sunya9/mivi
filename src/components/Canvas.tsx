@@ -7,7 +7,7 @@ interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   onRedraw: () => void;
 }
 
-const Canvas = ({ onRedraw, onInit, className, ...props }: Props) => {
+export const Canvas = ({ onRedraw, onInit, className, ...props }: Props) => {
   const dpr = window.devicePixelRatio;
   const ref = useRef<HTMLCanvasElement>(null);
   const { width = 0 } = useResizeDetector<HTMLCanvasElement>({
@@ -33,5 +33,3 @@ const Canvas = ({ onRedraw, onInit, className, ...props }: Props) => {
     />
   );
 };
-
-export default Canvas;

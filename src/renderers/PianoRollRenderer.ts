@@ -1,4 +1,4 @@
-import { Renderer } from "../types/renderer";
+import { Renderer } from "./Renderer";
 import { MidiTrack } from "../types/midi";
 import { PlaybackState } from "@/types/player";
 
