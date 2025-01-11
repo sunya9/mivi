@@ -1,7 +1,11 @@
+import { useReducer } from "react";
 import { MidiState, MidiTrack } from "../types/midi";
 
 type MidiAction =
-  | { type: "UPDATE_MIDI"; payload: { name: string; tracks: MidiTrack[] } }
+  | {
+      type: "UPDATE_MIDI";
+      payload: { name: string; tracks: MidiTrack[]; duration: number };
+    }
   | {
       type: "UPDATE_TRACK_SETTINGS";
       payload: {
@@ -20,6 +24,7 @@ export function midiReducer(
         ...state,
         name: action.payload.name,
         tracks: action.payload.tracks,
+        duration: action.payload.duration,
       };
     case "UPDATE_TRACK_SETTINGS":
       if (!state) return state;
@@ -38,3 +43,15 @@ export function midiReducer(
       return state;
   }
 }
+
+export const useMidiReducer = (midi?: MidiState) => {
+  const [midiState, dispatch] = useReducer(midiReducer, midi);
+  const updateMidi = (midi: MidiState) =>
+    dispatch({ type: "UPDATE_MIDI", payload: midi });
+  const updateTrackSettings = (
+    trackId: string,
+    settings: Partial<MidiTrack["settings"]>,
+  ) =>
+    dispatch({ type: "UPDATE_TRACK_SETTINGS", payload: { trackId, settings } });
+  return { midiState, updateMidi, updateTrackSettings };
+};

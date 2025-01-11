@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useReducer, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { LeftPane } from "./components/LeftPane";
 import { RightPane } from "./components/RightPane";
 import {
@@ -6,7 +6,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { midiReducer } from "@/reducers/midiReducer";
+import { useMidiReducer } from "@/reducers/midiReducer";
 import { AudioHandler } from "@/lib/AudioHandler";
 import { FileStorage, initializeDB } from "@/lib/FileStorage";
 import { use } from "react";
@@ -48,7 +48,7 @@ export const App = () => {
 
 const useApp = () => {
   const [fileStorage, { midi, initialAudioHandler }] = use(loadDb);
-  const [midiState, dispatch] = useReducer(midiReducer, midi);
+  const { midiState, updateMidi, updateTrackSettings } = useMidiReducer(midi);
   const [audioHandler, setAudioHandler] = useState(initialAudioHandler);
 
   const setAudio = useCallback(
@@ -86,25 +86,18 @@ const useApp = () => {
         duration: midi.duration,
         tracks,
       };
-      dispatch({
-        type: "UPDATE_MIDI",
-        payload: newMidiState,
-      });
-      await fileStorage.storeData({
-        midi: newMidiState,
-      });
+      updateMidi(newMidiState);
+      await fileStorage.storeData({ midi: newMidiState });
     },
-    [fileStorage],
+    [fileStorage, updateMidi],
   );
 
   const onTrackChange = useCallback(
-    (track: MidiTrack) => {
-      dispatch({
-        type: "UPDATE_TRACK_SETTINGS",
-        payload: { trackId: track.id, settings: track.settings },
-      });
+    async (track: MidiTrack) => {
+      updateTrackSettings(track.id, track.settings);
+      await fileStorage.storeData({ midi: midiState });
     },
-    [dispatch],
+    [fileStorage, midiState, updateTrackSettings],
   );
   return {
     midiState,
@@ -112,7 +105,6 @@ const useApp = () => {
     setAudio,
     onMidiSelect,
     fileStorage,
-    dispatch,
     onTrackChange,
   };
 };
