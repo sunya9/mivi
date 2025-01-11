@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback } from "react";
 import { LeftPane } from "./components/LeftPane";
 import { RightPane } from "./components/RightPane";
 import {
@@ -6,50 +6,49 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useMidiReducer } from "@/reducers/midiReducer";
+import { useAppStateReducer } from "@/reducers/appStateReducer";
 import { AudioHandler } from "@/lib/AudioHandler";
-import { FileStorage, initializeDB } from "@/lib/FileStorage";
 import { use } from "react";
 import { Midi } from "@tonejs/midi";
 import { MidiState, MidiTrack } from "@/types/midi";
 import { getRandomTailwindColor } from "@/lib/tailwindColors";
-
-const loadDb = initializeDB().then(async ([db, storeName]) => {
-  const fileStorage = new FileStorage(db, storeName);
-  const data = await fileStorage.loadData();
-  const initialAudioHandler = data.audio
-    ? await loadAudio(data.audio)
-    : undefined;
-  return [
-    fileStorage,
-    {
-      midi: data.midi,
-      audio: data.audio,
-      initialAudioHandler,
-    },
-  ] as const;
-});
-
-const loadAudio = async (audio: File) => {
-  const arrayBuffer = await audio.arrayBuffer();
-  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-  return new AudioHandler(audioContext, audioBuffer, audio);
-};
+import { RendererConfig } from "@/types/renderer";
+import { DeepPartial } from "@/types/util";
+import merge from "lodash.merge";
+import { ErrorBoundary } from "react-error-boundary";
+import { Loading } from "@/components/Loading";
+import { loadDb, LoadDbResult } from "@/lib/FileStorage";
+import { Fallback } from "@/components/Fallback";
 
 const audioContext = new AudioContext();
-
+const loadDbPromise = loadDb(audioContext);
 export const App = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <AppInternal />
-    </Suspense>
+    <ErrorBoundary fallbackRender={Fallback}>
+      <Suspense fallback={<Loading />}>
+        <AppInternal loadDb={loadDbPromise} />
+      </Suspense>
+    </ErrorBoundary>
   );
 };
 
-const useApp = () => {
-  const [fileStorage, { midi, initialAudioHandler }] = use(loadDb);
-  const { midiState, updateMidi, updateTrackSettings } = useMidiReducer(midi);
-  const [audioHandler, setAudioHandler] = useState(initialAudioHandler);
+const useApp = (loadDb: Promise<LoadDbResult>) => {
+  const [fileStorage, { midi, initialAudioHandler, initialRendererConfig }] =
+    use(loadDb);
+  const {
+    appState: { audioHandler, midiState, rendererConfig },
+    updateMidi,
+    updateTrackConfig,
+    setAudioHandler,
+    updateRendererConfig,
+    randomizeColorsColorful,
+    randomizeColorsGradient,
+  } = useAppStateReducer(
+    fileStorage,
+    initialRendererConfig,
+    initialAudioHandler,
+    midi,
+  );
 
   const setAudio = useCallback(
     async (file: File) => {
@@ -62,7 +61,7 @@ const useApp = () => {
         console.error("Failed to set audio", error);
       }
     },
-    [fileStorage],
+    [fileStorage, setAudioHandler],
   );
 
   const onMidiSelect = useCallback(
@@ -74,7 +73,7 @@ const useApp = () => {
         return {
           id: crypto.randomUUID(),
           notes: track.notes.map((note) => note.toJSON()),
-          settings: {
+          config: {
             name: track.name || `Track ${index + 1}`,
             color,
             visible: true,
@@ -94,24 +93,47 @@ const useApp = () => {
 
   const onTrackChange = useCallback(
     async (track: MidiTrack) => {
-      updateTrackSettings(track.id, track.settings);
+      const midiState = updateTrackConfig(track.id, track.config);
       await fileStorage.storeData({ midi: midiState });
     },
-    [fileStorage, midiState, updateTrackSettings],
+    [fileStorage, updateTrackConfig],
+  );
+  const onRendererConfigChange = useCallback(
+    async (deepPartialRendererConfig: DeepPartial<RendererConfig>) => {
+      const mergedRendererConfig = merge(
+        rendererConfig,
+        deepPartialRendererConfig,
+      );
+      updateRendererConfig({ ...mergedRendererConfig });
+      await fileStorage.storeData({ rendererConfig: mergedRendererConfig });
+    },
+    [fileStorage, rendererConfig, updateRendererConfig],
   );
   return {
     midiState,
     audioHandler,
     setAudio,
     onMidiSelect,
-    fileStorage,
     onTrackChange,
+    rendererConfig,
+    onRendererConfigChange,
+    randomizeColorsColorful,
+    randomizeColorsGradient,
   };
 };
 
-const AppInternal = () => {
-  const { midiState, audioHandler, setAudio, onMidiSelect, onTrackChange } =
-    useApp();
+const AppInternal = ({ loadDb }: { loadDb: Promise<LoadDbResult> }) => {
+  const {
+    midiState,
+    audioHandler,
+    setAudio,
+    onMidiSelect,
+    onTrackChange,
+    rendererConfig,
+    onRendererConfigChange,
+    randomizeColorsColorful,
+    randomizeColorsGradient,
+  } = useApp(loadDb);
 
   return (
     <div className="container relative before:absolute before:inset-y-0 before:-left-[calc((100dvw-100%)/2)] before:right-full before:z-[-1] before:bg-gray-50 before:content-['']">
@@ -120,22 +142,27 @@ const AppInternal = () => {
         className="flex h-screen"
         autoSaveId="midi-visualizer"
       >
-        <ResizablePanel>
+        <ResizablePanel defaultSize={40} className="bg-gray-50">
           <LeftPane
             onMidiSelect={onMidiSelect}
             setAudioFile={setAudio}
             midiState={midiState}
             audio={audioHandler?.audio}
             onTrackChange={onTrackChange}
+            onRandomizeColorsColorful={randomizeColorsColorful}
+            onRandomizeColorsGradient={randomizeColorsGradient}
           />
         </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel>
-          <RightPane midiState={midiState} audioHandler={audioHandler} />
+        <ResizableHandle className="transition-all hover:bg-primary/50 hover:shadow-lg hover:ring-2 hover:ring-primary/50" />
+        <ResizablePanel defaultSize={60}>
+          <RightPane
+            midiState={midiState}
+            audioHandler={audioHandler}
+            rendererConfig={rendererConfig}
+            onRendererConfigChange={onRendererConfigChange}
+          />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
   );
 };
-
-export default App;

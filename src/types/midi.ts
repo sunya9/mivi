@@ -1,6 +1,6 @@
 import { NoteJSON } from "@tonejs/midi/dist/Note";
 
-export interface TrackSettings {
+export interface TrackConfig {
   name: string;
   color: string;
   visible: boolean;
@@ -9,7 +9,7 @@ export interface TrackSettings {
 export interface MidiTrack {
   id: string;
   notes: NoteJSON[];
-  settings: TrackSettings;
+  config: TrackConfig;
 }
 
 export interface MidiState {

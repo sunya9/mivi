@@ -1,24 +1,35 @@
 import { Renderer } from "./Renderer";
 import { MidiTrack } from "../types/midi";
 import { PlaybackState } from "@/types/player";
+import { RendererConfig, RendererContext } from "../types/renderer";
 
 export class PianoRollRenderer extends Renderer {
-  private readonly timeWindow = 5;
-
   private readonly overflowFactor = 0.5;
 
-  private readonly rippleRadius = 100;
+  private readonly rippleRadius = 50;
+
+  // 波紋アニメーションの最小時間（秒）
+  private readonly minRippleDuration = 0.3;
+
+  private lastCurrentTime: number = 0;
 
   private rippleStates = new Map<
     string,
     {
-      startTime: number;
-      isPlaying: boolean;
+      noteStart: number;
+      noteEnd: number;
       x: number;
       y: number;
       color: string;
     }
   >();
+
+  constructor(
+    ctx: RendererContext,
+    readonly config: RendererConfig,
+  ) {
+    super(ctx, config);
+  }
 
   private noteToY(midi: number) {
     const {
@@ -27,47 +38,70 @@ export class PianoRollRenderer extends Renderer {
     return height * ((127 - midi) / 127);
   }
   render(tracks: MidiTrack[], playbackState: PlaybackState) {
-    this.clear();
-    this.ctx.fillStyle = "rgba(200, 200, 200, 0.1)";
-    this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    const currentTime = playbackState.currentTime;
+
+    if (currentTime < this.lastCurrentTime) {
+      this.rippleStates.clear();
+    }
+    this.lastCurrentTime = currentTime;
+
+    this.renderCommonVisual();
     const {
       canvas: { width, height },
     } = this.ctx;
 
-    const currentTime = playbackState.currentTime;
+    const playheadPosition = this.config.pianoRollConfig.playheadPosition / 100;
+    const playheadX = width * playheadPosition;
 
-    const startTime = currentTime - this.timeWindow * 0.2;
-    const endTime = startTime + this.timeWindow * (1 + this.overflowFactor);
+    // プレイヘッドの位置に基づいてstartTimeを計算
+    const startTime =
+      currentTime - this.config.pianoRollConfig.timeWindow * playheadPosition;
+    const endTime = startTime + this.config.pianoRollConfig.timeWindow;
 
     const timeToX = (time: number) => {
-      return width * ((time - startTime) / this.timeWindow);
+      return (
+        width * ((time - startTime) / this.config.pianoRollConfig.timeWindow)
+      );
     };
 
-    this.drawGrid(startTime, endTime, width, height);
-
-    const playheadX = width * 0.2;
-
     tracks.forEach((track) => {
-      if (!track.settings.visible) return;
+      if (!track.config.visible) return;
 
       track.notes.forEach((note) => {
         const noteStart = note.time;
         const noteEnd = note.time + note.duration;
 
         if (
-          noteEnd < startTime - this.timeWindow * this.overflowFactor ||
-          noteStart > endTime + this.timeWindow * this.overflowFactor
+          noteEnd <
+            startTime -
+              this.config.pianoRollConfig.timeWindow * this.overflowFactor ||
+          noteStart >
+            endTime +
+              this.config.pianoRollConfig.timeWindow * this.overflowFactor
         )
           return;
 
         const x = timeToX(noteStart);
-        const noteWidth = timeToX(noteEnd) - x;
-        const y = this.noteToY(note.midi);
-        const noteHeight = Math.max(height / 127, 4);
+        const rawNoteWidth = timeToX(noteEnd) - x;
+        const noteHeight = Math.max(
+          height / 127,
+          this.config.pianoRollConfig.noteHeight,
+        );
 
-        this.ctx.fillStyle = track.settings.color;
+        const noteMargin = this.config.pianoRollConfig.noteMargin;
+        const noteWidth = Math.max(0, rawNoteWidth - noteMargin * 2);
+
+        const y = this.noteToY(note.midi);
+
+        this.ctx.fillStyle = track.config.color;
         this.ctx.beginPath();
-        this.ctx.roundRect(x, y, noteWidth, noteHeight);
+        this.ctx.roundRect(
+          x + noteMargin,
+          y,
+          noteWidth,
+          noteHeight,
+          this.config.pianoRollConfig.noteCornerRadius,
+        );
         this.ctx.fill();
 
         const velocityAlpha = note.velocity / 127;
@@ -77,18 +111,21 @@ export class PianoRollRenderer extends Renderer {
         const noteKey = `${track.id}-${note.time}-${note.midi}`;
         const isTouchingPlayhead =
           Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
-        const rippleState = this.rippleStates.get(noteKey);
+        const wasNotTouchingPlayhead = true;
 
-        if (isTouchingPlayhead) {
-          if (!rippleState) {
-            this.rippleStates.set(noteKey, {
-              startTime: currentTime,
-              isPlaying: true,
-              x: playheadX,
-              y: y + noteHeight / 2,
-              color: track.settings.color,
-            });
-          }
+        if (
+          this.config.pianoRollConfig.showRippleEffect &&
+          isTouchingPlayhead &&
+          wasNotTouchingPlayhead &&
+          !this.rippleStates.has(noteKey)
+        ) {
+          this.rippleStates.set(noteKey, {
+            noteStart: noteStart,
+            noteEnd: noteEnd,
+            x: playheadX,
+            y: y + noteHeight / 2,
+            color: track.config.color,
+          });
         }
       });
 
@@ -98,52 +135,41 @@ export class PianoRollRenderer extends Renderer {
     });
 
     this.rippleStates.forEach((state, noteKey) => {
-      const elapsedTime = currentTime - state.startTime;
-      const progress = Math.min(elapsedTime, 2.0);
+      const noteDuration = state.noteEnd - state.noteStart;
+      const normalizedProgress = Math.min(
+        1,
+        (currentTime - state.noteStart) / (state.noteEnd - state.noteStart),
+      );
 
-      this.drawRippleEffect(state.x, state.y, state.color, progress);
+      // 短いノートの場合は最大半径を制限
+      const radiusProgress =
+        noteDuration < this.minRippleDuration
+          ? Math.min(normalizedProgress, noteDuration / this.minRippleDuration)
+          : normalizedProgress;
 
-      if (progress >= 1.0 && !state.isPlaying) {
+      this.drawRippleEffect(
+        state.x,
+        state.y,
+        state.color,
+        radiusProgress,
+        normalizedProgress,
+      );
+
+      if (currentTime >= state.noteEnd) {
         this.rippleStates.delete(noteKey);
       }
     });
 
     this.ctx.beginPath();
-    this.ctx.strokeStyle = "#ff4081";
-    this.ctx.lineWidth = 2;
-    this.ctx.moveTo(playheadX, 0);
-    this.ctx.lineTo(playheadX, height);
-    this.ctx.stroke();
-  }
-
-  private drawGrid(
-    startTime: number,
-    endTime: number,
-    width: number,
-    height: number,
-  ) {
-    this.ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
-    this.ctx.lineWidth = 1;
-
-    const beatInterval = 0.5;
-    for (
-      let time = Math.ceil(startTime / beatInterval) * beatInterval;
-      time <= endTime;
-      time += beatInterval
-    ) {
-      const x = width * ((time - startTime) / this.timeWindow);
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, height);
+    if (this.config.pianoRollConfig.showPlayhead) {
+      this.ctx.save();
+      this.ctx.strokeStyle = this.config.pianoRollConfig.playheadColor;
+      this.ctx.globalAlpha = this.config.pianoRollConfig.playheadOpacity;
+      this.ctx.lineWidth = this.config.pianoRollConfig.playheadWidth;
+      this.ctx.moveTo(playheadX, 0);
+      this.ctx.lineTo(playheadX, height);
       this.ctx.stroke();
-    }
-
-    for (let midi = 0; midi <= 127; midi += 12) {
-      const y = this.noteToY(midi);
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(width, y);
-      this.ctx.stroke();
+      this.ctx.restore();
     }
   }
 
@@ -151,35 +177,23 @@ export class PianoRollRenderer extends Renderer {
     x: number,
     y: number,
     color: string,
-    elapsedTime: number,
+    radiusProgress: number,
+    fadeProgress: number,
   ) {
     const maxRipples = 1;
-    const rippleDuration = 0.5;
-    const fadeOutStart = 0.3;
 
     for (let i = 0; i < maxRipples; i++) {
-      const rippleProgress = Math.min(
-        1,
-        (elapsedTime + i * 0.3) / rippleDuration,
-      );
-      const radius = this.rippleRadius * (rippleProgress * 0.7);
+      const radius = Math.max(0, this.rippleRadius * radiusProgress);
+      const alpha = 0.4 * (1 - fadeProgress);
 
-      let fadeOutProgress = 0;
-      if (elapsedTime > fadeOutStart) {
-        fadeOutProgress = Math.min(
-          1,
-          (elapsedTime - fadeOutStart) / (rippleDuration - fadeOutStart),
-        );
-      }
-      const alpha = 0.7 * (1 - fadeOutProgress);
-
-      if (alpha <= 0) continue;
+      if (alpha <= 0) return;
 
       this.ctx.save();
       this.ctx.beginPath();
       this.ctx.arc(x, y, radius, 0, Math.PI * 2);
       this.ctx.fillStyle = color;
       this.ctx.strokeStyle = color;
+      this.ctx.lineWidth = 2;
       this.ctx.globalAlpha = alpha;
       this.ctx.stroke();
       this.ctx.fill();

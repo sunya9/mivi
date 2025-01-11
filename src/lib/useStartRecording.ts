@@ -11,22 +11,20 @@ import {
   ReadyState,
   RecordingState,
 } from "@/lib/RecordingStatus";
+import { RendererConfig } from "@/types/renderer";
 
 type TypedRendererWorker = typeof import("./recorder.worker");
 
-export const useStartRecording = () => {
+export const useStartRecording = (
+  midiState?: MidiState,
+  audioHandler?: AudioHandler,
+) => {
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
     new ReadyState(),
   );
   const workerRef = useRef<TypedRendererWorker>(null);
   const startRecording = useCallback(
-    async (
-      width: number,
-      height: number,
-      renderer: string,
-      midiState?: MidiState,
-      audioHandler?: AudioHandler,
-    ) => {
+    async (width: number, height: number, rendererConfig: RendererConfig) => {
       if (!midiState || !audioHandler)
         throw new Error("Midi state and audio buffer are required");
       const worker = new ComlinkWorker<TypedRendererWorker>(
@@ -55,10 +53,10 @@ export const useStartRecording = () => {
       return worker
         .startRecording(
           transfer(offscreen, [offscreen]),
-          renderer,
+          rendererConfig,
           midiState,
           audioHandler.serialize,
-          30,
+          rendererConfig.fps,
           onProgress,
           onError,
         )
@@ -79,13 +77,34 @@ export const useStartRecording = () => {
           workerRef.current = null;
         });
     },
-    [],
+    [audioHandler, midiState],
   );
   const stopRecording = useCallback(() => {
     workerRef.current = null;
     setRecordingState(new ReadyState());
   }, []);
-  return { recordingState, startRecording, stopRecording };
+  const toggleRecording = useCallback(
+    (rendererConfig: RendererConfig) => {
+      if (!audioHandler || !midiState) return;
+      if (!recordingState.isRecording) {
+        startRecording(
+          rendererConfig.resolution.width,
+          rendererConfig.resolution.height,
+          rendererConfig,
+        );
+      } else {
+        stopRecording();
+      }
+    },
+    [
+      audioHandler,
+      midiState,
+      recordingState.isRecording,
+      startRecording,
+      stopRecording,
+    ],
+  );
+  return { recordingState, toggleRecording };
 };
 
 function formatStatus(status: "render" | "encode" | "complete") {

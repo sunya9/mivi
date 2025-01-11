@@ -1,9 +1,13 @@
+import { AudioHandler } from "@/lib/AudioHandler";
 import { MidiState } from "@/types/midi";
+import { getDefaultRendererConfig, RendererConfig } from "@/types/renderer";
+import { PartialBy } from "@/types/util";
+import defaultsDeep from "lodash.defaultsdeep";
 
 const DB_NAME = "midiVisualizer";
 const STORE_NAME = "files";
 
-export async function initializeDB(): Promise<[IDBDatabase, string]> {
+async function initializeDB(): Promise<[IDBDatabase, string]> {
   const db = await new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
 
@@ -24,21 +28,96 @@ export async function initializeDB(): Promise<[IDBDatabase, string]> {
   return [db, STORE_NAME] as const;
 }
 
-export interface StoredData {
+async function loadAudio(audioContext: AudioContext, audio: File) {
+  const arrayBuffer = await audio.arrayBuffer();
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+  return new AudioHandler(audioContext, audioBuffer, audio);
+}
+
+export type LoadDbResult = readonly [
+  FileStorage,
+  {
+    readonly midi: MidiState | undefined;
+    readonly audio: File | undefined;
+    readonly initialRendererConfig: RendererConfig;
+    readonly initialAudioHandler: AudioHandler | undefined;
+  },
+];
+export async function loadDb(
+  audioContext: AudioContext,
+): Promise<LoadDbResult> {
+  const [db, storeName] = await initializeDB();
+  const fileStorage = new FileStorage(db, storeName);
+  const data = await fileStorage.loadData();
+  const initialAudioHandler = data.audio
+    ? await loadAudio(audioContext, data.audio)
+    : undefined;
+  return [
+    fileStorage,
+    {
+      midi: data.midi,
+      audio: data.audio,
+      initialRendererConfig: data.rendererConfig,
+      initialAudioHandler,
+    },
+  ] as const;
+}
+
+export async function resetDb() {
+  const [db, storeName] = await initializeDB();
+  await new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction(storeName, "readwrite");
+    transaction.addEventListener(
+      "complete",
+      () => {
+        console.log("resetDb: complete");
+        resolve();
+      },
+      { once: true },
+    );
+    transaction.addEventListener("error", () => {
+      console.error("resetDb: error");
+      reject(new Error("resetDb: error"));
+    });
+    transaction.addEventListener("abort", () => {
+      console.error("resetDb: abort");
+      reject(new Error("resetDb: abort"));
+    });
+    const objectStore = transaction.objectStore(storeName);
+    const objectStoreRequest = objectStore.clear();
+    objectStoreRequest.addEventListener(
+      "success",
+      () => {
+        console.log(`resetDb: clear ${storeName}`);
+      },
+      { once: true },
+    );
+    objectStoreRequest.addEventListener("error", () => {
+      console.error("resetDb: clear error");
+      reject(new Error("resetDb: clear error"));
+    });
+  });
+  db.close();
+}
+
+export interface LoadDataResponse {
   midi?: MidiState;
   audio?: File;
+  rendererConfig: RendererConfig;
 }
+
+type StoredDataRequest = PartialBy<LoadDataResponse, "rendererConfig">;
 
 export class FileStorage {
   private static readonly midiKey = "lastMidi";
   private static readonly audioKey = "lastAudio";
-
+  private static readonly rendererConfigKey = "rendererConfig";
   constructor(
     private readonly db: IDBDatabase,
     private readonly storeName: string,
   ) {}
 
-  async storeData(data: StoredData): Promise<void> {
+  async storeData(data: StoredDataRequest): Promise<void> {
     const audioFile = data.audio
       ? new File([data.audio], data.audio.name, {
           type: data.audio.type,
@@ -51,6 +130,8 @@ export class FileStorage {
 
       if (data.midi) store.put(data.midi, FileStorage.midiKey);
       if (audioFile) store.put(audioFile, FileStorage.audioKey);
+      if (data.rendererConfig)
+        store.put(data.rendererConfig, FileStorage.rendererConfigKey);
 
       transaction.onerror = () => {
         console.error("Failed to store data", transaction.error);
@@ -61,13 +142,14 @@ export class FileStorage {
     });
   }
 
-  async loadData(): Promise<StoredData> {
+  async loadData(): Promise<LoadDataResponse> {
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction(this.storeName, "readonly");
       const store = transaction.objectStore(this.storeName);
 
       const midiRequest = store.get(FileStorage.midiKey);
       const audioRequest = store.get(FileStorage.audioKey);
+      const rendererConfigRequest = store.get(FileStorage.rendererConfigKey);
 
       const midiRequetPromise = new Promise<MidiState | undefined>(
         (resolve) => {
@@ -83,6 +165,29 @@ export class FileStorage {
           });
         },
       );
+      const rendererConfigPromise = new Promise<RendererConfig>((resolve) => {
+        rendererConfigRequest.addEventListener(
+          "success",
+          () => {
+            resolve(
+              defaultsDeep(
+                rendererConfigRequest.result,
+                getDefaultRendererConfig(),
+              ),
+            );
+          },
+          {
+            once: true,
+          },
+        );
+        rendererConfigRequest.addEventListener(
+          "error",
+          () => resolve(getDefaultRendererConfig()),
+          {
+            once: true,
+          },
+        );
+      });
       const audioRequestPromise = new Promise<File | undefined>((resolve) => {
         audioRequest.addEventListener(
           "success",
@@ -98,11 +203,13 @@ export class FileStorage {
       const resultPromise = Promise.all([
         midiRequetPromise,
         audioRequestPromise,
-      ]).then(async ([midi, audio]) => {
+        rendererConfigPromise,
+      ]).then(async ([midi, audio, rendererConfig]) => {
         return {
           midi,
           audio,
-        } satisfies StoredData;
+          rendererConfig,
+        } satisfies LoadDataResponse;
       });
 
       transaction.onerror = () => reject(transaction.error);

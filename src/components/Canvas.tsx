@@ -3,11 +3,18 @@ import { CanvasHTMLAttributes, useEffect, useRef } from "react";
 import { useResizeDetector } from "react-resize-detector";
 
 interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
+  aspectRatio: number;
   onInit: (ctx: CanvasRenderingContext2D) => void;
   onRedraw: () => void;
 }
 
-export const Canvas = ({ onRedraw, onInit, className, ...props }: Props) => {
+export const Canvas = ({
+  onRedraw,
+  onInit,
+  className,
+  aspectRatio,
+  ...props
+}: Props) => {
   const dpr = window.devicePixelRatio;
   const ref = useRef<HTMLCanvasElement>(null);
   const { width = 0 } = useResizeDetector<HTMLCanvasElement>({
@@ -15,7 +22,7 @@ export const Canvas = ({ onRedraw, onInit, className, ...props }: Props) => {
     targetRef: ref,
   });
   const calculatedWidth = width * dpr;
-  const calculatedHight = (calculatedWidth * 9) / 16;
+  const calculatedHight = calculatedWidth * aspectRatio;
 
   useEffect(() => {
     if (!ref.current) return;

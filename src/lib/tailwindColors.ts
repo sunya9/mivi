@@ -18,7 +18,7 @@ import {
   rose,
 } from "tailwindcss/colors";
 
-const tailwindColors = [
+const colorsPerPalette = [
   red,
   orange,
   amber,
@@ -36,10 +36,19 @@ const tailwindColors = [
   fuchsia,
   pink,
   rose,
-]
-  .map((map) => Object.values(map))
-  .flat();
+] as const;
+
+const tailwindColors = colorsPerPalette.map((map) => Object.values(map)).flat();
 
 export const getRandomTailwindColor = () => {
   return tailwindColors[Math.floor(Math.random() * tailwindColors.length)];
+};
+
+export const getRandomTailwindColorPalette = () => {
+  const palette =
+    colorsPerPalette[Math.floor(Math.random() * colorsPerPalette.length)];
+  return () =>
+    Object.values(palette)[
+      Math.floor(Math.random() * Object.keys(palette).length)
+    ];
 };

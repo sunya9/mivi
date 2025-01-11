@@ -1,6 +1,7 @@
 import { Renderer } from "./Renderer";
 import { MidiTrack } from "../types/midi";
 import { PlaybackState } from "../types/player";
+import { RendererConfig, RendererContext } from "../types/renderer";
 
 interface Particle {
   x: number;
@@ -15,6 +16,13 @@ interface Particle {
 
 export class ParticlesRenderer extends Renderer {
   private particles: Particle[] = [];
+
+  constructor(
+    ctx: RendererContext,
+    readonly config: RendererConfig,
+  ) {
+    super(ctx, config);
+  }
 
   private createParticle(note: number, velocity: number): Particle {
     const {
@@ -35,7 +43,7 @@ export class ParticlesRenderer extends Renderer {
   }
 
   render(tracks: MidiTrack[], playbackState: PlaybackState) {
-    this.clear();
+    this.renderCommonVisual();
 
     tracks.forEach((track) => {
       const currentNotes = track.notes.filter((note) => {

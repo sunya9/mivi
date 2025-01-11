@@ -1,31 +1,31 @@
-import { MidiTrack, TrackSettings } from "../types/midi";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MidiTrack, TrackConfig } from "../types/midi";
 
 interface Props {
   track: MidiTrack;
-  onSettingsChange: (settings: Partial<TrackSettings>) => void;
+  onConfigChange: (config: Partial<TrackConfig>) => void;
 }
 
-export function TrackItem({ track, onSettingsChange }: Props) {
+export function TrackItem({ track, onConfigChange }: Props) {
   return (
-    <div className="rounded bg-white p-3 shadow-sm">
+    <div className="p-3">
       <div className="flex items-center justify-between">
         <label className="flex flex-1 items-center gap-2">
-          <input
-            type="checkbox"
-            checked={track.settings.visible}
-            onChange={(e) => {
-              onSettingsChange({ visible: e.target.checked });
+          <Checkbox
+            checked={track.config.visible}
+            onCheckedChange={(checked) => {
+              onConfigChange({ visible: checked === true });
             }}
           />
-          <div>{track.settings.name}</div>
+          <div>{track.config.name}</div>
         </label>
         <div className="flex items-center gap-2 text-sm text-gray-500">
           Note count: {track.notes.length}
           <input
             type="color"
-            value={track.settings.color}
+            value={track.config.color}
             onChange={(e) => {
-              onSettingsChange({ color: e.target.value });
+              onConfigChange({ color: e.target.value });
             }}
             className="ml-auto"
           />

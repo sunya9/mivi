@@ -1,4 +1,4 @@
-import { formatTime } from "@/lib/utils";
+import { formatTime, getRendererFromConfig } from "@/lib/utils";
 import { AudioHandler } from "@/lib/AudioHandler";
 import { Canvas } from "@/components/Canvas";
 import { Button } from "@/components/ui/button";
@@ -7,24 +7,23 @@ import { Slider } from "@/components/ui/slider";
 import { useEffect, useMemo, useState } from "react";
 import { MidiState } from "@/types/midi";
 import { useMidiVisualizer } from "@/lib/useMidiVisualizer";
-import { RendererCreator } from "@/renderers/Renderer";
+import { RendererConfig } from "@/types/renderer";
 
 interface Props {
   audioHandler?: AudioHandler;
   midiState?: MidiState;
-  rendererCreator: RendererCreator;
+  rendererConfig: RendererConfig;
 }
 
 export const MidiVisualizer = ({
   audioHandler,
   midiState,
-  rendererCreator,
+  rendererConfig,
 }: Props) => {
   const [context, setContext] = useState<CanvasRenderingContext2D>();
-  const renderer = useMemo(
-    () => (context ? rendererCreator(context) : undefined),
-    [context, rendererCreator],
-  );
+  const renderer = useMemo(() => {
+    return context ? getRendererFromConfig(context, rendererConfig) : undefined;
+  }, [context, rendererConfig]);
 
   const {
     isPlaying,
@@ -41,7 +40,13 @@ export const MidiVisualizer = ({
 
   return (
     <div className="relative h-full w-full">
-      <Canvas onRedraw={render} onInit={setContext} />
+      <Canvas
+        aspectRatio={
+          rendererConfig.resolution.height / rendererConfig.resolution.width
+        }
+        onRedraw={render}
+        onInit={setContext}
+      />
       <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2">
         <div className="flex items-center gap-2">
           <Button

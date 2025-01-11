@@ -1,9 +1,10 @@
 import { SerializedAudio } from "@/lib/AudioHandler";
-import { getRendererFromName } from "@/lib/utils";
 import { MidiState } from "@/types/midi";
 import { Estimation, Measurements } from "arrival-time";
 import { Muxer, ArrayBufferTarget } from "webm-muxer";
 import { throttle } from "throttle-debounce";
+import { RendererConfig } from "@/types/renderer";
+import { getRendererFromConfig } from "@/lib/utils";
 export type MediaCompositorStatus = "render" | "encode" | "complete";
 export type OnProgress = (
   progress: number, // 0 ~ 1
@@ -28,7 +29,7 @@ export class MediaCompositor {
   });
   constructor(
     private readonly canvas: OffscreenCanvas,
-    private readonly rendererName: string,
+    private readonly rendererConfig: RendererConfig,
     private readonly midiState: MidiState,
     private readonly serializedAudio: SerializedAudio,
     private readonly fps: number,
@@ -163,7 +164,7 @@ export class MediaCompositor {
     const ctx = this.canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get context");
 
-    const renderer = getRendererFromName(this.rendererName, ctx);
+    const renderer = getRendererFromConfig(ctx, this.rendererConfig);
     const totalVideoFrames = this.totalVideoFrames;
 
     for (let i = 0; i < totalVideoFrames; i++) {

@@ -33,7 +33,11 @@ export const useMidiVisualizer = (
       if (!renderer || !audioHandler || !midiState) return;
 
       lastFrameTimeRef.current = timestamp;
-
+      if (currentTime > audioHandler.getDuration) {
+        audioHandler.pause();
+        setIsPlayingInternal(false);
+        return;
+      }
       setCurrentTimeInternal(audioHandler.getCurrentTime);
       renderer.render(midiState.tracks, {
         currentTime,

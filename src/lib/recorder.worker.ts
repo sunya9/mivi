@@ -1,10 +1,11 @@
 import { MidiState } from "@/types/midi";
 import { SerializedAudio } from "@/lib/AudioHandler";
 import { MediaCompositor, OnProgress } from "@/lib/MediaCompositor";
+import { RendererConfig } from "@/types/renderer";
 
 export async function startRecording(
   canvas: OffscreenCanvas,
-  rendererName: string,
+  rendererConfig: RendererConfig,
   midiState: MidiState,
   serializedAudio: SerializedAudio,
   fps: number,
@@ -13,7 +14,7 @@ export async function startRecording(
 ) {
   using mediaCompositor = new MediaCompositor(
     canvas,
-    rendererName,
+    rendererConfig,
     midiState,
     serializedAudio,
     fps,

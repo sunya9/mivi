@@ -1,10 +1,18 @@
 import { Renderer } from "./Renderer";
 import { MidiTrack } from "../types/midi";
 import { PlaybackState } from "../types/player";
+import { RendererConfig, RendererContext } from "../types/renderer";
 
 export class WaveformRenderer extends Renderer {
+  constructor(
+    ctx: RendererContext,
+    readonly config: RendererConfig,
+  ) {
+    super(ctx, config);
+  }
+
   render(tracks: MidiTrack[], playbackState: PlaybackState) {
-    this.clear();
+    this.renderCommonVisual();
     const {
       canvas: { width, height },
     } = this.ctx;

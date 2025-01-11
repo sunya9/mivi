@@ -5,6 +5,8 @@ import {
 } from "@/renderers";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { RendererConfig, RendererContext } from "@/types/renderer";
+import { Renderer } from "@/renderers/Renderer";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,18 +18,18 @@ export const formatTime = (timeInSeconds: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
-export const getRendererFromName = (
-  name: string,
-  context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-) => {
-  switch (name) {
+export function getRendererFromConfig(
+  ctx: RendererContext,
+  config: RendererConfig,
+): Renderer {
+  switch (config.type) {
     case "pianoRoll":
-      return new PianoRollRenderer(context);
+      return new PianoRollRenderer(ctx, config);
     case "waveform":
-      return new WaveformRenderer(context);
+      return new WaveformRenderer(ctx, config);
     case "particles":
-      return new ParticlesRenderer(context);
+      return new ParticlesRenderer(ctx, config);
     default:
-      throw new Error("Invalid renderer name");
+      throw new Error(`Unknown renderer type: ${config}`);
   }
-};
+}

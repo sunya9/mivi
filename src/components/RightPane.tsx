@@ -1,81 +1,57 @@
 import { MidiVisualizer } from "./MidiVisualizer";
 import { AudioHandler } from "@/lib/AudioHandler";
 import { MidiState } from "@/types/midi";
-import { useCallback, useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useStartRecording } from "@/lib/useStartRecording";
-import { getRendererFromName } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { RendererCreator } from "@/renderers/Renderer";
 import { Loader2 } from "lucide-react";
 import humanizeDuration from "humanize-duration";
+import { RendererConfig } from "@/types/renderer";
+import { RendererConfigPane } from "@/components/RendererConfigPane";
+import { DeepPartial } from "@/types/util";
+
 interface Props {
   midiState?: MidiState;
   audioHandler?: AudioHandler;
+  rendererConfig: RendererConfig;
+  onRendererConfigChange: (config: DeepPartial<RendererConfig>) => void;
 }
 
-export const RightPane = ({ midiState, audioHandler }: Props) => {
-  const [rendererName, setRendererName] = useState<string>("pianoRoll");
-
-  const { startRecording, recordingState, stopRecording } = useStartRecording();
-  // audioHandler,
-  // midiState,
-  // rendererName,
-  const rendererCreator: RendererCreator = useCallback(
-    (ctx: CanvasRenderingContext2D) => getRendererFromName(rendererName, ctx),
-    [rendererName],
+export const RightPane = ({
+  midiState,
+  audioHandler,
+  rendererConfig,
+  onRendererConfigChange,
+}: Props) => {
+  const { recordingState, toggleRecording } = useStartRecording(
+    midiState,
+    audioHandler,
   );
+
   return (
     <div className="flex flex-1 flex-col p-4">
       <div className="mb-4 flex-1">
         <MidiVisualizer
-          rendererCreator={rendererCreator}
           audioHandler={audioHandler}
           midiState={midiState}
+          rendererConfig={rendererConfig}
         />
       </div>
-      <div className="p-4 shadow">
-        <h3 className="mb-4 text-lg font-bold">Visualizer Settings</h3>
+      <div className="py-4">
         <div className="space-y-4">
           <div>
-            <label className="block">
-              Visualization Style:
-              <Select onValueChange={setRendererName} value={rendererName}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a renderer" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pianoRoll">Piano Roll</SelectItem>
-                  <SelectItem value="waveform">Waveform</SelectItem>
-                  <SelectItem value="particles">Particles</SelectItem>
-                </SelectContent>
-              </Select>
-            </label>
+            <RendererConfigPane
+              config={rendererConfig}
+              onChange={onRendererConfigChange}
+            />
           </div>
 
           <div className="flex flex-col gap-2">
             <Button
               variant="default"
               disabled={recordingState.disabled}
-              onClick={() =>
-                !recordingState.isRecording
-                  ? startRecording(
-                      1280,
-                      720,
-                      rendererName,
-                      midiState,
-                      audioHandler,
-                    )
-                  : stopRecording()
-              }
+              onClick={() => toggleRecording(rendererConfig)}
             >
               {recordingState.isRecording ? (
                 <>
