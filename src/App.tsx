@@ -105,9 +105,9 @@ const useApp = (loadDb: Promise<LoadDbResult>) => {
   );
 
   const onTrackChange = useCallback(
-    async (track: MidiTrack) => {
-      const midiState = updateTrackConfig(track.id, track.config);
-      await fileStorage.storeData({ midi: midiState });
+    async (track: MidiTrack, midiState?: MidiState) => {
+      const newMidiState = updateTrackConfig(track.id, track.config, midiState);
+      await fileStorage.storeData({ midi: newMidiState });
     },
     [fileStorage, updateTrackConfig],
   );
@@ -165,7 +165,7 @@ const AppInternal = ({ loadDb }: { loadDb: Promise<LoadDbResult> }) => {
             setAudioFile={setAudio}
             midiState={midiState}
             audio={audioHandler?.audio}
-            onTrackChange={onTrackChange}
+            onTrackChange={(track) => onTrackChange(track, midiState)}
             onRandomizeColorsColorful={randomizeColorsColorful}
             onRandomizeColorsGradient={randomizeColorsGradient}
           />

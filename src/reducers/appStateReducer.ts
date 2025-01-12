@@ -73,7 +73,12 @@ export const useAppStateReducer = (
   const updateMidi = (midi: MidiState) =>
     dispatch({ type: "UPDATE_MIDI", payload: midi });
   const updateTrackConfig = useCallback(
-    (trackId: string, config: Partial<MidiTrack["config"]>) => {
+    (
+      trackId: string,
+      config: Partial<MidiTrack["config"]>,
+      midiState?: MidiState,
+    ) => {
+      if (!midiState) return;
       const newMidiState = produce(midiState, (draft) => {
         const track = draft?.tracks.find((t) => t.id === trackId);
         if (track) {
@@ -83,7 +88,7 @@ export const useAppStateReducer = (
       dispatch({ type: "UPDATE_MIDI", payload: newMidiState });
       return newMidiState;
     },
-    [midiState],
+    [],
   );
   const setAudioHandler = (audioHandler: AudioHandler) =>
     dispatch({ type: "SET_AUDIO_HANDLER", payload: audioHandler });
