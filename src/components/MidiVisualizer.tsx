@@ -60,8 +60,27 @@ export const MidiVisualizer = ({
     return () => clearTimeout(timer);
   }, [isPlaying]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.code === "Space" &&
+        !e.repeat &&
+        document.activeElement === document.body
+      ) {
+        e.preventDefault();
+        setIsPlaying(!isPlaying);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPlaying, setIsPlaying]);
+
   return (
-    <div className="relative h-full w-full select-none">
+    <div
+      className="group relative h-full w-full select-none"
+      data-is-playing={isPlaying}
+    >
       <Canvas
         aspectRatio={
           rendererConfig.resolution.height / rendererConfig.resolution.width
@@ -82,7 +101,12 @@ export const MidiVisualizer = ({
           <Pause className="size-12" />
         )}
       </div>
-      <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2">
+      <div
+        className={cn(
+          "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-black/0 p-2 transition-opacity",
+          "group-data-[is-playing=true]:opacity-0 group-hover:group-data-[is-playing=true]:opacity-100",
+        )}
+      >
         <div className="flex items-center gap-2">
           <Button
             onClick={() => setIsPlaying(!isPlaying)}
