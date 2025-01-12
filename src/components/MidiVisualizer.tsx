@@ -14,6 +14,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { cn } from "@/lib/utils";
 
 interface Props {
   audioHandler?: AudioHandler;
@@ -32,6 +33,7 @@ export const MidiVisualizer = ({
   onRendererConfigChange,
 }: Props) => {
   const [context, setContext] = useState<CanvasRenderingContext2D>();
+  const [showPlayIcon, setShowPlayIcon] = useState(false);
   const renderer = useMemo(() => {
     return context ? getRendererFromConfig(context, rendererConfig) : undefined;
   }, [context, rendererConfig]);
@@ -46,20 +48,40 @@ export const MidiVisualizer = ({
     setVolume,
     setMuted,
   } = useMidiVisualizer(renderer, audioHandler, midiState);
+
   useEffect(() => {
     if (isPlaying) return;
     render();
   }, [render, isPlaying]);
 
+  useEffect(() => {
+    setShowPlayIcon(true);
+    const timer = setTimeout(() => setShowPlayIcon(false), 500);
+    return () => clearTimeout(timer);
+  }, [isPlaying]);
+
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full select-none">
       <Canvas
         aspectRatio={
           rendererConfig.resolution.height / rendererConfig.resolution.width
         }
         onRedraw={render}
         onInit={setContext}
+        onClick={() => setIsPlaying(!isPlaying)}
       />
+      <div
+        className={cn(
+          "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 p-4 text-white transition-opacity duration-200",
+          showPlayIcon ? "opacity-100" : "opacity-0",
+        )}
+      >
+        {isPlaying ? (
+          <Play className="size-12" />
+        ) : (
+          <Pause className="size-12" />
+        )}
+      </div>
       <div className="absolute bottom-0 left-0 right-0 bg-black/50 p-2">
         <div className="flex items-center gap-2">
           <Button

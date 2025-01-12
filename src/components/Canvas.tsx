@@ -6,11 +6,13 @@ interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   aspectRatio: number;
   onInit: (ctx: CanvasRenderingContext2D) => void;
   onRedraw: () => void;
+  onClick?: () => void;
 }
 
 export const Canvas = ({
   onRedraw,
   onInit,
+  onClick,
   className,
   aspectRatio,
   ...props
@@ -22,7 +24,7 @@ export const Canvas = ({
     targetRef: ref,
   });
   const calculatedWidth = width * dpr;
-  const calculatedHight = calculatedWidth * aspectRatio;
+  const calculatedHeight = calculatedWidth * aspectRatio;
 
   useEffect(() => {
     if (!ref.current) return;
@@ -30,12 +32,14 @@ export const Canvas = ({
     if (!ctx) throw new Error("Failed to get canvas context");
     onInit(ctx);
   }, [onInit, ref]);
+
   return (
     <canvas
       ref={ref}
       className={cn(className, "h-full w-full")}
       width={calculatedWidth}
-      height={calculatedHight}
+      height={calculatedHeight}
+      onClick={onClick}
       {...props}
     />
   );
