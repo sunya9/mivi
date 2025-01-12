@@ -95,6 +95,20 @@ export const useMidiVisualizer = (
     });
   }, [audioHandler, currentTime, midiState, renderer]);
 
+  const setVolume = useCallback(
+    (volume: number) => {
+      audioHandler?.setVolume(volume);
+    },
+    [audioHandler],
+  );
+
+  const setMuted = useCallback(
+    (muted: boolean) => {
+      audioHandler?.setMuted(muted);
+    },
+    [audioHandler],
+  );
+
   return {
     currentTime,
     duration,
@@ -102,5 +116,7 @@ export const useMidiVisualizer = (
     setIsPlaying,
     setCurrentTime,
     render,
+    setVolume,
+    setMuted,
   };
 };

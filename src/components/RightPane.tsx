@@ -15,7 +15,10 @@ interface Props {
   midiState?: MidiState;
   audioHandler?: AudioHandler;
   rendererConfig: RendererConfig;
-  onRendererConfigChange: (config: DeepPartial<RendererConfig>) => void;
+  onRendererConfigChange: (
+    config: DeepPartial<RendererConfig>,
+    storeConfig?: boolean,
+  ) => void;
 }
 
 export const RightPane = ({
@@ -36,6 +39,7 @@ export const RightPane = ({
           audioHandler={audioHandler}
           midiState={midiState}
           rendererConfig={rendererConfig}
+          onRendererConfigChange={onRendererConfigChange}
         />
       </div>
       <div className="py-4">

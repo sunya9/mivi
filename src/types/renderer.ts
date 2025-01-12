@@ -56,6 +56,8 @@ export interface RendererConfig {
   pianoRollConfig: PianoRollConfigValues;
   waveformConfig: WaveformConfigValues;
   particlesConfig: ParticlesConfigValues;
+  previewVolume: number;
+  previewMuted: boolean;
 }
 
 export type RendererContext =
@@ -67,6 +69,8 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
   backgroundColor: "#1a1a1a",
   resolution: resolutions[1],
   fps: 30,
+  previewVolume: 1,
+  previewMuted: false,
   pianoRollConfig: {
     noteMargin: 2,
     gridColor: "#ffffff",

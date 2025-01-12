@@ -28,10 +28,21 @@ async function initializeDB(): Promise<[IDBDatabase, string]> {
   return [db, STORE_NAME] as const;
 }
 
-async function loadAudio(audioContext: AudioContext, audio: File) {
+async function loadAudio(
+  audioContext: AudioContext,
+  audio: File,
+  initialVolume?: number,
+  initialMuted?: boolean,
+) {
   const arrayBuffer = await audio.arrayBuffer();
   const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-  return new AudioHandler(audioContext, audioBuffer, audio);
+  return new AudioHandler(
+    audioContext,
+    audioBuffer,
+    audio,
+    initialVolume,
+    initialMuted,
+  );
 }
 
 export type LoadDbResult = readonly [
@@ -50,7 +61,12 @@ export async function loadDb(
   const fileStorage = new FileStorage(db, storeName);
   const data = await fileStorage.loadData();
   const initialAudioHandler = data.audio
-    ? await loadAudio(audioContext, data.audio)
+    ? await loadAudio(
+        audioContext,
+        data.audio,
+        data.rendererConfig.previewVolume,
+        data.rendererConfig.previewMuted,
+      )
     : undefined;
   return [
     fileStorage,

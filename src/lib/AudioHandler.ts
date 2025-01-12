@@ -4,11 +4,20 @@ export class AudioHandler {
   private audioSource: AudioBufferSourceNode | null = null;
   private startTime = 0;
   private pauseTime = 0;
+  private gainNode: GainNode;
+
   constructor(
     private readonly audioContext: AudioContext,
     readonly audioBuffer: AudioBuffer,
     readonly audio: File,
-  ) {}
+    private lastVolume: number = 1,
+    private isMuted: boolean = false,
+  ) {
+    this.gainNode = this.audioContext.createGain();
+    this.gainNode.connect(this.audioContext.destination);
+    this.setVolume(lastVolume);
+    this.setMuted(isMuted);
+  }
 
   pause() {
     if (!this.audioSource) return;
@@ -19,7 +28,7 @@ export class AudioHandler {
   play() {
     const source = this.audioContext.createBufferSource();
     source.buffer = this.audioBuffer;
-    source.connect(this.audioContext.destination);
+    source.connect(this.gainNode);
     source.start(0, this.pauseTime);
     this.startTime = this.audioContext.currentTime - this.pauseTime;
 
@@ -38,11 +47,23 @@ export class AudioHandler {
       this.play();
     }
   }
-  [Symbol.dispose](): void {
-    if (this.audioSource) {
-      this.audioSource.stop();
-      this.audioSource.disconnect();
+
+  setVolume(value: number) {
+    this.lastVolume = value;
+    if (!this.isMuted) {
+      const volume = Math.max(0, Math.min(1, value));
+      const now = this.audioContext.currentTime;
+      this.gainNode.gain.cancelScheduledValues(now);
+      this.gainNode.gain.setTargetAtTime(volume, now, 0.01);
     }
+  }
+
+  setMuted(muted: boolean) {
+    this.isMuted = muted;
+    const volume = muted ? 0 : this.lastVolume;
+    const now = this.audioContext.currentTime;
+    this.gainNode.gain.cancelScheduledValues(now);
+    this.gainNode.gain.setTargetAtTime(volume, now, 0.01);
   }
 
   get getCurrentTime(): number {

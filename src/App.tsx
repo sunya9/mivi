@@ -53,15 +53,28 @@ const useApp = (loadDb: Promise<LoadDbResult>) => {
   const setAudio = useCallback(
     async (file: File) => {
       try {
-        fileStorage.storeData({ audio: file });
         const arrayBuffer = await file.arrayBuffer();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-        setAudioHandler(new AudioHandler(audioContext, audioBuffer, file));
+        setAudioHandler(
+          new AudioHandler(
+            audioContext,
+            audioBuffer,
+            file,
+            rendererConfig.previewVolume,
+            rendererConfig.previewMuted,
+          ),
+        );
+        await fileStorage.storeData({ audio: file });
       } catch (error) {
         console.error("Failed to set audio", error);
       }
     },
-    [fileStorage, setAudioHandler],
+    [
+      fileStorage,
+      rendererConfig.previewMuted,
+      rendererConfig.previewVolume,
+      setAudioHandler,
+    ],
   );
 
   const onMidiSelect = useCallback(
@@ -99,12 +112,16 @@ const useApp = (loadDb: Promise<LoadDbResult>) => {
     [fileStorage, updateTrackConfig],
   );
   const onRendererConfigChange = useCallback(
-    async (deepPartialRendererConfig: DeepPartial<RendererConfig>) => {
+    async (
+      deepPartialRendererConfig: DeepPartial<RendererConfig>,
+      storeConfig = true,
+    ) => {
       const mergedRendererConfig = merge(
         rendererConfig,
         deepPartialRendererConfig,
       );
       updateRendererConfig({ ...mergedRendererConfig });
+      if (!storeConfig) return;
       await fileStorage.storeData({ rendererConfig: mergedRendererConfig });
     },
     [fileStorage, rendererConfig, updateRendererConfig],
