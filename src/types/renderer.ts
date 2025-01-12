@@ -1,5 +1,6 @@
 interface PianoRollConfigValues {
   noteMargin: number;
+  noteVerticalMargin: number;
   gridColor: string;
   showRippleEffect: boolean;
   showPlayhead: boolean;
@@ -10,6 +11,9 @@ interface PianoRollConfigValues {
   noteHeight: number;
   noteCornerRadius: number;
   timeWindow: number;
+  showNoteFlash: boolean;
+  noteFlashDuration: number;
+  noteFlashIntensity: number;
 }
 
 interface WaveformConfigValues {
@@ -73,6 +77,7 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
   previewMuted: false,
   pianoRollConfig: {
     noteMargin: 2,
+    noteVerticalMargin: 1,
     gridColor: "#ffffff",
     showRippleEffect: true,
     showPlayhead: true,
@@ -83,6 +88,9 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     noteHeight: 4,
     noteCornerRadius: 2,
     timeWindow: 5,
+    showNoteFlash: true,
+    noteFlashDuration: 0.1,
+    noteFlashIntensity: 0.5,
   },
   waveformConfig: {
     lineColor: "#4a9eff",

@@ -24,6 +24,14 @@ export class PianoRollRenderer extends Renderer {
     }
   >();
 
+  private noteFlashStates = new Map<
+    string,
+    {
+      noteStart: number;
+      color: string;
+    }
+  >();
+
   constructor(
     ctx: RendererContext,
     readonly config: RendererConfig,
@@ -35,13 +43,18 @@ export class PianoRollRenderer extends Renderer {
     const {
       canvas: { height },
     } = this.ctx;
-    return height * ((127 - midi) / 127);
+    const noteHeight = Math.max(
+      height / 127,
+      this.config.pianoRollConfig.noteHeight,
+    );
+    return height * ((127 - midi) / 127) - noteHeight / 2;
   }
   render(tracks: MidiTrack[], playbackState: PlaybackState) {
     const currentTime = playbackState.currentTime;
 
     if (currentTime < this.lastCurrentTime) {
       this.rippleStates.clear();
+      this.noteFlashStates.clear();
     }
     this.lastCurrentTime = currentTime;
 
@@ -83,17 +96,55 @@ export class PianoRollRenderer extends Renderer {
 
         const x = timeToX(noteStart);
         const rawNoteWidth = timeToX(noteEnd) - x;
-        const noteHeight = Math.max(
+        const baseNoteHeight = Math.max(
           height / 127,
           this.config.pianoRollConfig.noteHeight,
         );
+        const verticalMargin = this.config.pianoRollConfig.noteVerticalMargin;
+        const noteHeight = Math.max(0, baseNoteHeight - verticalMargin * 2);
 
         const noteMargin = this.config.pianoRollConfig.noteMargin;
         const noteWidth = Math.max(0, rawNoteWidth - noteMargin * 2);
 
-        const y = this.noteToY(note.midi);
+        const y = this.noteToY(note.midi) + verticalMargin;
 
+        const noteKey = `${track.id}-${note.time}-${note.midi}`;
+        const isTouchingPlayhead =
+          Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
+        const wasNotTouchingPlayhead = !this.noteFlashStates.has(noteKey);
+
+        // Draw note with flash effect
         this.ctx.fillStyle = track.config.color;
+        if (
+          this.config.pianoRollConfig.showNoteFlash &&
+          isTouchingPlayhead &&
+          wasNotTouchingPlayhead &&
+          !this.noteFlashStates.has(noteKey)
+        ) {
+          this.noteFlashStates.set(noteKey, {
+            noteStart: currentTime,
+            color: track.config.color,
+          });
+        }
+
+        const flashState = this.noteFlashStates.get(noteKey);
+        if (flashState) {
+          const flashProgress = Math.min(
+            1,
+            (currentTime - flashState.noteStart) /
+              this.config.pianoRollConfig.noteFlashDuration,
+          );
+          const flashIntensity =
+            (1 - flashProgress) *
+            this.config.pianoRollConfig.noteFlashIntensity;
+          if (flashIntensity > 0) {
+            this.ctx.fillStyle = this.adjustColorBrightness(
+              track.config.color,
+              flashIntensity,
+            );
+          }
+        }
+
         this.ctx.beginPath();
         this.ctx.roundRect(
           x + noteMargin,
@@ -107,11 +158,6 @@ export class PianoRollRenderer extends Renderer {
         const velocityAlpha = note.velocity / 127;
         this.ctx.fillStyle = `rgba(255, 255, 255, ${velocityAlpha * 0.3})`;
         this.ctx.fill();
-
-        const noteKey = `${track.id}-${note.time}-${note.midi}`;
-        const isTouchingPlayhead =
-          Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
-        const wasNotTouchingPlayhead = true;
 
         if (
           this.config.pianoRollConfig.showRippleEffect &&
@@ -199,5 +245,20 @@ export class PianoRollRenderer extends Renderer {
       this.ctx.fill();
       this.ctx.restore();
     }
+  }
+
+  private adjustColorBrightness(color: string, intensity: number): string {
+    // Convert hex to RGB
+    const r = parseInt(color.slice(1, 3), 16);
+    const g = parseInt(color.slice(3, 5), 16);
+    const b = parseInt(color.slice(5, 7), 16);
+
+    // Brighten the color
+    const brightenValue = intensity * 255;
+    const newR = Math.min(255, r + brightenValue);
+    const newG = Math.min(255, g + brightenValue);
+    const newB = Math.min(255, b + brightenValue);
+
+    return `rgb(${newR}, ${newG}, ${newB})`;
   }
 }
