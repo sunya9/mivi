@@ -115,6 +115,7 @@ export class PianoRollRenderer extends Renderer {
 
         // Draw note with flash effect
         this.ctx.fillStyle = track.config.color;
+        this.ctx.globalAlpha = track.config.opacity;
         if (
           this.config.pianoRollConfig.showNoteFlash &&
           isTouchingPlayhead &&
@@ -158,6 +159,7 @@ export class PianoRollRenderer extends Renderer {
         const velocityAlpha = note.velocity / 127;
         this.ctx.fillStyle = `rgba(255, 255, 255, ${velocityAlpha * 0.3})`;
         this.ctx.fill();
+        this.ctx.globalAlpha = 1;
 
         if (
           this.config.pianoRollConfig.showRippleEffect &&

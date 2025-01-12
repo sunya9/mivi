@@ -90,6 +90,7 @@ const useApp = (loadDb: Promise<LoadDbResult>) => {
             name: track.name || `Track ${index + 1}`,
             color,
             visible: true,
+            opacity: 1,
           },
         };
       });

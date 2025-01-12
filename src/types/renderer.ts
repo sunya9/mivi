@@ -89,7 +89,7 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     noteCornerRadius: 2,
     timeWindow: 5,
     showNoteFlash: true,
-    noteFlashDuration: 0.1,
+    noteFlashDuration: 1,
     noteFlashIntensity: 0.5,
   },
   waveformConfig: {

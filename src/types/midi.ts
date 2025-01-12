@@ -1,9 +1,10 @@
 import { NoteJSON } from "@tonejs/midi/dist/Note";
 
 export interface TrackConfig {
-  name: string;
-  color: string;
   visible: boolean;
+  color: string;
+  opacity: number;
+  name: string;
 }
 
 export interface MidiTrack {
@@ -17,3 +18,10 @@ export interface MidiState {
   duration: number;
   tracks: MidiTrack[];
 }
+
+export const getDefaultTrackConfig = (name: string): TrackConfig => ({
+  visible: true,
+  color: "#4a9eff",
+  opacity: 1,
+  name,
+});

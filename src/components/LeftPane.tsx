@@ -60,7 +60,7 @@ export function LeftPane({
               </Button>
             </div>
             <div className="flex items-center justify-between gap-2">
-              {audio && <span className="ml-2">{audio.name}</span>}
+              <span className="ml-2">{audio?.name}</span>
               <input
                 type="file"
                 accept="audio/*"
@@ -89,7 +89,7 @@ export function LeftPane({
               <TrackItem
                 key={track.id}
                 track={track}
-                onConfigChange={(config) => {
+                onChange={(config) => {
                   onTrackChange({
                     ...track,
                     config: {
