@@ -1,7 +1,6 @@
 import { AudioHandler } from "@/lib/AudioHandler";
 import { MidiState } from "@/types/midi";
 import { getDefaultRendererConfig, RendererConfig } from "@/types/renderer";
-import { PartialBy } from "@/types/util";
 import defaultsDeep from "lodash.defaultsdeep";
 
 const DB_NAME = "midiVisualizer";
@@ -122,7 +121,11 @@ export interface LoadDataResponse {
   rendererConfig: RendererConfig;
 }
 
-type StoredDataRequest = PartialBy<LoadDataResponse, "rendererConfig">;
+interface StoredDataRequest {
+  midi?: MidiState | null;
+  audio?: File | null;
+  rendererConfig?: RendererConfig;
+}
 
 export class FileStorage {
   private static readonly midiKey = "lastMidi";
@@ -143,9 +146,16 @@ export class FileStorage {
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction(this.storeName, "readwrite");
       const store = transaction.objectStore(this.storeName);
-
-      if (data.midi) store.put(data.midi, FileStorage.midiKey);
-      if (audioFile) store.put(audioFile, FileStorage.audioKey);
+      if (data.audio === null) {
+        store.delete(FileStorage.audioKey);
+      } else if (audioFile) {
+        store.put(audioFile, FileStorage.audioKey);
+      }
+      if (data.midi === null) {
+        store.delete(FileStorage.midiKey);
+      } else if (data.midi) {
+        store.put(data.midi, FileStorage.midiKey);
+      }
       if (data.rendererConfig)
         store.put(data.rendererConfig, FileStorage.rendererConfigKey);
 

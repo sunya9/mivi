@@ -47,8 +47,11 @@ export const getRandomTailwindColor = () => {
 export const getRandomTailwindColorPalette = () => {
   const palette =
     colorsPerPalette[Math.floor(Math.random() * colorsPerPalette.length)];
-  return () =>
-    Object.values(palette)[
-      Math.floor(Math.random() * Object.keys(palette).length)
-    ];
+  let counter = 0;
+  return () => {
+    const color =
+      Object.values(palette)[(counter + 4) % Object.keys(palette).length];
+    counter += 2;
+    return color;
+  };
 };

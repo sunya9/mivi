@@ -16,7 +16,7 @@ type AppStateAction =
     }
   | {
       type: "SET_AUDIO_HANDLER";
-      payload: AudioHandler;
+      payload: AudioHandler | undefined;
     }
   | {
       type: "UPDATE_RENDERER_CONFIG";
@@ -124,6 +124,14 @@ export const useAppStateReducer = (
     dispatch({ type: "UPDATE_MIDI", payload: newMidiState });
     await fileStorage.storeData({ midi: newMidiState });
   }, [fileStorage, midiState]);
+  const clearMidi = async () => {
+    dispatch({ type: "UPDATE_MIDI", payload: undefined });
+    await fileStorage.storeData({ midi: null });
+  };
+  const clearAudio = async () => {
+    dispatch({ type: "SET_AUDIO_HANDLER", payload: undefined });
+    await fileStorage.storeData({ audio: null });
+  };
   return {
     appState,
     updateMidi,
@@ -132,5 +140,7 @@ export const useAppStateReducer = (
     updateRendererConfig,
     randomizeColorsColorful,
     randomizeColorsGradient,
+    clearMidi,
+    clearAudio,
   };
 };

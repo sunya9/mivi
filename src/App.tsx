@@ -43,6 +43,8 @@ const useApp = (loadDb: Promise<LoadDbResult>) => {
     updateRendererConfig,
     randomizeColorsColorful,
     randomizeColorsGradient,
+    clearMidi,
+    clearAudio,
   } = useAppStateReducer(
     fileStorage,
     initialRendererConfig,
@@ -137,6 +139,8 @@ const useApp = (loadDb: Promise<LoadDbResult>) => {
     onRendererConfigChange,
     randomizeColorsColorful,
     randomizeColorsGradient,
+    clearMidi,
+    clearAudio,
   };
 };
 
@@ -151,6 +155,8 @@ const AppInternal = ({ loadDb }: { loadDb: Promise<LoadDbResult> }) => {
     onRendererConfigChange,
     randomizeColorsColorful,
     randomizeColorsGradient,
+    clearMidi,
+    clearAudio,
   } = useApp(loadDb);
 
   return (
@@ -162,6 +168,8 @@ const AppInternal = ({ loadDb }: { loadDb: Promise<LoadDbResult> }) => {
       >
         <ResizablePanel defaultSize={40} className="bg-gray-50">
           <LeftPane
+            clearMidi={clearMidi}
+            clearAudio={clearAudio}
             onMidiSelect={onMidiSelect}
             setAudioFile={setAudio}
             midiState={midiState}

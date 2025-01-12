@@ -7,7 +7,9 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
+import { CircleXIcon } from "lucide-react";
 
 interface Props {
   onMidiSelect: (file: File) => void;
@@ -17,6 +19,8 @@ interface Props {
   audio?: File;
   onRandomizeColorsColorful: () => void;
   onRandomizeColorsGradient: () => void;
+  clearMidi: () => void;
+  clearAudio: () => void;
 }
 
 export function LeftPane({
@@ -27,18 +31,43 @@ export function LeftPane({
   audio,
   onRandomizeColorsColorful,
   onRandomizeColorsGradient,
+  clearMidi,
+  clearAudio,
 }: Props) {
   const midiInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   return (
-    <div className="relative min-h-dvh overflow-y-auto p-4">
-      <h1 className="mb-4 text-7xl font-bold">MIDI visualizer</h1>
+    <div className="relative min-h-dvh overflow-y-auto p-4 leading-none">
+      <div className="items-baseline gap-2 sm:inline-flex">
+        <h1 className="text-7xl font-bold">MiVi</h1>
+        <p className="-mt-2 text-xl font-medium text-muted-foreground sm:mt-0">
+          <span className="text-accent-foreground">MI</span>DI{" "}
+          <span className="text-accent-foreground">Vi</span>sualizer
+        </p>
+      </div>
 
-      <Card>
+      <Card className="mt-4">
         <CardHeader>
-          <div className="space-y-4">
+          <CardTitle>
+            <h2>MIDI / Audio Settings</h2>
+          </CardTitle>
+          <div className="grid grid-cols-1 gap-2">
             <div className="flex items-center justify-between gap-2">
-              <span className="ml-2">{midiState?.name}</span>
+              <span className="ml-2 inline-flex items-center">
+                {midiState && (
+                  <>
+                    <Button
+                      className="mr-2"
+                      variant="icon"
+                      size="iconSmall"
+                      onClick={clearMidi}
+                    >
+                      <CircleXIcon />
+                    </Button>
+                    {midiState.name}
+                  </>
+                )}
+              </span>
               <input
                 type="file"
                 accept=".mid,.midi"
@@ -60,7 +89,21 @@ export function LeftPane({
               </Button>
             </div>
             <div className="flex items-center justify-between gap-2">
-              <span className="ml-2">{audio?.name}</span>
+              <span className="ml-2 inline-flex items-center">
+                {audio && (
+                  <>
+                    <Button
+                      className="mr-2"
+                      variant="icon"
+                      size="iconSmall"
+                      onClick={clearAudio}
+                    >
+                      <CircleXIcon />
+                    </Button>
+                    {audio?.name}
+                  </>
+                )}
+              </span>
               <input
                 type="file"
                 accept="audio/*"
