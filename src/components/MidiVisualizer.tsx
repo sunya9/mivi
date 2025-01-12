@@ -150,13 +150,13 @@ export const MidiVisualizer = ({
               </HoverCardContent>
             </HoverCard>
           </div>
-          <span className="min-w-28 text-white">
+          <span className="mr-2 min-w-28 text-right text-white">
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
           <Slider
             max={duration}
             value={[currentTime]}
-            step={1}
+            step={0.1}
             onValueChange={([e]) => setCurrentTime(e)}
             className="flex-1"
           />

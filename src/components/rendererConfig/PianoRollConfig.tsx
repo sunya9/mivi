@@ -51,7 +51,7 @@ export function PianoRollConfigPanel({ config, onChange }: Props) {
         )}
       />
       <FormRow
-        Label={() => <>Note Margin: {config.noteMargin}</>}
+        Label={() => <>Note Margin: {config.noteMargin}px</>}
         Controller={() => (
           <Slider
             className="w-full min-w-24 max-w-48"
@@ -60,6 +60,21 @@ export function PianoRollConfigPanel({ config, onChange }: Props) {
             max={5}
             step={0.5}
             onValueChange={([value]) => onChange({ noteMargin: +value })}
+          />
+        )}
+      />
+      <FormRow
+        Label={() => <>Note Vertical Margin: {config.noteVerticalMargin}px</>}
+        Controller={() => (
+          <Slider
+            className="w-full min-w-24 max-w-48"
+            value={[config.noteVerticalMargin]}
+            min={0}
+            max={5}
+            step={0.5}
+            onValueChange={([value]) =>
+              onChange({ noteVerticalMargin: +value })
+            }
           />
         )}
       />
@@ -142,6 +157,54 @@ export function PianoRollConfigPanel({ config, onChange }: Props) {
           />
         )}
       />
+      <FormRow
+        Label={() => <>Note Flash Effect</>}
+        Controller={() => (
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={config.showNoteFlash}
+              onCheckedChange={(checked) => {
+                onChange({ showNoteFlash: checked });
+              }}
+            />
+            {/* <p>Show flash effect when notes are played</p> */}
+          </div>
+        )}
+      />
+      {config.showNoteFlash && (
+        <>
+          <FormRow
+            Label={() => <>Flash Duration: {config.noteFlashDuration}sec</>}
+            Controller={() => (
+              <Slider
+                value={[config.noteFlashDuration]}
+                className="w-full min-w-24 max-w-48"
+                min={0.1}
+                max={2}
+                step={0.1}
+                onValueChange={([value]) => {
+                  onChange({ noteFlashDuration: value });
+                }}
+              />
+            )}
+          />
+          <FormRow
+            Label={() => <>Flash Intensity</>}
+            Controller={() => (
+              <Slider
+                value={[config.noteFlashIntensity]}
+                className="w-full min-w-24 max-w-48"
+                min={0}
+                max={1}
+                step={0.1}
+                onValueChange={([value]) => {
+                  onChange({ noteFlashIntensity: value });
+                }}
+              />
+            )}
+          />
+        </>
+      )}
     </>
   );
 }
