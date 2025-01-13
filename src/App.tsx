@@ -19,6 +19,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Loading } from "@/components/Loading";
 import { loadDb, LoadDbResult } from "@/lib/FileStorage";
 import { Fallback } from "@/components/Fallback";
+import { AppToolbar } from "@/components/AppToolbar";
 
 const audioContext = new AudioContext();
 const loadDbPromise = loadDb(audioContext);
@@ -160,7 +161,19 @@ const AppInternal = ({ loadDb }: { loadDb: Promise<LoadDbResult> }) => {
   } = useApp(loadDb);
 
   return (
-    <div className="container relative before:absolute before:inset-y-0 before:-left-[calc((100dvw-100%)/2)] before:right-full before:z-[-1] before:bg-gray-50 before:content-['']">
+    <div className="container">
+      <div className="my-4 items-baseline gap-2 sm:inline-flex">
+        <h1 className="text-7xl font-bold">MiVi</h1>
+        <p className="-mt-2 text-xl font-medium text-muted-foreground sm:mt-0">
+          <span className="text-accent-foreground">MI</span>DI{" "}
+          <span className="text-accent-foreground">Vi</span>sualizer
+        </p>
+      </div>
+      <AppToolbar
+        midiState={midiState}
+        audioHandler={audioHandler}
+        rendererConfig={rendererConfig}
+      />
       <ResizablePanelGroup
         direction="horizontal"
         className="flex h-screen"

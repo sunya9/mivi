@@ -38,14 +38,6 @@ export function LeftPane({
   const audioInputRef = useRef<HTMLInputElement>(null);
   return (
     <div className="relative min-h-dvh overflow-y-auto p-4 leading-none">
-      <div className="items-baseline gap-2 sm:inline-flex">
-        <h1 className="text-7xl font-bold">MiVi</h1>
-        <p className="-mt-2 text-xl font-medium text-muted-foreground sm:mt-0">
-          <span className="text-accent-foreground">MI</span>DI{" "}
-          <span className="text-accent-foreground">Vi</span>sualizer
-        </p>
-      </div>
-
       <Card className="mt-4">
         <CardHeader>
           <CardTitle>
