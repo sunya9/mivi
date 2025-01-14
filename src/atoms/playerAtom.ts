@@ -78,11 +78,14 @@ export const serializeAtom = atom(async (get) => {
 export const isPlayingAtom = atom((get) => !!get(audioSourceAtom));
 
 // setters
-const updateGainNodeAtom = atom(null, (get, _, volume: number) => {
+const updateGainNodeAtom = atom(null, (get) => {
   const audioContext = get(context);
   const now = audioContext.audioContext.currentTime;
   audioContext.gainNode.gain.cancelScheduledValues(now);
-  audioContext.gainNode.gain.setTargetAtTime(volume, now, 0.01);
+  const muted = get(mutedAtom);
+
+  const volume = muted ? 0 : Math.max(0, Math.min(1, get(volumeAtom)));
+  audioContext.gainNode.gain.setTargetAtTime(volume, now, 0);
 });
 
 // getters and setters
@@ -127,22 +130,17 @@ export const audioInfoAtom = atom(
 
 export const volumeAtom = atom(
   (get) => get(volumeAtomWithStorage),
-  (get, set, value: number) => {
-    const isMuted = get(mutedAtomWithStorage);
-    if (!isMuted) {
-      const volume = Math.max(0, Math.min(1, value));
-      set(updateGainNodeAtom, volume);
-    }
+  (_, set, value: number) => {
     set(volumeAtomWithStorage, value);
+    set(updateGainNodeAtom);
   },
 );
 
 export const mutedAtom = atom(
   (get) => get(mutedAtomWithStorage),
-  (get, set, muted: boolean) => {
+  (_, set, muted: boolean) => {
     set(mutedAtomWithStorage, muted);
-    const volume = muted ? 0 : get(volumeAtom);
-    set(updateGainNodeAtom, volume);
+    set(updateGainNodeAtom);
   },
 );
 
@@ -160,6 +158,7 @@ export const playAtom = atom(null, async (get, set) => {
     const { audioContext, gainNode } = get(context);
     const source = audioContext.createBufferSource();
     source.buffer = audioInfo.audioBuffer;
+    set(updateGainNodeAtom);
     source.connect(gainNode);
     source.start(0, get(currentTimeAtom)());
     set(audioSourceAtom, source);
