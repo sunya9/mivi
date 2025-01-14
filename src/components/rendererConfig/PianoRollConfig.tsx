@@ -2,6 +2,7 @@ import {
   rendererConfigAtom,
   useSetPianoRollConfig,
 } from "@/atoms/rendererConfigAtom";
+import { midiTracksAtom } from "@/atoms/midiTracksAtom";
 import { FormRow } from "@/components/FormRow";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -10,6 +11,8 @@ import { useAtomValue } from "jotai";
 export function PianoRollConfigPanel() {
   const rendererConfig = useAtomValue(rendererConfigAtom);
   const setPianoRollConfig = useSetPianoRollConfig();
+  const midiTracks = useAtomValue(midiTracksAtom);
+  const { minNote, maxNote } = midiTracks || {};
   return (
     <>
       <FormRow
@@ -20,9 +23,9 @@ export function PianoRollConfigPanel() {
           <Slider
             className="w-full min-w-24 max-w-48"
             value={[rendererConfig.pianoRollConfig.timeWindow]}
-            min={1}
+            min={0.1}
             max={20}
-            step={0.5}
+            step={0.1}
             onValueChange={([value]) =>
               setPianoRollConfig({ timeWindow: value })
             }
@@ -38,7 +41,7 @@ export function PianoRollConfigPanel() {
             className="w-full min-w-24 max-w-48"
             value={[rendererConfig.pianoRollConfig.noteHeight]}
             min={1}
-            max={20}
+            max={40}
             step={1}
             onValueChange={([value]) =>
               setPianoRollConfig({ noteHeight: value })
@@ -95,7 +98,7 @@ export function PianoRollConfigPanel() {
             className="w-full min-w-24 max-w-48"
             value={[rendererConfig.pianoRollConfig.noteVerticalMargin]}
             min={0}
-            max={5}
+            max={10}
             step={0.5}
             onValueChange={([value]) =>
               setPianoRollConfig({ noteVerticalMargin: +value })
@@ -257,6 +260,43 @@ export function PianoRollConfigPanel() {
           />
         </>
       )}
+      <FormRow
+        Label={() => (
+          <span className="flex flex-wrap gap-x-2">
+            <span>
+              View Range: {rendererConfig.pianoRollConfig.viewRangeBottom} -{" "}
+              {rendererConfig.pianoRollConfig.viewRangeTop}
+            </span>
+            {midiTracks && (
+              <span className="text-muted-foreground">
+                (Detected range: {minNote} - {maxNote})
+              </span>
+            )}
+          </span>
+        )}
+        Controller={() => (
+          <Slider
+            className="w-full min-w-24 max-w-48"
+            value={[
+              rendererConfig.pianoRollConfig.viewRangeBottom,
+              rendererConfig.pianoRollConfig.viewRangeTop,
+            ]}
+            min={0}
+            max={127}
+            step={1}
+            defaultValue={[
+              Math.min(0, minNote ? minNote - 10 : 0),
+              Math.max(127, maxNote ? maxNote + 10 : 127),
+            ]}
+            onValueChange={([bottom, top]) =>
+              setPianoRollConfig({
+                viewRangeBottom: bottom,
+                viewRangeTop: top,
+              })
+            }
+          />
+        )}
+      />
     </>
   );
 }

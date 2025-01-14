@@ -8,7 +8,6 @@ export class PianoRollRenderer extends Renderer {
 
   private readonly rippleRadius = 50;
 
-  // 波紋アニメーションの最小時間（秒）
   private readonly minRippleDuration = 0.3;
 
   private lastCurrentTime: number = 0;
@@ -47,7 +46,14 @@ export class PianoRollRenderer extends Renderer {
       height / 127,
       this.config.pianoRollConfig.noteHeight,
     );
-    return height * ((127 - midi) / 127) - noteHeight / 2;
+
+    // 表示範囲の計算
+    const viewRangeTop = this.config.pianoRollConfig.viewRangeTop;
+    const viewRangeBottom = this.config.pianoRollConfig.viewRangeBottom;
+    const viewRangeSize = viewRangeTop - viewRangeBottom;
+
+    // 表示範囲内でのY座標を計算
+    return height * ((viewRangeTop - midi) / viewRangeSize) - noteHeight / 2;
   }
   render(tracks: MidiTrack[], playbackState: PlaybackState) {
     const currentTime = playbackState.currentTime;
@@ -63,10 +69,15 @@ export class PianoRollRenderer extends Renderer {
       canvas: { width, height },
     } = this.ctx;
 
+    const isNoteInViewRange = (midi: number) => {
+      const viewRangeTop = this.config.pianoRollConfig.viewRangeTop;
+      const viewRangeBottom = this.config.pianoRollConfig.viewRangeBottom;
+      return midi <= viewRangeTop && midi >= viewRangeBottom;
+    };
+
     const playheadPosition = this.config.pianoRollConfig.playheadPosition / 100;
     const playheadX = width * playheadPosition;
 
-    // プレイヘッドの位置に基づいてstartTimeを計算
     const startTime =
       currentTime - this.config.pianoRollConfig.timeWindow * playheadPosition;
     const endTime = startTime + this.config.pianoRollConfig.timeWindow;
@@ -90,7 +101,8 @@ export class PianoRollRenderer extends Renderer {
               this.config.pianoRollConfig.timeWindow * this.overflowFactor ||
           noteStart >
             endTime +
-              this.config.pianoRollConfig.timeWindow * this.overflowFactor
+              this.config.pianoRollConfig.timeWindow * this.overflowFactor ||
+          !isNoteInViewRange(note.midi)
         )
           return;
 
@@ -189,7 +201,6 @@ export class PianoRollRenderer extends Renderer {
         (currentTime - state.noteStart) / (state.noteEnd - state.noteStart),
       );
 
-      // 短いノートの場合は最大半径を制限
       const radiusProgress =
         noteDuration < this.minRippleDuration
           ? Math.min(normalizedProgress, noteDuration / this.minRippleDuration)

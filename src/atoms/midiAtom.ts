@@ -41,9 +41,14 @@ export const midiAtom = atom(
             },
           };
         });
+        const notes = tracks.map((track) => track.notes).flat();
+        const min = notes.reduce((a, b) => Math.min(a, b.midi), Infinity);
+        const max = notes.reduce((a, b) => Math.max(a, b.midi), -Infinity);
         const newMidiTracks: MidiTracks = {
           tracks,
           duration: midi.duration,
+          minNote: min,
+          maxNote: max,
         };
         set(midiTracksAtom, newMidiTracks);
         set(midiBaseAtom, midi);

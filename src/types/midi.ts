@@ -16,6 +16,8 @@ export interface MidiTrack {
 export interface MidiTracks {
   tracks: MidiTrack[];
   duration: number;
+  minNote: number;
+  maxNote: number;
 }
 
 export const getDefaultTrackConfig = (name: string): TrackConfig => ({
