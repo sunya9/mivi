@@ -82,6 +82,9 @@ importers:
       lucide-react:
         specifier: ^0.469.0
         version: 0.469.0(react@19.0.0)
+      mp4-muxer:
+        specifier: ^5.1.5
+        version: 5.1.5
       next-themes:
         specifier: ^0.4.4
         version: 0.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -2781,6 +2784,12 @@ packages:
       }
     engines: { node: ">=16 || 14 >=14.17" }
 
+  mp4-muxer@5.1.5:
+    resolution:
+      {
+        integrity: sha512-dRk4STKmR7sIx12kMBa21DaIxdMG0w4tYwOqi8+Z4NW03I1QloRBWSxU4kReztDGdz5gWp4jSwIKWOIaP9Ia+g==,
+      }
+
   ms@2.1.3:
     resolution:
       {
@@ -5307,6 +5316,11 @@ snapshots:
       brace-expansion: 2.0.1
 
   minipass@7.1.2: {}
+
+  mp4-muxer@5.1.5:
+    dependencies:
+      "@types/dom-webcodecs": 0.1.13
+      "@types/wicg-file-system-access": 2020.9.8
 
   ms@2.1.3: {}
 
