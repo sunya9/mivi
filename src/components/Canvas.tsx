@@ -21,7 +21,7 @@ export const Canvas = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { width = 0 } = useResizeDetector({
-    onResize: onRedraw,
+    onResize: () => setTimeout(() => onRedraw(), 0), // workaround
     targetRef: containerRef,
   });
 
