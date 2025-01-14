@@ -1,9 +1,7 @@
 import { useState } from "react";
 
 import { useCallback, useRef } from "react";
-import { MidiState } from "@/types/midi";
 import { Measurements } from "arrival-time";
-import { AudioHandler } from "@/lib/AudioHandler";
 import { MediaCompositorStatus } from "@/lib/MediaCompositor";
 import { proxy, transfer } from "comlink";
 import {
@@ -12,21 +10,29 @@ import {
   RecordingState,
 } from "@/lib/RecordingStatus";
 import { RendererConfig } from "@/types/renderer";
+import { useAtomValue } from "jotai";
+import { midiTracksAtom } from "@/atoms/midiTracksAtom";
+import { durationAtom } from "@/atoms/durationAtom";
+import { audioInfoAtom, serializeAtom } from "@/atoms/playerAtom";
 
 type TypedRendererWorker = typeof import("./recorder.worker");
 
-export const useStartRecording = (
-  midiState?: MidiState,
-  audioHandler?: AudioHandler,
-) => {
+export const useStartRecording = () => {
+  const serializedAudio = useAtomValue(serializeAtom);
+  const audioInfo = useAtomValue(audioInfoAtom);
+  const duration = useAtomValue(durationAtom);
+  const midiTracks = useAtomValue(midiTracksAtom);
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
     new ReadyState(),
   );
   const workerRef = useRef<TypedRendererWorker>(null);
   const startRecording = useCallback(
     async (width: number, height: number, rendererConfig: RendererConfig) => {
-      if (!midiState || !audioHandler)
+      if (!duration || !midiTracks || !audioInfo) {
+        console.error(duration, midiTracks, audioInfo);
         throw new Error("Midi state and audio buffer are required");
+      }
+      if (!serializedAudio) throw new Error("Audio buffer is required");
       const worker = new ComlinkWorker<TypedRendererWorker>(
         new URL("./recorder.worker", import.meta.url),
       );
@@ -54,9 +60,10 @@ export const useStartRecording = (
         .startRecording(
           transfer(offscreen, [offscreen]),
           rendererConfig,
-          midiState,
-          audioHandler.serialize,
+          midiTracks,
+          serializedAudio,
           rendererConfig.fps,
+          duration,
           onProgress,
           onError,
         )
@@ -77,7 +84,7 @@ export const useStartRecording = (
           workerRef.current = null;
         });
     },
-    [audioHandler, midiState],
+    [audioInfo, duration, midiTracks, serializedAudio],
   );
   const stopRecording = useCallback(() => {
     workerRef.current = null;
@@ -85,7 +92,7 @@ export const useStartRecording = (
   }, []);
   const toggleRecording = useCallback(
     (rendererConfig: RendererConfig) => {
-      if (!audioHandler || !midiState) return;
+      if (!midiTracks) return;
       if (!recordingState.isRecording) {
         startRecording(
           rendererConfig.resolution.width,
@@ -96,13 +103,7 @@ export const useStartRecording = (
         stopRecording();
       }
     },
-    [
-      audioHandler,
-      midiState,
-      recordingState.isRecording,
-      startRecording,
-      stopRecording,
-    ],
+    [midiTracks, recordingState.isRecording, startRecording, stopRecording],
   );
   return { recordingState, toggleRecording };
 };

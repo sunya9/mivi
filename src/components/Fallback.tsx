@@ -1,3 +1,4 @@
+import { reset } from "@/atoms/reset";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,13 +7,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { resetDb } from "@/lib/FileStorage";
 import { FallbackProps } from "react-error-boundary";
 
 export const Fallback = (props: FallbackProps) => {
   const resetConfig = async () => {
-    await resetDb();
-    window.location.reload();
+    await reset();
   };
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center">

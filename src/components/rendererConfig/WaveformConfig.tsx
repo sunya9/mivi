@@ -1,13 +1,11 @@
+import { rendererConfigAtom } from "@/atoms/rendererConfigAtom";
 import { FormRow } from "@/components/FormRow";
 import { Input } from "@/components/ui/input";
-import { RendererConfig } from "@/types/renderer";
+import { useAtom } from "jotai";
 
-interface Props {
-  config: RendererConfig["waveformConfig"];
-  onChange: (config: Partial<RendererConfig["waveformConfig"]>) => void;
-}
+export function WaveformConfigPanel() {
+  const [rendererConfig, setRendererConfig] = useAtom(rendererConfigAtom);
 
-export function WaveformConfigPanel({ config, onChange }: Props) {
   return (
     <>
       <FormRow
@@ -15,8 +13,14 @@ export function WaveformConfigPanel({ config, onChange }: Props) {
         Controller={() => (
           <input
             type="color"
-            value={config.lineColor}
-            onChange={(e) => onChange({ lineColor: e.target.value })}
+            value={rendererConfig.waveformConfig.lineColor}
+            onChange={(e) =>
+              setRendererConfig({
+                waveformConfig: {
+                  lineColor: e.target.value,
+                },
+              })
+            }
           />
         )}
       />
@@ -25,8 +29,14 @@ export function WaveformConfigPanel({ config, onChange }: Props) {
         Controller={() => (
           <Input
             type="number"
-            value={config.lineWidth}
-            onChange={(e) => onChange({ lineWidth: +e.target.value })}
+            value={rendererConfig.waveformConfig.lineWidth}
+            onChange={(e) =>
+              setRendererConfig({
+                waveformConfig: {
+                  lineWidth: +e.target.value,
+                },
+              })
+            }
           />
         )}
       />

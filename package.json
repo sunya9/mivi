@@ -29,6 +29,9 @@
     "comlink": "^4.4.2",
     "humanize-duration": "^3.32.1",
     "immer": "^10.1.1",
+    "jotai": "^2.11.0",
+    "jotai-devtools": "^0.10.1",
+    "jotai-minidb": "^0.0.8",
     "lodash.defaultsdeep": "^4.6.1",
     "lodash.merge": "^4.6.2",
     "lucide-react": "^0.469.0",
@@ -45,6 +48,7 @@
     "webm-muxer": "^5.0.3"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-explicit-resource-management": "^7.25.9",
     "@eslint/js": "^9.17.0",
     "@types/dom-webcodecs": "^0.1.13",
     "@types/humanize-duration": "^3.27.4",
@@ -54,7 +58,7 @@
     "@types/react": "^19.0.3",
     "@types/react-dom": "^19.0.2",
     "@types/throttle-debounce": "^5.0.2",
-    "@vitejs/plugin-react-swc": "^3.5.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",
     "eslint-config-prettier": "^9.1.0",

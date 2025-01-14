@@ -1,13 +1,10 @@
+import { rendererConfigAtom } from "@/atoms/rendererConfigAtom";
 import { FormRow } from "@/components/FormRow";
 import { Slider } from "@/components/ui/slider";
-import { RendererConfig } from "@/types/renderer";
+import { useAtom } from "jotai";
 
-interface Props {
-  config: RendererConfig["particlesConfig"];
-  onChange: (config: Partial<RendererConfig["particlesConfig"]>) => void;
-}
-
-export function ParticlesConfigPanel({ config, onChange }: Props) {
+export function ParticlesConfigPanel() {
+  const [rendererConfig, setRendererConfig] = useAtom(rendererConfigAtom);
   return (
     <>
       <FormRow
@@ -15,10 +12,12 @@ export function ParticlesConfigPanel({ config, onChange }: Props) {
         Controller={() => (
           <input
             type="color"
-            value={config.particleColor}
+            value={rendererConfig.particlesConfig.particleColor}
             onChange={(e) =>
-              onChange({
-                particleColor: e.target.value,
+              setRendererConfig({
+                particlesConfig: {
+                  particleColor: e.target.value,
+                },
               })
             }
           />
@@ -29,13 +28,15 @@ export function ParticlesConfigPanel({ config, onChange }: Props) {
         Controller={() => (
           <Slider
             className="w-48"
-            value={[config.particleSize]}
+            value={[rendererConfig.particlesConfig.particleSize]}
             min={1}
             max={10}
             step={0.5}
             onValueChange={([value]) =>
-              onChange({
-                particleSize: +value,
+              setRendererConfig({
+                particlesConfig: {
+                  particleSize: +value,
+                },
               })
             }
           />

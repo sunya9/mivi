@@ -1,9 +1,8 @@
-import { resetDb } from "@/lib/FileStorage";
+import { reset } from "@/atoms/reset";
 import { useCallback } from "react";
 
 export const useResetConfig = () => {
   return useCallback(async () => {
-    await resetDb();
-    window.location.reload();
+    await reset();
   }, []);
 };

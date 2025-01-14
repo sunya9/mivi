@@ -1,79 +1,104 @@
+import {
+  rendererConfigAtom,
+  useSetPianoRollConfig,
+} from "@/atoms/rendererConfigAtom";
 import { FormRow } from "@/components/FormRow";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { RendererConfig } from "@/types/renderer";
+import { useAtomValue } from "jotai";
 
-interface Props {
-  config: RendererConfig["pianoRollConfig"];
-  onChange: (config: Partial<RendererConfig["pianoRollConfig"]>) => void;
-}
-
-export function PianoRollConfigPanel({ config, onChange }: Props) {
+export function PianoRollConfigPanel() {
+  const rendererConfig = useAtomValue(rendererConfigAtom);
+  const setPianoRollConfig = useSetPianoRollConfig();
   return (
     <>
       <FormRow
-        Label={() => <>Time Window: {config.timeWindow}s</>}
+        Label={() => (
+          <>Time Window: {rendererConfig.pianoRollConfig.timeWindow}s</>
+        )}
         Controller={() => (
           <Slider
             className="w-full min-w-24 max-w-48"
-            value={[config.timeWindow]}
+            value={[rendererConfig.pianoRollConfig.timeWindow]}
             min={1}
             max={20}
             step={0.5}
-            onValueChange={([value]) => onChange({ timeWindow: value })}
+            onValueChange={([value]) =>
+              setPianoRollConfig({ timeWindow: value })
+            }
           />
         )}
       />
       <FormRow
-        Label={() => <>Note Height: {config.noteHeight}px</>}
+        Label={() => (
+          <>Note Height: {rendererConfig.pianoRollConfig.noteHeight}px</>
+        )}
         Controller={() => (
           <Slider
             className="w-full min-w-24 max-w-48"
-            value={[config.noteHeight]}
+            value={[rendererConfig.pianoRollConfig.noteHeight]}
             min={1}
             max={20}
             step={1}
-            onValueChange={([value]) => onChange({ noteHeight: value })}
+            onValueChange={([value]) =>
+              setPianoRollConfig({ noteHeight: value })
+            }
           />
         )}
       />
       <FormRow
-        Label={() => <>Note Corner Radius: {config.noteCornerRadius}px</>}
+        Label={() => (
+          <>
+            Note Corner Radius:{" "}
+            {rendererConfig.pianoRollConfig.noteCornerRadius}px
+          </>
+        )}
         Controller={() => (
           <Slider
             className="w-full min-w-24 max-w-48"
-            value={[config.noteCornerRadius]}
+            value={[rendererConfig.pianoRollConfig.noteCornerRadius]}
             min={0}
             max={10}
             step={0.5}
-            onValueChange={([value]) => onChange({ noteCornerRadius: value })}
+            onValueChange={([value]) =>
+              setPianoRollConfig({ noteCornerRadius: value })
+            }
           />
         )}
       />
       <FormRow
-        Label={() => <>Note Margin: {config.noteMargin}px</>}
-        Controller={() => (
-          <Slider
-            className="w-full min-w-24 max-w-48"
-            value={[config.noteMargin]}
-            min={0}
-            max={5}
-            step={0.5}
-            onValueChange={([value]) => onChange({ noteMargin: +value })}
-          />
+        Label={() => (
+          <>Note Margin: {rendererConfig.pianoRollConfig.noteMargin}px</>
         )}
-      />
-      <FormRow
-        Label={() => <>Note Vertical Margin: {config.noteVerticalMargin}px</>}
         Controller={() => (
           <Slider
             className="w-full min-w-24 max-w-48"
-            value={[config.noteVerticalMargin]}
+            value={[rendererConfig.pianoRollConfig.noteMargin]}
             min={0}
             max={5}
             step={0.5}
             onValueChange={([value]) =>
-              onChange({ noteVerticalMargin: +value })
+              setPianoRollConfig({ noteMargin: +value })
+            }
+          />
+        )}
+      />
+      <FormRow
+        Label={() => (
+          <>
+            Note Vertical Margin:{" "}
+            {rendererConfig.pianoRollConfig.noteVerticalMargin}px
+          </>
+        )}
+        Controller={() => (
+          <Slider
+            className="w-full min-w-24 max-w-48"
+            value={[rendererConfig.pianoRollConfig.noteVerticalMargin]}
+            min={0}
+            max={5}
+            step={0.5}
+            onValueChange={([value]) =>
+              setPianoRollConfig({ noteVerticalMargin: +value })
             }
           />
         )}
@@ -82,24 +107,31 @@ export function PianoRollConfigPanel({ config, onChange }: Props) {
         Label={() => <>Show Playhead</>}
         Controller={() => (
           <Switch
-            checked={config.showPlayhead}
-            onCheckedChange={(checked) => onChange({ showPlayhead: checked })}
+            checked={rendererConfig.pianoRollConfig.showPlayhead}
+            onCheckedChange={(checked) =>
+              setPianoRollConfig({ showPlayhead: checked })
+            }
           />
         )}
       />
-      {config.showPlayhead && (
+      {rendererConfig.pianoRollConfig.showPlayhead && (
         <>
           <FormRow
-            Label={() => <>Playhead Position: {config.playheadPosition}%</>}
+            Label={() => (
+              <>
+                Playhead Position:{" "}
+                {rendererConfig.pianoRollConfig.playheadPosition}%
+              </>
+            )}
             Controller={() => (
               <Slider
                 className="w-full min-w-24 max-w-48"
-                value={[config.playheadPosition]}
+                value={[rendererConfig.pianoRollConfig.playheadPosition]}
                 min={0}
                 max={75}
                 step={1}
                 onValueChange={([value]) =>
-                  onChange({ playheadPosition: value })
+                  setPianoRollConfig({ playheadPosition: value })
                 }
               />
             )}
@@ -109,37 +141,51 @@ export function PianoRollConfigPanel({ config, onChange }: Props) {
             Controller={() => (
               <input
                 type="color"
-                value={config.playheadColor}
-                onChange={(e) => onChange({ playheadColor: e.target.value })}
-              />
-            )}
-          />
-          <FormRow
-            Label={() => <>Playhead Width: {config.playheadWidth}px</>}
-            Controller={() => (
-              <Slider
-                className="w-full min-w-24 max-w-48"
-                value={[config.playheadWidth]}
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={([value]) => onChange({ playheadWidth: value })}
+                value={rendererConfig.pianoRollConfig.playheadColor}
+                onChange={(e) =>
+                  setPianoRollConfig({ playheadColor: e.target.value })
+                }
               />
             )}
           />
           <FormRow
             Label={() => (
-              <>Playhead Opacity: {Math.round(config.playheadOpacity * 100)}%</>
+              <>
+                Playhead Width: {rendererConfig.pianoRollConfig.playheadWidth}px
+              </>
             )}
             Controller={() => (
               <Slider
                 className="w-full min-w-24 max-w-48"
-                value={[config.playheadOpacity]}
+                value={[rendererConfig.pianoRollConfig.playheadWidth]}
+                min={1}
+                max={10}
+                step={1}
+                onValueChange={([value]) =>
+                  setPianoRollConfig({ playheadWidth: value })
+                }
+              />
+            )}
+          />
+          <FormRow
+            Label={() => (
+              <>
+                Playhead Opacity:{" "}
+                {Math.round(
+                  rendererConfig.pianoRollConfig.playheadOpacity * 100,
+                )}
+                %
+              </>
+            )}
+            Controller={() => (
+              <Slider
+                className="w-full min-w-24 max-w-48"
+                value={[rendererConfig.pianoRollConfig.playheadOpacity]}
                 min={0}
                 max={1}
                 step={0.05}
                 onValueChange={([value]) =>
-                  onChange({ playheadOpacity: value })
+                  setPianoRollConfig({ playheadOpacity: value })
                 }
               />
             )}
@@ -150,9 +196,9 @@ export function PianoRollConfigPanel({ config, onChange }: Props) {
         Label={() => <>Show Ripple Effect</>}
         Controller={() => (
           <Switch
-            checked={config.showRippleEffect}
+            checked={rendererConfig.pianoRollConfig.showRippleEffect}
             onCheckedChange={(checked) =>
-              onChange({ showRippleEffect: checked })
+              setPianoRollConfig({ showRippleEffect: checked })
             }
           />
         )}
@@ -162,28 +208,33 @@ export function PianoRollConfigPanel({ config, onChange }: Props) {
         Controller={() => (
           <div className="flex items-center gap-2">
             <Switch
-              checked={config.showNoteFlash}
+              checked={rendererConfig.pianoRollConfig.showNoteFlash}
               onCheckedChange={(checked) => {
-                onChange({ showNoteFlash: checked });
+                setPianoRollConfig({ showNoteFlash: checked });
               }}
             />
             {/* <p>Show flash effect when notes are played</p> */}
           </div>
         )}
       />
-      {config.showNoteFlash && (
+      {rendererConfig.pianoRollConfig.showNoteFlash && (
         <>
           <FormRow
-            Label={() => <>Flash Duration: {config.noteFlashDuration}sec</>}
+            Label={() => (
+              <>
+                Flash Duration:{" "}
+                {rendererConfig.pianoRollConfig.noteFlashDuration}sec
+              </>
+            )}
             Controller={() => (
               <Slider
-                value={[config.noteFlashDuration]}
+                value={[rendererConfig.pianoRollConfig.noteFlashDuration]}
                 className="w-full min-w-24 max-w-48"
                 min={0.1}
                 max={2}
                 step={0.1}
                 onValueChange={([value]) => {
-                  onChange({ noteFlashDuration: value });
+                  setPianoRollConfig({ noteFlashDuration: value });
                 }}
               />
             )}
@@ -192,13 +243,13 @@ export function PianoRollConfigPanel({ config, onChange }: Props) {
             Label={() => <>Flash Intensity</>}
             Controller={() => (
               <Slider
-                value={[config.noteFlashIntensity]}
+                value={[rendererConfig.pianoRollConfig.noteFlashIntensity]}
                 className="w-full min-w-24 max-w-48"
                 min={0}
                 max={1}
                 step={0.1}
                 onValueChange={([value]) => {
-                  onChange({ noteFlashIntensity: value });
+                  setPianoRollConfig({ noteFlashIntensity: value });
                 }}
               />
             )}

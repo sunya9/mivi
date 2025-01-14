@@ -1,37 +1,21 @@
 import { formatTime, getRendererFromConfig } from "@/lib/utils";
-import { AudioHandler } from "@/lib/AudioHandler";
 import { Canvas } from "@/components/Canvas";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useEffect, useMemo, useState } from "react";
-import { MidiState } from "@/types/midi";
 import { useMidiVisualizer } from "@/lib/useMidiVisualizer";
-import { RendererConfig } from "@/types/renderer";
-import { DeepPartial } from "@/types/util";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
+import { useAtomValue } from "jotai";
+import { rendererConfigAtom } from "@/atoms/rendererConfigAtom";
 
-interface Props {
-  audioHandler?: AudioHandler;
-  midiState?: MidiState;
-  rendererConfig: RendererConfig;
-  onRendererConfigChange: (
-    config: DeepPartial<RendererConfig>,
-    storeConfig?: boolean,
-  ) => void;
-}
-
-export const MidiVisualizer = ({
-  audioHandler,
-  midiState,
-  rendererConfig,
-  onRendererConfigChange,
-}: Props) => {
+export const MidiVisualizer = () => {
+  const rendererConfig = useAtomValue(rendererConfigAtom);
   const [context, setContext] = useState<CanvasRenderingContext2D>();
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   const renderer = useMemo(() => {
@@ -40,14 +24,16 @@ export const MidiVisualizer = ({
 
   const {
     isPlaying,
-    currentTime,
     duration,
-    setIsPlaying,
-    setCurrentTime,
+    togglePlay,
+    seek,
     render,
     setVolume,
     setMuted,
-  } = useMidiVisualizer(renderer, audioHandler, midiState);
+    muted,
+    volume,
+    currentTime,
+  } = useMidiVisualizer(renderer);
 
   useEffect(() => {
     if (isPlaying) return;
@@ -68,13 +54,13 @@ export const MidiVisualizer = ({
         document.activeElement === document.body
       ) {
         e.preventDefault();
-        setIsPlaying(!isPlaying);
+        togglePlay();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isPlaying, setIsPlaying]);
+  }, [isPlaying, togglePlay]);
 
   return (
     <div
@@ -87,7 +73,7 @@ export const MidiVisualizer = ({
         }
         onRedraw={render}
         onInit={setContext}
-        onClick={() => setIsPlaying(!isPlaying)}
+        onClick={() => togglePlay()}
       />
       <div
         className={cn(
@@ -108,10 +94,7 @@ export const MidiVisualizer = ({
         )}
       >
         <div className="flex items-center gap-2">
-          <Button
-            onClick={() => setIsPlaying(!isPlaying)}
-            variant="ghostSecondary"
-          >
+          <Button onClick={() => togglePlay()} variant="ghostSecondary">
             {isPlaying ? <Pause /> : <Play />}
           </Button>
           <div className="flex items-center gap-2">
@@ -120,12 +103,11 @@ export const MidiVisualizer = ({
                 <Button
                   variant="ghostSecondary"
                   onClick={() => {
-                    const newMuted = !rendererConfig.previewMuted;
+                    const newMuted = !muted;
                     setMuted(newMuted);
-                    onRendererConfigChange({ previewMuted: newMuted });
                   }}
                 >
-                  {rendererConfig.previewMuted ? (
+                  {muted ? (
                     <VolumeX className="size-4" />
                   ) : (
                     <Volume2 className="size-4" />
@@ -134,30 +116,28 @@ export const MidiVisualizer = ({
               </HoverCardTrigger>
               <HoverCardContent side="top" className="w-48">
                 <Slider
-                  value={[rendererConfig.previewVolume]}
+                  value={[volume]}
                   min={0}
                   max={1}
                   step={0.01}
                   onValueChange={([value]) => {
                     setVolume(value);
-                    onRendererConfigChange({ previewVolume: value });
                   }}
                   onValueCommit={([value]) => {
                     setVolume(value);
-                    onRendererConfigChange({ previewVolume: value }, true);
                   }}
                 />
               </HoverCardContent>
             </HoverCard>
           </div>
           <span className="mr-2 min-w-28 text-right text-white">
-            {formatTime(currentTime)} / {formatTime(duration)}
+            {formatTime(currentTime())} / {formatTime(duration)}
           </span>
           <Slider
             max={duration}
-            value={[currentTime]}
+            value={[currentTime()]}
             step={0.1}
-            onValueChange={([e]) => setCurrentTime(e)}
+            onValueChange={([e]) => seek(e)}
             className="flex-1"
           />
         </div>

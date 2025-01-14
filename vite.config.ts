@@ -1,12 +1,17 @@
 import path from "path";
-import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 import { comlink } from "vite-plugin-comlink";
 import Unfonts from "unplugin-fonts/vite";
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      babel: {
+        presets: ["jotai/babel/preset"],
+        plugins: ["@babel/plugin-proposal-explicit-resource-management"],
+      },
+    }),
     comlink(),
     Unfonts({
       google: {

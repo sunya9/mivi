@@ -13,10 +13,9 @@ export interface MidiTrack {
   config: TrackConfig;
 }
 
-export interface MidiState {
-  name: string;
-  duration: number;
+export interface MidiTracks {
   tracks: MidiTrack[];
+  duration: number;
 }
 
 export const getDefaultTrackConfig = (name: string): TrackConfig => ({

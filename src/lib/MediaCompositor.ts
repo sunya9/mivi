@@ -1,10 +1,10 @@
-import { SerializedAudio } from "@/lib/AudioHandler";
-import { MidiState } from "@/types/midi";
+import { MidiTracks } from "@/types/midi";
 import { Estimation, Measurements } from "arrival-time";
 import { Muxer, ArrayBufferTarget } from "webm-muxer";
 import { throttle } from "throttle-debounce";
 import { RendererConfig } from "@/types/renderer";
 import { getRendererFromConfig } from "@/lib/utils";
+import { SerializedAudio } from "@/atoms/playerAtom";
 export type MediaCompositorStatus = "render" | "encode" | "complete";
 export type OnProgress = (
   progress: number, // 0 ~ 1
@@ -30,9 +30,10 @@ export class MediaCompositor {
   constructor(
     private readonly canvas: OffscreenCanvas,
     private readonly rendererConfig: RendererConfig,
-    private readonly midiState: MidiState,
+    private readonly midiTracks: MidiTracks,
     private readonly serializedAudio: SerializedAudio,
     private readonly fps: number,
+    private readonly duration: number,
     private readonly onProgress: OnProgress,
     onError: (error: Error) => void,
   ) {
@@ -87,7 +88,7 @@ export class MediaCompositor {
   }
 
   private get totalVideoFrames() {
-    return this.midiState.duration * this.fps;
+    return this.duration * this.fps;
   }
 
   private get totalAudioFrames() {
@@ -169,14 +170,14 @@ export class MediaCompositor {
 
     for (let i = 0; i < totalVideoFrames; i++) {
       const progress = i / totalVideoFrames;
-      renderer.render(this.midiState.tracks, {
-        currentTime: progress * this.midiState.duration,
-        duration: this.midiState.duration,
+      renderer.render(this.midiTracks.tracks, {
+        currentTime: progress * this.duration,
+        duration: this.duration,
       });
 
       const frame = new VideoFrame(this.canvas, {
-        timestamp: progress * this.midiState.duration * 1000000,
-        duration: this.midiState.duration * 1000000,
+        timestamp: progress * this.duration * 1000000,
+        duration: this.duration * 1000000,
       });
 
       const keyFrame = i % 60 === 0;

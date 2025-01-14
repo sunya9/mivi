@@ -2,13 +2,14 @@ import { MidiTrack } from "@/types/midi";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import { useUpdateTrackConfig } from "@/atoms/midiTracksAtom";
 
 interface Props {
   track: MidiTrack;
-  onChange: (config: Partial<MidiTrack["config"]>) => void;
 }
 
-export function TrackItem({ track, onChange }: Props) {
+export function TrackItem({ track }: Props) {
+  const updateTrackConfig = useUpdateTrackConfig();
   return (
     <div
       className={cn(
@@ -21,7 +22,9 @@ export function TrackItem({ track, onChange }: Props) {
       <label className="flex flex-1 cursor-pointer items-center gap-2">
         <Switch
           checked={track.config.visible}
-          onCheckedChange={(checked) => onChange({ visible: checked })}
+          onCheckedChange={(checked) =>
+            updateTrackConfig(track.id, { visible: checked })
+          }
         />
         <span className="flex-1 text-sm font-medium">{track.config.name}</span>
       </label>
@@ -36,13 +39,17 @@ export function TrackItem({ track, onChange }: Props) {
           max={1}
           step={0.05}
           defaultValue={[1]}
-          onValueChange={([value]) => onChange({ opacity: value })}
+          onValueChange={([value]) =>
+            updateTrackConfig(track.id, { opacity: value })
+          }
           className="w-16"
         />
         <input
           type="color"
           value={track.config.color}
-          onChange={(e) => onChange({ color: e.target.value })}
+          onChange={(e) =>
+            updateTrackConfig(track.id, { color: e.target.value })
+          }
           className="cursor-pointer bg-transparent"
         />
       </div>

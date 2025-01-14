@@ -1,53 +1,41 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect } from "react";
 
 import { Renderer } from "@/renderers/Renderer";
-import { useState } from "react";
 
 import { useRef } from "react";
-import { MidiState } from "@/types/midi";
-import { AudioHandler } from "@/lib/AudioHandler";
+import { midiTracksAtom } from "@/atoms/midiTracksAtom";
+import {
+  currentTimeAtom,
+  isPlayingAtom,
+  mutedAtom,
+  seekAtom,
+  togglePlayAtom,
+  volumeAtom,
+} from "@/atoms/playerAtom";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { durationAtom } from "@/atoms/durationAtom";
 
-export const useMidiVisualizer = (
-  renderer: Renderer | undefined,
-  audioHandler: AudioHandler | undefined,
-  midiState: MidiState | undefined,
-) => {
-  const [isPlaying, setIsPlayingInternal] = useState(false);
-  const duration = useMemo(
-    () => audioHandler?.getDuration || 0,
-    [audioHandler],
-  );
+export const useMidiVisualizer = (renderer: Renderer | undefined) => {
+  const [currentTime, updateCurrentTime] = useAtom(currentTimeAtom);
+  const togglePlay = useSetAtom(togglePlayAtom);
+  const seek = useSetAtom(seekAtom);
+  const isPlaying = useAtomValue(isPlayingAtom);
+  const midiTracks = useAtomValue(midiTracksAtom);
+  const duration = useAtomValue(durationAtom);
+  const [volume, setVolume] = useAtom(volumeAtom);
+  const [muted, setMuted] = useAtom(mutedAtom);
   const animationFrameRef = useRef<number>(0);
-  const lastFrameTimeRef = useRef<number>(0);
-  const [currentTime, setCurrentTimeInternal] = useState(0);
-  useEffect(() => {
-    if (!renderer || !audioHandler || !midiState || isPlaying) return;
-    renderer.render(midiState.tracks, {
-      duration: audioHandler.getDuration,
-      currentTime,
+
+  const animate = useCallback(() => {
+    if (!renderer || !midiTracks) return;
+    renderer.render(midiTracks.tracks, {
+      currentTime: currentTime(),
+      duration,
     });
-  }, [audioHandler, currentTime, midiState, renderer, isPlaying]);
+    updateCurrentTime();
 
-  const animate = useCallback(
-    (timestamp: number) => {
-      if (!renderer || !audioHandler || !midiState) return;
-
-      lastFrameTimeRef.current = timestamp;
-      if (currentTime > audioHandler.getDuration) {
-        audioHandler.pause();
-        setIsPlayingInternal(false);
-        return;
-      }
-      setCurrentTimeInternal(audioHandler.getCurrentTime);
-      renderer.render(midiState.tracks, {
-        currentTime,
-        duration: audioHandler.getDuration,
-      });
-
-      animationFrameRef.current = requestAnimationFrame(animate);
-    },
-    [audioHandler, currentTime, midiState, renderer],
-  );
+    animationFrameRef.current = requestAnimationFrame(animate);
+  }, [currentTime, duration, midiTracks, renderer, updateCurrentTime]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -60,63 +48,31 @@ export const useMidiVisualizer = (
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [animate, audioHandler, isPlaying]);
-
-  const setIsPlaying = useCallback(
-    (nextPlayingState: boolean) => {
-      if (nextPlayingState) {
-        audioHandler?.play();
-      } else {
-        audioHandler?.pause();
-      }
-      setIsPlayingInternal(nextPlayingState);
-    },
-    [audioHandler],
-  );
-
-  const setCurrentTime = useCallback(
-    (nextCurrentTime: number) => {
-      audioHandler?.seek(nextCurrentTime, isPlaying);
-      setCurrentTimeInternal(nextCurrentTime);
-      if (!renderer || !audioHandler || !midiState) return;
-      renderer.render(midiState.tracks, {
-        currentTime: nextCurrentTime,
-        duration: audioHandler.getDuration,
-      });
-    },
-    [audioHandler, isPlaying, renderer, midiState],
-  );
+  }, [animate, isPlaying]);
 
   const render = useCallback(() => {
-    if (!renderer || !audioHandler || !midiState) return;
-    renderer.render(midiState.tracks, {
-      currentTime,
-      duration: audioHandler.getDuration,
+    if (!renderer || isPlaying) return;
+    renderer.render(midiTracks?.tracks || [], {
+      currentTime: currentTime(),
+      duration,
     });
-  }, [audioHandler, currentTime, midiState, renderer]);
+  }, [currentTime, duration, isPlaying, midiTracks?.tracks, renderer]);
 
-  const setVolume = useCallback(
-    (volume: number) => {
-      audioHandler?.setVolume(volume);
-    },
-    [audioHandler],
-  );
-
-  const setMuted = useCallback(
-    (muted: boolean) => {
-      audioHandler?.setMuted(muted);
-    },
-    [audioHandler],
-  );
+  useEffect(() => {
+    if (isPlaying) return;
+    render();
+  }, [isPlaying, render]);
 
   return {
-    currentTime,
     duration,
     isPlaying,
-    setIsPlaying,
-    setCurrentTime,
+    togglePlay,
     render,
     setVolume,
     setMuted,
+    volume,
+    muted,
+    seek,
+    currentTime,
   };
 };

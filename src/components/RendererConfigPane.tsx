@@ -1,14 +1,7 @@
-import {
-  RendererConfig,
-  RendererType,
-  resolutions,
-  fpsOptions,
-  FPS,
-} from "@/types/renderer";
+import { RendererType, resolutions, fpsOptions, FPS } from "@/types/renderer";
 import { PianoRollConfigPanel } from "./rendererConfig/PianoRollConfig";
 import { WaveformConfigPanel } from "./rendererConfig/WaveformConfig";
 import { ParticlesConfigPanel } from "./rendererConfig/ParticlesConfig";
-import { DeepPartial } from "@/types/util";
 import {
   Select,
   SelectTrigger,
@@ -18,13 +11,12 @@ import {
 } from "@/components/ui/select";
 import { FormRow } from "@/components/FormRow";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { rendererConfigAtom } from "@/atoms/rendererConfigAtom";
+import { useAtom } from "jotai";
 
-interface Props {
-  config: RendererConfig;
-  onChange: (config: DeepPartial<RendererConfig>) => void;
-}
+export function RendererConfigPane() {
+  const [rendererConfig, setRendererConfig] = useAtom(rendererConfigAtom);
 
-export function RendererConfigPane({ config, onChange }: Props) {
   return (
     <div className="@container">
       <div className="grid grid-cols-1 gap-4 @[480px]:grid-cols-2">
@@ -40,9 +32,9 @@ export function RendererConfigPane({ config, onChange }: Props) {
               Controller={() => (
                 <input
                   type="color"
-                  value={config.backgroundColor}
+                  value={rendererConfig.backgroundColor}
                   onChange={(e) =>
-                    onChange({ backgroundColor: e.target.value })
+                    setRendererConfig({ backgroundColor: e.target.value })
                   }
                 />
               )}
@@ -51,14 +43,14 @@ export function RendererConfigPane({ config, onChange }: Props) {
               Label={() => <>Resolution</>}
               Controller={() => (
                 <Select
-                  value={`${config.resolution.width}x${config.resolution.height}`}
+                  value={`${rendererConfig.resolution.width}x${rendererConfig.resolution.height}`}
                   onValueChange={(value) => {
                     const [width, height] = value.split("x").map(Number);
                     const resolution = resolutions.find(
                       (r) => r.width === width && r.height === height,
                     );
                     if (resolution) {
-                      onChange({ resolution });
+                      setRendererConfig({ resolution });
                     }
                   }}
                 >
@@ -82,10 +74,10 @@ export function RendererConfigPane({ config, onChange }: Props) {
               Label={() => <>Frame Rate</>}
               Controller={() => (
                 <Select
-                  value={config.fps.toString()}
+                  value={rendererConfig.fps.toString()}
                   onValueChange={(value) => {
                     const fps = +value as FPS;
-                    onChange({ fps });
+                    setRendererConfig({ fps });
                   }}
                 >
                   <SelectTrigger className="w-48">
@@ -117,9 +109,9 @@ export function RendererConfigPane({ config, onChange }: Props) {
               Label={() => <>Style</>}
               Controller={() => (
                 <Select
-                  value={config.type}
+                  value={rendererConfig.type}
                   onValueChange={(value: RendererType) =>
-                    onChange({ ...config, type: value })
+                    setRendererConfig({ type: value })
                   }
                 >
                   <SelectTrigger>
@@ -136,36 +128,9 @@ export function RendererConfigPane({ config, onChange }: Props) {
                 </Select>
               )}
             />
-            {config.type === "pianoRoll" && (
-              <PianoRollConfigPanel
-                config={config.pianoRollConfig}
-                onChange={(pianoRollConfig) =>
-                  onChange({
-                    pianoRollConfig,
-                  })
-                }
-              />
-            )}
-            {config.type === "waveform" && (
-              <WaveformConfigPanel
-                config={config.waveformConfig}
-                onChange={(waveformConfig) =>
-                  onChange({
-                    waveformConfig,
-                  })
-                }
-              />
-            )}
-            {config.type === "particles" && (
-              <ParticlesConfigPanel
-                config={config.particlesConfig}
-                onChange={(particlesConfig) =>
-                  onChange({
-                    particlesConfig,
-                  })
-                }
-              />
-            )}
+            {rendererConfig.type === "pianoRoll" && <PianoRollConfigPanel />}
+            {rendererConfig.type === "waveform" && <WaveformConfigPanel />}
+            {rendererConfig.type === "particles" && <ParticlesConfigPanel />}
           </CardContent>
         </Card>
       </div>

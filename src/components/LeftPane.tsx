@@ -1,6 +1,5 @@
-import { MidiState, MidiTrack } from "../types/midi";
 import { TrackItem } from "./TrackItem";
-import { useRef } from "react";
+import { startTransition, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,30 +9,23 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CircleXIcon } from "lucide-react";
+import { midiAtom, midiFileAtom } from "@/atoms/midiAtom";
+import { audioFileAtom, audioInfoAtom } from "@/atoms/playerAtom";
+import {
+  midiTracksAtom,
+  useRandomizeColorsColorful,
+  useRandomizeColorsGradient,
+} from "@/atoms/midiTracksAtom";
+import { useAtomValue, useSetAtom } from "jotai";
 
-interface Props {
-  onMidiSelect: (file: File) => void;
-  onTrackChange: (track: MidiTrack) => void;
-  setAudioFile: (file: File) => void;
-  midiState?: MidiState;
-  audio?: File;
-  onRandomizeColorsColorful: () => void;
-  onRandomizeColorsGradient: () => void;
-  clearMidi: () => void;
-  clearAudio: () => void;
-}
-
-export function LeftPane({
-  setAudioFile,
-  onMidiSelect,
-  onTrackChange,
-  midiState,
-  audio,
-  onRandomizeColorsColorful,
-  onRandomizeColorsGradient,
-  clearMidi,
-  clearAudio,
-}: Props) {
+export function LeftPane() {
+  const midi = useAtomValue(midiFileAtom);
+  const setMidi = useSetAtom(midiAtom);
+  const midiTracks = useAtomValue(midiTracksAtom);
+  const randomizeColorsColorful = useRandomizeColorsColorful();
+  const randomizeColorsGradient = useRandomizeColorsGradient();
+  const audio = useAtomValue(audioFileAtom);
+  const setAudio = useSetAtom(audioInfoAtom);
   const midiInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
   return (
@@ -46,17 +38,21 @@ export function LeftPane({
           <div className="grid grid-cols-1 gap-2">
             <div className="flex items-center justify-between gap-2">
               <span className="ml-2 inline-flex items-center">
-                {midiState && (
+                {midi && (
                   <>
                     <Button
                       className="mr-2"
                       variant="icon"
                       size="iconSmall"
-                      onClick={clearMidi}
+                      onClick={() =>
+                        startTransition(async () => {
+                          await setMidi(undefined);
+                        })
+                      }
                     >
                       <CircleXIcon />
                     </Button>
-                    {midiState.name}
+                    {midi.name}
                   </>
                 )}
               </span>
@@ -67,7 +63,10 @@ export function LeftPane({
                   e.preventDefault();
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  onMidiSelect(file);
+                  startTransition(async () => {
+                    await setMidi(file);
+                  });
+                  e.currentTarget.value = "";
                 }}
                 ref={midiInputRef}
                 className="hidden"
@@ -88,11 +87,15 @@ export function LeftPane({
                       className="mr-2"
                       variant="icon"
                       size="iconSmall"
-                      onClick={clearAudio}
+                      onClick={() =>
+                        startTransition(async () => {
+                          await setAudio(undefined);
+                        })
+                      }
                     >
                       <CircleXIcon />
                     </Button>
-                    {audio?.name}
+                    {audio.name}
                   </>
                 )}
               </span>
@@ -103,7 +106,10 @@ export function LeftPane({
                   e.preventDefault();
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  setAudioFile(file);
+                  startTransition(async () => {
+                    await setAudio(file);
+                  });
+                  e.currentTarget.value = "";
                 }}
                 className="hidden"
                 ref={audioInputRef}
@@ -118,47 +124,39 @@ export function LeftPane({
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="divide-y">
-            {midiState?.tracks.map((track) => (
-              <TrackItem
-                key={track.id}
-                track={track}
-                onChange={(config) => {
-                  onTrackChange({
-                    ...track,
-                    config: {
-                      ...track.config,
-                      ...config,
-                    },
-                  });
-                }}
-              />
-            ))}
-          </div>
-        </CardContent>
-        {midiState?.tracks.length && (
-          <CardFooter className="gap-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onRandomizeColorsColorful}
-            >
-              Randomize colors (colorful)
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onRandomizeColorsGradient}
-            >
-              Randomize colors (gradient)
-            </Button>
+        {midiTracks && (
+          <>
+            <CardContent>
+              <div className="divide-y">
+                {midiTracks.tracks.map((track) => (
+                  <TrackItem key={track.id} track={track} />
+                ))}
+              </div>
+            </CardContent>
+            <CardFooter className="gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => randomizeColorsColorful(midiTracks)}
+              >
+                Randomize colors (colorful)
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => randomizeColorsGradient(midiTracks)}
+              >
+                Randomize colors (gradient)
+              </Button>
+            </CardFooter>
+          </>
+        )}
+        {!midiTracks?.tracks.length && (
+          <CardFooter>
+            <p className="text-center text-gray-500">Select a MIDI file</p>
           </CardFooter>
         )}
       </Card>
-      {midiState?.tracks.length === 0 && (
-        <div className="py-4 text-center text-gray-500">Select a MIDI file</div>
-      )}
     </div>
   );
 }
