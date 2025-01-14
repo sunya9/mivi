@@ -104,7 +104,27 @@ export function PianoRollConfigPanel() {
         )}
       />
       <FormRow
-        Label={() => <>Show Playhead</>}
+        Label={() => (
+          <>
+            Playhead Position: {rendererConfig.pianoRollConfig.playheadPosition}
+            %
+          </>
+        )}
+        Controller={() => (
+          <Slider
+            className="w-full min-w-24 max-w-48"
+            value={[rendererConfig.pianoRollConfig.playheadPosition]}
+            min={0}
+            max={75}
+            step={1}
+            onValueChange={([value]) =>
+              setPianoRollConfig({ playheadPosition: value })
+            }
+          />
+        )}
+      />
+      <FormRow
+        Label={() => <>Show Playhead Border</>}
         Controller={() => (
           <Switch
             checked={rendererConfig.pianoRollConfig.showPlayhead}
@@ -117,27 +137,7 @@ export function PianoRollConfigPanel() {
       {rendererConfig.pianoRollConfig.showPlayhead && (
         <>
           <FormRow
-            Label={() => (
-              <>
-                Playhead Position:{" "}
-                {rendererConfig.pianoRollConfig.playheadPosition}%
-              </>
-            )}
-            Controller={() => (
-              <Slider
-                className="w-full min-w-24 max-w-48"
-                value={[rendererConfig.pianoRollConfig.playheadPosition]}
-                min={0}
-                max={75}
-                step={1}
-                onValueChange={([value]) =>
-                  setPianoRollConfig({ playheadPosition: value })
-                }
-              />
-            )}
-          />
-          <FormRow
-            Label={() => <>Playhead Color</>}
+            Label={() => <>Playhead Border Color</>}
             Controller={() => (
               <input
                 type="color"
@@ -151,7 +151,8 @@ export function PianoRollConfigPanel() {
           <FormRow
             Label={() => (
               <>
-                Playhead Width: {rendererConfig.pianoRollConfig.playheadWidth}px
+                Playhead Border Width:{" "}
+                {rendererConfig.pianoRollConfig.playheadWidth}px
               </>
             )}
             Controller={() => (
@@ -170,7 +171,7 @@ export function PianoRollConfigPanel() {
           <FormRow
             Label={() => (
               <>
-                Playhead Opacity:{" "}
+                Playhead Border Opacity:{" "}
                 {Math.round(
                   rendererConfig.pianoRollConfig.playheadOpacity * 100,
                 )}
