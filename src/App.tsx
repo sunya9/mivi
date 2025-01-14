@@ -9,7 +9,6 @@ import { ErrorBoundary } from "react-error-boundary";
 import { Loading } from "@/components/Loading";
 import { Fallback } from "@/components/Fallback";
 import { AppToolbar } from "@/components/AppToolbar";
-import { DevTools } from "jotai-devtools";
 import { TrackListPane } from "@/components/TrackListPane";
 import { MidiVisualizer } from "@/components/MidiVisualizer";
 import { VisualizerStyle } from "@/components/VisualizerStyle";
@@ -20,7 +19,6 @@ export const App = () => {
       <Suspense fallback={<Loading />}>
         <AppInternal />
       </Suspense>
-      <DevTools />
     </ErrorBoundary>
   );
 };
