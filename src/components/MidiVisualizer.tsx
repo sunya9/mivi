@@ -49,9 +49,10 @@ export const MidiVisualizer = () => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
-        e.code === "Space" &&
-        !e.repeat &&
-        document.activeElement === document.body
+        (e.code === "Space" &&
+          !e.repeat &&
+          document.activeElement === document.body) ||
+        document.activeElement?.role === "slider"
       ) {
         e.preventDefault();
         togglePlay();
