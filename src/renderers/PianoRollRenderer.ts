@@ -10,6 +10,8 @@ export class PianoRollRenderer extends Renderer {
 
   private readonly minRippleDuration = 0.3;
 
+  private readonly pressAnimationDuration = 0.1;
+
   private lastCurrentTime: number = 0;
 
   private rippleStates = new Map<
@@ -28,6 +30,14 @@ export class PianoRollRenderer extends Renderer {
     {
       noteStart: number;
       color: string;
+    }
+  >();
+
+  private pressStates = new Map<
+    string,
+    {
+      startTime: number;
+      isPressed: boolean;
     }
   >();
 
@@ -61,6 +71,7 @@ export class PianoRollRenderer extends Renderer {
     if (currentTime < this.lastCurrentTime) {
       this.rippleStates.clear();
       this.noteFlashStates.clear();
+      this.pressStates.clear();
     }
     this.lastCurrentTime = currentTime;
 
@@ -125,9 +136,42 @@ export class PianoRollRenderer extends Renderer {
           Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
         const wasNotTouchingPlayhead = !this.noteFlashStates.has(noteKey);
 
-        // Draw note with flash effect
+        // Update press state
+        if (!this.pressStates.has(noteKey)) {
+          this.pressStates.set(noteKey, {
+            startTime: currentTime,
+            isPressed: isTouchingPlayhead,
+          });
+        } else if (
+          this.pressStates.get(noteKey)!.isPressed !== isTouchingPlayhead
+        ) {
+          this.pressStates.set(noteKey, {
+            startTime: currentTime,
+            isPressed: isTouchingPlayhead,
+          });
+        }
+
+        // Draw note with effects
         this.ctx.fillStyle = track.config.color;
         this.ctx.globalAlpha = track.config.opacity;
+
+        // Calculate press offset with animation
+        let pressOffset = 0;
+        if (this.config.pianoRollConfig.showNotePressEffect) {
+          const pressState = this.pressStates.get(noteKey)!;
+          const pressProgress = Math.min(
+            1,
+            (currentTime - pressState.startTime) / this.pressAnimationDuration,
+          );
+          const targetOffset = pressState.isPressed
+            ? this.config.pianoRollConfig.notePressDepth
+            : 0;
+          const currentOffset = pressState.isPressed
+            ? pressProgress * targetOffset
+            : (1 - pressProgress) * targetOffset;
+          pressOffset = -currentOffset;
+        }
+
         if (
           this.config.pianoRollConfig.showNoteFlash &&
           isTouchingPlayhead &&
@@ -161,7 +205,7 @@ export class PianoRollRenderer extends Renderer {
         this.ctx.beginPath();
         this.ctx.roundRect(
           x + noteMargin,
-          y,
+          y - pressOffset,
           noteWidth,
           noteHeight,
           this.config.pianoRollConfig.noteCornerRadius,
@@ -183,7 +227,7 @@ export class PianoRollRenderer extends Renderer {
             noteStart: noteStart,
             noteEnd: noteEnd,
             x: playheadX,
-            y: y + noteHeight / 2,
+            y: y - pressOffset + noteHeight / 2,
             color: track.config.color,
           });
         }

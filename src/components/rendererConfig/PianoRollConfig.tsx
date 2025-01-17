@@ -7,6 +7,7 @@ import { FormRow } from "@/components/FormRow";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useAtomValue } from "jotai";
+import { Separator } from "@/components/ui/separator";
 
 export function PianoRollConfigPanel() {
   const rendererConfig = useAtomValue(rendererConfigAtom);
@@ -108,6 +109,44 @@ export function PianoRollConfigPanel() {
       />
       <FormRow
         Label={() => (
+          <span className="flex flex-wrap gap-x-2">
+            <span>
+              View Range: {rendererConfig.pianoRollConfig.viewRangeBottom} -{" "}
+              {rendererConfig.pianoRollConfig.viewRangeTop}
+            </span>
+            {midiTracks && (
+              <span className="text-muted-foreground">
+                (Detected range: {minNote} - {maxNote})
+              </span>
+            )}
+          </span>
+        )}
+        Controller={() => (
+          <Slider
+            className="w-full min-w-24 max-w-48"
+            value={[
+              rendererConfig.pianoRollConfig.viewRangeBottom,
+              rendererConfig.pianoRollConfig.viewRangeTop,
+            ]}
+            min={0}
+            max={127}
+            step={1}
+            defaultValue={[
+              Math.min(0, minNote ? minNote - 10 : 0),
+              Math.max(127, maxNote ? maxNote + 10 : 127),
+            ]}
+            onValueChange={([bottom, top]) =>
+              setPianoRollConfig({
+                viewRangeBottom: bottom,
+                viewRangeTop: top,
+              })
+            }
+          />
+        )}
+      />
+      <Separator />
+      <FormRow
+        Label={() => (
           <>
             Playhead Position: {rendererConfig.pianoRollConfig.playheadPosition}
             %
@@ -196,6 +235,7 @@ export function PianoRollConfigPanel() {
           />
         </>
       )}
+      <Separator />
       <FormRow
         Label={() => <>Show Ripple Effect</>}
         Controller={() => (
@@ -207,6 +247,40 @@ export function PianoRollConfigPanel() {
           />
         )}
       />
+      <Separator />
+      <FormRow
+        Label={() => <>Note Press Effect</>}
+        Controller={() => (
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={rendererConfig.pianoRollConfig.showNotePressEffect}
+              onCheckedChange={(checked) => {
+                setPianoRollConfig({ showNotePressEffect: checked });
+              }}
+            />
+          </div>
+        )}
+      />
+      {rendererConfig.pianoRollConfig.showNotePressEffect && (
+        <FormRow
+          Label={() => (
+            <>Press Depth: {rendererConfig.pianoRollConfig.notePressDepth}px</>
+          )}
+          Controller={() => (
+            <Slider
+              value={[rendererConfig.pianoRollConfig.notePressDepth]}
+              className="w-full min-w-24 max-w-48"
+              min={1}
+              max={10}
+              step={1}
+              onValueChange={([value]) => {
+                setPianoRollConfig({ notePressDepth: value });
+              }}
+            />
+          )}
+        />
+      )}
+      <Separator />
       <FormRow
         Label={() => <>Note Flash Effect</>}
         Controller={() => (
@@ -217,7 +291,6 @@ export function PianoRollConfigPanel() {
                 setPianoRollConfig({ showNoteFlash: checked });
               }}
             />
-            {/* <p>Show flash effect when notes are played</p> */}
           </div>
         )}
       />
@@ -260,43 +333,6 @@ export function PianoRollConfigPanel() {
           />
         </>
       )}
-      <FormRow
-        Label={() => (
-          <span className="flex flex-wrap gap-x-2">
-            <span>
-              View Range: {rendererConfig.pianoRollConfig.viewRangeBottom} -{" "}
-              {rendererConfig.pianoRollConfig.viewRangeTop}
-            </span>
-            {midiTracks && (
-              <span className="text-muted-foreground">
-                (Detected range: {minNote} - {maxNote})
-              </span>
-            )}
-          </span>
-        )}
-        Controller={() => (
-          <Slider
-            className="w-full min-w-24 max-w-48"
-            value={[
-              rendererConfig.pianoRollConfig.viewRangeBottom,
-              rendererConfig.pianoRollConfig.viewRangeTop,
-            ]}
-            min={0}
-            max={127}
-            step={1}
-            defaultValue={[
-              Math.min(0, minNote ? minNote - 10 : 0),
-              Math.max(127, maxNote ? maxNote + 10 : 127),
-            ]}
-            onValueChange={([bottom, top]) =>
-              setPianoRollConfig({
-                viewRangeBottom: bottom,
-                viewRangeTop: top,
-              })
-            }
-          />
-        )}
-      />
     </>
   );
 }

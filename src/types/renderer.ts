@@ -16,6 +16,8 @@ interface PianoRollConfigValues {
   noteFlashIntensity: number;
   viewRangeTop: number;
   viewRangeBottom: number;
+  showNotePressEffect: boolean;
+  notePressDepth: number;
 }
 
 interface WaveformConfigValues {
@@ -99,6 +101,8 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     noteFlashIntensity: 0.5,
     viewRangeTop: 0,
     viewRangeBottom: 0,
+    showNotePressEffect: true,
+    notePressDepth: 4,
   },
   waveformConfig: {
     lineColor: "#4a9eff",
