@@ -14,7 +14,13 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { resolutions, FPS, fpsOptions } from "@/types/renderer";
+import {
+  resolutions,
+  FPS,
+  fpsOptions,
+  formatOptions,
+  VideoFormat,
+} from "@/types/renderer";
 
 export function CommonConfigPane() {
   const midi = useAtomValue(midiFileAtom);
@@ -132,6 +138,7 @@ export function CommonConfigPane() {
             <input
               type="color"
               value={rendererConfig.backgroundColor}
+              className="cursor-pointer bg-transparent"
               onChange={(e) =>
                 setRendererConfig({ backgroundColor: e.target.value })
               }
@@ -188,6 +195,28 @@ export function CommonConfigPane() {
                     key={option.value}
                     value={option.value.toString()}
                   >
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <FormRow
+          Label={() => <>Export Format</>}
+          Controller={() => (
+            <Select
+              value={rendererConfig.format}
+              onValueChange={(value: VideoFormat) =>
+                setRendererConfig({ format: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select video format" />
+              </SelectTrigger>
+              <SelectContent align="end">
+                {formatOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
                 ))}

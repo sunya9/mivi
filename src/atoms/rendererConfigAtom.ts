@@ -2,6 +2,7 @@ import { getDefaultRendererConfig, RendererConfig } from "@/types/renderer";
 import { DeepPartial } from "@/types/util";
 import { atom, useSetAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import defaultsDeep from "lodash.defaultsdeep";
 import merge from "lodash.merge";
 import { useCallback } from "react";
 
@@ -21,7 +22,10 @@ export const rendererConfigAtom = atom<
   [DeepPartial<RendererConfig>],
   void
 >(
-  (get) => get(rendererConfigStorageAtom),
+  (get) => {
+    const config = get(rendererConfigStorageAtom);
+    return defaultsDeep(config, defaultConfig); // add new default config always
+  },
   (get, set, deepPartialRendererConfig) => {
     const mergedRendererConfig = merge(
       get(rendererConfigStorageAtom),

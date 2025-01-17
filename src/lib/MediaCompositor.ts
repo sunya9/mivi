@@ -1,10 +1,10 @@
 import { MidiTracks } from "@/types/midi";
 import { Estimation, Measurements } from "arrival-time";
-import { Muxer, ArrayBufferTarget } from "webm-muxer";
 import { throttle } from "throttle-debounce";
 import { RendererConfig } from "@/types/renderer";
 import { getRendererFromConfig } from "@/lib/utils";
 import { SerializedAudio } from "@/atoms/playerAtom";
+import { Muxer } from "@/lib/muxer";
 export type MediaCompositorStatus = "render" | "encode" | "complete";
 export type OnProgress = (
   progress: number, // 0 ~ 1
@@ -16,7 +16,6 @@ const frameSize = 20;
 export class MediaCompositor {
   private readonly videoEncoder: VideoEncoder;
   private readonly audioEncoder: AudioEncoder;
-  private readonly muxer: Muxer<ArrayBufferTarget>;
   private status: MediaCompositorStatus = "render";
   private progressList = {
     renderAudio: 0,
@@ -34,24 +33,10 @@ export class MediaCompositor {
     private readonly serializedAudio: SerializedAudio,
     private readonly fps: number,
     private readonly duration: number,
+    private readonly muxer: Muxer,
     private readonly onProgress: OnProgress,
     onError: (error: Error) => void,
   ) {
-    this.muxer = new Muxer({
-      target: new ArrayBufferTarget(),
-      video: {
-        codec: "V_VP9",
-        width: canvas.width,
-        height: canvas.height,
-        frameRate: fps,
-      },
-      audio: {
-        codec: "A_OPUS",
-        numberOfChannels: serializedAudio.numberOfChannels,
-        sampleRate: serializedAudio.sampleRate,
-      },
-    });
-
     const audioEncoder = new AudioEncoder({
       output: (chunk) => {
         this.muxer.addAudioChunk(chunk);
@@ -68,8 +53,8 @@ export class MediaCompositor {
     audioEncoder.addEventListener("dequeue", this.dequeueAudioListener);
 
     const videoEncoder = new VideoEncoder({
-      output: (chunk) => {
-        this.muxer.addVideoChunk(chunk);
+      output: (chunk, metadata) => {
+        this.muxer.addVideoChunk(chunk, metadata);
       },
       error: onError,
     });
@@ -77,16 +62,25 @@ export class MediaCompositor {
     videoEncoder.addEventListener("dequeue", this.dequeueVideoListener);
 
     videoEncoder.configure({
-      codec: "vp09.00.10.08",
+      codec: this.muxer.videoCodec,
       width: canvas.width,
       height: canvas.height,
       bitrate: 500_000,
       framerate: fps,
+      bitrateMode: "quantizer",
     });
+
     this.audioEncoder = audioEncoder;
     this.videoEncoder = videoEncoder;
   }
 
+  private get encoderOptions() {
+    return {
+      vp09: {
+        quantizer: 0,
+      },
+    };
+  }
   private get totalVideoFrames() {
     return this.duration * this.fps;
   }
@@ -105,7 +99,7 @@ export class MediaCompositor {
     await Promise.all([this.videoEncoder.flush(), this.audioEncoder.flush()]);
     this.status = "complete";
     this.muxer.finalize();
-    const videoBlob = new Blob([this.muxer.target.buffer], {
+    const videoBlob = new Blob([this.muxer.buffer], {
       type: "video/webm",
     });
     this.onProgressInternal({
@@ -181,7 +175,11 @@ export class MediaCompositor {
       });
 
       const keyFrame = i % 60 === 0;
-      this.videoEncoder.encode(frame, { keyFrame });
+
+      this.videoEncoder.encode(frame, {
+        ...this.encoderOptions,
+        keyFrame,
+      });
       frame.close();
       this.onProgressInternal({ renderVideo: progress });
     }

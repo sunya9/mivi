@@ -14,6 +14,7 @@ import { useAtomValue } from "jotai";
 import { midiTracksAtom } from "@/atoms/midiTracksAtom";
 import { durationAtom } from "@/atoms/durationAtom";
 import { audioInfoAtom, serializeAtom } from "@/atoms/playerAtom";
+import { midiFileAtom } from "@/atoms/midiAtom";
 
 type TypedRendererWorker = typeof import("./recorder.worker");
 
@@ -22,13 +23,14 @@ export const useStartRecording = () => {
   const audioInfo = useAtomValue(audioInfoAtom);
   const duration = useAtomValue(durationAtom);
   const midiTracks = useAtomValue(midiTracksAtom);
+  const midiFile = useAtomValue(midiFileAtom);
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
     new ReadyState(),
   );
   const workerRef = useRef<TypedRendererWorker>(null);
   const startRecording = useCallback(
     async (width: number, height: number, rendererConfig: RendererConfig) => {
-      if (!duration || !midiTracks || !audioInfo) {
+      if (!duration || !midiTracks || !audioInfo || !midiFile) {
         console.error(duration, midiTracks, audioInfo);
         throw new Error("Midi state and audio buffer are required");
       }
@@ -56,13 +58,13 @@ export const useStartRecording = () => {
       const onError = proxy((error: Error) => {
         console.error(error);
       });
+      const filename = midiFile.name;
       return worker
         .startRecording(
           transfer(offscreen, [offscreen]),
           rendererConfig,
           midiTracks,
           serializedAudio,
-          rendererConfig.fps,
           duration,
           onProgress,
           onError,
@@ -72,7 +74,7 @@ export const useStartRecording = () => {
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = "animation.webm";
+          a.download = `mivi-${filename}.${rendererConfig.format}`;
           a.click();
           URL.revokeObjectURL(url);
         })
@@ -84,7 +86,7 @@ export const useStartRecording = () => {
           workerRef.current = null;
         });
     },
-    [audioInfo, duration, midiTracks, serializedAudio],
+    [audioInfo, duration, midiTracks, midiFile, serializedAudio],
   );
   const stopRecording = useCallback(() => {
     workerRef.current = null;

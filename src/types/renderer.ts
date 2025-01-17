@@ -52,13 +52,20 @@ export const fpsOptions = [
   { value: 60, label: "60 fps" },
 ] as const;
 
+export const formatOptions = [
+  { value: "webm", label: "WebM (VP9)" },
+  { value: "mp4", label: "MP4 (H.264)" },
+] as const;
+
 export type FPS = (typeof fpsOptions)[number]["value"];
+export type VideoFormat = (typeof formatOptions)[number]["value"];
 
 export interface RendererConfig {
   type: RendererType;
   backgroundColor: string;
   resolution: Resolution;
   fps: FPS;
+  format: VideoFormat;
   pianoRollConfig: PianoRollConfigValues;
   waveformConfig: WaveformConfigValues;
   particlesConfig: ParticlesConfigValues;
@@ -73,6 +80,7 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
   backgroundColor: "#1a1a1a",
   resolution: resolutions[1],
   fps: 30,
+  format: "webm",
   pianoRollConfig: {
     noteMargin: 2,
     noteVerticalMargin: 1,
