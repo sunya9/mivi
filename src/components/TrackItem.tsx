@@ -30,8 +30,22 @@ export function TrackItem({ track }: Props) {
       </label>
       <div className="flex items-center gap-2">
         <span className="text-xs text-muted-foreground">
-          Opacity:
-          {Math.round(track.config.opacity * 100)}%
+          Scale: {Math.round(track.config.scale * 100)}%
+        </span>
+        <Slider
+          value={[track.config.scale]}
+          min={0.5}
+          max={1}
+          step={0.05}
+          defaultValue={[1]}
+          onValueChange={([value]) =>
+            updateTrackConfig(track.id, { scale: value })
+          }
+          key={`${track.id}-scale`}
+          className="w-16"
+        />
+        <span className="text-xs text-muted-foreground">
+          Opacity: {Math.round(track.config.opacity * 100)}%
         </span>
         <Slider
           value={[track.config.opacity]}
@@ -43,6 +57,7 @@ export function TrackItem({ track }: Props) {
             updateTrackConfig(track.id, { opacity: value })
           }
           className="w-16"
+          key={`${track.id}-opacity`}
         />
         <input
           type="color"

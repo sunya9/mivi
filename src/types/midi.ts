@@ -5,6 +5,7 @@ export interface TrackConfig {
   color: string;
   opacity: number;
   name: string;
+  scale: number;
 }
 
 export interface MidiTrack {
@@ -20,9 +21,13 @@ export interface MidiTracks {
   maxNote: number;
 }
 
-export const getDefaultTrackConfig = (name: string): TrackConfig => ({
+export const getDefaultTrackConfig = (
+  name: string,
+  color: string = "#4a9eff",
+): TrackConfig => ({
   visible: true,
-  color: "#4a9eff",
+  color,
   opacity: 1,
   name,
+  scale: 1,
 });

@@ -2,15 +2,41 @@ import {
   getRandomTailwindColor,
   getRandomTailwindColorPalette,
 } from "@/lib/tailwindColors";
-import { MidiTracks, MidiTrack } from "@/types/midi";
+import { MidiTracks, MidiTrack, getDefaultTrackConfig } from "@/types/midi";
 import { produce } from "immer";
-import { useAtom, useSetAtom } from "jotai";
+import { atom, useAtom, useSetAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
+import defaultsDeep from "lodash.defaultsdeep";
 import { useCallback } from "react";
 
-export const midiTracksAtom = atomWithStorage<MidiTracks | undefined>(
+const defaultTrackConfig = getDefaultTrackConfig("");
+
+export const midiTracksStorageAtom = atomWithStorage<MidiTracks | undefined>(
   "mivi:midi-tracks",
   undefined,
+);
+
+export const midiTracksAtom = atom<
+  MidiTracks | undefined,
+  [MidiTracks | undefined],
+  void
+>(
+  (get) => {
+    const midiTracks = get(midiTracksStorageAtom);
+    if (!midiTracks) return;
+    const tracks = midiTracks.tracks.map((track) => {
+      const config = defaultsDeep(track.config, defaultTrackConfig);
+      return {
+        ...track,
+        config,
+      };
+    });
+    return {
+      ...midiTracks,
+      tracks,
+    };
+  },
+  (_, set, midiTracks) => set(midiTracksStorageAtom, midiTracks),
 );
 
 export const useRandomizeColorsColorful = () => {

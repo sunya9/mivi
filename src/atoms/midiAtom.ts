@@ -1,7 +1,7 @@
 import { midiTracksAtom } from "@/atoms/midiTracksAtom";
 import { fileDb, fileKeys } from "@/atoms/minidb";
 import { getRandomTailwindColor } from "@/lib/tailwindColors";
-import { MidiTracks } from "@/types/midi";
+import { getDefaultTrackConfig, MidiTrack, MidiTracks } from "@/types/midi";
 import { Midi } from "@tonejs/midi";
 import { atom } from "jotai";
 
@@ -28,17 +28,16 @@ export const midiAtom = atom(
       .then(() => file.arrayBuffer())
       .then((arrayBuffer) => new Midi(arrayBuffer))
       .then((midi) => {
-        const tracks = midi.tracks.map((track, index) => {
+        const tracks = midi.tracks.map((track, index): MidiTrack => {
           const color = getRandomTailwindColor();
+          const config = getDefaultTrackConfig(
+            track.name || `Track ${index + 1}`,
+            color,
+          );
           return {
             id: crypto.randomUUID(),
             notes: track.notes.map((note) => note.toJSON()),
-            config: {
-              name: track.name || `Track ${index + 1}`,
-              color,
-              visible: true,
-              opacity: 1,
-            },
+            config,
           };
         });
         const notes = tracks.map((track) => track.notes).flat();

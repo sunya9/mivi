@@ -93,9 +93,15 @@ export class PianoRollRenderer extends Renderer {
       currentTime - this.config.pianoRollConfig.timeWindow * playheadPosition;
     const endTime = startTime + this.config.pianoRollConfig.timeWindow;
 
-    const timeToX = (time: number) => {
+    const timeToX = (time: number, scale: number = 1) => {
+      // プレイヘッドの位置を基準点として、スケールに応じて時間軸方向にも縮小
+      const timeFromPlayhead = time - currentTime;
+      const scaledTimeFromPlayhead = timeFromPlayhead * scale;
+      const adjustedTime = currentTime + scaledTimeFromPlayhead;
+
       return (
-        width * ((time - startTime) / this.config.pianoRollConfig.timeWindow)
+        width *
+        ((adjustedTime - startTime) / this.config.pianoRollConfig.timeWindow)
       );
     };
 
@@ -117,14 +123,15 @@ export class PianoRollRenderer extends Renderer {
         )
           return;
 
-        const x = timeToX(noteStart);
-        const rawNoteWidth = timeToX(noteEnd) - x;
+        const x = timeToX(noteStart, track.config.scale);
+        const rawNoteWidth = timeToX(noteEnd, track.config.scale) - x;
         const baseNoteHeight = Math.max(
           height / 127,
           this.config.pianoRollConfig.noteHeight,
         );
         const verticalMargin = this.config.pianoRollConfig.noteVerticalMargin;
-        const noteHeight = Math.max(0, baseNoteHeight - verticalMargin * 2);
+        const noteHeight =
+          Math.max(0, baseNoteHeight - verticalMargin * 2) * track.config.scale;
 
         const noteMargin = this.config.pianoRollConfig.noteMargin;
         const noteWidth = Math.max(0, rawNoteWidth - noteMargin * 2);
