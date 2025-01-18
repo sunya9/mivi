@@ -37,7 +37,7 @@ const AppInternal = () => {
             <TrackListPane />
           </ScrollArea>
         </ResizablePanel>
-        <ResizableHandle className="transition-all hover:bg-primary/50 hover:shadow-lg hover:ring-2 hover:ring-primary/50" />
+        <ResizableHandle />
         <ResizablePanel defaultSize={34}>
           <ResizablePanelGroup
             direction="vertical"
@@ -46,7 +46,7 @@ const AppInternal = () => {
             <ResizablePanel defaultSize={40}>
               <MidiVisualizer />
             </ResizablePanel>
-            <ResizableHandle className="transition-all hover:bg-primary/50 hover:shadow-lg hover:ring-2 hover:ring-primary/50" />
+            <ResizableHandle />
 
             <ResizablePanel defaultSize={60}>
               <ScrollArea className="h-full w-full" type="auto">
@@ -55,7 +55,7 @@ const AppInternal = () => {
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>
-        <ResizableHandle className="transition-all hover:bg-primary/50 hover:shadow-lg hover:ring-2 hover:ring-primary/50" />
+        <ResizableHandle />
         <ResizablePanel defaultSize={33}>
           <ScrollArea className="h-full w-full" type="auto">
             <VisualizerStyle />
