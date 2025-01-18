@@ -1,7 +1,7 @@
 import { startTransition, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { CircleXIcon } from "lucide-react";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { CircleXIcon, Info } from "lucide-react";
 import { midiAtom, midiFileAtom } from "@/atoms/midiAtom";
 import { audioFileAtom, audioInfoAtom } from "@/atoms/playerAtom";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -22,6 +22,12 @@ import {
   VideoFormat,
 } from "@/types/renderer";
 import { CollapsibleCardPane } from "@/components/CollapsibleCardPane";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
 
 export function CommonConfigPane() {
   const midi = useAtomValue(midiFileAtom);
@@ -141,7 +147,19 @@ export function CommonConfigPane() {
             )}
           />
           <FormRow
-            Label={() => <>Resolution</>}
+            Label={() => (
+              <span className="inline-flex items-center gap-2">
+                Resolution
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="size-4" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Only aspect ratio is reflected in preview</p>
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+            )}
             Controller={() => (
               <Select
                 value={`${rendererConfig.resolution.width}x${rendererConfig.resolution.height}`}
@@ -172,7 +190,19 @@ export function CommonConfigPane() {
             )}
           />
           <FormRow
-            Label={() => <>Frame Rate</>}
+            Label={() => (
+              <span className="inline-flex items-center gap-2">
+                Frame Rate
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info className="size-4" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Not reflected in preview</p>
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+            )}
             Controller={() => (
               <Select
                 value={rendererConfig.fps.toString()}
@@ -221,6 +251,21 @@ export function CommonConfigPane() {
           />
         </CardContent>
       </CollapsibleCardPane>
+      <Separator />
+      <CardFooter className="mt-4 gap-2 text-sm text-muted-foreground">
+        <p>
+          Created by{" "}
+          <Button variant="linkSmall" size="link" asChild>
+            <a href="https://x.com/ephemeralMocha">@ephemeralMocha</a>
+          </Button>
+          .
+        </p>
+        <p>
+          <Button variant="linkSmall" size="link" asChild>
+            <a href="https://github.com/sunya9/mivi">Repository</a>
+          </Button>
+        </p>
+      </CardFooter>
     </Card>
   );
 }

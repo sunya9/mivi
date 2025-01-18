@@ -23,6 +23,7 @@
     "@radix-ui/react-slider": "^1.2.2",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-switch": "^1.1.2",
+    "@radix-ui/react-tooltip": "^1.1.6",
     "@tailwindcss/container-queries": "^0.1.1",
     "@tonejs/midi": "^2.0.28",
     "arrival-time": "^1.0.6",
