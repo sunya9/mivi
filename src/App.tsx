@@ -8,7 +8,7 @@ import {
 import { ErrorBoundary } from "react-error-boundary";
 import { Loading } from "@/components/Loading";
 import { Fallback } from "@/components/Fallback";
-import { AppToolbar } from "@/components/AppToolbar";
+import { AppHeader } from "@/components/AppHeader";
 import { TrackListPane } from "@/components/TrackListPane";
 import { MidiVisualizer } from "@/components/MidiVisualizer";
 import { VisualizerStyle } from "@/components/VisualizerStyle";
@@ -25,18 +25,11 @@ export const App = () => {
 
 const AppInternal = () => {
   return (
-    <div className="container flex h-dvh flex-1 flex-col">
-      <div className="my-4 items-baseline gap-2 sm:inline-flex">
-        <h1 className="text-7xl font-bold">MiVi</h1>
-        <p className="-mt-2 text-xl font-medium text-muted-foreground sm:mt-0">
-          <span className="text-accent-foreground">MI</span>DI{" "}
-          <span className="text-accent-foreground">Vi</span>sualizer
-        </p>
-      </div>
-      <AppToolbar />
+    <div className="flex h-dvh flex-1 flex-col">
+      <AppHeader className="flex-none" />
       <ResizablePanelGroup
         direction="horizontal"
-        className="flex-1"
+        className="container flex-1"
         autoSaveId="midi-visualizer"
       >
         <ResizablePanel defaultSize={33}>
