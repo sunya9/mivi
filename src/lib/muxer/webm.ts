@@ -7,7 +7,7 @@ export class WebMMuxerImpl implements Muxer {
     this.muxer = new WebMMuxer({
       target: new ArrayBufferTarget(),
       video: {
-        codec: "V_AV1",
+        codec: "V_VP9",
         width: options.width,
         height: options.height,
         frameRate: options.frameRate,
@@ -21,7 +21,7 @@ export class WebMMuxerImpl implements Muxer {
   }
 
   get videoCodec() {
-    return "av01.2.19H.8.0.000.09";
+    return "vp09.00.10.08";
   }
 
   addVideoChunk(

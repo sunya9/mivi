@@ -76,9 +76,10 @@ export class MediaCompositor {
 
   private get encoderOptions() {
     return {
-      vp09: {
-        quantizer: 0,
-      },
+      // TODO: support encoderOptions
+      // vp09: {
+      //   quantizer: 0,
+      // },
     };
   }
   private get totalVideoFrames() {
