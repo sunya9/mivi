@@ -57,12 +57,10 @@ export class PianoRollRenderer extends Renderer {
       this.config.pianoRollConfig.noteHeight,
     );
 
-    // 表示範囲の計算
     const viewRangeTop = this.config.pianoRollConfig.viewRangeTop;
     const viewRangeBottom = this.config.pianoRollConfig.viewRangeBottom;
     const viewRangeSize = viewRangeTop - viewRangeBottom;
 
-    // 表示範囲内でのY座標を計算
     return height * ((viewRangeTop - midi) / viewRangeSize) - noteHeight / 2;
   }
   render(tracks: MidiTrack[], playbackState: PlaybackState) {
@@ -94,7 +92,6 @@ export class PianoRollRenderer extends Renderer {
     const endTime = startTime + this.config.pianoRollConfig.timeWindow;
 
     const timeToX = (time: number, scale: number = 1) => {
-      // プレイヘッドの位置を基準点として、スケールに応じて時間軸方向にも縮小
       const timeFromPlayhead = time - currentTime;
       const scaledTimeFromPlayhead = timeFromPlayhead * scale;
       const adjustedTime = currentTime + scaledTimeFromPlayhead;
@@ -134,7 +131,12 @@ export class PianoRollRenderer extends Renderer {
           Math.max(0, baseNoteHeight - verticalMargin * 2) * track.config.scale;
 
         const noteMargin = this.config.pianoRollConfig.noteMargin;
-        const noteWidth = Math.max(0, rawNoteWidth - noteMargin * 2);
+        let noteWidth;
+        if (track.config.staccato) {
+          noteWidth = noteHeight;
+        } else {
+          noteWidth = Math.max(0, rawNoteWidth - noteMargin * 2);
+        }
 
         const y = this.noteToY(note.midi) + verticalMargin;
 

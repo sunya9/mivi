@@ -33,7 +33,7 @@ export const TrackListPane = () => {
         </div>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2">
-        <div className="flex flex-row items-center justify-start gap-2">
+        <div className="flex flex-row flex-wrap items-center justify-start gap-2">
           <Button
             variant="secondary"
             size="sm"

@@ -6,6 +6,7 @@ export interface TrackConfig {
   opacity: number;
   name: string;
   scale: number;
+  staccato: boolean;
 }
 
 export interface MidiTrack {
@@ -30,4 +31,5 @@ export const getDefaultTrackConfig = (
   opacity: 1,
   name,
   scale: 1,
+  staccato: false,
 });
