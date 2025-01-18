@@ -32,4 +32,5 @@ export default defineConfig({
   worker: {
     plugins: () => [comlink()],
   },
+  base: "/mivi/",
 });
