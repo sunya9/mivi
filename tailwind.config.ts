@@ -1,5 +1,8 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+import tailwindcssAnimate from "tailwindcss-animate";
+import tailwindcssContainerQueries from "@tailwindcss/container-queries";
+import { type Config } from "tailwindcss";
+
+const config: Config = {
   darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
   theme: {
@@ -68,8 +71,7 @@ export default {
       },
     },
   },
-  plugins: [
-    require("tailwindcss-animate"),
-    require("@tailwindcss/container-queries"),
-  ],
+  plugins: [tailwindcssAnimate, tailwindcssContainerQueries],
 };
+
+export default config;

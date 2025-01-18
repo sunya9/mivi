@@ -16,7 +16,7 @@ export const AppHeader = ({ className }: Props) => {
   const { recordingState, toggleRecording } = useStartRecording();
   return (
     <div className={cn("border-b bg-white/90 shadow-sm", className)}>
-      <div className="container flex flex-row items-baseline justify-between p-6">
+      <div className="items-bottom container flex flex-col justify-between p-6 md:flex-row md:items-baseline">
         <div className="items-baseline gap-2 sm:inline-flex">
           <h1 className="text-7xl font-bold">MiVi</h1>
           <p className="-mt-2 text-xl font-medium text-muted-foreground sm:mt-0">
@@ -24,7 +24,7 @@ export const AppHeader = ({ className }: Props) => {
             <span className="text-accent-foreground">Vi</span>sualizer
           </p>
         </div>
-        <div className="ml-auto flex items-baseline gap-2">
+        <div className="mt-4 flex flex-col gap-2 md:ml-auto md:mt-0 md:flex-row md:items-center">
           {recordingState.type === "recording" && (
             <>
               <span>{recordingState.statusText}</span>
@@ -35,15 +35,15 @@ export const AppHeader = ({ className }: Props) => {
                 })}
               </span>
               <Progress
-                className="w-32"
+                className="w-full md:w-32"
                 value={recordingState.progress * 100}
               />
             </>
           )}
-
           <Button
             disabled={recordingState.disabled}
             onClick={() => toggleRecording(rendererConfig)}
+            className="order-1 md:order-4"
           >
             {recordingState.isRecording ? (
               <>
