@@ -39,8 +39,6 @@ export function VisualizerStyle() {
                 </SelectTrigger>
                 <SelectContent align="end">
                   <SelectItem value="pianoRoll">Piano Roll</SelectItem>
-                  <SelectItem value="waveform">Waveform</SelectItem>
-                  <SelectItem value="particles">Particles</SelectItem>
                 </SelectContent>
               </Select>
             )}
