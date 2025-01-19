@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="d" data-name="favicon" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .g {
+        fill: none;
+      }
+
+      .h {
+        fill: #f9f9f9;
+      }
+
+      .i {
+        clip-path: url(#f);
+      }
+
+      .j {
+        fill: #333;
+      }
+    </style>
+    <clipPath id="f">
+      <path class="g" d="M119.4,390.92V132.5h72.31l64.47,188.17,64.11-188.17h72.31v258.42h-54.14v-167.42l-59.48,166.7h-46.3l-59.13-166.7v167.42h-54.14Z"/>
+    </clipPath>
+  </defs>
+  <circle id="e" data-name="bg" class="h" cx="256" cy="256" r="256"/>
+  <g class="i">
+    <rect class="j" x="93.04" y="355.22" width="801.42" height="37.57"/>
+    <rect class="j" x="93.04" y="280.09" width="801.42" height="37.57"/>
+    <rect class="j" x="93.04" y="204.95" width="801.42" height="37.57"/>
+    <rect class="j" x="93.04" y="129.82" width="801.42" height="37.57"/>
+  </g>
+</svg>
