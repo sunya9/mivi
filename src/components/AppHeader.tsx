@@ -19,12 +19,12 @@ export const AppHeader = ({ className }: Props) => {
       <div className="items-bottom container flex flex-col justify-between p-6 md:flex-row md:items-baseline">
         <div className="items-baseline gap-2 sm:inline-flex">
           <h1 className="text-7xl font-bold">MiVi</h1>
-          <p className="-mt-2 text-xl font-medium text-muted-foreground sm:mt-0">
+          <p className="text-muted-foreground -mt-2 text-xl font-medium sm:mt-0">
             <span className="text-accent-foreground">MI</span>DI{" "}
             <span className="text-accent-foreground">Vi</span>sualizer
           </p>
         </div>
-        <div className="mt-4 flex flex-col gap-2 md:ml-auto md:mt-0 md:flex-row md:items-center">
+        <div className="mt-4 flex flex-col gap-2 md:mt-0 md:ml-auto md:flex-row md:items-center">
           {recordingState.type === "recording" && (
             <>
               <span>{recordingState.statusText}</span>

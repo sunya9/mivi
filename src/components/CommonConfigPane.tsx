@@ -252,7 +252,7 @@ export function CommonConfigPane() {
         </CardContent>
       </CollapsibleCardPane>
       <Separator />
-      <CardFooter className="mt-4 gap-2 text-sm text-muted-foreground">
+      <CardFooter className="text-muted-foreground mt-4 gap-2 text-sm">
         <p>
           Created by{" "}
           <Button variant="linkSmall" size="link" asChild>

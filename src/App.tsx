@@ -41,7 +41,7 @@ const AppInternal = () => {
           {isDesktop && (
             <>
               <ResizablePanel defaultSize={33} id="track-list-pane" order={1}>
-                <ScrollArea type="auto" className="h-full w-full @container">
+                <ScrollArea type="auto" className="@container h-full w-full">
                   <TrackListPane />
                 </ScrollArea>
               </ResizablePanel>
@@ -78,7 +78,7 @@ const AppInternal = () => {
           {!isDesktop && (
             <>
               <ResizablePanel defaultSize={33} id="track-list-pane" order={2}>
-                <ScrollArea type="auto" className="h-full w-full @container">
+                <ScrollArea type="auto" className="@container h-full w-full">
                   <TrackListPane />
                 </ScrollArea>
               </ResizablePanel>

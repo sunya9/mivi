@@ -22,7 +22,7 @@ export function PianoRollConfigPanel() {
         )}
         Controller={() => (
           <Slider
-            className="w-full min-w-24 max-w-48"
+            className="w-full max-w-48 min-w-24"
             value={[rendererConfig.pianoRollConfig.timeWindow]}
             min={0.1}
             max={20}
@@ -39,7 +39,7 @@ export function PianoRollConfigPanel() {
         )}
         Controller={() => (
           <Slider
-            className="w-full min-w-24 max-w-48"
+            className="w-full max-w-48 min-w-24"
             value={[rendererConfig.pianoRollConfig.noteHeight]}
             min={1}
             max={40}
@@ -59,7 +59,7 @@ export function PianoRollConfigPanel() {
         )}
         Controller={() => (
           <Slider
-            className="w-full min-w-24 max-w-48"
+            className="w-full max-w-48 min-w-24"
             value={[rendererConfig.pianoRollConfig.noteCornerRadius]}
             min={0}
             max={10}
@@ -76,7 +76,7 @@ export function PianoRollConfigPanel() {
         )}
         Controller={() => (
           <Slider
-            className="w-full min-w-24 max-w-48"
+            className="w-full max-w-48 min-w-24"
             value={[rendererConfig.pianoRollConfig.noteMargin]}
             min={0}
             max={5}
@@ -96,7 +96,7 @@ export function PianoRollConfigPanel() {
         )}
         Controller={() => (
           <Slider
-            className="w-full min-w-24 max-w-48"
+            className="w-full max-w-48 min-w-24"
             value={[rendererConfig.pianoRollConfig.noteVerticalMargin]}
             min={0}
             max={10}
@@ -123,7 +123,7 @@ export function PianoRollConfigPanel() {
         )}
         Controller={() => (
           <Slider
-            className="w-full min-w-24 max-w-48"
+            className="w-full max-w-48 min-w-24"
             value={[
               rendererConfig.pianoRollConfig.viewRangeBottom,
               rendererConfig.pianoRollConfig.viewRangeTop,
@@ -154,7 +154,7 @@ export function PianoRollConfigPanel() {
         )}
         Controller={() => (
           <Slider
-            className="w-full min-w-24 max-w-48"
+            className="w-full max-w-48 min-w-24"
             value={[rendererConfig.pianoRollConfig.playheadPosition]}
             min={0}
             max={75}
@@ -199,7 +199,7 @@ export function PianoRollConfigPanel() {
             )}
             Controller={() => (
               <Slider
-                className="w-full min-w-24 max-w-48"
+                className="w-full max-w-48 min-w-24"
                 value={[rendererConfig.pianoRollConfig.playheadWidth]}
                 min={1}
                 max={10}
@@ -222,7 +222,7 @@ export function PianoRollConfigPanel() {
             )}
             Controller={() => (
               <Slider
-                className="w-full min-w-24 max-w-48"
+                className="w-full max-w-48 min-w-24"
                 value={[rendererConfig.pianoRollConfig.playheadOpacity]}
                 min={0}
                 max={1}
@@ -269,7 +269,7 @@ export function PianoRollConfigPanel() {
           Controller={() => (
             <Slider
               value={[rendererConfig.pianoRollConfig.notePressDepth]}
-              className="w-full min-w-24 max-w-48"
+              className="w-full max-w-48 min-w-24"
               min={1}
               max={10}
               step={1}
@@ -306,7 +306,7 @@ export function PianoRollConfigPanel() {
             Controller={() => (
               <Slider
                 value={[rendererConfig.pianoRollConfig.noteFlashDuration]}
-                className="w-full min-w-24 max-w-48"
+                className="w-full max-w-48 min-w-24"
                 min={0.1}
                 max={2}
                 step={0.1}
@@ -321,7 +321,7 @@ export function PianoRollConfigPanel() {
             Controller={() => (
               <Slider
                 value={[rendererConfig.pianoRollConfig.noteFlashIntensity]}
-                className="w-full min-w-24 max-w-48"
+                className="w-full max-w-48 min-w-24"
                 min={0}
                 max={1}
                 step={0.1}

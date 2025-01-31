@@ -78,7 +78,7 @@ export const MidiVisualizer = () => {
       />
       <div
         className={cn(
-          "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 p-4 text-white transition-opacity duration-200",
+          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 p-4 text-white transition-opacity duration-200",
           showPlayIcon ? "opacity-100" : "opacity-0",
         )}
       >
@@ -90,7 +90,7 @@ export const MidiVisualizer = () => {
       </div>
       <div
         className={cn(
-          "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-black/0 p-2 transition-opacity",
+          "absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/50 to-black/0 p-2 transition-opacity",
           "group-data-[is-playing=true]:opacity-0 group-hover:group-data-[is-playing=true]:opacity-100",
         )}
       >

@@ -30,7 +30,7 @@ export function TrackItem({ track }: Props) {
       {track.config.visible && (
         <>
           <div className="flex flex-row items-center gap-2">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               Opacity: {Math.round(track.config.opacity * 100)}%
             </span>
             <Slider
@@ -55,7 +55,7 @@ export function TrackItem({ track }: Props) {
             className="cursor-pointer justify-self-end bg-transparent"
           />
 
-          <label className="flex items-center gap-1 text-xs text-muted-foreground">
+          <label className="text-muted-foreground flex items-center gap-1 text-xs">
             <Checkbox
               checked={track.config.staccato}
               onCheckedChange={(checked) =>
@@ -66,7 +66,7 @@ export function TrackItem({ track }: Props) {
           </label>
 
           <div className="flex flex-row items-center gap-2 justify-self-end">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-muted-foreground text-xs">
               Scale: {Math.round(track.config.scale * 100)}%
             </span>
             <Slider
