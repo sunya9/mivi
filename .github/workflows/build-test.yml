@@ -1,0 +1,9 @@
+name: Build Test
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-test:
+    uses: ./.github/workflows/build-common.yml
