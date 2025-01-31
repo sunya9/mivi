@@ -7,7 +7,6 @@ export function useMediaQuery(key: Key): boolean {
     const minWidth = window
       .getComputedStyle(document.documentElement)
       .getPropertyValue(`--breakpoint-${key}`);
-    console.log(minWidth);
     return window.matchMedia(`(min-width: ${minWidth})`);
   }, [key]);
 
