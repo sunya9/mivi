@@ -12,6 +12,9 @@ updates:
     groups:
       dev-dependency:
         dependency-type: development
+      radix:
+        patterns:
+          - "@radix-ui/*"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
