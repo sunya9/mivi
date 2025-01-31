@@ -1,27 +1,23 @@
-import { useEffect, useState } from "react";
-import resolveConfig from "tailwindcss/resolveConfig";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
 
-import config from "../../tailwind.config";
+type Key = "sm" | "md" | "lg" | "xl" | "2xl";
 
-const breakpoints = resolveConfig(config).theme.screens;
+export function useMediaQuery(key: Key): boolean {
+  const matchMediaList = useMemo(() => {
+    const minWidth = window
+      .getComputedStyle(document.documentElement)
+      .getPropertyValue(`--breakpoint-${key}`);
+    console.log(minWidth);
+    return window.matchMedia(`(min-width: ${minWidth})`);
+  }, [key]);
 
-type Key = keyof typeof breakpoints;
-
-const createMediaQueryList = <K extends Key>(key: K) =>
-  window.matchMedia(`(min-width: ${breakpoints[key]})`);
-
-export const useMediaQuery = <K extends Key>(key: K) => {
-  const [matches, setMatches] = useState<boolean>(
-    createMediaQueryList(key).matches,
+  const subscribe = useCallback(
+    (onStoreChange: () => void) => {
+      matchMediaList.addEventListener("change", onStoreChange);
+      return () => matchMediaList.removeEventListener("change", onStoreChange);
+    },
+    [matchMediaList],
   );
 
-  useEffect(() => {
-    const mediaQueryList = createMediaQueryList(key);
-    const handler = (e: MediaQueryListEvent) => setMatches(e.matches);
-    mediaQueryList.addEventListener("change", handler);
-    return () => {
-      mediaQueryList.removeEventListener("change", handler);
-    };
-  }, [key]);
-  return matches;
-};
+  return useSyncExternalStore(subscribe, () => matchMediaList.matches);
+}

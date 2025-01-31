@@ -35,7 +35,7 @@ const AppInternal = () => {
         <ResizablePanelGroup
           direction="horizontal"
           // workaround for narrow screen
-          className="container !block flex-1 md:!flex"
+          className="container block! flex-1 md:flex!"
           autoSaveId="midi-visualizer"
         >
           {isDesktop && (
@@ -57,7 +57,7 @@ const AppInternal = () => {
               direction="vertical"
               autoSaveId="center-vertical"
               // workaround for narrow screen
-              className="!block md:!flex"
+              className="block! md:flex!"
             >
               <ResizablePanel defaultSize={40} id="visualizer-pane" order={1}>
                 <MidiVisualizer />

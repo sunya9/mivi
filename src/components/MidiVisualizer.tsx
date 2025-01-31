@@ -90,8 +90,8 @@ export const MidiVisualizer = () => {
       </div>
       <div
         className={cn(
-          "absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/50 to-black/0 p-2 transition-opacity",
-          "group-data-[is-playing=true]:opacity-0 group-hover:group-data-[is-playing=true]:opacity-100",
+          "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-opacity",
+          "group-data-[is-playing=true]:opacity-0 group-data-[is-playing=true]:group-hover:opacity-100",
         )}
       >
         <div className="flex items-center gap-2">
