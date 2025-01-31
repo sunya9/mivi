@@ -13,7 +13,7 @@ const ScrollArea = React.forwardRef<
     {...props}
   >
     {/* workaround for radix-ui/react-scroll-area to render children as block elements */}
-    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit] [&>*]:!block">
+    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit] *:block!">
       {children}
     </ScrollAreaPrimitive.Viewport>
     <ScrollBar />

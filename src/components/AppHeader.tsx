@@ -15,7 +15,7 @@ export const AppHeader = ({ className }: Props) => {
 
   const { recordingState, toggleRecording } = useStartRecording();
   return (
-    <div className={cn("border-b bg-white/90 shadow-sm", className)}>
+    <div className={cn("border-b bg-white/90 shadow-xs", className)}>
       <div className="items-bottom container flex flex-col justify-between p-6 md:flex-row md:items-baseline">
         <div className="items-baseline gap-2 sm:inline-flex">
           <h1 className="text-7xl font-bold">MiVi</h1>
