@@ -1,6 +1,7 @@
+import { tailwindDefaultColors } from "@/lib/tailwindDefaultColors";
 import Color from "colorjs.io";
 
-const colorNames = [
+const colorKeys = [
   "red",
   "orange",
   "amber",
@@ -20,7 +21,19 @@ const colorNames = [
   "rose",
 ] as const;
 
-const regex = /oklch\((\d+\.?\d*) (\d+\.?\d*) (\d+\.?\d*)\)/;
+type ColorKey = (typeof colorKeys)[number];
+type Brightness =
+  | 50
+  | 100
+  | 200
+  | 300
+  | 400
+  | 500
+  | 600
+  | 700
+  | 800
+  | 900
+  | 950;
 
 const toHex = (value: number) => {
   const percent = Math.min(Math.max(value, 0), 1);
@@ -30,22 +43,14 @@ const toHex = (value: number) => {
 };
 
 const getTailwindColors = () => {
-  const styles = getComputedStyle(document.documentElement);
-  const getPropertyValue = (colorName: string, brightness: number) => {
-    const oklchColor = styles.getPropertyValue(
-      `--color-${colorName}-${brightness}`,
-    );
-    const match = oklchColor.match(regex);
-    if (!match) throw new Error("Invalid color format");
-    const [, l, c, h] = match;
-    const lightness = parseFloat(l);
-    const chroma = parseFloat(c);
-    const hue = parseFloat(h);
-    const [r, g, b] = new Color("oklch", [lightness, chroma, hue], 1).srgb;
+  const getPropertyValue = (colorKey: ColorKey, brightness: Brightness) => {
+    const key = `--color-${colorKey}-${brightness}` as const;
+    const oklch = tailwindDefaultColors[key];
+    const [r, g, b] = new Color(oklch).srgb;
     const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
     return hex;
   };
-  return colorNames.map((color) => ({
+  return colorKeys.map((color) => ({
     50: getPropertyValue(color, 50),
     100: getPropertyValue(color, 100),
     200: getPropertyValue(color, 200),
@@ -61,7 +66,6 @@ const getTailwindColors = () => {
 };
 
 const getColorsPerPalette = getTailwindColors();
-console.log({ getColorsPerPalette });
 
 const tailwindColors = getColorsPerPalette
   .map((map) => Object.values(map))
