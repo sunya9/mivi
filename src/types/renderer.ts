@@ -99,7 +99,7 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     showNoteFlash: true,
     noteFlashDuration: 1,
     noteFlashIntensity: 0.5,
-    viewRangeTop: 0,
+    viewRangeTop: 127,
     viewRangeBottom: 0,
     showNotePressEffect: true,
     notePressDepth: 4,
