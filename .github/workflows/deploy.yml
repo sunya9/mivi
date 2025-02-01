@@ -19,6 +19,8 @@ concurrency:
 jobs:
   build:
     uses: ./.github/workflows/build-common.yml
+    with:
+      upload_artifact: true
 
   deploy:
     needs: build
