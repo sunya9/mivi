@@ -39,7 +39,7 @@
     "lodash.defaultsdeep": "^4.6.1",
     "lodash.merge": "^4.6.2",
     "lucide-react": "^0.474.0",
-    "mp4-muxer": "^5.1.5",
+    "mp4-muxer": "^5.2.0",
     "next-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
