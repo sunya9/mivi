@@ -46,7 +46,7 @@
     "react-error-boundary": "^5.0.0",
     "react-resizable-panels": "^2.1.7",
     "react-resize-detector": "^12.0.2",
-    "sonner": "^1.7.3",
+    "sonner": "^1.7.4",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "throttle-debounce": "^5.0.2",
