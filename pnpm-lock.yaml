@@ -72,11 +72,11 @@ importers:
         specifier: ^10.1.1
         version: 10.1.1
       jotai:
-        specifier: ^2.12.0
-        version: 2.12.0(@types/react@19.0.8)(react@19.0.0)
+        specifier: ^2.12.1
+        version: 2.12.1(@types/react@19.0.8)(react@19.0.0)
       jotai-minidb:
         specifier: ^0.0.8
-        version: 0.0.8(jotai@2.12.0(@types/react@19.0.8)(react@19.0.0))
+        version: 0.0.8(jotai@2.12.1(@types/react@19.0.8)(react@19.0.0))
       lodash.defaultsdeep:
         specifier: ^4.6.1
         version: 4.6.1
@@ -1552,8 +1552,8 @@ packages:
     peerDependencies:
       jotai: '>=1.10.0'
 
-  jotai@2.12.0:
-    resolution: {integrity: sha512-j5B4NmUw8gbuN7AG4NufWw00rfpm6hexL2CVhKD7juoP2YyD9FEUV5ar921JMvadyrxQhU1NpuKUL3QfsAlVpA==}
+  jotai@2.12.1:
+    resolution: {integrity: sha512-VUW0nMPYIru5g89tdxwr9ftiVdc/nGV9jvHISN8Ucx+m1vI9dBeHemfqYzEuw5XSkmYjD/MEyApN9k6yrATsZQ==}
     engines: {node: '>=12.20.0'}
     peerDependencies:
       '@types/react': '>=17.0.0'
@@ -3472,13 +3472,13 @@ snapshots:
 
   jiti@2.4.2: {}
 
-  jotai-minidb@0.0.8(jotai@2.12.0(@types/react@19.0.8)(react@19.0.0)):
+  jotai-minidb@0.0.8(jotai@2.12.1(@types/react@19.0.8)(react@19.0.0)):
     dependencies:
       '@rocicorp/resolver': 1.0.2
       idb-keyval: 6.2.1
-      jotai: 2.12.0(@types/react@19.0.8)(react@19.0.0)
+      jotai: 2.12.1(@types/react@19.0.8)(react@19.0.0)
 
-  jotai@2.12.0(@types/react@19.0.8)(react@19.0.0):
+  jotai@2.12.1(@types/react@19.0.8)(react@19.0.0):
     optionalDependencies:
       '@types/react': 19.0.8
       react: 19.0.0
