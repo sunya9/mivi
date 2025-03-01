@@ -45,9 +45,10 @@ export class MediaCompositor {
     });
 
     audioEncoder.configure({
-      codec: "opus",
+      codec: this.muxer.audioCodec,
       sampleRate: serializedAudio.sampleRate,
       numberOfChannels: serializedAudio.numberOfChannels,
+      bitrate: 192_000,
     });
 
     audioEncoder.addEventListener("dequeue", this.dequeueAudioListener);
@@ -65,23 +66,14 @@ export class MediaCompositor {
       codec: this.muxer.videoCodec,
       width: canvas.width,
       height: canvas.height,
-      bitrate: 500_000,
+      bitrate: 2_500_000,
       framerate: fps,
-      bitrateMode: "quantizer",
     });
 
     this.audioEncoder = audioEncoder;
     this.videoEncoder = videoEncoder;
   }
 
-  private get encoderOptions() {
-    return {
-      // TODO: support encoderOptions
-      // vp09: {
-      //   quantizer: 0,
-      // },
-    };
-  }
   private get totalVideoFrames() {
     return this.duration * this.fps;
   }
@@ -172,13 +164,12 @@ export class MediaCompositor {
 
       const frame = new VideoFrame(this.canvas, {
         timestamp: progress * this.duration * 1000000,
-        duration: this.duration * 1000000,
+        duration: (1 / this.fps) * 1000000,
       });
 
       const keyFrame = i % 60 === 0;
 
       this.videoEncoder.encode(frame, {
-        ...this.encoderOptions,
         keyFrame,
       });
       frame.close();

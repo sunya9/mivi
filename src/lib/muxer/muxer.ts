@@ -13,6 +13,7 @@ export interface Muxer {
   finalize(): void;
   get buffer(): ArrayBuffer;
   get videoCodec(): string;
+  get audioCodec(): string;
 }
 
 export interface MuxerOptions {

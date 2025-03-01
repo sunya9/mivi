@@ -24,6 +24,10 @@ export class WebMMuxerImpl implements Muxer {
     return "vp09.00.10.08";
   }
 
+  get audioCodec() {
+    return "opus";
+  }
+
   addVideoChunk(
     chunk: EncodedVideoChunk,
     metadata?: EncodedVideoChunkMetadata,

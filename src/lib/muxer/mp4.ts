@@ -7,7 +7,7 @@ export class MP4MuxerImpl implements Muxer {
     this.muxer = new Mp4Muxer({
       target: new ArrayBufferTarget(),
       audio: {
-        codec: "opus",
+        codec: "aac",
         numberOfChannels: options.numberOfChannels,
         sampleRate: options.sampleRate,
       },
@@ -23,6 +23,10 @@ export class MP4MuxerImpl implements Muxer {
 
   get videoCodec() {
     return "avc1.42001f";
+  }
+
+  get audioCodec() {
+    return "mp4a.40.2";
   }
 
   addVideoChunk(
