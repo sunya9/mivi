@@ -13,7 +13,6 @@ import { TrackListPane } from "@/components/TrackListPane";
 import { MidiVisualizer } from "@/components/MidiVisualizer";
 import { VisualizerStyle } from "@/components/VisualizerStyle";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMediaQuery } from "@/lib/useMediaQuery";
 import { TooltipProvider } from "@/components/ui/tooltip";
 export const App = () => {
   return (
@@ -26,32 +25,29 @@ export const App = () => {
 };
 
 const AppInternal = () => {
-  const isDesktop = useMediaQuery("md");
-
   return (
     <TooltipProvider>
       <div className="flex flex-1 flex-col md:h-dvh">
         <AppHeader className="flex-none" />
         <ResizablePanelGroup
           direction="horizontal"
-          // workaround for narrow screen
-          className="container block! flex-1 md:flex!"
+          className="container flex-1 max-md:flex-col!"
           autoSaveId="midi-visualizer"
         >
-          {isDesktop && (
-            <>
-              <ResizablePanel defaultSize={33} id="track-list-pane" order={1}>
-                <ScrollArea type="auto" className="@container h-full w-full">
-                  <TrackListPane />
-                </ScrollArea>
-              </ResizablePanel>
-              <ResizableHandle />
-            </>
-          )}
+          <ResizablePanel
+            defaultSize={33}
+            id="track-list-pane"
+            className="order-2 max-md:flex-none! md:order-none"
+          >
+            <ScrollArea type="auto" className="@container h-full w-full">
+              <TrackListPane />
+            </ScrollArea>
+          </ResizablePanel>
+          <ResizableHandle />
           <ResizablePanel
             defaultSize={34}
             id="visualizer-wrapper-pane"
-            order={1}
+            className="order-1 max-md:flex-none! md:order-none"
           >
             <ResizablePanelGroup
               direction="vertical"
@@ -75,17 +71,12 @@ const AppInternal = () => {
             </ResizablePanelGroup>
           </ResizablePanel>
           <ResizableHandle />
-          {!isDesktop && (
-            <>
-              <ResizablePanel defaultSize={33} id="track-list-pane" order={2}>
-                <ScrollArea type="auto" className="@container h-full w-full">
-                  <TrackListPane />
-                </ScrollArea>
-              </ResizablePanel>
-              <ResizableHandle />
-            </>
-          )}
-          <ResizablePanel defaultSize={33} id="visualizer-style-pane" order={3}>
+          <ResizablePanel
+            defaultSize={33}
+            id="visualizer-style-pane"
+            order={3}
+            className="order-3 max-md:flex-none! md:order-none"
+          >
             <ScrollArea className="h-full w-full" type="auto">
               <VisualizerStyle />
             </ScrollArea>
