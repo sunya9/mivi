@@ -43,13 +43,12 @@ export function CommonConfigPane() {
       <CollapsibleCardPane header={<h2>MIDI / Audio Settings</h2>}>
         <CardContent className="grid grid-cols-1 gap-2">
           <div className="flex items-center justify-between gap-2">
-            <span className="ml-2 inline-flex items-center">
+            <span className="inline-flex items-center">
               {midi && (
                 <>
                   <Button
-                    className="mr-2"
                     variant="icon"
-                    size="iconSmall"
+                    size="icon"
                     onClick={() =>
                       startTransition(async () => {
                         await setMidi(undefined);
@@ -78,7 +77,7 @@ export function CommonConfigPane() {
               className="hidden"
             />
             <Button
-              size="sm"
+              size="default"
               variant="default"
               onClick={() => midiInputRef.current?.click()}
             >
@@ -86,13 +85,12 @@ export function CommonConfigPane() {
             </Button>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="ml-2 inline-flex items-center">
+            <span className="inline-flex items-center">
               {audio && (
                 <>
                   <Button
-                    className="mr-2"
                     variant="icon"
-                    size="iconSmall"
+                    size="icon"
                     onClick={() =>
                       startTransition(async () => {
                         await setAudio(undefined);
@@ -121,7 +119,7 @@ export function CommonConfigPane() {
               ref={audioInputRef}
             />
             <Button
-              size="sm"
+              size="default"
               variant="default"
               onClick={() => audioInputRef.current?.click()}
             >
