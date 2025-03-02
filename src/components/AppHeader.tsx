@@ -47,7 +47,7 @@ export const AppHeader = ({ className }: Props) => {
           >
             {recordingState.isRecording ? (
               <>
-                <Loader2 className="mr-2 size-4 animate-spin" />
+                <Loader2 className="animate-spin" />
                 <span>Stop export</span>
               </>
             ) : (
