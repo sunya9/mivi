@@ -18,8 +18,8 @@ export const AppHeader = ({ className }: Props) => {
     <div className={cn("border-b bg-white/90 shadow-xs", className)}>
       <div className="items-bottom container flex flex-col justify-between p-6 md:flex-row md:items-baseline">
         <div className="items-baseline gap-2 sm:inline-flex">
-          <h1 className="text-7xl font-bold">MiVi</h1>
-          <p className="text-muted-foreground -mt-2 text-xl font-medium sm:mt-0">
+          <h1 className="text-7xl font-bold tracking-tighter">MiVi</h1>
+          <p className="text-muted-foreground -mt-2 text-xl font-medium tracking-tighter sm:mt-0">
             <span className="text-accent-foreground">MI</span>DI{" "}
             <span className="text-accent-foreground">Vi</span>sualizer
           </p>
