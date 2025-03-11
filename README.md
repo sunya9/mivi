@@ -14,6 +14,7 @@ MiVi is a powerful MIDI visualization tool that transforms MIDI files into beaut
 - **Customizable Visuals**: Adjust colors, shapes, animations, and other visual parameters
 - **Responsive Design**: Works on both desktop and mobile devices
 - **Video Export**: Export visualizations as video files
+- **PWA Support**: Install as a standalone application on supported devices
 
 ## Getting Started
 
