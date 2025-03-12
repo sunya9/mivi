@@ -3,7 +3,7 @@ import { Estimation, Measurements } from "arrival-time";
 import { throttle } from "throttle-debounce";
 import { RendererConfig } from "@/types/renderer";
 import { getRendererFromConfig } from "@/lib/utils";
-import { SerializedAudio } from "@/atoms/playerAtom";
+import { SerializedAudio } from "@/types/audio";
 import { Muxer } from "@/lib/muxer";
 export type MediaCompositorStatus = "render" | "encode" | "complete";
 export type OnProgress = (

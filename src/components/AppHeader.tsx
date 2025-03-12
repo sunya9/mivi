@@ -1,19 +1,20 @@
 import { Progress } from "@/components/ui/progress";
-import { useStartRecording } from "@/lib/useStartRecording";
 import humanizeDuration from "humanize-duration";
 import { Loader2 } from "lucide-react";
-import { rendererConfigAtom } from "@/atoms/rendererConfigAtom";
-import { useAtomValue } from "jotai";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { RecordingStatus } from "@/lib/RecordingStatus";
 
 interface Props {
   className?: string;
+  recordingState: RecordingStatus;
+  toggleRecording(): void;
 }
-export const AppHeader = ({ className }: Props) => {
-  const rendererConfig = useAtomValue(rendererConfigAtom);
-
-  const { recordingState, toggleRecording } = useStartRecording();
+export const AppHeader = ({
+  className,
+  recordingState,
+  toggleRecording,
+}: Props) => {
   return (
     <div className={cn("border-b bg-white/90 shadow-xs", className)}>
       <div className="items-bottom container flex flex-col justify-between p-6 md:flex-row md:items-baseline">
@@ -41,8 +42,7 @@ export const AppHeader = ({ className }: Props) => {
             </>
           )}
           <Button
-            disabled={recordingState.disabled}
-            onClick={() => toggleRecording(rendererConfig)}
+            onClick={() => toggleRecording()}
             className="order-1 md:order-4"
           >
             {recordingState.isRecording ? (

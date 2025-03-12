@@ -1,4 +1,3 @@
-import { reset } from "@/atoms/reset";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,12 +6,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useResetConfig } from "@/lib/useResetConfig";
 import { FallbackProps } from "react-error-boundary";
 
 export const Fallback = (props: FallbackProps) => {
-  const resetConfig = async () => {
-    await reset();
-  };
+  const resetConfig = useResetConfig();
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center">
       <Card className="max-w-xl flex-none">

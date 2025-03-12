@@ -5,7 +5,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 
 type Props = {
@@ -24,7 +24,11 @@ export const CollapsibleCardPane = (props: Props) => {
           <CollapsibleTrigger asChild>
             <Button variant="ghost" size="sm">
               <span className="md:sr-only">{open ? "Close" : "Open"}</span>
-              <ChevronsUpDown className="size-4" />
+              {open ? (
+                <ChevronsDownUp className="size-4" />
+              ) : (
+                <ChevronsUpDown className="size-4" />
+              )}
             </Button>
           </CollapsibleTrigger>
         </CardTitle>

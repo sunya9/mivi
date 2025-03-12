@@ -71,12 +71,6 @@ importers:
       immer:
         specifier: ^10.1.1
         version: 10.1.1
-      jotai:
-        specifier: ^2.12.2
-        version: 2.12.2(@types/react@19.0.12)(react@19.1.0)
-      jotai-minidb:
-        specifier: ^0.0.8
-        version: 0.0.8(jotai@2.12.2(@types/react@19.0.12)(react@19.1.0))
       lodash.defaultsdeep:
         specifier: ^4.6.1
         version: 4.6.1
@@ -1428,10 +1422,6 @@ packages:
   '@radix-ui/rect@1.1.0':
     resolution: {integrity: sha512-A9+lCBZoaMJlVKcRBz2YByCG+Cp2t6nAnMnNba+XiWxnj6r4JUFqfsgwocMBZU9LPtdxC6wB56ySYpc7LQIoJg==}
 
-  '@rocicorp/resolver@1.0.2':
-    resolution: {integrity: sha512-TfjMTQp9cNNqNtHFfa+XHEGdA7NnmDRu+ZJH4YF3dso0Xk/b9DMhg/sl+b6CR4ThFZArXXDsG1j8Mwl34wcOZQ==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
-
   '@rollup/plugin-babel@5.3.1':
     resolution: {integrity: sha512-WFfdLWU/xVWKeRQnKmIAQULUI7Il0gZnBIH/ZFO069wYIfPu+8zrfp/KMW0atmELoRDq8FbiP3VCss9MhCut7Q==}
     engines: {node: '>= 10.0.0'}
@@ -2285,9 +2275,6 @@ packages:
   humanize-duration@3.32.1:
     resolution: {integrity: sha512-inh5wue5XdfObhu/IGEMiA1nUXigSGcaKNemcbLRKa7jXYGDZXr3LoT9pTIzq2hPEbld7w/qv9h+ikWGz8fL1g==}
 
-  idb-keyval@6.2.1:
-    resolution: {integrity: sha512-8Sb3veuYCyrZL+VBt9LJfZjLUPWVvqn8tG28VqYNFCo43KHcKuq+b4EiXGeuaLAQWL2YmyDgMp2aSpH9JHsEQg==}
-
   idb@7.1.1:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
 
@@ -2442,23 +2429,6 @@ packages:
   jiti@2.4.2:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
-
-  jotai-minidb@0.0.8:
-    resolution: {integrity: sha512-rC8tK12VlPxOOdPF27TQV2ov5B5BBgvW+YtKzodKAy5vfT3EoRwnBTBbPDevFJFqAtxw2CdKnKlznSk63Rs1cw==}
-    peerDependencies:
-      jotai: '>=1.10.0'
-
-  jotai@2.12.2:
-    resolution: {integrity: sha512-oN8715y7MkjXlSrpyjlR887TOuc/NLZMs9gvgtfWH/JP47ChwO0lR2ijSwBvPMYyXRAPT+liIAhuBavluKGgtA==}
-    engines: {node: '>=12.20.0'}
-    peerDependencies:
-      '@types/react': '>=17.0.0'
-      react: '>=17.0.0'
-    peerDependenciesMeta:
-      '@types/react':
-        optional: true
-      react:
-        optional: true
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -4783,8 +4753,6 @@ snapshots:
 
   '@radix-ui/rect@1.1.0': {}
 
-  '@rocicorp/resolver@1.0.2': {}
-
   '@rollup/plugin-babel@5.3.1(@babel/core@7.26.0)(@types/babel__core@7.20.5)(rollup@2.79.2)':
     dependencies:
       '@babel/core': 7.26.0
@@ -5719,8 +5687,6 @@ snapshots:
 
   humanize-duration@3.32.1: {}
 
-  idb-keyval@6.2.1: {}
-
   idb@7.1.1: {}
 
   ignore@5.3.2: {}
@@ -5872,17 +5838,6 @@ snapshots:
       minimatch: 3.1.2
 
   jiti@2.4.2: {}
-
-  jotai-minidb@0.0.8(jotai@2.12.2(@types/react@19.0.12)(react@19.1.0)):
-    dependencies:
-      '@rocicorp/resolver': 1.0.2
-      idb-keyval: 6.2.1
-      jotai: 2.12.2(@types/react@19.0.12)(react@19.1.0)
-
-  jotai@2.12.2(@types/react@19.0.12)(react@19.1.0):
-    optionalDependencies:
-      '@types/react': 19.0.12
-      react: 19.1.0
 
   js-tokens@4.0.0: {}
 

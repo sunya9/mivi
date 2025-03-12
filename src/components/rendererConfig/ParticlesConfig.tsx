@@ -1,10 +1,16 @@
-import { rendererConfigAtom } from "@/atoms/rendererConfigAtom";
 import { FormRow } from "@/components/FormRow";
 import { Slider } from "@/components/ui/slider";
-import { useAtom } from "jotai";
+import { RendererConfig } from "@/types/renderer";
+import { DeepPartial } from "@/types/util";
 
-export function ParticlesConfigPanel() {
-  const [rendererConfig, setRendererConfig] = useAtom(rendererConfigAtom);
+interface Props {
+  rendererConfig: RendererConfig;
+  onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
+}
+export function ParticlesConfigPanel({
+  rendererConfig,
+  onUpdateRendererConfig,
+}: Props) {
   return (
     <>
       <FormRow
@@ -14,7 +20,7 @@ export function ParticlesConfigPanel() {
             type="color"
             value={rendererConfig.particlesConfig.particleColor}
             onChange={(e) =>
-              setRendererConfig({
+              onUpdateRendererConfig({
                 particlesConfig: {
                   particleColor: e.target.value,
                 },
@@ -33,7 +39,7 @@ export function ParticlesConfigPanel() {
             max={10}
             step={0.5}
             onValueChange={([value]) =>
-              setRendererConfig({
+              onUpdateRendererConfig({
                 particlesConfig: {
                   particleSize: +value,
                 },

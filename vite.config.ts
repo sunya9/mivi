@@ -11,7 +11,6 @@ export default defineConfig({
     tailwindcss(),
     react({
       babel: {
-        presets: ["jotai/babel/preset"],
         plugins: ["@babel/plugin-proposal-explicit-resource-management"],
       },
     }),

@@ -10,31 +10,35 @@ import {
   RecordingState,
 } from "@/lib/RecordingStatus";
 import { RendererConfig } from "@/types/renderer";
-import { useAtomValue } from "jotai";
-import { midiTracksAtom } from "@/atoms/midiTracksAtom";
-import { durationAtom } from "@/atoms/durationAtom";
-import { audioInfoAtom, serializeAtom } from "@/atoms/playerAtom";
-import { midiFileAtom } from "@/atoms/midiAtom";
+import { SerializedAudio } from "@/types/audio";
+import { MidiTracks } from "@/types/midi";
 
 type TypedRendererWorker = typeof import("./recorder.worker");
 
-export const useStartRecording = () => {
-  const serializedAudio = useAtomValue(serializeAtom);
-  const audioInfo = useAtomValue(audioInfoAtom);
-  const duration = useAtomValue(durationAtom);
-  const midiTracks = useAtomValue(midiTracksAtom);
-  const midiFile = useAtomValue(midiFileAtom);
+interface Props {
+  serializedAudio?: SerializedAudio;
+  duration: number;
+  midiTracks?: MidiTracks;
+  filename?: string;
+  rendererConfig: RendererConfig;
+}
+export const useStartRecording = ({
+  serializedAudio,
+  duration,
+  midiTracks,
+  filename,
+  rendererConfig,
+}: Props) => {
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
     new ReadyState(),
   );
+  const canRecording = serializedAudio && midiTracks && filename;
   const workerRef = useRef<TypedRendererWorker>(null);
   const startRecording = useCallback(
     async (width: number, height: number, rendererConfig: RendererConfig) => {
-      if (!duration || !midiTracks || !audioInfo || !midiFile) {
-        console.error(duration, midiTracks, audioInfo);
-        throw new Error("Midi state and audio buffer are required");
+      if (!canRecording) {
+        throw new Error("Cannot start recording because of missing files");
       }
-      if (!serializedAudio) throw new Error("Audio buffer is required");
       const worker = new ComlinkWorker<TypedRendererWorker>(
         new URL("./recorder.worker", import.meta.url),
       );
@@ -58,7 +62,6 @@ export const useStartRecording = () => {
       const onError = proxy((error: Error) => {
         console.error(error);
       });
-      const filename = midiFile.name;
       return worker
         .startRecording(
           transfer(offscreen, [offscreen]),
@@ -86,27 +89,30 @@ export const useStartRecording = () => {
           workerRef.current = null;
         });
     },
-    [audioInfo, duration, midiTracks, midiFile, serializedAudio],
+    [canRecording, midiTracks, serializedAudio, duration, filename],
   );
   const stopRecording = useCallback(() => {
     workerRef.current = null;
     setRecordingState(new ReadyState());
   }, []);
-  const toggleRecording = useCallback(
-    (rendererConfig: RendererConfig) => {
-      if (!midiTracks) return;
-      if (!recordingState.isRecording) {
-        startRecording(
-          rendererConfig.resolution.width,
-          rendererConfig.resolution.height,
-          rendererConfig,
-        );
-      } else {
-        stopRecording();
-      }
-    },
-    [midiTracks, recordingState.isRecording, startRecording, stopRecording],
-  );
+  const toggleRecording = useCallback(() => {
+    if (!midiTracks) return;
+    if (!recordingState.isRecording) {
+      startRecording(
+        rendererConfig.resolution.width,
+        rendererConfig.resolution.height,
+        rendererConfig,
+      );
+    } else {
+      stopRecording();
+    }
+  }, [
+    midiTracks,
+    recordingState.isRecording,
+    startRecording,
+    stopRecording,
+    rendererConfig,
+  ]);
   return { recordingState, toggleRecording };
 };
 
