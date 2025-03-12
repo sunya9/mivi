@@ -27,11 +27,11 @@ export const useStartRecording = ({
   );
   const abortControllerRef = useRef<AbortController | null>(null);
   const toggleRecording = useCallback(async () => {
-    if (!midiTracks || !serializedAudio || !filename) {
-      toast.error("Please select a MIDI file and audio file.");
-      return;
-    }
     if (!recordingState.isRecording) {
+      if (!midiTracks || !serializedAudio || !filename) {
+        toast.error("Please select a MIDI file and audio file.");
+        return;
+      }
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
       try {
