@@ -1,20 +1,27 @@
 import { useEffect, useState } from "react";
 
+const cachedStorageValues = new Map<string, unknown>();
+
+const loadInitialValue = <T>(key: string): T | undefined => {
+  if (cachedStorageValues.has(key)) {
+    return cachedStorageValues.get(key) as T;
+  }
+  try {
+    const rawValue = window.localStorage.getItem(key);
+    if (rawValue) {
+      const value = JSON.parse(rawValue) as T;
+      cachedStorageValues.set(key, value);
+      return value;
+    }
+  } catch (e) {
+    console.error("parse error", e);
+  }
+};
+
 export const useLocalStorage = <T>(
   key: string,
 ): [T | undefined, (value: T) => void] => {
-  const [value, setValue] = useState<T>();
-  useEffect(() => {
-    const rawValue = window.localStorage.getItem(key);
-    if (rawValue) {
-      try {
-        const parsedValue = JSON.parse(rawValue) as T;
-        setValue(parsedValue);
-      } catch (e) {
-        console.error("parse error", e);
-      }
-    }
-  }, [key]);
+  const [value, setValue] = useState<T | undefined>(loadInitialValue<T>(key));
 
   useEffect(() => {
     if (value) {
