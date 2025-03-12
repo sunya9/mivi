@@ -61,7 +61,7 @@ export const useMidi = () => {
     () => overwriteMidiTracks(rawMidiTracks),
     [rawMidiTracks],
   );
-  const { file: dbMidiFile, setFile: setDbMidiFile } = useIndexedDb("midi");
+  const { file: midiFile, setFile: setDbMidiFile } = useIndexedDb("midi");
   const [midiClass, setMidiClass] = useState<Midi>();
   const setMidiTracks = useCallback(
     (midiTracks: MidiTracks | undefined) => {
@@ -89,7 +89,7 @@ export const useMidi = () => {
     [setDbMidiFile, setMidiTracks],
   );
   const midiDuration = midiClass?.duration || 0;
-  const midiFilename = dbMidiFile?.name || "";
+  const midiFilename = midiFile?.name || "";
 
   return {
     setMidiFile,
@@ -97,6 +97,6 @@ export const useMidi = () => {
     midiDuration,
     midiFilename,
     setMidiTracks,
-    dbMidiFile,
+    midiFile,
   };
 };

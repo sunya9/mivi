@@ -23,7 +23,7 @@ export const App = () => {
     midiDuration,
     midiFilename,
     setMidiTracks,
-    dbMidiFile,
+    midiFile,
   } = useMidi();
   const {
     audioFile,
@@ -32,6 +32,7 @@ export const App = () => {
     serializedAudio,
     audioBuffer,
   } = useAudio();
+  console.log({ midiDuration, audioDuration });
   const duration = Math.max(midiDuration, audioDuration);
   const { recordingState, toggleRecording } = useStartRecording({
     duration,
@@ -91,7 +92,7 @@ export const App = () => {
                 <CommonConfigPane
                   rendererConfig={rendererConfig}
                   onUpdateRendererConfig={onUpdateRendererConfig}
-                  midiFile={dbMidiFile}
+                  midiFile={midiFile}
                   onChangeMidiFile={setMidiFile}
                   audioFile={audioFile}
                   onChangeAudioFile={setAudioFile}
