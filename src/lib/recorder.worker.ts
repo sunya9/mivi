@@ -4,6 +4,7 @@ import { RendererConfig } from "@/types/renderer";
 import { SerializedAudio } from "@/types/audio";
 import { MP4Muxer, WebMMuxer, MuxerOptions, Muxer } from "@/lib/muxer";
 import { ArrayBufferTarget } from "webm-muxer";
+import { expose } from "comlink";
 
 export async function startRecording(
   canvas: OffscreenCanvas,
@@ -41,4 +42,4 @@ export async function startRecording(
   return response;
 }
 
-export function terminate() {}
+expose({ startRecording });
