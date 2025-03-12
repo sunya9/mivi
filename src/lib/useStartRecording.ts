@@ -6,6 +6,7 @@ import { RendererConfig } from "@/types/renderer";
 import { SerializedAudio } from "@/types/audio";
 import { MidiTracks } from "@/types/midi";
 import { startRecording } from "@/lib/recorder";
+import { toast } from "sonner";
 
 interface Props {
   serializedAudio?: SerializedAudio;
@@ -26,7 +27,10 @@ export const useStartRecording = ({
   );
   const abortControllerRef = useRef<AbortController | null>(null);
   const toggleRecording = useCallback(async () => {
-    if (!midiTracks || !serializedAudio || !filename) return;
+    if (!midiTracks || !serializedAudio || !filename) {
+      toast.error("Please select a MIDI file and audio file.");
+      return;
+    }
     if (!recordingState.isRecording) {
       const abortController = new AbortController();
       abortControllerRef.current = abortController;

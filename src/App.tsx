@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { Toaster } from "@/components/ui/sonner";
 import { CommonConfigPane } from "./components/CommonConfigPane";
 import {
   ResizableHandle,
@@ -131,6 +132,7 @@ export const App = () => {
               </ResizablePanel>
             </ResizablePanelGroup>
           </div>
+          <Toaster position="top-center" />
         </TooltipProvider>
       </Suspense>
     </ErrorBoundary>
