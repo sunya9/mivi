@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { DeepPartial } from "@/types/util";
+import { ToggleTheme } from "@/components/ToggleTheme";
 
 interface Props {
   rendererConfig: RendererConfig;
@@ -187,8 +188,8 @@ export const CommonConfigPane = React.memo(
           </CardContent>
         </CollapsibleCardPane>
         <Separator />
-        <CardFooter className="text-muted-foreground mt-4 gap-2 text-sm">
-          <p>
+        <CardFooter className="text-muted-foreground mt-4 flex-wrap gap-2 text-sm">
+          <p className="flex-none">
             Created by{" "}
             <Button variant="linkSmall" size="link" asChild>
               <a href="https://x.com/ephemeralMocha">@ephemeralMocha</a>
@@ -199,6 +200,9 @@ export const CommonConfigPane = React.memo(
             <Button variant="linkSmall" size="link" asChild>
               <a href="https://github.com/sunya9/mivi">Repository</a>
             </Button>
+          </p>
+          <p>
+            <ToggleTheme />
           </p>
         </CardFooter>
       </Card>

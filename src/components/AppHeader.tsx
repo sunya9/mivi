@@ -16,7 +16,12 @@ export const AppHeader = ({
   toggleRecording,
 }: Props) => {
   return (
-    <div className={cn("border-b bg-white/90 shadow-xs", className)}>
+    <div
+      className={cn(
+        "border-b bg-white/90 shadow-xs dark:bg-zinc-800/90",
+        className,
+      )}
+    >
       <div className="items-bottom container flex flex-col justify-between p-6 md:flex-row md:items-baseline">
         <div className="items-baseline gap-2 sm:inline-flex">
           <h1 className="text-7xl font-bold tracking-tighter">MiVi</h1>
