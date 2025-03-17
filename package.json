@@ -34,7 +34,7 @@
     "comlink": "^4.4.2",
     "humanize-duration": "^3.32.1",
     "immer": "^10.1.1",
-    "jotai": "^2.12.1",
+    "jotai": "^2.12.2",
     "jotai-minidb": "^0.0.8",
     "lodash.defaultsdeep": "^4.6.1",
     "lodash.merge": "^4.6.2",
