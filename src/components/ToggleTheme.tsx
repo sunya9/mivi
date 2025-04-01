@@ -1,9 +1,9 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { Toggle } from "@/components/ui/toggle";
 import { Sun, Moon } from "lucide-react";
 import { useCallback } from "react";
+import { Button } from "@/components/ui/button";
 
 export function ToggleTheme() {
   const { theme, setTheme } = useTheme();
@@ -13,13 +13,14 @@ export function ToggleTheme() {
   }, [setTheme]);
 
   return (
-    <Toggle
+    <Button
       aria-label="Switch Theme"
-      pressed={isDark}
-      onPressedChange={toggleTheme}
+      onClick={toggleTheme}
       className="p-2"
+      size="icon"
+      variant="icon"
     >
       {isDark ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-    </Toggle>
+    </Button>
   );
 }
