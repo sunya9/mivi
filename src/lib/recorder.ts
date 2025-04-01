@@ -1,4 +1,3 @@
-import { MediaCompositorStatus } from "@/lib/MediaCompositor";
 import {
   RecordingState,
   ReadyState,
@@ -7,7 +6,6 @@ import {
 import { SerializedAudio } from "@/types/audio";
 import { MidiTracks } from "@/types/midi";
 import { RendererConfig } from "@/types/renderer";
-import { Measurements } from "arrival-time";
 import { proxy, releaseProxy, transfer, wrap } from "comlink";
 import RecorderWorker from "./recorder.worker?worker";
 
@@ -31,17 +29,12 @@ export function startRecording(options: {
   canvas.width = rendererConfig.resolution.width;
   canvas.height = rendererConfig.resolution.height;
   const offscreen = canvas.transferControlToOffscreen();
-  const onProgress = proxy(
-    (progress: number, eta: Measurements, status: MediaCompositorStatus) => {
-      if (signal.aborted) return;
-      const text = formatStatus(status);
-      if (status === "complete") {
-        onChangeRecordingStatus(new ReadyState());
-      } else {
-        onChangeRecordingStatus(new RecordingState(progress, text, eta));
-      }
-    },
-  );
+  const onProgress = proxy((progress: number) => {
+    if (signal.aborted) return;
+    onChangeRecordingStatus(
+      progress < 1 ? new RecordingState(progress) : new ReadyState(),
+    );
+  });
   const onError = proxy((error: Error) => {
     console.error(error);
   });
@@ -80,15 +73,4 @@ export function startRecording(options: {
         reject(error);
       });
   });
-}
-
-function formatStatus(status: "render" | "encode" | "complete") {
-  switch (status) {
-    case "render":
-      return "Rendering…";
-    case "encode":
-      return "Encoding…";
-    case "complete":
-      return "Complete.";
-  }
 }

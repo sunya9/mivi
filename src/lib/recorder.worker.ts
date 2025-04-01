@@ -1,5 +1,5 @@
 import { MidiTracks } from "@/types/midi";
-import { MediaCompositor, OnProgress } from "@/lib/MediaCompositor";
+import { MediaCompositor } from "@/lib/MediaCompositor";
 import { RendererConfig } from "@/types/renderer";
 import { SerializedAudio } from "@/types/audio";
 import { MP4Muxer, WebMMuxer, MuxerOptions, Muxer } from "@/lib/muxer";
@@ -10,7 +10,7 @@ export async function startRecording(
   rendererConfig: RendererConfig,
   midiTracks: MidiTracks,
   serializedAudio: SerializedAudio,
-  onProgress: OnProgress,
+  onProgress: (progress: number) => void,
   onError: (error: Error) => void,
 ) {
   const muxerOptions: MuxerOptions = {

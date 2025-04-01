@@ -47,9 +47,6 @@ importers:
       '@tonejs/midi':
         specifier: ^2.0.28
         version: 2.0.28
-      arrival-time:
-        specifier: ^1.0.6
-        version: 1.0.6
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -62,9 +59,6 @@ importers:
       comlink:
         specifier: ^4.4.2
         version: 4.4.2
-      humanize-duration:
-        specifier: ^3.32.1
-        version: 3.32.1
       immer:
         specifier: ^10.1.1
         version: 10.1.1
@@ -123,9 +117,6 @@ importers:
       '@types/dom-webcodecs':
         specifier: ^0.1.14
         version: 0.1.14
-      '@types/humanize-duration':
-        specifier: ^3.27.4
-        version: 3.27.4
       '@types/lodash.defaultsdeep':
         specifier: ^4.6.9
         version: 4.6.9
@@ -1637,9 +1628,6 @@ packages:
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
 
-  '@types/humanize-duration@3.27.4':
-    resolution: {integrity: sha512-yaf7kan2Sq0goxpbcwTQ+8E9RP6HutFBPv74T/IA/ojcHKhuKVlk2YFYyHhWZeLvZPzzLE3aatuQB4h0iqyyUA==}
-
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -1770,9 +1758,6 @@ packages:
   arraybuffer.prototype.slice@1.0.4:
     resolution: {integrity: sha512-BNoCY6SXXPQ7gF2opIP4GBE+Xw7U+pHMYKuzjgCN3GwiaIR09UUeKfheyIry77QtrCBlC0KK0q5/TER/tYh3PQ==}
     engines: {node: '>= 0.4'}
-
-  arrival-time@1.0.6:
-    resolution: {integrity: sha512-iWdmcH/sGHt2z8On3QWqj55vh7NBnx9AEvrK99m84Eyik4+30g50+ZlcszwAT8541eDwvkDBTy8CgDHEYBtetw==}
 
   async-function@1.0.0:
     resolution: {integrity: sha512-hsU18Ae8CDTR6Kgu9DYf0EbCr/a5iGL0rytQDobUcdpYOKokk8LEjVphnXkDkgpi0wYVsqrXuP0bZxJaTqdgoA==}
@@ -2229,9 +2214,6 @@ packages:
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
-
-  humanize-duration@3.32.1:
-    resolution: {integrity: sha512-inh5wue5XdfObhu/IGEMiA1nUXigSGcaKNemcbLRKa7jXYGDZXr3LoT9pTIzq2hPEbld7w/qv9h+ikWGz8fL1g==}
 
   idb@7.1.1:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
@@ -4853,8 +4835,6 @@ snapshots:
 
   '@types/estree@1.0.7': {}
 
-  '@types/humanize-duration@3.27.4': {}
-
   '@types/json-schema@7.0.15': {}
 
   '@types/lodash.defaultsdeep@4.6.9':
@@ -5023,8 +5003,6 @@ snapshots:
       es-errors: 1.3.0
       get-intrinsic: 1.3.0
       is-array-buffer: 3.0.5
-
-  arrival-time@1.0.6: {}
 
   async-function@1.0.0: {}
 
@@ -5572,8 +5550,6 @@ snapshots:
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
-
-  humanize-duration@3.32.1: {}
 
   idb@7.1.1: {}
 

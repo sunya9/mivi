@@ -1,5 +1,6 @@
 import { AppContext } from "@/AppContext";
 import { useIndexedDb } from "@/lib/useIndexedDb";
+import { SerializedAudio } from "@/types/audio";
 import { use, useEffect, useMemo, useState } from "react";
 
 const createAudioBufferFromFile = async (
@@ -32,7 +33,7 @@ export const useAudio = () => {
       f();
     }
   }, [audioContext, audioFile]);
-  const serializedAudio = useMemo(() => {
+  const serializedAudio: SerializedAudio | undefined = useMemo(() => {
     if (!audioBuffer) return;
     return {
       length: audioBuffer.length,
@@ -42,7 +43,7 @@ export const useAudio = () => {
       channels: Array.from({ length: audioBuffer.numberOfChannels }, (_, i) =>
         audioBuffer.getChannelData(i),
       ),
-    } as const;
+    };
   }, [audioBuffer]);
   return {
     audioBuffer,

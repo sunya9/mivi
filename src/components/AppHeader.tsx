@@ -1,5 +1,4 @@
 import { Progress } from "@/components/ui/progress";
-import humanizeDuration from "humanize-duration";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -33,13 +32,7 @@ export const AppHeader = ({
         <div className="mt-4 flex flex-col gap-2 md:mt-0 md:ml-auto md:flex-row md:items-center">
           {recordingState.type === "recording" && (
             <>
-              <span>{recordingState.statusText}</span>
-              <span>
-                ETA:{" "}
-                {humanizeDuration(recordingState.eta.estimate, {
-                  maxDecimalPoints: 2,
-                })}
-              </span>
+              <span>Exporting…</span>
               <Progress
                 className="w-full md:w-32"
                 value={recordingState.progress * 100}

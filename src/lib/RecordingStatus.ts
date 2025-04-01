@@ -1,5 +1,3 @@
-import { Measurements } from "arrival-time";
-
 abstract class BaseRecordingState {
   abstract readonly type: string;
   abstract readonly isRecording: boolean;
@@ -15,8 +13,6 @@ export class RecordingState extends BaseRecordingState {
   readonly isRecording = true;
   constructor(
     readonly progress: number, // 0 ~ 1
-    readonly statusText: string,
-    readonly eta: Measurements,
   ) {
     super();
   }

@@ -1,38 +1,27 @@
 import { MidiTracks } from "@/types/midi";
-import { Estimation, Measurements } from "arrival-time";
 import { throttle } from "throttle-debounce";
 import { RendererConfig } from "@/types/renderer";
 import { getRendererFromConfig } from "@/lib/utils";
 import { SerializedAudio } from "@/types/audio";
 import { Muxer } from "@/lib/muxer";
-export type MediaCompositorStatus = "render" | "encode" | "complete";
-export type OnProgress = (
-  progress: number, // 0 ~ 1
-  eta: Measurements,
-  status: MediaCompositorStatus,
-) => void;
+
 const frameSize = 20;
 
 export class MediaCompositor {
   private readonly videoEncoder: VideoEncoder;
   private readonly audioEncoder: AudioEncoder;
-  private status: MediaCompositorStatus = "render";
-  private progressList = {
-    renderAudio: 0,
-    renderVideo: 0,
-    encodeAudio: 0,
-    encodeVideo: 0,
+  private progress = {
+    audio: { render: 0, encode: 0 },
+    video: { render: 0, encode: 0 },
   };
-  private readonly estimation = new Estimation({
-    total: Object.keys(this.progressList).length,
-  });
+
   constructor(
     private readonly canvas: OffscreenCanvas,
     private readonly rendererConfig: RendererConfig,
     private readonly midiTracks: MidiTracks,
     private readonly serializedAudio: SerializedAudio,
     private readonly muxer: Muxer,
-    private readonly onProgress: OnProgress,
+    private readonly onProgress: (progress: number) => void,
     onError: (error: Error) => void,
   ) {
     const audioEncoder = new AudioEncoder({
@@ -49,7 +38,7 @@ export class MediaCompositor {
       bitrate: 192_000,
     });
 
-    audioEncoder.addEventListener("dequeue", this.dequeueAudioListener);
+    audioEncoder.addEventListener("dequeue", this.onProgressInternal);
 
     const videoEncoder = new VideoEncoder({
       output: (chunk, metadata) => {
@@ -58,7 +47,7 @@ export class MediaCompositor {
       error: onError,
     });
 
-    videoEncoder.addEventListener("dequeue", this.dequeueVideoListener);
+    videoEncoder.addEventListener("dequeue", this.onProgressInternal);
 
     videoEncoder.configure({
       codec: this.muxer.videoCodec,
@@ -88,25 +77,20 @@ export class MediaCompositor {
   }
 
   async composite() {
-    this.renderVideo();
-    this.onProgressInternal({ renderVideo: 1 });
     this.renderAudio();
-    this.onProgressInternal({ renderAudio: 1 });
+    this.renderVideo();
 
-    this.status = "encode";
     await Promise.all([this.videoEncoder.flush(), this.audioEncoder.flush()]);
-    this.status = "complete";
     this.muxer.finalize();
     const videoBlob = new Blob([this.muxer.buffer], {
       type: "video/webm",
     });
-    this.onProgressInternal({
-      encodeVideo: 1,
-      encodeAudio: 1,
-      renderAudio: 1,
-      renderVideo: 1,
-    });
     return videoBlob;
+  }
+
+  private updateProgress(type: "audio" | "video", stage: "render" | "encode") {
+    this.progress[type][stage]++;
+    this.onProgressInternal();
   }
 
   private renderAudio() {
@@ -147,9 +131,11 @@ export class MediaCompositor {
         format: "f32-planar",
         data: frameData,
       });
+      this.updateProgress("audio", "render");
+
       this.audioEncoder.encode(audioData);
       audioData.close();
-      this.onProgressInternal({ renderAudio: i / numberOfFrames });
+      this.updateProgress("audio", "encode");
     }
   }
 
@@ -159,13 +145,14 @@ export class MediaCompositor {
 
     const renderer = getRendererFromConfig(ctx, this.rendererConfig);
     const totalVideoFrames = this.totalVideoFrames;
-
     for (let i = 0; i < totalVideoFrames; i++) {
       const progress = i / totalVideoFrames;
       renderer.render(this.midiTracks.tracks, {
         currentTime: progress * this.duration,
         duration: this.duration,
       });
+
+      this.updateProgress("video", "render");
 
       const frame = new VideoFrame(this.canvas, {
         timestamp: progress * this.duration * 1000000,
@@ -174,45 +161,46 @@ export class MediaCompositor {
 
       const keyFrame = i % 60 === 0;
 
-      this.videoEncoder.encode(frame, {
-        keyFrame,
-      });
+      this.videoEncoder.encode(frame, { keyFrame });
       frame.close();
-      this.onProgressInternal({ renderVideo: progress });
+      this.updateProgress("video", "encode");
     }
   }
 
-  private onProgressInternal = throttle(
-    500,
-    (progressList: Partial<typeof this.progressList>) => {
-      this.progressList = {
-        ...this.progressList,
-        ...progressList,
-      };
-      const values = Object.values(this.progressList);
-      const progress = values.reduce((sum, value) => sum + value, 0);
-      const eta = this.estimation.update(progress);
-      this.onProgress(progress / values.length, eta, this.status);
-    },
-  );
+  private get progressTotal() {
+    return (this.totalAudioFrames + this.totalVideoFrames) * 2;
+  }
 
-  private dequeueVideoListener = () => {
-    if (this.videoEncoder.encodeQueueSize % 100 !== 0) return;
-    const progress =
-      1 - this.videoEncoder.encodeQueueSize / this.totalVideoFrames;
-    this.onProgressInternal({ encodeVideo: progress });
+  private onProgressInternal = () => {
+    const audioQueueSize = this.audioEncoder.encodeQueueSize;
+    const videoQueueSize = this.videoEncoder.encodeQueueSize;
+
+    const totalProgress =
+      this.progress.audio.render +
+      this.progress.audio.encode +
+      this.progress.video.render +
+      this.progress.video.encode;
+
+    const queueSize = audioQueueSize + videoQueueSize;
+    const progress = (totalProgress - queueSize) / this.progressTotal;
+    this.onProgressThrottled(progress);
   };
 
-  private dequeueAudioListener = () => {
-    if (this.audioEncoder.encodeQueueSize % 100 !== 0) return;
-    const progress =
-      1 - this.audioEncoder.encodeQueueSize / this.totalAudioFrames;
-    this.onProgressInternal({ encodeAudio: progress });
-  };
+  private onProgressThrottled = throttle(500, (progress: number) => {
+    console.log(
+      `Progress: ${progress.toFixed(2)}`,
+      `Total: ${this.progressTotal}`,
+      `Audio Render: ${this.progress.audio.render}`,
+      `Audio Encode: ${this.progress.audio.encode}`,
+      `Video Render: ${this.progress.video.render}`,
+      `Video Encode: ${this.progress.video.encode}`,
+    );
+    this.onProgress(progress);
+  });
 
   [Symbol.dispose](): void {
-    this.videoEncoder.removeEventListener("dequeue", this.dequeueVideoListener);
-    this.audioEncoder.removeEventListener("dequeue", this.dequeueAudioListener);
+    this.videoEncoder.removeEventListener("dequeue", this.onProgressInternal);
+    this.audioEncoder.removeEventListener("dequeue", this.onProgressInternal);
     this.audioEncoder.close();
     this.videoEncoder.close();
   }
