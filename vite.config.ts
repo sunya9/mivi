@@ -1,7 +1,6 @@
 import path from "path";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { comlink } from "vite-plugin-comlink";
 import Unfonts from "unplugin-fonts/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
@@ -11,11 +10,9 @@ export default defineConfig({
     tailwindcss(),
     react({
       babel: {
-        presets: ["jotai/babel/preset"],
         plugins: ["@babel/plugin-proposal-explicit-resource-management"],
       },
     }),
-    comlink(),
     Unfonts({
       google: {
         families: [
@@ -53,9 +50,6 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  worker: {
-    plugins: () => [comlink()],
   },
   base: "/mivi/",
 });

@@ -16,6 +16,7 @@ export interface MidiTrack {
 }
 
 export interface MidiTracks {
+  name: string;
   tracks: MidiTrack[];
   duration: number;
   minNote: number;

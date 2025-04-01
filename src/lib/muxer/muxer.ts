@@ -1,5 +1,3 @@
-import { ArrayBufferTarget } from "webm-muxer";
-
 export interface Muxer {
   addVideoChunk(
     chunk: EncodedVideoChunk,
@@ -17,7 +15,6 @@ export interface Muxer {
 }
 
 export interface MuxerOptions {
-  target: ArrayBufferTarget;
   width: number;
   height: number;
   frameRate: number;

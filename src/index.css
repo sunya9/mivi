@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@plugin "tailwindcss-animate";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -71,14 +71,16 @@
 }
 
 :root {
+  --app-color: oklch(58.23% 0.1411 327.2);
+  --app-color-foreground: oklch(0.985 0 0);
   --background: var(--color-gray-50);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(58.23% 0.1411 327.2);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: var(--app-color);
+  --primary-foreground: var(--app-color-foreground);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -106,14 +108,14 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 .dark {
-  --background: oklch(0.145 0 0);
+  --background: var(--color-zinc-800);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.145 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: var(--app-color);
+  --primary-foreground: var(--app-color-foreground);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);

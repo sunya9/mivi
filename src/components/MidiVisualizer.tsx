@@ -3,57 +3,75 @@ import { Canvas } from "@/components/Canvas";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { useEffect, useMemo, useState } from "react";
-import { useMidiVisualizer } from "@/lib/useMidiVisualizer";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
-import { useAtomValue } from "jotai";
-import { rendererConfigAtom } from "@/atoms/rendererConfigAtom";
+import { RendererConfig } from "@/types/renderer";
+import { usePlayer } from "@/lib/usePlayer";
+import { MidiTracks } from "@/types/midi";
+import { useAnimationFrame } from "@/lib/useAnimationFrame";
 
-export const MidiVisualizer = () => {
-  const rendererConfig = useAtomValue(rendererConfigAtom);
+interface Props {
+  rendererConfig: RendererConfig;
+  audioBuffer?: AudioBuffer;
+  midiTracks?: MidiTracks;
+}
+
+export const MidiVisualizer = ({
+  rendererConfig,
+  audioBuffer,
+  midiTracks,
+}: Props) => {
   const [context, setContext] = useState<CanvasRenderingContext2D>();
-  const [showPlayIcon, setShowPlayIcon] = useState(false);
   const renderer = useMemo(() => {
     return context ? getRendererFromConfig(context, rendererConfig) : undefined;
   }, [context, rendererConfig]);
-
+  const duration = useMemo(() => audioBuffer?.duration || 0, [audioBuffer]);
   const {
-    isPlaying,
-    duration,
-    togglePlay,
     seek,
-    render,
-    setVolume,
-    setMuted,
-    muted,
+    togglePlay,
     volume,
-    currentTime,
-  } = useMidiVisualizer(renderer);
-
-  useEffect(() => {
-    if (isPlaying) return;
-    render();
-  }, [render, isPlaying]);
-
-  useEffect(() => {
-    setShowPlayIcon(true);
-    const timer = setTimeout(() => setShowPlayIcon(false), 500);
-    return () => clearTimeout(timer);
-  }, [isPlaying]);
+    setVolume,
+    muted,
+    isPlaying,
+    getCurrentTime,
+    updateCurrentTime,
+    currentTimeSec,
+    toggleMute,
+    makeSureToCommit,
+  } = usePlayer(audioBuffer);
+  const onAnimate = useCallback(() => {
+    if (!renderer) return;
+    renderer.render(midiTracks?.tracks || [], {
+      currentTime: getCurrentTime(),
+      duration,
+    });
+    if (!isPlaying) return;
+    updateCurrentTime();
+  }, [
+    duration,
+    getCurrentTime,
+    isPlaying,
+    midiTracks,
+    renderer,
+    updateCurrentTime,
+  ]);
+  useAnimationFrame(onAnimate);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const activeElement = document.activeElement;
       if (
-        (e.code === "Space" &&
-          !e.repeat &&
-          document.activeElement === document.body) ||
-        document.activeElement?.role === "slider"
-      ) {
+        !(activeElement instanceof HTMLElement) ||
+        e.code !== "Space" ||
+        e.repeat
+      )
+        return;
+      if (activeElement === document.body || activeElement.role === "slider") {
         e.preventDefault();
         togglePlay();
       }
@@ -62,7 +80,6 @@ export const MidiVisualizer = () => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isPlaying, togglePlay]);
-
   return (
     <div
       className="group relative h-full w-full select-none"
@@ -72,22 +89,11 @@ export const MidiVisualizer = () => {
         aspectRatio={
           rendererConfig.resolution.height / rendererConfig.resolution.width
         }
-        onRedraw={render}
+        onRedraw={onAnimate}
         onInit={setContext}
-        onClick={() => togglePlay()}
+        onClickCanvas={togglePlay}
       />
-      <div
-        className={cn(
-          "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 p-4 text-white transition-opacity duration-200",
-          showPlayIcon ? "opacity-100" : "opacity-0",
-        )}
-      >
-        {isPlaying ? (
-          <Play className="size-12" />
-        ) : (
-          <Pause className="size-12" />
-        )}
-      </div>
+      <PlayIcon isPlaying={isPlaying} />
       <div
         className={cn(
           "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-opacity",
@@ -95,19 +101,13 @@ export const MidiVisualizer = () => {
         )}
       >
         <div className="flex items-center gap-2">
-          <Button onClick={() => togglePlay()} variant="ghostSecondary">
+          <Button onClick={togglePlay} variant="ghostSecondary">
             {isPlaying ? <Pause /> : <Play />}
           </Button>
           <div className="flex items-center gap-2">
             <HoverCard openDelay={100}>
               <HoverCardTrigger asChild>
-                <Button
-                  variant="ghostSecondary"
-                  onClick={() => {
-                    const newMuted = !muted;
-                    setMuted(newMuted);
-                  }}
-                >
+                <Button variant="ghostSecondary" onClick={toggleMute}>
                   {muted ? (
                     <VolumeX className="size-4" />
                   ) : (
@@ -132,17 +132,43 @@ export const MidiVisualizer = () => {
             </HoverCard>
           </div>
           <span className="mr-2 min-w-28 text-right text-white">
-            {formatTime(currentTime())} / {formatTime(duration)}
+            {formatTime(currentTimeSec)} / {formatTime(duration)}
           </span>
           <Slider
             max={duration}
-            value={[currentTime()]}
+            value={[currentTimeSec]}
             step={0.1}
-            onValueChange={([e]) => seek(e)}
+            onValueChange={([e]) => seek(e, false)}
+            onValueCommit={([e]) => seek(e, true)}
+            // https://github.com/radix-ui/primtives/issues/1760#issuecomment-2133137759
+            onLostPointerCapture={makeSureToCommit}
             className="flex-1"
           />
         </div>
       </div>
+    </div>
+  );
+};
+
+const PlayIcon = ({ isPlaying }: { isPlaying: boolean }) => {
+  const [showPlayIcon, setShowPlayIcon] = useState(false);
+  useEffect(() => {
+    setShowPlayIcon(true);
+    const timer = setTimeout(() => setShowPlayIcon(false), 500);
+    return () => clearTimeout(timer);
+  }, [isPlaying]);
+  return (
+    <div
+      className={cn(
+        "pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 p-4 text-white transition-opacity duration-200",
+        showPlayIcon ? "opacity-100" : "opacity-0",
+      )}
+    >
+      {isPlaying ? (
+        <Play strokeWidth={0.5} className="size-12" />
+      ) : (
+        <Pause strokeWidth={0.5} className="size-12" />
+      )}
     </div>
   );
 };

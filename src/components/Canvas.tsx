@@ -6,13 +6,13 @@ interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   aspectRatio: number;
   onInit: (ctx: CanvasRenderingContext2D) => void;
   onRedraw: () => void;
-  onClick?: () => void;
+  onClickCanvas: () => void;
 }
 
 export const Canvas = ({
   onRedraw,
   onInit,
-  onClick,
+  onClickCanvas,
   className,
   aspectRatio,
   ...props
@@ -29,7 +29,6 @@ export const Canvas = ({
     ref.current.height = canvasHeight;
     onRedraw();
   }, [aspectRatio, onRedraw]);
-
   useResizeDetector({
     onResize: render,
     targetRef: ref,
@@ -58,7 +57,7 @@ export const Canvas = ({
           aspectRatio: `${1 / aspectRatio}`,
           maxHeight: "100%",
         }}
-        onClick={onClick}
+        onClick={onClickCanvas}
         {...props}
       />
     </div>

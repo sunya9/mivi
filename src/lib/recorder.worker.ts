@@ -1,17 +1,16 @@
 import { MidiTracks } from "@/types/midi";
-import { MediaCompositor, OnProgress } from "@/lib/MediaCompositor";
+import { MediaCompositor } from "@/lib/MediaCompositor";
 import { RendererConfig } from "@/types/renderer";
-import { SerializedAudio } from "@/atoms/playerAtom";
+import { SerializedAudio } from "@/types/audio";
 import { MP4Muxer, WebMMuxer, MuxerOptions, Muxer } from "@/lib/muxer";
-import { ArrayBufferTarget } from "webm-muxer";
+import { expose } from "comlink";
 
 export async function startRecording(
   canvas: OffscreenCanvas,
   rendererConfig: RendererConfig,
   midiTracks: MidiTracks,
   serializedAudio: SerializedAudio,
-  duration: number,
-  onProgress: OnProgress,
+  onProgress: (progress: number) => void,
   onError: (error: Error) => void,
 ) {
   const muxerOptions: MuxerOptions = {
@@ -20,7 +19,6 @@ export async function startRecording(
     height: canvas.height,
     numberOfChannels: serializedAudio.numberOfChannels,
     sampleRate: serializedAudio.sampleRate,
-    target: new ArrayBufferTarget(),
   };
   const muxer: Muxer =
     rendererConfig.format === "webm"
@@ -31,8 +29,6 @@ export async function startRecording(
     rendererConfig,
     midiTracks,
     serializedAudio,
-    rendererConfig.fps,
-    duration,
     muxer,
     onProgress,
     onError,
@@ -41,4 +37,4 @@ export async function startRecording(
   return response;
 }
 
-export function terminate() {}
+expose({ startRecording });
