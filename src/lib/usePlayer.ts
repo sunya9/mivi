@@ -2,11 +2,6 @@ import { AppContext } from "@/AppContext";
 import { useLocalStorage } from "@/lib/useLocalStorage";
 import { use, useCallback, useMemo, useRef, useState } from "react";
 
-interface Props {
-  audioBuffer?: AudioBuffer;
-  duration: number;
-}
-
 type PlayingState =
   | {
       type: "playing";
@@ -20,7 +15,7 @@ type PlayingState =
       wasPlaying: boolean;
     };
 
-export const usePlayer = ({ audioBuffer, duration }: Props) => {
+export const usePlayer = (audioBuffer: AudioBuffer | undefined) => {
   const { audioContext, gainNode } = use(AppContext);
   const [localStorageVolume, setLocalStorageVolume] =
     useLocalStorage<number>("mivi:volume");
@@ -38,6 +33,7 @@ export const usePlayer = ({ audioBuffer, duration }: Props) => {
     () => playingState.type === "playing",
     [playingState],
   );
+  const duration = useMemo(() => audioBuffer?.duration || 0, [audioBuffer]);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
 
   const pause = useCallback(() => {

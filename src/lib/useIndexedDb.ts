@@ -16,7 +16,7 @@ const loadInitialFile = (key: string) => {
 };
 
 export const useIndexedDb = (key: string) => {
-  const [file, setFileInternal] = useState<File | undefined>(
+  const [file, setFileInternal] = useState<File | undefined>(() =>
     loadInitialFile(key),
   );
   const setFile = useCallback(

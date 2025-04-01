@@ -18,20 +18,19 @@ import { useAnimationFrame } from "@/lib/useAnimationFrame";
 interface Props {
   rendererConfig: RendererConfig;
   audioBuffer?: AudioBuffer;
-  duration: number;
   midiTracks?: MidiTracks;
 }
 
 export const MidiVisualizer = ({
   rendererConfig,
   audioBuffer,
-  duration,
   midiTracks,
 }: Props) => {
   const [context, setContext] = useState<CanvasRenderingContext2D>();
   const renderer = useMemo(() => {
     return context ? getRendererFromConfig(context, rendererConfig) : undefined;
   }, [context, rendererConfig]);
+  const duration = useMemo(() => audioBuffer?.duration || 0, [audioBuffer]);
   const {
     seek,
     togglePlay,
@@ -44,7 +43,7 @@ export const MidiVisualizer = ({
     currentTimeSec,
     toggleMute,
     makeSureToCommit,
-  } = usePlayer({ audioBuffer, duration });
+  } = usePlayer(audioBuffer);
   const onAnimate = useCallback(() => {
     if (!renderer) return;
     renderer.render(midiTracks?.tracks || [], {

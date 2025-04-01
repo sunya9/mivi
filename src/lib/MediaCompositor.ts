@@ -31,8 +31,6 @@ export class MediaCompositor {
     private readonly rendererConfig: RendererConfig,
     private readonly midiTracks: MidiTracks,
     private readonly serializedAudio: SerializedAudio,
-    private readonly fps: number,
-    private readonly duration: number,
     private readonly muxer: Muxer,
     private readonly onProgress: OnProgress,
     onError: (error: Error) => void,
@@ -67,11 +65,18 @@ export class MediaCompositor {
       width: canvas.width,
       height: canvas.height,
       bitrate: 2_500_000,
-      framerate: fps,
+      framerate: this.fps,
     });
 
     this.audioEncoder = audioEncoder;
     this.videoEncoder = videoEncoder;
+  }
+
+  private get fps() {
+    return this.rendererConfig.fps;
+  }
+  private get duration() {
+    return this.serializedAudio.duration;
   }
 
   private get totalVideoFrames() {

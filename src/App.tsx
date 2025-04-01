@@ -17,26 +17,9 @@ import { useRendererConfig } from "@/lib/useRendererConfig";
 
 export const App = () => {
   const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();
-  const {
-    setMidiFile,
-    midiTracks,
-    midiDuration,
-    midiFilename,
-    setMidiTracks,
-    midiFile,
-  } = useMidi();
-  const {
-    audioFile,
-    setAudioFile,
-    audioDuration,
-    serializedAudio,
-    audioBuffer,
-  } = useAudio();
-  console.log({ midiDuration, audioDuration });
-  const duration = Math.max(midiDuration, audioDuration);
+  const { setMidiFile, midiTracks, setMidiTracks } = useMidi();
+  const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
   const { recordingState, toggleRecording } = useStartRecording({
-    duration,
-    filename: midiFilename,
     midiTracks,
     serializedAudio,
     rendererConfig,
@@ -82,7 +65,6 @@ export const App = () => {
               <MidiVisualizer
                 rendererConfig={rendererConfig}
                 audioBuffer={audioBuffer}
-                duration={duration}
                 midiTracks={midiTracks}
               />
             </ResizablePanel>
@@ -92,9 +74,9 @@ export const App = () => {
                 <CommonConfigPane
                   rendererConfig={rendererConfig}
                   onUpdateRendererConfig={onUpdateRendererConfig}
-                  midiFile={midiFile}
+                  midiFilename={midiTracks?.name}
                   onChangeMidiFile={setMidiFile}
-                  audioFile={audioFile}
+                  audioFilename={audioFile?.name}
                   onChangeAudioFile={setAudioFile}
                 />
               </ScrollArea>

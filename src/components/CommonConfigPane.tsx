@@ -31,9 +31,9 @@ import { ToggleTheme } from "@/components/ToggleTheme";
 interface Props {
   rendererConfig: RendererConfig;
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
-  midiFile?: File;
+  midiFilename?: string;
   onChangeMidiFile: (file: File | undefined) => void;
-  audioFile?: File;
+  audioFilename?: string;
   onChangeAudioFile: (file: File | undefined) => void;
 }
 
@@ -41,9 +41,9 @@ export const CommonConfigPane = React.memo(
   ({
     rendererConfig,
     onUpdateRendererConfig,
-    midiFile,
+    midiFilename,
     onChangeMidiFile,
-    audioFile,
+    audioFilename,
     onChangeAudioFile,
   }: Props) => {
     return (
@@ -51,14 +51,14 @@ export const CommonConfigPane = React.memo(
         <CollapsibleCardPane header={<h2>MIDI / Audio Settings</h2>}>
           <CardContent className="grid grid-cols-1 gap-2">
             <FileButton
-              file={midiFile}
+              filename={midiFilename}
               setFile={onChangeMidiFile}
               accept=".mid,.midi"
             >
               Open MIDI file
             </FileButton>
             <FileButton
-              file={audioFile}
+              filename={audioFilename}
               setFile={onChangeAudioFile}
               accept="audio/*"
             >
@@ -211,12 +211,12 @@ export const CommonConfigPane = React.memo(
 );
 
 const FileButton = ({
-  file,
+  filename,
   setFile,
   accept,
   children,
 }: {
-  file: File | undefined;
+  filename: string | undefined;
   setFile: (file: File | undefined) => void;
   accept: string;
   children: React.ReactNode;
@@ -226,7 +226,7 @@ const FileButton = ({
   return (
     <div className="flex items-center justify-between gap-2">
       <span className="inline-flex items-center overflow-hidden">
-        {file && (
+        {filename && (
           <>
             <Button
               variant="icon"
@@ -236,7 +236,7 @@ const FileButton = ({
               <CircleXIcon />
             </Button>
             <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {file.name}
+              {filename}
             </span>
           </>
         )}

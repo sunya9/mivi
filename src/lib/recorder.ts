@@ -14,18 +14,14 @@ import RecorderWorker from "./recorder.worker?worker";
 export function startRecording(options: {
   rendererConfig: RendererConfig;
   midiTracks: MidiTracks;
-  filename: string;
   serializedAudio: SerializedAudio;
-  duration: number;
   onChangeRecordingStatus: (status: RecordingStatus) => void;
   signal: AbortSignal;
 }) {
   const {
     rendererConfig,
     midiTracks,
-    filename,
     serializedAudio,
-    duration,
     onChangeRecordingStatus,
     signal,
   } = options;
@@ -66,7 +62,6 @@ export function startRecording(options: {
         rendererConfig,
         midiTracks,
         serializedAudio,
-        duration,
         onProgress,
         onError,
       )
@@ -75,7 +70,7 @@ export function startRecording(options: {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `mivi-${filename}.${rendererConfig.format}`;
+        a.download = `mivi-${midiTracks.name}.${rendererConfig.format}`;
         a.click();
         URL.revokeObjectURL(url);
         resolve(void 0);

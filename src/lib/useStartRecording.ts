@@ -10,16 +10,12 @@ import { toast } from "sonner";
 
 interface Props {
   serializedAudio?: SerializedAudio;
-  duration: number;
   midiTracks?: MidiTracks;
-  filename?: string;
   rendererConfig: RendererConfig;
 }
 export const useStartRecording = ({
   serializedAudio,
-  duration,
   midiTracks,
-  filename,
   rendererConfig,
 }: Props) => {
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
@@ -28,7 +24,7 @@ export const useStartRecording = ({
   const abortControllerRef = useRef<AbortController | null>(null);
   const toggleRecording = useCallback(async () => {
     if (!recordingState.isRecording) {
-      if (!midiTracks || !serializedAudio || !filename) {
+      if (!midiTracks || !serializedAudio) {
         toast.error("Please select a MIDI file and audio file.");
         return;
       }
@@ -39,9 +35,7 @@ export const useStartRecording = ({
           onChangeRecordingStatus: setRecordingState,
           rendererConfig,
           midiTracks,
-          filename,
           serializedAudio,
-          duration,
           signal: abortController.signal,
         });
       } catch (error) {
@@ -52,13 +46,6 @@ export const useStartRecording = ({
     } else {
       abortControllerRef.current?.abort("Cancelled by user");
     }
-  }, [
-    midiTracks,
-    serializedAudio,
-    filename,
-    recordingState.isRecording,
-    rendererConfig,
-    duration,
-  ]);
+  }, [midiTracks, serializedAudio, recordingState.isRecording, rendererConfig]);
   return { recordingState, toggleRecording };
 };
