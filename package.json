@@ -42,7 +42,7 @@
     "react-resizable-panels": "^2.1.7",
     "react-resize-detector": "^12.0.2",
     "sonner": "^2.0.1",
-    "tailwind-merge": "^3.0.2",
+    "tailwind-merge": "^3.2.0",
     "tailwindcss": "^4.0.15",
     "throttle-debounce": "^5.0.2",
     "webm-muxer": "^5.1.1"
