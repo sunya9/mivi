@@ -87,8 +87,8 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(react@19.1.0)
       react-resizable-panels:
-        specifier: ^2.1.7
-        version: 2.1.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: ^2.1.8
+        version: 2.1.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react-resize-detector:
         specifier: ^12.0.2
         version: 12.0.2(react@19.1.0)
@@ -1848,8 +1848,8 @@ packages:
   caniuse-lite@1.0.30001690:
     resolution: {integrity: sha512-5ExiE3qQN6oF8Clf8ifIDcMRCRE/dMGcETG/XGMD8/XiXm6HXQgQTh1yZYLXXpSOsEUlJm1Xr7kGULZTuGtP/w==}
 
-  caniuse-lite@1.0.30001713:
-    resolution: {integrity: sha512-wCIWIg+A4Xr7NfhTuHdX+/FKh3+Op3LBbSp2N5Pfx6T/LhdQy3GTyoTg48BReaW/MyMNZAkTadsBtai3ldWK0Q==}
+  caniuse-lite@1.0.30001715:
+    resolution: {integrity: sha512-7ptkFGMm2OAOgvZpwgA4yjQ5SQbrNVGdRjzH0pBdy1Fasvcr+KAeECmbCAECzTuDuoX0FCY8KzUxjf9+9kfZEw==}
 
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
@@ -1962,8 +1962,8 @@ packages:
     engines: {node: '>=0.10.0'}
     hasBin: true
 
-  electron-to-chromium@1.5.136:
-    resolution: {integrity: sha512-kL4+wUTD7RSA5FHx5YwWtjDnEEkIIikFgWHR4P6fqjw1PPLlqYkxeOb++wAauAssat0YClCy8Y3C5SxgSkjibQ==}
+  electron-to-chromium@1.5.139:
+    resolution: {integrity: sha512-GGnRYOTdN5LYpwbIr0rwP/ZHOQSvAF6TG0LSzp28uCBb9JiXHJGmaaKw29qjNJc5bGnnp6kXJqRnGMQoELwi5w==}
 
   electron-to-chromium@1.5.77:
     resolution: {integrity: sha512-AnJSrt5JpRVgY6dgd5yccguLc5A7oMSF0Kt3fcW+Hp5WTuFbl5upeSFZbMZYy2o7jhmIhU8Ekrd82GhyXUqUUg==}
@@ -2853,8 +2853,8 @@ packages:
       '@types/react':
         optional: true
 
-  react-resizable-panels@2.1.7:
-    resolution: {integrity: sha512-JtT6gI+nURzhMYQYsx8DKkx6bSoOGFp7A3CwMrOb8y5jFHFyqwo9m68UhmXRw57fRVJksFn1TSlm3ywEQ9vMgA==}
+  react-resizable-panels@2.1.8:
+    resolution: {integrity: sha512-oDvD0sw34Ecx00cQFLiRJpAE2fCgNLBr8DMrBzkrsaUiLpAycIQoY3eAWfMblDql3pTIMZ60wJ/P89RO1htM2w==}
     peerDependencies:
       react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
       react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
@@ -5159,8 +5159,8 @@ snapshots:
 
   browserslist@4.24.4:
     dependencies:
-      caniuse-lite: 1.0.30001713
-      electron-to-chromium: 1.5.136
+      caniuse-lite: 1.0.30001715
+      electron-to-chromium: 1.5.139
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.24.4)
 
@@ -5187,7 +5187,7 @@ snapshots:
 
   caniuse-lite@1.0.30001690: {}
 
-  caniuse-lite@1.0.30001713: {}
+  caniuse-lite@1.0.30001715: {}
 
   chalk@4.1.2:
     dependencies:
@@ -5292,7 +5292,7 @@ snapshots:
     dependencies:
       jake: 10.9.2
 
-  electron-to-chromium@1.5.136: {}
+  electron-to-chromium@1.5.139: {}
 
   electron-to-chromium@1.5.77: {}
 
@@ -6139,7 +6139,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.1.1
 
-  react-resizable-panels@2.1.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  react-resizable-panels@2.1.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
