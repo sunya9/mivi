@@ -74,5 +74,11 @@
     "vite": "^6.3.3",
     "vite-plugin-pwa": "^1.0.0"
   },
-  "packageManager": "pnpm@10.5.2"
+  "packageManager": "pnpm@10.5.2",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lefthook"
+    ]
+  }
 }
