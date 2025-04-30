@@ -1,5 +1,7 @@
+/// <reference types="vitest" />
 import path from "path";
 import { defineConfig, PluginOption } from "vite";
+import { configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import Unfonts from "unplugin-fonts/vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -43,7 +45,7 @@ export default defineConfig(({ mode }) => ({
         display: "standalone",
       },
       devOptions: {
-        enabled: true,
+        enabled: mode === "development",
       },
     }),
     mode === "analyze" &&
@@ -66,7 +68,22 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      tests: path.resolve(__dirname, "./tests"),
     },
   },
   base: "/mivi/",
+  test: {
+    globals: true,
+    environment: "happy-dom",
+    setupFiles: ["./tests/setup.ts", "@vitest/web-worker"],
+    watch: false,
+    coverage: {
+      provider: "istanbul",
+      exclude: [
+        ...(configDefaults.coverage?.exclude ?? []),
+        "src/components/ui/**",
+        "dev-dist",
+      ],
+    },
+  },
 }));
