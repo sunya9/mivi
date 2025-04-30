@@ -20,6 +20,8 @@ jobs:
     uses: ./.github/workflows/build-common.yml
     with:
       upload_artifact: true
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   deploy:
     needs: build

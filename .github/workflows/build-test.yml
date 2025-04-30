@@ -11,3 +11,5 @@ permissions:
 jobs:
   build-test:
     uses: ./.github/workflows/build-common.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
