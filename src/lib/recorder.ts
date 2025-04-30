@@ -2,7 +2,7 @@ import {
   RecordingState,
   ReadyState,
   RecordingStatus,
-} from "@/lib/RecordingStatus";
+} from "@/lib/recording-status";
 import { SerializedAudio } from "@/types/audio";
 import { MidiTracks } from "@/types/midi";
 import { RendererConfig } from "@/types/renderer";

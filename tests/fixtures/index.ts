@@ -3,7 +3,7 @@ import * as path from "node:path";
 import { MidiTracks } from "@/types/midi";
 import { RendererConfig } from "@/types/renderer";
 import { getDefaultRendererConfig } from "@/types/renderer";
-import { appContextValue } from "@/lib/appContextValue";
+import { appContextValue } from "@/lib/app-context-value";
 
 const midiFilename = "test.mid";
 const midiFilepath = path.resolve(__dirname, midiFilename);
