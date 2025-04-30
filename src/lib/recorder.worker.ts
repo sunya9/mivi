@@ -6,7 +6,6 @@ import { MP4Muxer, WebMMuxer, MuxerOptions, Muxer } from "@/lib/muxer";
 import { expose } from "comlink";
 
 export async function startRecording(
-  canvas: OffscreenCanvas,
   rendererConfig: RendererConfig,
   midiTracks: MidiTracks,
   serializedAudio: SerializedAudio,
@@ -15,8 +14,8 @@ export async function startRecording(
 ) {
   const muxerOptions: MuxerOptions = {
     frameRate: rendererConfig.fps,
-    width: canvas.width,
-    height: canvas.height,
+    width: rendererConfig.resolution.width,
+    height: rendererConfig.resolution.height,
     numberOfChannels: serializedAudio.numberOfChannels,
     sampleRate: serializedAudio.sampleRate,
   };
@@ -25,7 +24,6 @@ export async function startRecording(
       ? new WebMMuxer(muxerOptions)
       : new MP4Muxer(muxerOptions);
   using mediaCompositor = new MediaCompositor(
-    canvas,
     rendererConfig,
     midiTracks,
     serializedAudio,

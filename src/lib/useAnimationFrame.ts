@@ -1,6 +1,4 @@
-import { useCallback, useRef } from "react";
-
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 export const useAnimationFrame = (onAnimate: FrameRequestCallback) => {
   const animationFrameRef = useRef<number>(0);

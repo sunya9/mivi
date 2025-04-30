@@ -1,5 +1,5 @@
-const storeName = "key-value";
-const dbName = "mivi:file";
+export const storeName = "key-value";
+export const dbName = "mivi:file";
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {

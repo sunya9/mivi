@@ -1,16 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-const cachedStorageValues = new Map<string, unknown>();
-
-const loadInitialValue = <T>(key: string): T | undefined => {
-  if (cachedStorageValues.has(key)) {
-    return cachedStorageValues.get(key) as T;
-  }
+const loadValue = <T>(key: string): T | undefined => {
   try {
-    const rawValue = window.localStorage.getItem(key);
+    const rawValue = localStorage.getItem(key);
     if (rawValue) {
       const value = JSON.parse(rawValue) as T;
-      cachedStorageValues.set(key, value);
       return value;
     }
   } catch (e) {
@@ -21,15 +15,30 @@ const loadInitialValue = <T>(key: string): T | undefined => {
 export const useLocalStorage = <T>(
   key: string,
 ): [T | undefined, (value: T) => void] => {
-  const [value, setValue] = useState<T | undefined>(loadInitialValue<T>(key));
+  const [value, setValueInternal] = useState<T | undefined>(() =>
+    loadValue<T>(key),
+  );
 
   useEffect(() => {
     if (value) {
       const json = JSON.stringify(value);
-      window.localStorage.setItem(key, json);
+      localStorage.setItem(key, json);
     } else {
-      window.localStorage.removeItem(key);
+      localStorage.removeItem(key);
     }
   }, [value, key]);
+  const setValue = useCallback(
+    (value?: T | undefined) => {
+      if (!value) {
+        localStorage.removeItem(key);
+      } else {
+        const json = JSON.stringify(value);
+        localStorage.setItem(key, json);
+      }
+      setValueInternal(value);
+    },
+    [key],
+  );
+
   return [value, setValue];
 };

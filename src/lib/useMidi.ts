@@ -72,7 +72,6 @@ export const useMidi = () => {
     },
     [setMidiTracks],
   );
-
   return {
     setMidiFile,
     midiTracks,

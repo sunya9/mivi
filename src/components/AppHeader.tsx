@@ -32,8 +32,9 @@ export const AppHeader = ({
         <div className="mt-4 flex flex-col gap-2 md:mt-0 md:ml-auto md:flex-row md:items-center">
           {recordingState.type === "recording" && (
             <>
-              <span>Exporting…</span>
+              <span id="recording-progress">Exporting…</span>
               <Progress
+                aria-labelledby="recording-progress"
                 className="w-full md:w-32"
                 value={recordingState.progress * 100}
               />

@@ -14,9 +14,9 @@ export class MediaCompositor {
     audio: { render: 0, encode: 0 },
     video: { render: 0, encode: 0 },
   };
+  private readonly canvas: OffscreenCanvas;
 
   constructor(
-    private readonly canvas: OffscreenCanvas,
     private readonly rendererConfig: RendererConfig,
     private readonly midiTracks: MidiTracks,
     private readonly serializedAudio: SerializedAudio,
@@ -48,12 +48,16 @@ export class MediaCompositor {
     });
 
     videoEncoder.addEventListener("dequeue", this.onProgressInternal);
+    this.canvas = new OffscreenCanvas(
+      this.rendererConfig.resolution.width,
+      this.rendererConfig.resolution.height,
+    );
 
     videoEncoder.configure({
       codec: this.muxer.videoCodec,
-      width: canvas.width,
-      height: canvas.height,
-      bitrate: 2_500_000,
+      width: this.canvas.width,
+      height: this.canvas.height,
+      bitrate: 10_000_000,
       framerate: this.fps,
     });
 

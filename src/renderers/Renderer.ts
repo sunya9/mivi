@@ -1,5 +1,5 @@
 import { PlaybackState } from "@/types/player";
-import { MidiTrack, MidiTracks } from "../types/midi";
+import { MidiTrack } from "../types/midi";
 import { RendererConfig } from "@/types/renderer";
 
 export abstract class Renderer {
@@ -19,21 +19,4 @@ export abstract class Renderer {
     this.ctx.fillRect(0, 0, width, height);
   }
   abstract render(tracks: MidiTrack[], playbackState: PlaybackState): void;
-  renderThumbnail(
-    tracks: MidiTracks | undefined,
-    position: {
-      duration: number | undefined;
-      currentTime: number | undefined;
-    },
-  ) {
-    this.render(tracks?.tracks || [], {
-      duration: position.duration || 0,
-      currentTime: position.currentTime || 0,
-    });
-  }
 }
-
-export type RendererCreator = (
-  ctx: CanvasRenderingContext2D,
-  rendererConfig: RendererConfig,
-) => Renderer;

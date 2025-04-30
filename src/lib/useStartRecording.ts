@@ -1,7 +1,11 @@
 import { useState } from "react";
 
 import { useCallback, useRef } from "react";
-import { RecordingStatus, ReadyState } from "@/lib/RecordingStatus";
+import {
+  RecordingStatus,
+  ReadyState,
+  RecordingState,
+} from "@/lib/RecordingStatus";
 import { RendererConfig } from "@/types/renderer";
 import { SerializedAudio } from "@/types/audio";
 import { MidiTracks } from "@/types/midi";
@@ -30,21 +34,25 @@ export const useStartRecording = ({
       }
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
-      try {
-        await startRecording({
-          onChangeRecordingStatus: setRecordingState,
-          rendererConfig,
-          midiTracks,
-          serializedAudio,
-          signal: abortController.signal,
+      setRecordingState(new RecordingState(0));
+      return startRecording({
+        onChangeRecordingStatus: setRecordingState,
+        rendererConfig,
+        midiTracks,
+        serializedAudio,
+        signal: abortController.signal,
+      })
+        .catch((error) => {
+          console.error("catch on toggleRecording.", error);
+          throw new Error("failed to start recording", { cause: error });
+        })
+        .finally(() => {
+          abortControllerRef.current = null;
+          setRecordingState(new ReadyState());
         });
-      } catch (error) {
-        console.error("catch on toggleRecording.", error);
-      } finally {
-        abortControllerRef.current = null;
-      }
     } else {
       abortControllerRef.current?.abort("Cancelled by user");
+      setRecordingState(new ReadyState());
     }
   }, [midiTracks, serializedAudio, recordingState.isRecording, rendererConfig]);
   return { recordingState, toggleRecording };

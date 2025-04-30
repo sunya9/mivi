@@ -1,7 +1,7 @@
 import { AppContext } from "@/AppContext";
 import { useIndexedDb } from "@/lib/useIndexedDb";
 import { SerializedAudio } from "@/types/audio";
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useCallback, useMemo, useState } from "react";
 
 const createAudioBufferFromFile = async (
   audioFile: File,
@@ -11,28 +11,46 @@ const createAudioBufferFromFile = async (
   return audioContext.decodeAudioData(arrayBuffer);
 };
 
+let cachedInitialAudioBuffer: AudioBuffer | undefined;
+function loadInitialAudioBuffer(
+  audioFile: File | undefined,
+  audioContext: AudioContext,
+) {
+  if (!audioFile) return;
+  if (cachedInitialAudioBuffer) return cachedInitialAudioBuffer;
+  throw createAudioBufferFromFile(audioFile, audioContext).then(async (res) => {
+    cachedInitialAudioBuffer = res;
+    return res;
+  });
+}
+
 export const useAudio = () => {
   const { audioContext } = use(AppContext);
-  const { file: audioFile, setFile: setAudioFile } = useIndexedDb("audio");
-  const [audioBuffer, setAudioBuffer] = useState<AudioBuffer>();
+  const { file: audioFile, setFile } = useIndexedDb("audio");
+  const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | undefined>(() =>
+    loadInitialAudioBuffer(audioFile, audioContext),
+  );
 
-  const audioDuration = useMemo(() => {
-    return audioBuffer?.duration || 0;
-  }, [audioBuffer]);
-  useEffect(() => {
-    if (!audioFile) {
-      setAudioBuffer(undefined);
-    } else {
-      const f = async () => {
-        const audioBuffer = await createAudioBufferFromFile(
-          audioFile,
-          audioContext,
-        );
-        setAudioBuffer(audioBuffer);
-      };
-      f();
-    }
-  }, [audioContext, audioFile]);
+  const setAudioFile = useCallback(
+    async (newAudioFile: File | undefined) => {
+      if (newAudioFile) {
+        try {
+          const audioBuffer = await createAudioBufferFromFile(
+            newAudioFile,
+            audioContext,
+          );
+          setAudioBuffer(audioBuffer);
+          await setFile(newAudioFile);
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        setAudioBuffer(undefined);
+        await setFile(undefined);
+      }
+    },
+    [audioContext, setFile],
+  );
   const serializedAudio: SerializedAudio | undefined = useMemo(() => {
     if (!audioBuffer) return;
     return {
@@ -48,7 +66,6 @@ export const useAudio = () => {
   return {
     audioBuffer,
     setAudioFile,
-    audioDuration,
     serializedAudio,
     audioFile,
   };
