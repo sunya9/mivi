@@ -43,6 +43,9 @@ jobs:
       - name: Build
         run: pnpm run build
 
+      - name: Test
+        run: pnpm test
+
       - name: Upload build artifact
         if: inputs.upload_artifact
         uses: actions/upload-artifact@v4
