@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from "react";
 
-export const useAnimationFrame = (onAnimate: FrameRequestCallback) => {
+export function useAnimationFrame(onAnimate: FrameRequestCallback) {
   const animationFrameRef = useRef<number>(0);
 
   const animate: FrameRequestCallback = useCallback(
@@ -19,4 +19,4 @@ export const useAnimationFrame = (onAnimate: FrameRequestCallback) => {
       }
     };
   }, [animate]);
-};
+}

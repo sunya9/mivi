@@ -17,11 +17,11 @@ interface Props {
   midiTracks?: MidiTracks;
   rendererConfig: RendererConfig;
 }
-export const useStartRecording = ({
+export function useStartRecording({
   serializedAudio,
   midiTracks,
   rendererConfig,
-}: Props) => {
+}: Props) {
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
     new ReadyState(),
   );
@@ -56,4 +56,4 @@ export const useStartRecording = ({
     }
   }, [midiTracks, serializedAudio, recordingState.isRecording, rendererConfig]);
   return { recordingState, toggleRecording };
-};
+}

@@ -3,10 +3,10 @@ import { ContextType, use, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FilesContext } from "./files-context";
 
-const loadInitialFile = (
+function loadInitialFile(
   filesContext: ContextType<typeof FilesContext>,
   key: string,
-) => {
+) {
   if (filesContext.files.has(key)) {
     return filesContext.files.get(key);
   } else {
@@ -15,9 +15,9 @@ const loadInitialFile = (
       return file;
     });
   }
-};
+}
 
-export const useIndexedDb = (key: string) => {
+export function useIndexedDb(key: string) {
   const filesContext = use(FilesContext);
   const [file, setFileInternal] = useState<File | undefined>(() =>
     loadInitialFile(filesContext, key),
@@ -36,4 +36,4 @@ export const useIndexedDb = (key: string) => {
     [key],
   );
   return { file, setFile };
-};
+}

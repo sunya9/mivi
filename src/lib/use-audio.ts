@@ -3,13 +3,13 @@ import { useIndexedDb } from "@/lib/use-indexed-db";
 import { SerializedAudio } from "@/types/audio";
 import { use, useCallback, useMemo, useState } from "react";
 
-const createAudioBufferFromFile = async (
+export async function createAudioBufferFromFile(
   audioFile: File,
   audioContext: AudioContext,
-) => {
+) {
   const arrayBuffer = await audioFile.arrayBuffer();
   return audioContext.decodeAudioData(arrayBuffer);
-};
+}
 
 let cachedInitialAudioBuffer: AudioBuffer | undefined;
 function loadInitialAudioBuffer(
@@ -24,7 +24,7 @@ function loadInitialAudioBuffer(
   });
 }
 
-export const useAudio = () => {
+export function useAudio() {
   const { audioContext } = use(AppContext);
   const { file: audioFile, setFile } = useIndexedDb("audio");
   const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | undefined>(() =>
@@ -69,4 +69,4 @@ export const useAudio = () => {
     serializedAudio,
     audioFile,
   };
-};
+}

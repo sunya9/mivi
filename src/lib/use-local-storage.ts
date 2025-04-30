@@ -12,9 +12,9 @@ const loadValue = <T>(key: string): T | undefined => {
   }
 };
 
-export const useLocalStorage = <T>(
+export function useLocalStorage<T>(
   key: string,
-): [T | undefined, (value: T) => void] => {
+): [T | undefined, (value: T) => void] {
   const [value, setValueInternal] = useState<T | undefined>(() =>
     loadValue<T>(key),
   );
@@ -41,4 +41,4 @@ export const useLocalStorage = <T>(
   );
 
   return [value, setValue];
-};
+}
