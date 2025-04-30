@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import { memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { CircleXIcon, Info } from "lucide-react";
@@ -37,7 +37,7 @@ interface Props {
   onChangeAudioFile: (file: File | undefined) => void;
 }
 
-export const CommonConfigPane = React.memo(
+export const CommonConfigPane = memo(
   ({
     rendererConfig,
     onUpdateRendererConfig,
@@ -70,8 +70,8 @@ export const CommonConfigPane = React.memo(
         <CollapsibleCardPane header={<h2>Common settings</h2>}>
           <CardContent className="space-y-4">
             <FormRow
-              Label={() => <>Background Color</>}
-              Controller={() => (
+              label={<span>Background Color</span>}
+              controller={
                 <input
                   type="color"
                   value={rendererConfig.backgroundColor}
@@ -80,10 +80,10 @@ export const CommonConfigPane = React.memo(
                     onUpdateRendererConfig({ backgroundColor: e.target.value })
                   }
                 />
-              )}
+              }
             />
             <FormRow
-              Label={() => (
+              label={
                 <span className="inline-flex items-center gap-2">
                   Resolution
                   <Tooltip>
@@ -95,18 +95,15 @@ export const CommonConfigPane = React.memo(
                     </TooltipContent>
                   </Tooltip>
                 </span>
-              )}
-              Controller={() => (
+              }
+              controller={
                 <Select
-                  value={`${rendererConfig.resolution.width}x${rendererConfig.resolution.height}`}
+                  value={rendererConfig.resolution.label}
                   onValueChange={(value) => {
-                    const [width, height] = value.split("x").map(Number);
                     const resolution = resolutions.find(
-                      (r) => r.width === width && r.height === height,
+                      (r) => r.label === value,
                     );
-                    if (resolution) {
-                      onUpdateRendererConfig({ resolution });
-                    }
+                    onUpdateRendererConfig({ resolution });
                   }}
                 >
                   <SelectTrigger className="w-48">
@@ -116,30 +113,18 @@ export const CommonConfigPane = React.memo(
                     {resolutions.map((resolution) => (
                       <SelectItem
                         key={resolution.label}
-                        value={`${resolution.width}x${resolution.height}`}
+                        value={resolution.label}
                       >
                         {resolution.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              )}
+              }
             />
             <FormRow
-              Label={() => (
-                <span className="inline-flex items-center gap-2">
-                  Frame Rate
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-4" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Not reflected in preview</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </span>
-              )}
-              Controller={() => (
+              label={<span>FPS</span>}
+              controller={
                 <Select
                   value={rendererConfig.fps.toString()}
                   onValueChange={(value) => {
@@ -161,11 +146,11 @@ export const CommonConfigPane = React.memo(
                     ))}
                   </SelectContent>
                 </Select>
-              )}
+              }
             />
             <FormRow
-              Label={() => <>Export Format</>}
-              Controller={() => (
+              label={<span>Format</span>}
+              controller={
                 <Select
                   value={rendererConfig.format}
                   onValueChange={(value: VideoFormat) =>
@@ -183,7 +168,7 @@ export const CommonConfigPane = React.memo(
                     ))}
                   </SelectContent>
                 </Select>
-              )}
+              }
             />
           </CardContent>
         </CollapsibleCardPane>
@@ -221,8 +206,16 @@ const FileButton = ({
   accept: string;
   children: React.ReactNode;
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
+  const onChangeFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      const file = e.target.files?.[0];
+      if (!file) return;
+      setFile(file);
+      e.currentTarget.value = "";
+    },
+    [setFile],
+  );
   return (
     <div className="flex items-center justify-between gap-2">
       <span className="inline-flex items-center overflow-hidden">
@@ -232,6 +225,7 @@ const FileButton = ({
               variant="icon"
               size="icon"
               onClick={() => setFile(undefined)}
+              aria-label="Cancel"
             >
               <CircleXIcon />
             </Button>
@@ -241,26 +235,22 @@ const FileButton = ({
           </>
         )}
       </span>
-      <input
-        type="file"
-        accept={accept}
-        onChange={async (e) => {
-          e.preventDefault();
-          const file = e.target.files?.[0];
-          if (!file) return;
-          setFile(file);
-          e.currentTarget.value = "";
-        }}
-        ref={inputRef}
-        className="hidden"
-      />
+
       <Button
         size="default"
         variant="default"
-        className="flex-none"
-        onClick={() => inputRef.current?.click()}
+        className="flex-none cursor-pointer"
+        asChild
       >
-        {children}
+        <label>
+          <input
+            type="file"
+            accept={accept}
+            onChange={onChangeFile}
+            className="hidden"
+          />
+          {children}
+        </label>
       </Button>
     </div>
   );
