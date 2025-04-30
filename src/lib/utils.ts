@@ -8,11 +8,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatTime = (timeInSeconds: number): string => {
+export function formatTime(timeInSeconds: number): string {
   const minutes = Math.floor(timeInSeconds / 60);
   const seconds = Math.floor(timeInSeconds % 60);
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-};
+}
 
 export function getRendererFromConfig(
   ctx: RendererContext,

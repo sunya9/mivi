@@ -7,7 +7,7 @@ import { useMemo, useCallback } from "react";
 
 const defaultConfig = getDefaultRendererConfig();
 
-export const useRendererConfig = () => {
+export function useRendererConfig() {
   const [storedRendererConfig, setRendererConfig] =
     useLocalStorage<RendererConfig>("mivi:renderer-config");
   // add new default config always
@@ -17,16 +17,13 @@ export const useRendererConfig = () => {
   );
   const onUpdateRendererConfig = useCallback(
     (partial: DeepPartial<RendererConfig>) => {
-      const f = () => {
-        const newConfig: RendererConfig = merge(
-          { ...rendererConfig },
-          { ...partial },
-        );
-        setRendererConfig(newConfig);
-      };
-      f();
+      const newConfig: RendererConfig = merge(
+        { ...rendererConfig },
+        { ...partial },
+      );
+      setRendererConfig(newConfig);
     },
     [rendererConfig, setRendererConfig],
   );
   return { rendererConfig, onUpdateRendererConfig };
-};
+}

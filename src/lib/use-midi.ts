@@ -12,7 +12,7 @@ import { useMemo, useCallback } from "react";
 
 const defaultTrackConfig = getDefaultTrackConfig("");
 
-const loadMidi = async (midiFile: File) => {
+export async function loadMidi(midiFile: File) {
   const arrayBuffer = await midiFile.arrayBuffer();
   const midi = new Midi(arrayBuffer);
   const tracks = midi.tracks.map((track, index): MidiTrack => {
@@ -38,7 +38,7 @@ const loadMidi = async (midiFile: File) => {
     maxNote: max,
   };
   return newMidiTracks;
-};
+}
 
 function overwriteMidiTracks(midiTracks: MidiTracks | undefined) {
   if (!midiTracks) return;
@@ -52,7 +52,7 @@ function overwriteMidiTracks(midiTracks: MidiTracks | undefined) {
   return { ...midiTracks, tracks };
 }
 
-export const useMidi = () => {
+export function useMidi() {
   // don't use undefined because it's not valid json
   const [rawMidiTracks, setMidiTracks] = useLocalStorage<
     MidiTracks | undefined
@@ -77,4 +77,4 @@ export const useMidi = () => {
     midiTracks,
     setMidiTracks,
   };
-};
+}

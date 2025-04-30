@@ -15,7 +15,7 @@ type PlayingState =
       wasPlaying: boolean;
     };
 
-export const usePlayer = (audioBuffer: AudioBuffer | undefined) => {
+export function usePlayer(audioBuffer: AudioBuffer | undefined) {
   const { audioContext, gainNode } = use(AppContext);
   const [localStorageVolume, setLocalStorageVolume] =
     useLocalStorage<number>("mivi:volume");
@@ -140,4 +140,4 @@ export const usePlayer = (audioBuffer: AudioBuffer | undefined) => {
     toggleMute,
     makeSureToCommit,
   };
-};
+}

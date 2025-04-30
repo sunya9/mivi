@@ -35,12 +35,12 @@ type Brightness =
   | 900
   | 950;
 
-const toHex = (value: number) => {
+function toHex(value: number) {
   const percent = Math.min(Math.max(value, 0), 1);
   return Math.round(percent * 255)
     .toString(16)
     .padStart(2, "0");
-};
+}
 
 const getTailwindColors = () => {
   const getPropertyValue = (colorKey: ColorKey, brightness: Brightness) => {
@@ -71,13 +71,13 @@ const tailwindColors = getColorsPerPalette
   .map((map) => Object.values(map))
   .flat();
 
-export const getRandomTailwindColor = () => {
+export function getRandomTailwindColor() {
   const oklchColor =
     tailwindColors[Math.floor(Math.random() * tailwindColors.length)];
   return oklchColor;
-};
+}
 
-export const getRandomTailwindColorPalette = () => {
+export function getRandomTailwindColorPalette() {
   const palette =
     getColorsPerPalette[Math.floor(Math.random() * getColorsPerPalette.length)];
   let counter = 0;
@@ -87,4 +87,4 @@ export const getRandomTailwindColorPalette = () => {
     counter += 2;
     return oklchColor;
   };
-};
+}
