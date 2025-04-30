@@ -1,1 +1,1 @@
-export * from "./PianoRollRenderer";
+export * from "./piano-roll-renderer";

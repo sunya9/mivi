@@ -1,5 +1,5 @@
 import { MidiTracks } from "@/types/midi";
-import { MediaCompositor } from "@/lib/MediaCompositor";
+import { MediaCompositor } from "@/lib/media-compositor";
 import { RendererConfig } from "@/types/renderer";
 import { SerializedAudio } from "@/types/audio";
 import { MP4Muxer, WebMMuxer, MuxerOptions, Muxer } from "@/lib/muxer";

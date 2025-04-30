@@ -6,8 +6,8 @@ import {
   resetConfig,
 } from "@/lib/utils";
 import { RendererContext, RendererConfig, resolutions } from "@/types/renderer";
-import { PianoRollRenderer } from "@/renderers/PianoRollRenderer";
-import { saveFile } from "@/lib/fileDb";
+import { PianoRollRenderer } from "@/renderers/piano-roll-renderer";
+import { saveFile } from "@/lib/file-db";
 
 describe("cn", () => {
   it("should merge class names correctly", () => {
