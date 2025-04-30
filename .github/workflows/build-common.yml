@@ -50,6 +50,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: sunya9/mivi
 
       - name: Upload build artifact
         if: inputs.upload_artifact
