@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { cn, resetConfig } from "@/lib/utils";
 import { useState, useEffect } from "react";
 
-export const Loading = () => {
+export function Loading() {
   const [showReset, setShowReset] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -29,4 +29,4 @@ export const Loading = () => {
       </div>
     </div>
   );
-};
+}

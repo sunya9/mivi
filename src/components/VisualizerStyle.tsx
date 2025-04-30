@@ -18,42 +18,43 @@ interface Props {
   rendererConfig: RendererConfig;
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
 }
-export const VisualizerStyle = React.memo(
-  ({ rendererConfig, onUpdateRendererConfig }: Props) => {
-    return (
-      <Card className="border-0 bg-transparent shadow-none">
-        <CollapsibleCardPane header={<h2>Visualizer Style</h2>}>
-          <CardContent>
-            <FormRow
-              label={<span>Style</span>}
-              controller={
-                <Select
-                  value={rendererConfig.type}
-                  onValueChange={(value: RendererType) =>
-                    onUpdateRendererConfig({ type: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue
-                      className="display w-auto"
-                      placeholder="Select visualization style"
-                    />
-                  </SelectTrigger>
-                  <SelectContent align="end">
-                    <SelectItem value="pianoRoll">Piano Roll</SelectItem>
-                  </SelectContent>
-                </Select>
-              }
+export const VisualizerStyle = React.memo(function VisualizerStyle({
+  rendererConfig,
+  onUpdateRendererConfig,
+}: Props) {
+  return (
+    <Card className="border-0 bg-transparent shadow-none">
+      <CollapsibleCardPane header={<h2>Visualizer Style</h2>}>
+        <CardContent>
+          <FormRow
+            label={<span>Style</span>}
+            controller={
+              <Select
+                value={rendererConfig.type}
+                onValueChange={(value: RendererType) =>
+                  onUpdateRendererConfig({ type: value })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    className="display w-auto"
+                    placeholder="Select visualization style"
+                  />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  <SelectItem value="pianoRoll">Piano Roll</SelectItem>
+                </SelectContent>
+              </Select>
+            }
+          />
+          {rendererConfig.type === "pianoRoll" && (
+            <PianoRollConfigPanel
+              pianoRollConfig={rendererConfig.pianoRollConfig}
+              onUpdateRendererConfig={onUpdateRendererConfig}
             />
-            {rendererConfig.type === "pianoRoll" && (
-              <PianoRollConfigPanel
-                pianoRollConfig={rendererConfig.pianoRollConfig}
-                onUpdateRendererConfig={onUpdateRendererConfig}
-              />
-            )}
-          </CardContent>
-        </CollapsibleCardPane>
-      </Card>
-    );
-  },
-);
+          )}
+        </CardContent>
+      </CollapsibleCardPane>
+    </Card>
+  );
+});
