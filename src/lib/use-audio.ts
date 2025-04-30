@@ -1,4 +1,4 @@
-import { AppContext } from "@/app-context";
+import { AppContext } from "@/components/app-context";
 import { useIndexedDb } from "@/lib/use-indexed-db";
 import { SerializedAudio } from "@/types/audio";
 import { use, useCallback, useMemo, useState } from "react";
