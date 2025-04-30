@@ -1,4 +1,4 @@
-import { AppContext } from "@/app-context";
+import { AppContext } from "@/components/app-context";
 import { useLocalStorage } from "@/lib/use-local-storage";
 import { use, useCallback, useMemo, useRef, useState } from "react";
 
