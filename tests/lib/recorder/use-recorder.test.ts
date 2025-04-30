@@ -1,12 +1,12 @@
 import { test, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
-import { useStartRecording } from "@/lib/media-compositor/use-start-recording";
+import { useRecorder } from "@/lib/media-compositor/use-recorder";
 import { SerializedAudio } from "@/lib/audio";
-import { startRecording } from "@/lib/media-compositor/recorder";
 import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
+import { runWorker } from "@/lib/media-compositor/run-worker";
 
-vi.mock("@/lib/media-compositor/recorder", { spy: true });
+vi.mock("@/lib/media-compositor/run-worker", { spy: true });
 vi.mock("sonner", { spy: true });
 
 beforeEach(() => {
@@ -21,7 +21,7 @@ const mockSerializedAudio: SerializedAudio = {
   channels: [new Float32Array(100), new Float32Array(100)],
 };
 
-const mockProps: Parameters<typeof useStartRecording>[0] = {
+const mockProps: Parameters<typeof useRecorder>[0] = {
   serializedAudio: mockSerializedAudio,
   midiTracks: expectedMidiTracks,
   rendererConfig: rendererConfig,
@@ -31,15 +31,17 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+vi.mock("@/lib/media-compositor/worker-wrapper", { spy: true });
+
 test("should initialize with ReadyState", () => {
-  const { result } = renderHook((props) => useStartRecording(props), {
+  const { result } = renderHook((props) => useRecorder(props), {
     initialProps: mockProps,
   });
   expect(result.current.recordingState.isRecording).toBe(false);
 });
 
 test("should show error toast when trying to start recording without required files", async () => {
-  const { result } = renderHook((props) => useStartRecording(props), {
+  const { result } = renderHook((props) => useRecorder(props), {
     initialProps: {
       ...mockProps,
       serializedAudio: undefined,
@@ -56,27 +58,29 @@ test("should show error toast when trying to start recording without required fi
 });
 
 test("should start recording when all required files are present", async () => {
-  const { result } = renderHook(() => useStartRecording(mockProps));
-  vi.mocked(startRecording).mockImplementationOnce(
-    () => new Promise<void>((resolve) => setTimeout(resolve, 0)),
+  const { result } = renderHook(() => useRecorder(mockProps));
+  vi.mocked(runWorker).mockImplementationOnce(
+    () =>
+      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
   );
   await act(async () => {
     await result.current.toggleRecording();
   });
 
-  expect(startRecording).toHaveBeenCalledWith({
-    onChangeRecordingStatus: expect.any(Function),
-    rendererConfig: mockProps.rendererConfig,
-    midiTracks: mockProps.midiTracks,
-    serializedAudio: mockProps.serializedAudio,
-    signal: expect.any(AbortSignal),
-  });
+  expect(runWorker).toHaveBeenCalledWith(
+    mockProps.rendererConfig,
+    mockProps.midiTracks,
+    mockProps.serializedAudio,
+    expect.any(Function),
+    expect.any(AbortSignal),
+  );
 });
 
 test("should abort recording when toggling during recording", async () => {
-  const { result } = renderHook(() => useStartRecording(mockProps));
-  vi.mocked(startRecording).mockImplementationOnce(
-    () => new Promise<void>((resolve) => setTimeout(resolve, 10)),
+  const { result } = renderHook(() => useRecorder(mockProps));
+  vi.mocked(runWorker).mockImplementationOnce(
+    () =>
+      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 10)),
   );
 
   // Start recording
@@ -86,13 +90,13 @@ test("should abort recording when toggling during recording", async () => {
   });
   expect(result.current.recordingState.type).toBe("recording");
 
-  // // Abort recording
+  // Abort recording
   await act(async () => {
     return result.current.toggleRecording();
   });
 
   await waitFor(async () => {
-    expect(startRecording).toHaveBeenCalledTimes(1);
+    expect(runWorker).toHaveBeenCalledTimes(1);
     await expect(start).resolves.toBeUndefined();
     expect(result.current.recordingState.type).toBe("ready");
   });
@@ -100,25 +104,27 @@ test("should abort recording when toggling during recording", async () => {
 
 test("should handle errors during recording", async () => {
   console.error = vi.fn();
-  vi.mocked(startRecording).mockImplementationOnce(
+  const error = new Error("Recording failed");
+  vi.mocked(runWorker).mockImplementationOnce(
     () =>
-      new Promise<void>((_, reject) =>
+      new Promise<Blob>((_, reject) =>
         setTimeout(() => {
-          reject(new Error("Recording failed"));
+          reject(error);
         }, 0),
       ),
   );
-  const { result } = renderHook(() => useStartRecording(mockProps));
+  const { result } = renderHook(() => useRecorder(mockProps));
 
   let start: Promise<void> | undefined;
   act(() => {
     start = result.current.toggleRecording();
   });
   expect(result.current.recordingState.type).toBe("recording");
-  await expect(start).rejects.toThrow("failed to start recording");
-  await waitFor(() => {
+  await waitFor(async () => {
+    await expect(start).resolves.toBeUndefined();
     expect(result.current.recordingState.type).toBe("ready");
+    expect(runWorker).toHaveBeenCalledTimes(1);
+    expect(toast.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toBeCalledWith("Failed during recording", error);
   });
-  expect(startRecording).toHaveBeenCalledTimes(1);
-  expect(console.error).toHaveBeenCalledTimes(2);
 });
