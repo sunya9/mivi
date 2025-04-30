@@ -1,10 +1,9 @@
 import "@testing-library/jest-dom/vitest";
 import "fake-indexeddb/auto";
-
+import "vitest-canvas-mock";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
-import "vitest-canvas-mock";
 
 // runs a cleanup after each test case (e.g. clearing jsdom)
 afterEach(() => {

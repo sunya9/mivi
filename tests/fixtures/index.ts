@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { MidiTracks } from "@/types/midi";
-import { RendererConfig } from "@/types/renderer";
-import { getDefaultRendererConfig } from "@/types/renderer";
-import { appContextValue } from "@/lib/app-context-value";
+import { MidiTracks } from "@/lib/midi/midi";
+import { RendererConfig } from "@/lib/renderers/renderer";
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import { appContextValue } from "@/lib/globals";
 
 const midiFilename = "test.mid";
 const midiFilepath = path.resolve(__dirname, midiFilename);

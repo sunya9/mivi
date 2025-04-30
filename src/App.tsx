@@ -1,19 +1,21 @@
 import { Toaster } from "@/components/ui/sonner";
-import { CommonConfigPane } from "./components/common-config-pane";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { AppHeader } from "@/components/app-header";
-import { TrackListPane } from "@/components/track-list-pane";
-import { MidiVisualizer } from "@/components/midi-visualizer";
-import { VisualizerStyle } from "@/components/visualizer-style";
+import {
+  AppHeader,
+  TrackListPane,
+  MidiVisualizer,
+  VisualizerStyle,
+  CommonConfigPane,
+} from "@/components/app";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMidi } from "@/lib/use-midi";
-import { useAudio } from "@/lib/use-audio";
-import { useStartRecording } from "@/lib/use-start-recording";
-import { useRendererConfig } from "@/lib/use-renderer-config";
+import { useMidi } from "@/lib/midi";
+import { useAudio } from "@/lib/audio";
+import { useStartRecording } from "@/lib/media-compositor";
+import { useRendererConfig } from "@/lib/renderers";
 
 export function App() {
   const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();

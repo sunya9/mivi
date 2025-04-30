@@ -1,8 +1,8 @@
 import { screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
-import { PianoRollConfigPanel } from "@/components/renderer-config/piano-roll-config";
+import { PianoRollConfigPanel } from "@/components/app/renderer-config/piano-roll-config";
 import { customRender } from "../../util";
-import { getDefaultRendererConfig } from "@/types/renderer";
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import { expectedMidiTracks } from "tests/fixtures";
 import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
