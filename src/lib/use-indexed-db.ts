@@ -1,7 +1,7 @@
 import { fetchFile, saveFile } from "@/lib/file-db";
 import { ContextType, use, useCallback, useState } from "react";
 import { toast } from "sonner";
-import { FilesContext } from "./files-context";
+import { FilesContext } from "../components/files-context";
 
 function loadInitialFile(
   filesContext: ContextType<typeof FilesContext>,
