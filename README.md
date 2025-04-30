@@ -2,6 +2,8 @@
 
 # MiVi: MIDI Visualizer
 
+[![codecov](https://codecov.io/github/sunya9/mivi/graph/badge.svg?token=ESHmAWDwDG)](https://codecov.io/github/sunya9/mivi)
+
 ## Overview
 
 MiVi is a powerful MIDI visualization tool that transforms MIDI files into beautiful visual representations. It allows users to visualize music in real-time, customize the visual style, and export the visualizations as videos.
