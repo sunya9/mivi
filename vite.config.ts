@@ -7,6 +7,7 @@ import Unfonts from "unplugin-fonts/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
+import { codecovVitePlugin } from "@codecov/vite-plugin";
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -55,6 +56,12 @@ export default defineConfig(({ mode }) => ({
         gzipSize: true,
         brotliSize: true,
       }) as PluginOption),
+    // Put the Codecov vite plugin after all other plugins
+    codecovVitePlugin({
+      enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
+      bundleName: "mivi",
+      uploadToken: process.env.CODECOV_TOKEN,
+    }),
   ],
   build: {
     rollupOptions: {
