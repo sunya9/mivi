@@ -15,7 +15,7 @@ export function useRendererConfig() {
     useLocalStorage<RendererConfig>("mivi:renderer-config");
   // add new default config always
   const rendererConfig: RendererConfig = useMemo(
-    () => defaultsDeep(storedRendererConfig, defaultConfig),
+    () => defaultsDeep(storedRendererConfig, defaultConfig) as RendererConfig,
     [storedRendererConfig],
   );
   const onUpdateRendererConfig = useCallback(

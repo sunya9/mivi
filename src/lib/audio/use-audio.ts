@@ -18,7 +18,7 @@ function loadInitialAudioBuffer(
 ) {
   if (!audioFile) return;
   if (cachedInitialAudioBuffer) return cachedInitialAudioBuffer;
-  throw createAudioBufferFromFile(audioFile, audioContext).then(async (res) => {
+  throw createAudioBufferFromFile(audioFile, audioContext).then((res) => {
     cachedInitialAudioBuffer = res;
     return res;
   });

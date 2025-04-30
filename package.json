@@ -65,6 +65,7 @@
     "@types/throttle-debounce": "^5.0.2",
     "@vitejs/plugin-react": "^4.4.1",
     "@vitest/coverage-istanbul": "3.1.2",
+    "@vitest/eslint-plugin": "^1.1.43",
     "@vitest/web-worker": "^3.1.2",
     "eslint": "^9.25.1",
     "eslint-config-prettier": "^10.1.2",

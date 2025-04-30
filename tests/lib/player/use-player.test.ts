@@ -18,7 +18,7 @@ test("should initialize with default values", () => {
   expect(result.current.currentTimeSec).toBe(0);
 });
 
-test("should toggle play/pause state", async () => {
+test("should toggle play/pause state", () => {
   const { result } = customRenderHook(() => usePlayer(audioBuffer));
   expect(result.current.isPlaying).toBe(false);
 
@@ -33,7 +33,7 @@ test("should toggle play/pause state", async () => {
   expect(result.current.isPlaying).toBe(false);
 });
 
-test("should handle seeking", async () => {
+test("should handle seeking", () => {
   const { result } = customRenderHook(() => usePlayer(audioBuffer));
 
   act(() => {

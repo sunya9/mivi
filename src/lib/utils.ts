@@ -24,8 +24,10 @@ export function getRendererFromConfig(
   switch (config.type) {
     case "pianoRoll":
       return new PianoRollRenderer(ctx, config);
-    default:
-      throw new Error(`Unknown renderer type: ${config}`);
+    default: {
+      const configType = config.type satisfies never;
+      throw new Error(`Unknown renderer type: ${String(configType)}`);
+    }
   }
 }
 

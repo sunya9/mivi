@@ -28,7 +28,7 @@ export function useLocalStorage<T>(
     }
   }, [value, key]);
   const setValue = useCallback(
-    (value?: T | undefined) => {
+    (value?: T) => {
       if (!value) {
         localStorage.removeItem(key);
       } else {
