@@ -1,8 +1,11 @@
-import { PianoRollRenderer } from "@/renderers";
+import { PianoRollRenderer } from "@/lib/renderers";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { RendererConfig, RendererContext } from "@/types/renderer";
-import { Renderer } from "@/renderers/renderer";
+import {
+  Renderer,
+  RendererConfig,
+  RendererContext,
+} from "@/lib/renderers/renderer";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

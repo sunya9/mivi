@@ -5,9 +5,13 @@ import {
   getRendererFromConfig,
   resetConfig,
 } from "@/lib/utils";
-import { RendererContext, RendererConfig, resolutions } from "@/types/renderer";
-import { PianoRollRenderer } from "@/renderers/piano-roll-renderer";
-import { saveFile } from "@/lib/file-db";
+import {
+  RendererContext,
+  RendererConfig,
+  resolutions,
+} from "@/lib/renderers/renderer";
+import { PianoRollRenderer } from "@/lib/renderers/piano-roll-renderer";
+import { saveFile } from "@/lib/file-db/file-db";
 
 describe("cn", () => {
   it("should merge class names correctly", () => {
