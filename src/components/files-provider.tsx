@@ -1,4 +1,4 @@
-import { FilesContext } from "@/lib/files-context";
+import { FilesContext } from "@/components/files-context";
 import { useCallback, useState } from "react";
 
 export function FilesProvider({ children }: { children: React.ReactNode }) {
