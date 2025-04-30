@@ -85,9 +85,7 @@ test("should call onChangeMidiFile when MIDI file is selected", () => {
 
 test("should call onChangeAudioFile when audio file is selected", () => {
   renderCommonConfigPane();
-  const audioFileInput = screen.getByLabelText(
-    "Open Audio file",
-  ) as HTMLButtonElement;
+  const audioFileInput = screen.getByLabelText("Open Audio file");
   const file = new File(["test"], "test.mp3", { type: "audio/mpeg" });
   fireEvent.change(audioFileInput, { target: { files: [file] } });
   expect(mockOnChangeAudioFile).toHaveBeenCalledWith(file);
@@ -95,18 +93,14 @@ test("should call onChangeAudioFile when audio file is selected", () => {
 
 test("not call onChangeMidiFile when file is not selected", () => {
   renderCommonConfigPane();
-  const midiFileInput = screen.getByLabelText(
-    "Open MIDI file",
-  ) as HTMLInputElement;
+  const midiFileInput = screen.getByLabelText("Open MIDI file");
   fireEvent.change(midiFileInput, { target: { files: [] } });
   expect(mockOnChangeMidiFile).not.toHaveBeenCalled();
 });
 
 test("not call onChangeAudioFile when file is not selected", () => {
   renderCommonConfigPane();
-  const audioFileInput = screen.getByLabelText(
-    "Open Audio file",
-  ) as HTMLInputElement;
+  const audioFileInput = screen.getByLabelText("Open Audio file");
   fireEvent.change(audioFileInput, { target: { files: [] } });
   expect(mockOnChangeAudioFile).not.toHaveBeenCalled();
 });
@@ -156,9 +150,8 @@ test("should call onUpdateRendererConfig when format is changed", async () => {
 test("should clear file input after selection", () => {
   renderCommonConfigPane();
 
-  const midiFileInput = screen.getByLabelText(
-    "Open MIDI file",
-  ) as HTMLInputElement;
+  const midiFileInput: HTMLInputElement =
+    screen.getByLabelText("Open MIDI file");
   const file = new File(["test"], "test.mid", { type: "audio/midi" });
 
   fireEvent.change(midiFileInput, { target: { files: [file] } });

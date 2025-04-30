@@ -47,7 +47,7 @@ test("should show error toast when trying to start recording without required fi
   });
 
   await act(async () => {
-    result.current.toggleRecording();
+    await result.current.toggleRecording();
   });
 
   expect(toast.error).toHaveBeenCalledWith(
@@ -57,9 +57,11 @@ test("should show error toast when trying to start recording without required fi
 
 test("should start recording when all required files are present", async () => {
   const { result } = renderHook(() => useStartRecording(mockProps));
-
+  vi.mocked(startRecording).mockImplementationOnce(
+    () => new Promise<void>((resolve) => setTimeout(resolve, 0)),
+  );
   await act(async () => {
-    result.current.toggleRecording();
+    await result.current.toggleRecording();
   });
 
   expect(startRecording).toHaveBeenCalledWith({
@@ -79,7 +81,7 @@ test("should abort recording when toggling during recording", async () => {
 
   // Start recording
   let start: Promise<void> | undefined;
-  await act(async () => {
+  act(() => {
     start = result.current.toggleRecording();
   });
   expect(result.current.recordingState.type).toBe("recording");
@@ -109,7 +111,7 @@ test("should handle errors during recording", async () => {
   const { result } = renderHook(() => useStartRecording(mockProps));
 
   let start: Promise<void> | undefined;
-  await act(async () => {
+  act(() => {
     start = result.current.toggleRecording();
   });
   expect(result.current.recordingState.type).toBe("recording");
