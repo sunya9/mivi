@@ -13,6 +13,8 @@ const Progress = React.forwardRef<
       "bg-secondary relative h-4 w-full overflow-hidden rounded-full",
       className,
     )}
+    // https://github.com/shadcn-ui/ui/issues/5770
+    value={value}
     {...props}
   >
     <ProgressPrimitive.Indicator

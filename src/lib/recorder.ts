@@ -6,7 +6,7 @@ import {
 import { SerializedAudio } from "@/types/audio";
 import { MidiTracks } from "@/types/midi";
 import { RendererConfig } from "@/types/renderer";
-import { proxy, releaseProxy, transfer, wrap } from "comlink";
+import { proxy, releaseProxy, wrap } from "comlink";
 import RecorderWorker from "./recorder.worker?worker";
 
 export function startRecording(options: {
@@ -25,10 +25,6 @@ export function startRecording(options: {
   } = options;
   const rawWorker = new RecorderWorker();
   const worker = wrap<typeof import("./recorder.worker")>(rawWorker);
-  const canvas = document.createElement("canvas");
-  canvas.width = rendererConfig.resolution.width;
-  canvas.height = rendererConfig.resolution.height;
-  const offscreen = canvas.transferControlToOffscreen();
   const onProgress = proxy((progress: number) => {
     if (signal.aborted) return;
     onChangeRecordingStatus(
@@ -51,7 +47,6 @@ export function startRecording(options: {
     );
     worker
       .startRecording(
-        transfer(offscreen, [offscreen]),
         rendererConfig,
         midiTracks,
         serializedAudio,

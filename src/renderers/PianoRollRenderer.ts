@@ -8,7 +8,7 @@ export class PianoRollRenderer extends Renderer {
 
   private readonly rippleRadius = 50;
 
-  private readonly minRippleDuration = 0.3;
+  private readonly rippleDuration = 0.5;
 
   private readonly pressAnimationDuration = 0.1;
 
@@ -248,26 +248,20 @@ export class PianoRollRenderer extends Renderer {
     });
 
     this.rippleStates.forEach((state, noteKey) => {
-      const noteDuration = state.noteEnd - state.noteStart;
-      const normalizedProgress = Math.min(
+      const rippleProgress = Math.min(
         1,
-        (currentTime - state.noteStart) / (state.noteEnd - state.noteStart),
+        (currentTime - state.noteStart) / this.rippleDuration,
       );
-
-      const radiusProgress =
-        noteDuration < this.minRippleDuration
-          ? Math.min(normalizedProgress, noteDuration / this.minRippleDuration)
-          : normalizedProgress;
 
       this.drawRippleEffect(
         state.x,
         state.y,
         state.color,
-        radiusProgress,
-        normalizedProgress,
+        rippleProgress,
+        rippleProgress,
       );
 
-      if (currentTime >= state.noteEnd) {
+      if (currentTime >= state.noteStart + this.rippleDuration) {
         this.rippleStates.delete(noteKey);
       }
     });

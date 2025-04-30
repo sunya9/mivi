@@ -19,7 +19,7 @@ export const Canvas = ({
 }: Props) => {
   const ref = useRef<HTMLCanvasElement>(null);
 
-  const render = useCallback(() => {
+  const onResize = useCallback(() => {
     if (!ref.current) return;
     const width = ref.current.clientWidth;
     const calculatedHeight = width * aspectRatio;
@@ -30,7 +30,7 @@ export const Canvas = ({
     onRedraw();
   }, [aspectRatio, onRedraw]);
   useResizeDetector({
-    onResize: render,
+    onResize,
     targetRef: ref,
   });
 
@@ -52,7 +52,8 @@ export const Canvas = ({
     >
       <canvas
         ref={ref}
-        className={cn(className, "h-auto w-full", "object-contain")}
+        className={cn("h-auto w-full object-contain", className)}
+        aria-label="Visualized Midi"
         style={{
           aspectRatio: `${1 / aspectRatio}`,
           maxHeight: "100%",

@@ -1,23 +1,26 @@
 import { fetchFile, saveFile } from "@/lib/fileDb";
-import { useCallback, useState } from "react";
+import { ContextType, use, useCallback, useState } from "react";
 import { toast } from "sonner";
+import { FilesContext } from "./filesContext";
 
-export const files = new Map<string, File | undefined>();
-
-const loadInitialFile = (key: string) => {
-  if (files.has(key)) {
-    return files.get(key);
+const loadInitialFile = (
+  filesContext: ContextType<typeof FilesContext>,
+  key: string,
+) => {
+  if (filesContext.files.has(key)) {
+    return filesContext.files.get(key);
   } else {
     throw fetchFile(key).then((file) => {
-      files.set(key, file);
+      filesContext.setFile(key, file);
       return file;
     });
   }
 };
 
 export const useIndexedDb = (key: string) => {
+  const filesContext = use(FilesContext);
   const [file, setFileInternal] = useState<File | undefined>(() =>
-    loadInitialFile(key),
+    loadInitialFile(filesContext, key),
   );
   const setFile = useCallback(
     async (newFile: File | undefined) => {

@@ -1,13 +1,4 @@
 import { createContext } from "react";
-
-export const appContextValue = (() => {
-  const audioContext = new AudioContext();
-  const gainNode = audioContext.createGain();
-  gainNode.connect(audioContext.destination);
-  return {
-    audioContext,
-    gainNode,
-  };
-})();
+import { appContextValue } from "./lib/appContextValue";
 
 export const AppContext = createContext(appContextValue);

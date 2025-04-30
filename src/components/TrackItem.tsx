@@ -49,6 +49,7 @@ export const TrackItem = React.memo(
                 }
                 className="w-16"
                 key={`${track.id}-opacity`}
+                aria-label="Opacity"
               />
             </div>
             <input
@@ -83,6 +84,7 @@ export const TrackItem = React.memo(
                 onValueChange={([value]) =>
                   onUpdateTrackConfig(index, { scale: value })
                 }
+                aria-label="Scale"
                 key={`${track.id}-scale`}
                 className="w-16"
               />

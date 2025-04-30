@@ -22,12 +22,16 @@ export const CollapsibleCardPane = (props: Props) => {
           {props.header}
 
           <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              aria-label={open ? "Close" : "Open"}
+            >
               <span className="md:sr-only">{open ? "Close" : "Open"}</span>
               {open ? (
-                <ChevronsDownUp className="size-4" />
+                <ChevronsDownUp className="size-4" aria-label="to collapsed" />
               ) : (
-                <ChevronsUpDown className="size-4" />
+                <ChevronsUpDown className="size-4" aria-label="to expanded" />
               )}
             </Button>
           </CollapsibleTrigger>

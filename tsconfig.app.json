@@ -25,6 +25,7 @@
     "paths": {
       "@/*": ["./src/*"]
     }
+    // "types": ["@testing-library/jest-dom"]
   },
-  "include": ["src"]
+  "include": ["src", "tests", "tests/setup.ts"]
 }

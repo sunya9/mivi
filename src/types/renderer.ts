@@ -20,16 +20,6 @@ interface PianoRollConfigValues {
   notePressDepth: number;
 }
 
-interface WaveformConfigValues {
-  lineColor: string;
-  lineWidth: number;
-}
-
-interface ParticlesConfigValues {
-  particleSize: number;
-  particleColor: string;
-}
-
 export type Resolution = {
   width: number;
   height: number;
@@ -46,7 +36,7 @@ export const resolutions: Resolution[] = [
   { width: 720, height: 720, label: "720×720 (1:1)" },
 ];
 
-export type RendererType = "pianoRoll" | "waveform" | "particles";
+export type RendererType = "pianoRoll";
 
 export const fpsOptions = [
   { value: 24, label: "24 fps" },
@@ -69,8 +59,6 @@ export interface RendererConfig {
   fps: FPS;
   format: VideoFormat;
   pianoRollConfig: PianoRollConfigValues;
-  waveformConfig: WaveformConfigValues;
-  particlesConfig: ParticlesConfigValues;
 }
 
 export type RendererContext =
@@ -103,13 +91,5 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     viewRangeBottom: 0,
     showNotePressEffect: true,
     notePressDepth: 4,
-  },
-  waveformConfig: {
-    lineColor: "#4a9eff",
-    lineWidth: 2,
-  },
-  particlesConfig: {
-    particleSize: 3,
-    particleColor: "#4a9eff",
   },
 });

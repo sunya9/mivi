@@ -1,7 +1,5 @@
 import { RendererType } from "@/types/renderer";
 import { PianoRollConfigPanel } from "./rendererConfig/PianoRollConfig";
-import { WaveformConfigPanel } from "./rendererConfig/WaveformConfig";
-import { ParticlesConfigPanel } from "./rendererConfig/ParticlesConfig";
 import {
   Select,
   SelectTrigger,
@@ -27,8 +25,8 @@ export const VisualizerStyle = React.memo(
         <CollapsibleCardPane header={<h2>Visualizer Style</h2>}>
           <CardContent>
             <FormRow
-              Label={() => <>Style</>}
-              Controller={() => (
+              label={<span>Style</span>}
+              controller={
                 <Select
                   value={rendererConfig.type}
                   onValueChange={(value: RendererType) =>
@@ -45,23 +43,11 @@ export const VisualizerStyle = React.memo(
                     <SelectItem value="pianoRoll">Piano Roll</SelectItem>
                   </SelectContent>
                 </Select>
-              )}
+              }
             />
             {rendererConfig.type === "pianoRoll" && (
               <PianoRollConfigPanel
                 pianoRollConfig={rendererConfig.pianoRollConfig}
-                onUpdateRendererConfig={onUpdateRendererConfig}
-              />
-            )}
-            {rendererConfig.type === "waveform" && (
-              <WaveformConfigPanel
-                rendererConfig={rendererConfig}
-                onUpdateRendererConfig={onUpdateRendererConfig}
-              />
-            )}
-            {rendererConfig.type === "particles" && (
-              <ParticlesConfigPanel
-                rendererConfig={rendererConfig}
                 onUpdateRendererConfig={onUpdateRendererConfig}
               />
             )}

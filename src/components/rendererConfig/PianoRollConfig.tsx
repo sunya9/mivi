@@ -25,8 +25,8 @@ export function PianoRollConfigPanel({
   return (
     <>
       <FormRow
-        Label={() => <>Time Window: {pianoRollConfig.timeWindow}s</>}
-        Controller={() => (
+        label={<span>Time Window: {pianoRollConfig.timeWindow}s</span>}
+        controller={
           <Slider
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.timeWindow]}
@@ -37,11 +37,11 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ timeWindow: value })
             }
           />
-        )}
+        }
       />
       <FormRow
-        Label={() => <>Note Height: {pianoRollConfig.noteHeight}px</>}
-        Controller={() => (
+        label={<span>Note Height: {pianoRollConfig.noteHeight}px</span>}
+        controller={
           <Slider
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.noteHeight]}
@@ -52,13 +52,13 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ noteHeight: value })
             }
           />
-        )}
+        }
       />
       <FormRow
-        Label={() => (
-          <>Note Corner Radius: {pianoRollConfig.noteCornerRadius}px</>
-        )}
-        Controller={() => (
+        label={
+          <span>Note Corner Radius: {pianoRollConfig.noteCornerRadius}px</span>
+        }
+        controller={
           <Slider
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.noteCornerRadius]}
@@ -69,11 +69,11 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ noteCornerRadius: value })
             }
           />
-        )}
+        }
       />
       <FormRow
-        Label={() => <>Note Margin: {pianoRollConfig.noteMargin}px</>}
-        Controller={() => (
+        label={<span>Note Margin: {pianoRollConfig.noteMargin}px</span>}
+        controller={
           <Slider
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.noteMargin]}
@@ -84,13 +84,15 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ noteMargin: +value })
             }
           />
-        )}
+        }
       />
       <FormRow
-        Label={() => (
-          <>Note Vertical Margin: {pianoRollConfig.noteVerticalMargin}px</>
-        )}
-        Controller={() => (
+        label={
+          <span>
+            Note Vertical Margin: {pianoRollConfig.noteVerticalMargin}px
+          </span>
+        }
+        controller={
           <Slider
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.noteVerticalMargin]}
@@ -98,13 +100,13 @@ export function PianoRollConfigPanel({
             max={10}
             step={0.5}
             onValueChange={([value]) =>
-              setPianoRollConfig({ noteVerticalMargin: +value })
+              setPianoRollConfig({ noteVerticalMargin: value })
             }
           />
-        )}
+        }
       />
       <FormRow
-        Label={() => (
+        label={
           <span className="flex flex-wrap gap-x-2">
             <span>
               View Range: {pianoRollConfig.viewRangeBottom} -{" "}
@@ -116,8 +118,8 @@ export function PianoRollConfigPanel({
               </span>
             )}
           </span>
-        )}
-        Controller={() => (
+        }
+        controller={
           <Slider
             className="w-full max-w-48 min-w-24"
             value={[
@@ -138,14 +140,14 @@ export function PianoRollConfigPanel({
               })
             }
           />
-        )}
+        }
       />
       <Separator />
       <FormRow
-        Label={() => (
-          <>Playhead Position: {pianoRollConfig.playheadPosition}%</>
-        )}
-        Controller={() => (
+        label={
+          <span>Playhead Position: {pianoRollConfig.playheadPosition}%</span>
+        }
+        controller={
           <Slider
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.playheadPosition]}
@@ -156,24 +158,24 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ playheadPosition: value })
             }
           />
-        )}
+        }
       />
       <FormRow
-        Label={() => <>Show Playhead Border</>}
-        Controller={() => (
+        label={<span>Show Playhead Border</span>}
+        controller={
           <Switch
             checked={pianoRollConfig.showPlayhead}
             onCheckedChange={(checked) =>
               setPianoRollConfig({ showPlayhead: checked })
             }
           />
-        )}
+        }
       />
       {pianoRollConfig.showPlayhead && (
         <>
           <FormRow
-            Label={() => <>Playhead Border Color</>}
-            Controller={() => (
+            label={<span>Playhead Border Color</span>}
+            controller={
               <input
                 type="color"
                 value={pianoRollConfig.playheadColor}
@@ -181,13 +183,15 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ playheadColor: e.target.value })
                 }
               />
-            )}
+            }
           />
           <FormRow
-            Label={() => (
-              <>Playhead Border Width: {pianoRollConfig.playheadWidth}px</>
-            )}
-            Controller={() => (
+            label={
+              <span>
+                Playhead Border Width: {pianoRollConfig.playheadWidth}px
+              </span>
+            }
+            controller={
               <Slider
                 className="w-full max-w-48 min-w-24"
                 value={[pianoRollConfig.playheadWidth]}
@@ -198,16 +202,16 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ playheadWidth: value })
                 }
               />
-            )}
+            }
           />
           <FormRow
-            Label={() => (
-              <>
+            label={
+              <span>
                 Playhead Border Opacity:{" "}
                 {Math.round(pianoRollConfig.playheadOpacity * 100)}%
-              </>
-            )}
-            Controller={() => (
+              </span>
+            }
+            controller={
               <Slider
                 className="w-full max-w-48 min-w-24"
                 value={[pianoRollConfig.playheadOpacity]}
@@ -218,26 +222,26 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ playheadOpacity: value })
                 }
               />
-            )}
+            }
           />
         </>
       )}
       <Separator />
       <FormRow
-        Label={() => <>Show Ripple Effect</>}
-        Controller={() => (
+        label={<span>Show Ripple Effect</span>}
+        controller={
           <Switch
             checked={pianoRollConfig.showRippleEffect}
             onCheckedChange={(checked) =>
               setPianoRollConfig({ showRippleEffect: checked })
             }
           />
-        )}
+        }
       />
       <Separator />
       <FormRow
-        Label={() => <>Note Press Effect</>}
-        Controller={() => (
+        label={<span>Note Press Effect</span>}
+        controller={
           <div className="flex items-center gap-2">
             <Switch
               checked={pianoRollConfig.showNotePressEffect}
@@ -246,12 +250,12 @@ export function PianoRollConfigPanel({
               }}
             />
           </div>
-        )}
+        }
       />
       {pianoRollConfig.showNotePressEffect && (
         <FormRow
-          Label={() => <>Press Depth: {pianoRollConfig.notePressDepth}px</>}
-          Controller={() => (
+          label={<span>Press Depth: {pianoRollConfig.notePressDepth}px</span>}
+          controller={
             <Slider
               value={[pianoRollConfig.notePressDepth]}
               className="w-full max-w-48 min-w-24"
@@ -262,13 +266,13 @@ export function PianoRollConfigPanel({
                 setPianoRollConfig({ notePressDepth: value });
               }}
             />
-          )}
+          }
         />
       )}
       <Separator />
       <FormRow
-        Label={() => <>Note Flash Effect</>}
-        Controller={() => (
+        label={<span>Note Flash Effect</span>}
+        controller={
           <div className="flex items-center gap-2">
             <Switch
               checked={pianoRollConfig.showNoteFlash}
@@ -277,15 +281,17 @@ export function PianoRollConfigPanel({
               }}
             />
           </div>
-        )}
+        }
       />
       {pianoRollConfig.showNoteFlash && (
         <>
           <FormRow
-            Label={() => (
-              <>Flash Duration: {pianoRollConfig.noteFlashDuration}sec</>
-            )}
-            Controller={() => (
+            label={
+              <span>
+                Flash Duration: {pianoRollConfig.noteFlashDuration}sec
+              </span>
+            }
+            controller={
               <Slider
                 value={[pianoRollConfig.noteFlashDuration]}
                 className="w-full max-w-48 min-w-24"
@@ -296,11 +302,11 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ noteFlashDuration: value });
                 }}
               />
-            )}
+            }
           />
           <FormRow
-            Label={() => <>Flash Intensity</>}
-            Controller={() => (
+            label={<span>Flash Intensity</span>}
+            controller={
               <Slider
                 value={[pianoRollConfig.noteFlashIntensity]}
                 className="w-full max-w-48 min-w-24"
@@ -311,7 +317,7 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ noteFlashIntensity: value });
                 }}
               />
-            )}
+            }
           />
         </>
       )}

@@ -1,8 +1,4 @@
-import {
-  ParticlesRenderer,
-  PianoRollRenderer,
-  WaveformRenderer,
-} from "@/renderers";
+import { PianoRollRenderer } from "@/renderers";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { RendererConfig, RendererContext } from "@/types/renderer";
@@ -25,11 +21,28 @@ export function getRendererFromConfig(
   switch (config.type) {
     case "pianoRoll":
       return new PianoRollRenderer(ctx, config);
-    case "waveform":
-      return new WaveformRenderer(ctx, config);
-    case "particles":
-      return new ParticlesRenderer(ctx, config);
     default:
       throw new Error(`Unknown renderer type: ${config}`);
   }
+}
+
+export async function resetConfig() {
+  // delete indexedDB databases
+  const databases = await indexedDB.databases();
+  const promises = databases.map((db) => {
+    if (!db.name) return Promise.resolve();
+    const req = indexedDB.deleteDatabase(db.name);
+    return new Promise<void>((resolve, reject) => {
+      req.onsuccess = () => resolve();
+      req.onblocked = reject;
+      req.onerror = reject;
+    });
+  });
+  await Promise.all(promises);
+
+  // delete localStorage
+  localStorage.clear();
+
+  // reload page
+  location.reload();
 }
