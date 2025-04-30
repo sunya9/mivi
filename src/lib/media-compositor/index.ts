@@ -1,4 +1,4 @@
 export * from "./media-compositor";
-export * from "./recorder";
+export * from "./use-recorder";
 export * from "./recording-status";
-export * from "./use-start-recording";
+export * from "./use-recorder";

@@ -10,7 +10,6 @@ export async function startRecording(
   midiTracks: MidiTracks,
   serializedAudio: SerializedAudio,
   onProgress: (progress: number) => void,
-  onError: (error: Error) => void,
 ) {
   const muxerOptions: MuxerOptions = {
     frameRate: rendererConfig.fps,
@@ -29,7 +28,6 @@ export async function startRecording(
     serializedAudio,
     muxer,
     onProgress,
-    onError,
   );
   const response = await mediaCompositor.composite();
   return response;

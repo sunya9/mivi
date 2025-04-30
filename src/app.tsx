@@ -14,14 +14,14 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMidi } from "@/lib/midi";
 import { useAudio } from "@/lib/audio";
-import { useStartRecording } from "@/lib/media-compositor";
+import { useRecorder } from "@/lib/media-compositor";
 import { useRendererConfig } from "@/lib/renderers";
 
 export function App() {
   const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();
   const { setMidiFile, midiTracks, setMidiTracks } = useMidi();
   const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
-  const { recordingState, toggleRecording } = useStartRecording({
+  const { recordingState, toggleRecording } = useRecorder({
     midiTracks,
     serializedAudio,
     rendererConfig,

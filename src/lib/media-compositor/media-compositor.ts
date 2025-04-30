@@ -22,8 +22,10 @@ export class MediaCompositor {
     private readonly serializedAudio: SerializedAudio,
     private readonly muxer: Muxer,
     private readonly onProgress: (progress: number) => void,
-    onError: (error: Error) => void,
   ) {
+    const onError = (error: DOMException) => {
+      console.error("error on media compositor", error);
+    };
     const audioEncoder = new AudioEncoder({
       output: (chunk) => {
         this.muxer.addAudioChunk(chunk);
