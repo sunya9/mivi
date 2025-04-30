@@ -21,11 +21,11 @@ interface Props {
   midiTracks?: MidiTracks;
 }
 
-export const MidiVisualizer = ({
+export function MidiVisualizer({
   rendererConfig,
   audioBuffer,
   midiTracks,
-}: Props) => {
+}: Props) {
   const [context, setContext] = useState<CanvasRenderingContext2D>();
   const renderer = useMemo(() => {
     return context ? getRendererFromConfig(context, rendererConfig) : undefined;
@@ -148,9 +148,9 @@ export const MidiVisualizer = ({
       </div>
     </div>
   );
-};
+}
 
-const PlayIcon = ({ isPlaying }: { isPlaying: boolean }) => {
+function PlayIcon({ isPlaying }: { isPlaying: boolean }) {
   const [showPlayIcon, setShowPlayIcon] = useState(false);
   useEffect(() => {
     setShowPlayIcon(true);
@@ -171,4 +171,4 @@ const PlayIcon = ({ isPlaying }: { isPlaying: boolean }) => {
       )}
     </div>
   );
-};
+}

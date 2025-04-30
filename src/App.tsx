@@ -15,7 +15,7 @@ import { useAudio } from "@/lib/useAudio";
 import { useStartRecording } from "@/lib/useStartRecording";
 import { useRendererConfig } from "@/lib/useRendererConfig";
 
-export const App = () => {
+export function App() {
   const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();
   const { setMidiFile, midiTracks, setMidiTracks } = useMidi();
   const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
@@ -101,4 +101,4 @@ export const App = () => {
       <Toaster position="top-center" />
     </div>
   );
-};
+}

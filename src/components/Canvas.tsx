@@ -9,14 +9,14 @@ interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   onClickCanvas: () => void;
 }
 
-export const Canvas = ({
+export function Canvas({
   onRedraw,
   onInit,
   onClickCanvas,
   className,
   aspectRatio,
   ...props
-}: Props) => {
+}: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   const onResize = useCallback(() => {
@@ -63,4 +63,4 @@ export const Canvas = ({
       />
     </div>
   );
-};
+}

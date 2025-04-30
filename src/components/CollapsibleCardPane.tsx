@@ -13,7 +13,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export const CollapsibleCardPane = (props: Props) => {
+export function CollapsibleCardPane(props: Props) {
   const [open, setOpen] = useState(true);
   return (
     <Collapsible defaultOpen={true} onOpenChange={setOpen}>
@@ -40,4 +40,4 @@ export const CollapsibleCardPane = (props: Props) => {
       <CollapsibleContent>{props.children}</CollapsibleContent>
     </Collapsible>
   );
-};
+}

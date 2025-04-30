@@ -9,11 +9,11 @@ interface Props {
   recordingState: RecordingStatus;
   toggleRecording(): void;
 }
-export const AppHeader = ({
+export function AppHeader({
   className,
   recordingState,
   toggleRecording,
-}: Props) => {
+}: Props) {
   return (
     <div
       className={cn(
@@ -57,4 +57,4 @@ export const AppHeader = ({
       </div>
     </div>
   );
-};
+}

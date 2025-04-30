@@ -9,7 +9,7 @@ import {
 import { resetConfig } from "@/lib/utils";
 import { FallbackProps } from "react-error-boundary";
 
-export const Fallback = (props: FallbackProps) => {
+export function Fallback(props: FallbackProps) {
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center">
       <Card className="max-w-xl flex-none">
@@ -33,4 +33,4 @@ export const Fallback = (props: FallbackProps) => {
       </Card>
     </div>
   );
-};
+}
