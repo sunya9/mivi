@@ -28,7 +28,7 @@ MiVi is a powerful MIDI visualization tool that transforms MIDI files into beaut
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/mivi.git
+   git clone https://github.com/sunya9/mivi.git
    cd mivi
    ```
 
