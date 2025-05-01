@@ -38,6 +38,11 @@ describe("getRendererFromConfig", () => {
   const mockConfig: RendererConfig = {
     type: "pianoRoll",
     backgroundColor: "#000000",
+    backgroundImageUrl: "",
+    backgroundImageFit: "cover",
+    backgroundImagePosition: "center",
+    backgroundImageRepeat: "no-repeat",
+    backgroundImageOpacity: 1,
     resolution: resolutions[0],
     fps: 60,
     format: "mp4",
@@ -61,6 +66,13 @@ describe("getRendererFromConfig", () => {
       viewRangeBottom: 127,
       showNotePressEffect: true,
       notePressDepth: 1,
+      rippleDuration: 1,
+      rippleRadius: 1,
+      useCustomRippleColor: false,
+      rippleColor: "#ff4081",
+      noteFlashMode: "on",
+      noteFlashFadeOutDuration: 1,
+      pressAnimationDuration: 1,
     },
   };
 

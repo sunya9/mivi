@@ -1,47 +1,15 @@
 import { expect, test, vi, beforeEach } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { CommonConfigPane } from "@/components/app/common-config-pane";
-import { RendererConfig } from "@/lib/renderers";
 import { resolutions } from "@/lib/renderers";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
-
-const mockRendererConfig: RendererConfig = {
-  type: "pianoRoll",
-  backgroundColor: "#000000",
-  resolution: {
-    width: 1920,
-    height: 1080,
-    label: "1920×1080 (16:9)",
-  },
-  fps: 60,
-  format: "mp4",
-  pianoRollConfig: {
-    noteHeight: 0,
-    noteMargin: 0,
-    noteVerticalMargin: 0,
-    noteCornerRadius: 0,
-    notePressDepth: 0,
-    gridColor: "#000000",
-    playheadColor: "#000000",
-    playheadWidth: 0,
-    playheadOpacity: 0,
-    playheadPosition: 0,
-    timeWindow: 0,
-    viewRangeTop: 0,
-    viewRangeBottom: 0,
-    showPlayhead: false,
-    showNotePressEffect: false,
-    showNoteFlash: false,
-    showRippleEffect: false,
-    noteFlashDuration: 0,
-    noteFlashIntensity: 0,
-  },
-};
+import { rendererConfig } from "tests/fixtures";
 
 const mockOnChangeMidiFile = vi.fn();
 const mockOnChangeAudioFile = vi.fn();
 const mockOnUpdateRendererConfig = vi.fn();
+const mockOnChangeBackgroundImage = vi.fn();
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -50,10 +18,11 @@ beforeEach(() => {
 const renderCommonConfigPane = (props = {}) => {
   return customRender(
     <CommonConfigPane
-      rendererConfig={mockRendererConfig}
+      rendererConfig={rendererConfig}
       onChangeMidiFile={mockOnChangeMidiFile}
       onChangeAudioFile={mockOnChangeAudioFile}
       onUpdateRendererConfig={mockOnUpdateRendererConfig}
+      onChangeBackgroundImage={mockOnChangeBackgroundImage}
       {...props}
     />,
   );

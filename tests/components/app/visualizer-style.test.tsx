@@ -1,14 +1,14 @@
 import { VisualizerStyle } from "@/components/app/visualizer-style";
 import { ComponentProps } from "react";
 import { expect, test, vi } from "vitest";
-import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { rendererConfig } from "tests/fixtures";
 
 type Props = ComponentProps<typeof VisualizerStyle>;
 const onUpdateRendererConfig: Props["onUpdateRendererConfig"] = vi.fn();
 const props: Props = {
-  rendererConfig: getDefaultRendererConfig(),
+  rendererConfig,
   onUpdateRendererConfig,
 };
 
