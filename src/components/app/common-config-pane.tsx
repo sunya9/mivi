@@ -58,6 +58,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             setFile={onChangeMidiFile}
             accept=".mid,.midi"
             placeholder="Choose MIDI file"
+            cancelLabel="Cancel MIDI file"
           >
             Open MIDI file
           </FileButton>
@@ -66,6 +67,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             setFile={onChangeAudioFile}
             accept="audio/*"
             placeholder="Choose audio file"
+            cancelLabel="Cancel audio file"
           >
             Open Audio file
           </FileButton>
@@ -92,6 +94,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             setFile={onChangeBackgroundImage}
             accept="image/*"
             placeholder="Can set background image"
+            cancelLabel="Cancel background image"
           >
             Open Background Image
           </FileButton>
@@ -312,12 +315,14 @@ function FileButton({
   accept,
   children,
   placeholder = "Select file",
+  cancelLabel = "Cancel",
 }: {
   filename: string | undefined;
   setFile: (file: File | undefined) => void;
   accept: string;
   children: React.ReactNode;
   placeholder?: string;
+  cancelLabel?: string;
 }) {
   const onChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -338,10 +343,10 @@ function FileButton({
               variant="icon"
               size="icon"
               onClick={() => setFile(undefined)}
-              aria-label="Cancel"
               className="mr-2 w-auto justify-start p-1"
             >
               <CircleXIcon />
+              <span className="sr-only">{cancelLabel}</span>
             </Button>
             <span className="flex-1 truncate">{filename}</span>
           </>
