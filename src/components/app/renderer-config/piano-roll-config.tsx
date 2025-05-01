@@ -232,12 +232,73 @@ export function PianoRollConfigPanel({
         controller={
           <Switch
             checked={pianoRollConfig.showRippleEffect}
-            onCheckedChange={(checked) =>
-              setPianoRollConfig({ showRippleEffect: checked })
-            }
+            onCheckedChange={(checked) => {
+              setPianoRollConfig({ showRippleEffect: checked });
+            }}
           />
         }
       />
+      {pianoRollConfig.showRippleEffect && (
+        <>
+          <FormRow
+            label={<span>Use Custom Ripple Color</span>}
+            controller={
+              <Switch
+                checked={pianoRollConfig.useCustomRippleColor}
+                onCheckedChange={(checked) => {
+                  setPianoRollConfig({ useCustomRippleColor: checked });
+                }}
+              />
+            }
+          />
+          {pianoRollConfig.useCustomRippleColor && (
+            <FormRow
+              label={<span>Ripple Color</span>}
+              controller={
+                <input
+                  type="color"
+                  value={pianoRollConfig.rippleColor}
+                  onChange={(e) => {
+                    setPianoRollConfig({ rippleColor: e.target.value });
+                  }}
+                />
+              }
+            />
+          )}
+          <FormRow
+            label={
+              <span>Ripple Duration: {pianoRollConfig.rippleDuration}sec</span>
+            }
+            controller={
+              <Slider
+                value={[pianoRollConfig.rippleDuration]}
+                className="w-full max-w-48 min-w-24"
+                min={0.1}
+                max={2}
+                step={0.1}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ rippleDuration: value });
+                }}
+              />
+            }
+          />
+          <FormRow
+            label={<span>Ripple Radius: {pianoRollConfig.rippleRadius}px</span>}
+            controller={
+              <Slider
+                value={[pianoRollConfig.rippleRadius]}
+                className="w-full max-w-48 min-w-24"
+                min={10}
+                max={100}
+                step={1}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ rippleRadius: value });
+                }}
+              />
+            }
+          />
+        </>
+      )}
       <Separator />
       <FormRow
         label={<span>Note Press Effect</span>}
@@ -253,21 +314,43 @@ export function PianoRollConfigPanel({
         }
       />
       {pianoRollConfig.showNotePressEffect && (
-        <FormRow
-          label={<span>Press Depth: {pianoRollConfig.notePressDepth}px</span>}
-          controller={
-            <Slider
-              value={[pianoRollConfig.notePressDepth]}
-              className="w-full max-w-48 min-w-24"
-              min={1}
-              max={10}
-              step={1}
-              onValueChange={([value]) => {
-                setPianoRollConfig({ notePressDepth: value });
-              }}
-            />
-          }
-        />
+        <>
+          <FormRow
+            label={<span>Press Depth: {pianoRollConfig.notePressDepth}px</span>}
+            controller={
+              <Slider
+                value={[pianoRollConfig.notePressDepth]}
+                className="w-full max-w-48 min-w-24"
+                min={1}
+                max={10}
+                step={1}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ notePressDepth: value });
+                }}
+              />
+            }
+          />
+          <FormRow
+            label={
+              <span>
+                Press Animation Duration:{" "}
+                {pianoRollConfig.pressAnimationDuration}sec
+              </span>
+            }
+            controller={
+              <Slider
+                value={[pianoRollConfig.pressAnimationDuration]}
+                className="w-full max-w-48 min-w-24"
+                min={0.05}
+                max={1}
+                step={0.05}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ pressAnimationDuration: value });
+                }}
+              />
+            }
+          />
+        </>
       )}
       <Separator />
       <FormRow

@@ -6,6 +6,10 @@ interface PianoRollConfigValues {
   noteVerticalMargin: number;
   gridColor: string;
   showRippleEffect: boolean;
+  rippleDuration: number;
+  rippleRadius: number;
+  useCustomRippleColor: boolean;
+  rippleColor: string;
   showPlayhead: boolean;
   playheadPosition: number;
   playheadColor: string;
@@ -23,6 +27,7 @@ interface PianoRollConfigValues {
   viewRangeBottom: number;
   showNotePressEffect: boolean;
   notePressDepth: number;
+  pressAnimationDuration: number;
 }
 
 export type Resolution = {
@@ -81,6 +86,10 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     noteVerticalMargin: 1,
     gridColor: "#ffffff",
     showRippleEffect: true,
+    rippleDuration: 0.5,
+    rippleRadius: 50,
+    useCustomRippleColor: false,
+    rippleColor: "#ffffff",
     showPlayhead: true,
     playheadPosition: 20,
     playheadColor: "#ff4081",
@@ -98,6 +107,7 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     viewRangeBottom: 0,
     showNotePressEffect: true,
     notePressDepth: 4,
+    pressAnimationDuration: 0.1,
   },
 });
 
