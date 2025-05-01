@@ -26,6 +26,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { DeepPartial } from "@/lib/type-utils";
 import { ToggleTheme } from "@/components/app";
+import { Slider } from "@/components/ui/slider";
 
 interface Props {
   rendererConfig: RendererConfig;
@@ -34,6 +35,8 @@ interface Props {
   onChangeMidiFile: (file: File | undefined) => void;
   audioFilename?: string;
   onChangeAudioFile: (file: File | undefined) => void;
+  backgroundImageFilename?: string;
+  onChangeBackgroundImage: (file: File | undefined) => void;
 }
 
 export const CommonConfigPane = memo(function CommonConfigPane({
@@ -43,6 +46,8 @@ export const CommonConfigPane = memo(function CommonConfigPane({
   onChangeMidiFile,
   audioFilename,
   onChangeAudioFile,
+  backgroundImageFilename,
+  onChangeBackgroundImage,
 }: Props) {
   return (
     <Card className="border-0 bg-transparent shadow-none">
@@ -52,6 +57,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             filename={midiFilename}
             setFile={onChangeMidiFile}
             accept=".mid,.midi"
+            placeholder="Choose MIDI file"
           >
             Open MIDI file
           </FileButton>
@@ -59,6 +65,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             filename={audioFilename}
             setFile={onChangeAudioFile}
             accept="audio/*"
+            placeholder="Choose audio file"
           >
             Open Audio file
           </FileButton>
@@ -80,6 +87,118 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               />
             }
           />
+          <FileButton
+            filename={backgroundImageFilename}
+            setFile={onChangeBackgroundImage}
+            accept="image/*"
+            placeholder="Can set background image"
+          >
+            Open Background Image
+          </FileButton>
+          {backgroundImageFilename && (
+            <>
+              <FormRow
+                label={<span>Image Fit</span>}
+                controller={
+                  <Select
+                    value={rendererConfig.backgroundImageFit}
+                    onValueChange={(value: "cover" | "contain") =>
+                      onUpdateRendererConfig({ backgroundImageFit: value })
+                    }
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Select image fit" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cover">Cover</SelectItem>
+                      <SelectItem value="contain">Contain</SelectItem>
+                    </SelectContent>
+                  </Select>
+                }
+              />
+              <FormRow
+                label={<span>Image Position</span>}
+                controller={
+                  <Select
+                    value={rendererConfig.backgroundImagePosition}
+                    onValueChange={(
+                      value:
+                        | "top-left"
+                        | "top"
+                        | "top-right"
+                        | "left"
+                        | "center"
+                        | "right"
+                        | "bottom-left"
+                        | "bottom"
+                        | "bottom-right",
+                    ) =>
+                      onUpdateRendererConfig({ backgroundImagePosition: value })
+                    }
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Select image position" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="top-left">Top Left</SelectItem>
+                      <SelectItem value="top">Top</SelectItem>
+                      <SelectItem value="top-right">Top Right</SelectItem>
+                      <SelectItem value="left">Left</SelectItem>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="right">Right</SelectItem>
+                      <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                      <SelectItem value="bottom">Bottom</SelectItem>
+                      <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                    </SelectContent>
+                  </Select>
+                }
+              />
+              <FormRow
+                label={<span>Image Repeat</span>}
+                controller={
+                  <Select
+                    value={rendererConfig.backgroundImageRepeat}
+                    onValueChange={(
+                      value: "repeat" | "no-repeat" | "repeat-x" | "repeat-y",
+                    ) =>
+                      onUpdateRendererConfig({ backgroundImageRepeat: value })
+                    }
+                  >
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Select image repeat" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="no-repeat">No Repeat</SelectItem>
+                      <SelectItem value="repeat">Repeat</SelectItem>
+                      <SelectItem value="repeat-x">Repeat X</SelectItem>
+                      <SelectItem value="repeat-y">Repeat Y</SelectItem>
+                    </SelectContent>
+                  </Select>
+                }
+              />
+              <FormRow
+                label={
+                  <span>
+                    Image Opacity: {rendererConfig.backgroundImageOpacity}
+                  </span>
+                }
+                controller={
+                  <Slider
+                    className="w-full min-w-24"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={[rendererConfig.backgroundImageOpacity]}
+                    onValueChange={([value]) =>
+                      onUpdateRendererConfig({
+                        backgroundImageOpacity: value,
+                      })
+                    }
+                  />
+                }
+              />
+            </>
+          )}
           <FormRow
             label={
               <span className="inline-flex items-center gap-2">
@@ -192,11 +311,13 @@ function FileButton({
   setFile,
   accept,
   children,
+  placeholder = "Select file",
 }: {
   filename: string | undefined;
   setFile: (file: File | undefined) => void;
   accept: string;
   children: React.ReactNode;
+  placeholder?: string;
 }) {
   const onChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -211,20 +332,21 @@ function FileButton({
   return (
     <div className="flex items-center justify-between gap-2">
       <span className="inline-flex items-center overflow-hidden">
-        {filename && (
+        {filename ? (
           <>
             <Button
               variant="icon"
               size="icon"
               onClick={() => setFile(undefined)}
               aria-label="Cancel"
+              className="mr-2 w-auto justify-start p-1"
             >
               <CircleXIcon />
             </Button>
-            <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-              {filename}
-            </span>
+            <span className="flex-1 truncate">{filename}</span>
           </>
+        ) : (
+          <span className="text-muted-foreground">{placeholder}</span>
         )}
       </span>
 

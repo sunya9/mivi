@@ -19,17 +19,21 @@ interface Props {
   rendererConfig: RendererConfig;
   audioBuffer?: AudioBuffer;
   midiTracks?: MidiTracks;
+  backgroundImageBitmap?: ImageBitmap;
 }
 
 export function MidiVisualizer({
   rendererConfig,
   audioBuffer,
   midiTracks,
+  backgroundImageBitmap,
 }: Props) {
   const [context, setContext] = useState<CanvasRenderingContext2D>();
   const renderer = useMemo(() => {
-    return context ? getRendererFromConfig(context, rendererConfig) : undefined;
-  }, [context, rendererConfig]);
+    return context
+      ? getRendererFromConfig(context, rendererConfig, backgroundImageBitmap)
+      : undefined;
+  }, [backgroundImageBitmap, context, rendererConfig]);
   const duration = useMemo(() => audioBuffer?.duration || 0, [audioBuffer]);
   const {
     seek,

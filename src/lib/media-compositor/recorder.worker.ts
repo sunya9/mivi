@@ -9,6 +9,7 @@ export async function startRecording(
   rendererConfig: RendererConfig,
   midiTracks: MidiTracks,
   serializedAudio: SerializedAudio,
+  backgroundImageBitmap: ImageBitmap | undefined,
   onProgress: (progress: number) => void,
 ) {
   const muxerOptions: MuxerOptions = {
@@ -26,6 +27,7 @@ export async function startRecording(
     rendererConfig,
     midiTracks,
     serializedAudio,
+    backgroundImageBitmap,
     muxer,
     onProgress,
   );

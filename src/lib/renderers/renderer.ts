@@ -65,6 +65,20 @@ export type VideoFormat = (typeof formatOptions)[number]["value"];
 export interface RendererConfig {
   type: RendererType;
   backgroundColor: string;
+  backgroundImageUrl: string;
+  backgroundImageFit: "cover" | "contain";
+  backgroundImagePosition:
+    | "top-left"
+    | "top"
+    | "top-right"
+    | "left"
+    | "center"
+    | "right"
+    | "bottom-left"
+    | "bottom"
+    | "bottom-right";
+  backgroundImageRepeat: "repeat" | "no-repeat" | "repeat-x" | "repeat-y";
+  backgroundImageOpacity: number;
   resolution: Resolution;
   fps: FPS;
   format: VideoFormat;
@@ -78,6 +92,11 @@ export type RendererContext =
 export const getDefaultRendererConfig = (): RendererConfig => ({
   type: "pianoRoll",
   backgroundColor: "#1a1a1a",
+  backgroundImageUrl: "",
+  backgroundImageFit: "cover",
+  backgroundImagePosition: "center",
+  backgroundImageRepeat: "no-repeat",
+  backgroundImageOpacity: 1,
   resolution: resolutions[1],
   fps: 30,
   format: "webm",
@@ -117,15 +136,141 @@ export abstract class Renderer {
       | CanvasRenderingContext2D
       | OffscreenCanvasRenderingContext2D,
     protected readonly config: RendererConfig,
+    protected readonly backgroundImageBitmap?: ImageBitmap,
   ) {}
+
+  private calculateImageDimensions(
+    imgRatio: number,
+    canvasRatio: number,
+    width: number,
+    height: number,
+  ) {
+    const { backgroundImageFit } = this.config;
+
+    if (backgroundImageFit === "cover") {
+      if (imgRatio > canvasRatio) {
+        return {
+          drawWidth: height * imgRatio,
+          drawHeight: height,
+          offsetX: (width - height * imgRatio) / 2,
+          offsetY: 0,
+        };
+      } else {
+        return {
+          drawWidth: width,
+          drawHeight: width / imgRatio,
+          offsetX: 0,
+          offsetY: (height - width / imgRatio) / 2,
+        };
+      }
+    } else if (backgroundImageFit === "contain") {
+      if (imgRatio > canvasRatio) {
+        return {
+          drawWidth: width,
+          drawHeight: width / imgRatio,
+          offsetX: 0,
+          offsetY: (height - width / imgRatio) / 2,
+        };
+      } else {
+        return {
+          drawWidth: height * imgRatio,
+          drawHeight: height,
+          offsetX: (width - height * imgRatio) / 2,
+          offsetY: 0,
+        };
+      }
+    }
+
+    return {
+      drawWidth: width,
+      drawHeight: height,
+      offsetX: 0,
+      offsetY: 0,
+    };
+  }
+
+  private adjustImagePosition(
+    position: string,
+    width: number,
+    height: number,
+    drawWidth: number,
+    drawHeight: number,
+    offsetX: number,
+    offsetY: number,
+  ) {
+    switch (position) {
+      case "top":
+        return { offsetX, offsetY: 0 };
+      case "bottom":
+        return { offsetX, offsetY: height - drawHeight };
+      case "left":
+        return { offsetX: 0, offsetY };
+      case "right":
+        return { offsetX: width - drawWidth, offsetY };
+      case "top-left":
+        return { offsetX: 0, offsetY: 0 };
+      case "top-right":
+        return { offsetX: width - drawWidth, offsetY: 0 };
+      case "bottom-left":
+        return { offsetX: 0, offsetY: height - drawHeight };
+      case "bottom-right":
+        return { offsetX: width - drawWidth, offsetY: height - drawHeight };
+      default:
+        return { offsetX, offsetY };
+    }
+  }
 
   renderCommonVisual() {
     const {
       canvas: { width, height },
     } = this.ctx;
     this.ctx.clearRect(0, 0, width, height);
+
+    // 背景色を描画
     this.ctx.fillStyle = this.config.backgroundColor;
     this.ctx.fillRect(0, 0, width, height);
+
+    // 背景画像を描画
+    if (this.backgroundImageBitmap) {
+      this.ctx.save();
+      this.ctx.globalAlpha = this.config.backgroundImageOpacity;
+
+      const { backgroundImagePosition, backgroundImageRepeat } = this.config;
+      const img = this.backgroundImageBitmap;
+      const imgRatio = img.width / img.height;
+      const canvasRatio = width / height;
+
+      const {
+        drawWidth,
+        drawHeight,
+        offsetX: baseOffsetX,
+        offsetY: baseOffsetY,
+      } = this.calculateImageDimensions(imgRatio, canvasRatio, width, height);
+
+      const { offsetX, offsetY } = this.adjustImagePosition(
+        backgroundImagePosition,
+        width,
+        height,
+        drawWidth,
+        drawHeight,
+        baseOffsetX,
+        baseOffsetY,
+      );
+
+      // 繰り返しの設定
+      if (backgroundImageRepeat === "no-repeat") {
+        this.ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+      } else {
+        const pattern = this.ctx.createPattern(img, backgroundImageRepeat);
+        if (pattern) {
+          this.ctx.fillStyle = pattern;
+          this.ctx.fillRect(0, 0, width, height);
+        }
+      }
+
+      this.ctx.restore();
+    }
   }
+
   abstract render(tracks: MidiTrack[], playbackState: PlaybackState): void;
 }

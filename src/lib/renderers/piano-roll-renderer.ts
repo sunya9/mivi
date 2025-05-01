@@ -1,7 +1,6 @@
-import { MidiTrack } from "../midi/midi";
-import { PlaybackState } from "@/lib/player/player";
-import { RendererConfig, RendererContext } from "./renderer";
-import { Renderer } from "./renderer";
+import { MidiTrack } from "@/lib/midi";
+import { PlaybackState } from "@/lib/player";
+import { Renderer, RendererConfig } from "./renderer";
 
 export class PianoRollRenderer extends Renderer {
   private readonly overflowFactor = 0.5;
@@ -39,10 +38,11 @@ export class PianoRollRenderer extends Renderer {
   >();
 
   constructor(
-    ctx: RendererContext,
-    readonly config: RendererConfig,
+    ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+    config: RendererConfig,
+    backgroundImageBitmap?: ImageBitmap,
   ) {
-    super(ctx, config);
+    super(ctx, config, backgroundImageBitmap);
   }
 
   private noteToY(midi: number) {

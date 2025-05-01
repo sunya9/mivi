@@ -8,6 +8,7 @@ export function runWorker(
   rendererConfig: RendererConfig,
   midiTracks: MidiTracks,
   serializedAudio: SerializedAudio,
+  backgroundImageBitmap: ImageBitmap | undefined,
   onChangeRecordingStatus: (progress: number) => void,
   signal: AbortSignal,
 ) {
@@ -33,6 +34,7 @@ export function runWorker(
     rendererConfig,
     midiTracks,
     serializedAudio,
+    backgroundImageBitmap,
     onProgress,
   );
   return Promise.race([abortPromise, promise]);

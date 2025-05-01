@@ -20,10 +20,11 @@ export function formatTime(timeInSeconds: number): string {
 export function getRendererFromConfig(
   ctx: RendererContext,
   config: RendererConfig,
+  backgroundImageBitmap?: ImageBitmap,
 ): Renderer {
   switch (config.type) {
     case "pianoRoll":
-      return new PianoRollRenderer(ctx, config);
+      return new PianoRollRenderer(ctx, config, backgroundImageBitmap);
     default: {
       const configType = config.type satisfies never;
       throw new Error(`Unknown renderer type: ${String(configType)}`);

@@ -16,15 +16,19 @@ import { useMidi } from "@/lib/midi";
 import { useAudio } from "@/lib/audio";
 import { useRecorder } from "@/lib/media-compositor";
 import { useRendererConfig } from "@/lib/renderers";
+import { useBackgroundImage } from "./lib/background-image/use-background-image";
 
 export function App() {
   const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();
   const { setMidiFile, midiTracks, setMidiTracks } = useMidi();
   const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
+  const { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile } =
+    useBackgroundImage();
   const { recordingState, toggleRecording } = useRecorder({
     midiTracks,
     serializedAudio,
     rendererConfig,
+    backgroundImageBitmap,
   });
 
   return (
@@ -68,6 +72,7 @@ export function App() {
                 rendererConfig={rendererConfig}
                 audioBuffer={audioBuffer}
                 midiTracks={midiTracks}
+                backgroundImageBitmap={backgroundImageBitmap}
               />
             </ResizablePanel>
             <ResizableHandle />
@@ -80,6 +85,8 @@ export function App() {
                   onChangeMidiFile={setMidiFile}
                   audioFilename={audioFile?.name}
                   onChangeAudioFile={setAudioFile}
+                  backgroundImageFilename={backgroundImageFile?.name}
+                  onChangeBackgroundImage={setBackgroundImageFile}
                 />
               </ScrollArea>
             </ResizablePanel>

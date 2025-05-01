@@ -14,11 +14,13 @@ interface Props {
   serializedAudio?: SerializedAudio;
   midiTracks?: MidiTracks;
   rendererConfig: RendererConfig;
+  backgroundImageBitmap?: ImageBitmap;
 }
 export function useRecorder({
   serializedAudio,
   midiTracks,
   rendererConfig,
+  backgroundImageBitmap,
 }: Props) {
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
     new ReadyState(),
@@ -43,6 +45,7 @@ export function useRecorder({
         rendererConfig,
         midiTracks,
         serializedAudio,
+        backgroundImageBitmap,
         onProgress,
         signal,
       )
@@ -69,6 +72,12 @@ export function useRecorder({
       abortControllerRef.current?.abort(new Error("Cancelled"));
       setRecordingState(new ReadyState());
     }
-  }, [midiTracks, serializedAudio, recordingState.isRecording, rendererConfig]);
+  }, [
+    recordingState.isRecording,
+    midiTracks,
+    serializedAudio,
+    rendererConfig,
+    backgroundImageBitmap,
+  ]);
   return { recordingState, toggleRecording };
 }

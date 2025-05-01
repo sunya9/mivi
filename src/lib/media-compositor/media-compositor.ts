@@ -20,6 +20,7 @@ export class MediaCompositor {
     private readonly rendererConfig: RendererConfig,
     private readonly midiTracks: MidiTracks,
     private readonly serializedAudio: SerializedAudio,
+    private readonly backgroundImageBitmap: ImageBitmap | undefined,
     private readonly muxer: Muxer,
     private readonly onProgress: (progress: number) => void,
   ) {
@@ -149,7 +150,11 @@ export class MediaCompositor {
     const ctx = this.canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get context");
 
-    const renderer = getRendererFromConfig(ctx, this.rendererConfig);
+    const renderer = getRendererFromConfig(
+      ctx,
+      this.rendererConfig,
+      this.backgroundImageBitmap,
+    );
     const totalVideoFrames = this.totalVideoFrames;
     for (let i = 0; i < totalVideoFrames; i++) {
       const progress = i / totalVideoFrames;
