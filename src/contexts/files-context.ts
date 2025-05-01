@@ -1,10 +1,9 @@
-import { FileLike } from "@/lib/file-db";
 import { createContext } from "react";
 
-export const FilesContext = createContext<{
-  files: Map<string, FileLike | undefined>;
-  setFile: (key: string, file: FileLike | undefined) => void;
+export const CacheContext = createContext<{
+  caches: Map<string, unknown>;
+  setCache: (key: string, cache: unknown) => void;
 }>({
-  files: new Map(),
-  setFile: () => {},
+  caches: new Map(),
+  setCache: () => {},
 });

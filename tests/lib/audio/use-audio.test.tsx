@@ -8,6 +8,7 @@ import { AppContext } from "@/contexts/app-context";
 import { appContextValue } from "@/lib/globals";
 import { Providers } from "@/components/providers";
 import { toast } from "sonner";
+import { audioDbKey } from "@/lib/audio/use-audio";
 
 vi.mock("sonner", { spy: true });
 
@@ -21,7 +22,7 @@ test("returns initial state", async () => {
 });
 
 test("audioBuffer is defined when cache exists in indexedDb", async () => {
-  await saveFile("audio", audioFile);
+  await saveFile(audioDbKey, audioFile);
   const { result } = customRenderHook(() => useAudio());
   await waitFor(() => {
     expect(result.current.audioBuffer).toBeDefined();
