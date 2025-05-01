@@ -96,6 +96,7 @@ export function App() {
             <VisualizerStyle
               rendererConfig={rendererConfig}
               onUpdateRendererConfig={onUpdateRendererConfig}
+              midiTracks={midiTracks}
             />
           </ScrollArea>
         </ResizablePanel>
