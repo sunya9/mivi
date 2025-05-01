@@ -1,14 +1,9 @@
 import { proxy, releaseProxy, wrap } from "comlink";
 import RecorderWorker from "./recorder.worker?worker";
-import { RendererConfig } from "../renderers/renderer";
-import { SerializedAudio } from "../audio";
-import { MidiTracks } from "../midi";
+import { RecorderResources } from "./recorder-resources";
 
 export function runWorker(
-  rendererConfig: RendererConfig,
-  midiTracks: MidiTracks,
-  serializedAudio: SerializedAudio,
-  backgroundImageBitmap: ImageBitmap | undefined,
+  resources: RecorderResources,
   onChangeRecordingStatus: (progress: number) => void,
   signal: AbortSignal,
 ) {
@@ -30,12 +25,6 @@ export function runWorker(
       { once: true },
     );
   });
-  const promise = worker.startRecording(
-    rendererConfig,
-    midiTracks,
-    serializedAudio,
-    backgroundImageBitmap,
-    onProgress,
-  );
+  const promise = worker.startRecording(resources, onProgress);
   return Promise.race([abortPromise, promise]);
 }

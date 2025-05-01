@@ -17,6 +17,7 @@ import { useAudio } from "@/lib/audio";
 import { useRecorder } from "@/lib/media-compositor";
 import { useRendererConfig } from "@/lib/renderers";
 import { useBackgroundImage } from "./lib/background-image/use-background-image";
+import { createRecorderResources } from "./lib/media-compositor/recorder-resources";
 
 export function App() {
   const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();
@@ -24,12 +25,13 @@ export function App() {
   const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
   const { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile } =
     useBackgroundImage();
-  const { recordingState, toggleRecording } = useRecorder({
+  const recordResources = createRecorderResources({
     midiTracks,
     serializedAudio,
     rendererConfig,
     backgroundImageBitmap,
   });
+  const { recordingState, toggleRecording } = useRecorder(recordResources);
 
   return (
     <div className="flex flex-1 flex-col md:h-dvh">

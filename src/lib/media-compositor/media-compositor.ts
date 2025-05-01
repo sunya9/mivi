@@ -1,9 +1,7 @@
 import { throttle } from "throttle-debounce";
-import { MidiTracks } from "@/lib/midi";
-import { RendererConfig } from "@/lib/renderers";
 import { getRendererFromConfig } from "@/lib/utils";
-import { SerializedAudio } from "@/lib/audio";
 import { Muxer } from "@/lib/muxer";
+import { RecorderResources } from "./recorder-resources";
 
 const frameSize = 20;
 
@@ -17,10 +15,7 @@ export class MediaCompositor {
   private readonly canvas: OffscreenCanvas;
 
   constructor(
-    private readonly rendererConfig: RendererConfig,
-    private readonly midiTracks: MidiTracks,
-    private readonly serializedAudio: SerializedAudio,
-    private readonly backgroundImageBitmap: ImageBitmap | undefined,
+    private readonly resources: RecorderResources,
     private readonly muxer: Muxer,
     private readonly onProgress: (progress: number) => void,
   ) {
@@ -33,6 +28,7 @@ export class MediaCompositor {
       },
       error: onError,
     });
+    const { serializedAudio } = this.resources;
 
     audioEncoder.configure({
       codec: this.muxer.audioCodec,
@@ -66,6 +62,21 @@ export class MediaCompositor {
 
     this.audioEncoder = audioEncoder;
     this.videoEncoder = videoEncoder;
+  }
+  private get rendererConfig() {
+    return this.resources.rendererConfig;
+  }
+
+  private get midiTracks() {
+    return this.resources.midiTracks;
+  }
+
+  private get serializedAudio() {
+    return this.resources.serializedAudio;
+  }
+
+  private get backgroundImageBitmap() {
+    return this.resources.backgroundImageBitmap;
   }
 
   private get fps() {

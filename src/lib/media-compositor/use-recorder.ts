@@ -4,30 +4,19 @@ import {
   ReadyState,
   RecordingState,
 } from "@/lib/media-compositor/recording-status";
-import { RendererConfig } from "@/lib/renderers";
-import { SerializedAudio } from "@/lib/audio";
-import { MidiTracks } from "@/lib/midi";
 import { toast } from "sonner";
 import { runWorker } from "./run-worker";
+import { PartialRecorderResources } from "./recorder-resources";
 
-interface Props {
-  serializedAudio?: SerializedAudio;
-  midiTracks?: MidiTracks;
-  rendererConfig: RendererConfig;
-  backgroundImageBitmap?: ImageBitmap;
-}
-export function useRecorder({
-  serializedAudio,
-  midiTracks,
-  rendererConfig,
-  backgroundImageBitmap,
-}: Props) {
+export function useRecorder(resources: PartialRecorderResources) {
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
     new ReadyState(),
   );
   const abortControllerRef = useRef<AbortController | null>(null);
   const toggleRecording = useCallback(async () => {
     if (!recordingState.isRecording) {
+      const midiTracks = resources.midiTracks;
+      const serializedAudio = resources.serializedAudio;
       if (!midiTracks || !serializedAudio) {
         toast.error("Please select a MIDI file and audio file.");
         return;
@@ -42,10 +31,11 @@ export function useRecorder({
         );
       };
       return runWorker(
-        rendererConfig,
-        midiTracks,
-        serializedAudio,
-        backgroundImageBitmap,
+        {
+          ...resources,
+          midiTracks,
+          serializedAudio,
+        },
         onProgress,
         signal,
       )
@@ -54,7 +44,7 @@ export function useRecorder({
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `mivi-${midiTracks.name}.${rendererConfig.format}`;
+          a.download = `mivi-${midiTracks.name}.${resources.rendererConfig.format}`;
           a.click();
           URL.revokeObjectURL(url);
         })
@@ -72,12 +62,6 @@ export function useRecorder({
       abortControllerRef.current?.abort(new Error("Cancelled"));
       setRecordingState(new ReadyState());
     }
-  }, [
-    recordingState.isRecording,
-    midiTracks,
-    serializedAudio,
-    rendererConfig,
-    backgroundImageBitmap,
-  ]);
+  }, [recordingState.isRecording, resources]);
   return { recordingState, toggleRecording };
 }
