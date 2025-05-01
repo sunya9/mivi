@@ -4,6 +4,7 @@ import { MidiTracks } from "@/lib/midi/midi";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import { appContextValue } from "@/lib/globals";
+import { File } from "node:buffer";
 
 const midiFilename = "test.mid";
 const midiFilepath = path.resolve(__dirname, midiFilename);
@@ -109,7 +110,7 @@ const expectedMidiTracks: MidiTracks = {
 
 const audioFilename = "test.mp3";
 const audioFilepath = path.resolve(__dirname, audioFilename);
-const audioData = fs.readFileSync(audioFilepath);
+export const audioData = fs.readFileSync(audioFilepath);
 
 const audioFile = new File([audioData], audioFilename, {
   type: "audio/mpeg",

@@ -14,7 +14,7 @@ export function customRenderHook<T, P>(
   options?: RenderHookOptions<P>,
 ) {
   return renderHook((props: P) => hook(props), {
-    wrapper: Providers,
+    wrapper: ({ children }) => <Providers>{children}</Providers>,
     ...options,
   });
 }

@@ -68,9 +68,11 @@ test("should start recording when all required files are present", async () => {
   });
 
   expect(runWorker).toHaveBeenCalledWith(
-    mockProps.rendererConfig,
-    mockProps.midiTracks,
-    mockProps.serializedAudio,
+    {
+      rendererConfig: mockProps.rendererConfig,
+      midiTracks: mockProps.midiTracks,
+      serializedAudio: mockProps.serializedAudio,
+    },
     expect.any(Function),
     expect.any(AbortSignal),
   );

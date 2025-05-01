@@ -23,6 +23,9 @@ const renderCommonConfigPane = (props = {}) => {
       onChangeAudioFile={mockOnChangeAudioFile}
       onUpdateRendererConfig={mockOnUpdateRendererConfig}
       onChangeBackgroundImage={mockOnChangeBackgroundImage}
+      midiFilename="test.mid"
+      audioFilename="test.mp3"
+      backgroundImageFilename="test.png"
       {...props}
     />,
   );
@@ -90,11 +93,11 @@ test("should call onUpdateRendererConfig when resolution is changed", async () =
   });
   await userEvent.click(resolutionTrigger);
   const resolutionOption = screen.getByRole("option", {
-    name: resolutions[1].label,
+    name: resolutions[0].label,
   });
   await userEvent.click(resolutionOption);
   expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({
-    resolution: resolutions[1],
+    resolution: resolutions[0],
   });
 });
 
@@ -102,18 +105,18 @@ test("should call onUpdateRendererConfig when FPS is changed", async () => {
   renderCommonConfigPane();
   const fpsTrigger = screen.getByRole("combobox", { name: "FPS" });
   await userEvent.click(fpsTrigger);
-  const fpsOption = screen.getByRole("option", { name: "30 fps" });
+  const fpsOption = screen.getByRole("option", { name: "60 fps" });
   await userEvent.click(fpsOption);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({ fps: 30 });
+  expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({ fps: 60 });
 });
 
 test("should call onUpdateRendererConfig when format is changed", async () => {
   renderCommonConfigPane();
   const formatTrigger = screen.getByRole("combobox", { name: "Format" });
   await userEvent.click(formatTrigger);
-  const formatOption = screen.getByRole("option", { name: "WebM (VP9)" });
+  const formatOption = screen.getByRole("option", { name: "MP4 (H.264)" });
   await userEvent.click(formatOption);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({ format: "webm" });
+  expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({ format: "mp4" });
 });
 
 test("should clear file input after selection", () => {
@@ -130,7 +133,7 @@ test("should clear file input after selection", () => {
 test("should clear selected file when cancel button is clicked", async () => {
   renderCommonConfigPane({ midiFilename: "test.mid" });
 
-  const cancelButton = screen.getByRole("button", { name: "Cancel" });
+  const cancelButton = screen.getByRole("button", { name: "Cancel MIDI file" });
   await userEvent.click(cancelButton);
   expect(mockOnChangeMidiFile).toHaveBeenCalledWith(undefined);
 });

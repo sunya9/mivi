@@ -15,7 +15,7 @@ const props: Props = {
 test("should render", async () => {
   render(<VisualizerStyle {...props} />);
   expect(screen.getByText("Visualizer Style")).toBeInTheDocument();
-  await userEvent.click(screen.getByRole("combobox"));
+  await userEvent.click(screen.getByRole("combobox", { name: "Style" }));
   await userEvent.click(screen.getByLabelText("Piano Roll"));
   // becaues same value
   expect(onUpdateRendererConfig).not.toHaveBeenCalledWith({
