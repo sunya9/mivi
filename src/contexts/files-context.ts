@@ -1,8 +1,9 @@
+import { FileLike } from "@/lib/file-db";
 import { createContext } from "react";
 
 export const FilesContext = createContext<{
-  files: Map<string, File | undefined>;
-  setFile: (key: string, file: File | undefined) => void;
+  files: Map<string, FileLike | undefined>;
+  setFile: (key: string, file: FileLike | undefined) => void;
 }>({
   files: new Map(),
   setFile: () => {},

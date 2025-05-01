@@ -1,13 +1,14 @@
 import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { useCallback, useState } from "react";
+import { FileLike } from "../file-db";
 
-async function loadBackgroundImage(backgroundImageFile: File) {
+async function loadBackgroundImage(backgroundImageFile: FileLike) {
   return createImageBitmap(backgroundImageFile);
 }
 
 let cachedInitialBackgroundImage: ImageBitmap | undefined;
 
-function loadInitialBackgroundImage(backgroundImageFile: File | undefined) {
+function loadInitialBackgroundImage(backgroundImageFile: FileLike | undefined) {
   if (!backgroundImageFile) return;
   if (cachedInitialBackgroundImage) return cachedInitialBackgroundImage;
   throw loadBackgroundImage(backgroundImageFile).then((res) => {

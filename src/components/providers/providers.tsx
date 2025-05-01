@@ -7,9 +7,13 @@ import { Loading } from "./loading";
 import { TooltipProvider } from "../ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { FilesContext } from "@/contexts/files-context";
+import { FileLike } from "@/lib/file-db";
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [files, setFiles] = useState<Map<string, File | undefined>>(new Map());
-  const setFile = useCallback((key: string, file: File | undefined) => {
+  const [files, setFiles] = useState<Map<string, FileLike | undefined>>(
+    new Map(),
+  );
+  const setFile = useCallback((key: string, file: FileLike | undefined) => {
     setFiles((prev) => {
       const newFiles = new Map(prev);
       newFiles.set(key, file);

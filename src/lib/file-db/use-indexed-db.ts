@@ -2,7 +2,7 @@ import { fetchFile, saveFile } from "@/lib/file-db/file-db";
 import { ContextType, use, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { FilesContext } from "../../contexts/files-context";
-
+import type { FileLike } from "@/lib/file-db";
 function loadInitialFile(
   filesContext: ContextType<typeof FilesContext>,
   key: string,
@@ -19,11 +19,11 @@ function loadInitialFile(
 
 export function useIndexedDb(key: string) {
   const filesContext = use(FilesContext);
-  const [file, setFileInternal] = useState<File | undefined>(() =>
+  const [file, setFileInternal] = useState<FileLike | undefined>(() =>
     loadInitialFile(filesContext, key),
   );
   const setFile = useCallback(
-    async (newFile: File | undefined) => {
+    async (newFile: FileLike | undefined) => {
       try {
         setFileInternal(newFile);
         // optimistic update
