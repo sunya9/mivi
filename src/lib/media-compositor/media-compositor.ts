@@ -1,5 +1,5 @@
 import { throttle } from "throttle-debounce";
-import { getRendererFromConfig } from "@/lib/utils";
+import { getRendererFromConfig } from "@/lib/renderers";
 import { Muxer } from "@/lib/muxer";
 import { RecorderResources } from "./recorder-resources";
 

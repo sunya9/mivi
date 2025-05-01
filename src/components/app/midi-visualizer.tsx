@@ -1,4 +1,4 @@
-import { formatTime, getRendererFromConfig } from "@/lib/utils";
+import { formatTime } from "@/lib/utils";
 import { Canvas } from "@/components/app/canvas";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
@@ -10,7 +10,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
-import { RendererConfig } from "@/lib/renderers";
+import { getRendererFromConfig, RendererConfig } from "@/lib/renderers";
 import { usePlayer } from "@/lib/player";
 import { MidiTracks } from "@/lib/midi";
 import { useAnimationFrame } from "@/hooks";
