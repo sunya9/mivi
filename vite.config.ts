@@ -80,7 +80,6 @@ export default defineConfig(({ mode }) => ({
   },
   base: "/mivi/",
   test: {
-    globals: true,
     environment: "happy-dom",
     setupFiles: ["./tests/setup.ts", "@vitest/web-worker"],
     watch: false,
