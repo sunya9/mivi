@@ -287,25 +287,8 @@ export function PianoRollConfigPanel({
         <>
           <FormRow
             label={
-              <span>
-                Flash Duration: {pianoRollConfig.noteFlashDuration}sec
-              </span>
+              <span>Flash Intensity: {pianoRollConfig.noteFlashIntensity}</span>
             }
-            controller={
-              <Slider
-                value={[pianoRollConfig.noteFlashDuration]}
-                className="w-full max-w-48 min-w-24"
-                min={0.1}
-                max={2}
-                step={0.1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ noteFlashDuration: value });
-                }}
-              />
-            }
-          />
-          <FormRow
-            label={<span>Flash Intensity</span>}
             controller={
               <Slider
                 value={[pianoRollConfig.noteFlashIntensity]}
@@ -319,6 +302,64 @@ export function PianoRollConfigPanel({
               />
             }
           />
+
+          <FormRow
+            label={
+              <span>
+                Fade Out Duration: {pianoRollConfig.noteFlashFadeOutDuration}sec
+              </span>
+            }
+            controller={
+              <Slider
+                value={[pianoRollConfig.noteFlashFadeOutDuration]}
+                className="w-full max-w-48 min-w-24"
+                min={0.1}
+                max={1}
+                step={0.1}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ noteFlashFadeOutDuration: value });
+                }}
+              />
+            }
+          />
+          <FormRow
+            label={<span>Flash Mode</span>}
+            controller={
+              <select
+                value={pianoRollConfig.noteFlashMode}
+                onChange={(e) => {
+                  setPianoRollConfig({
+                    noteFlashMode: e.target.value as "on" | "duration",
+                  });
+                }}
+                className="border-input bg-background w-full max-w-48 min-w-24 rounded-md border px-3 py-2"
+              >
+                <option value="on">On</option>
+                <option value="duration">Duration</option>
+              </select>
+            }
+          />
+          {pianoRollConfig.noteFlashMode === "duration" && (
+            <FormRow
+              label={
+                <span>
+                  Flash Duration: {pianoRollConfig.noteFlashDuration}sec
+                </span>
+              }
+              controller={
+                <Slider
+                  value={[pianoRollConfig.noteFlashDuration]}
+                  className="w-full max-w-48 min-w-24"
+                  min={0.1}
+                  max={2}
+                  step={0.1}
+                  onValueChange={([value]) => {
+                    setPianoRollConfig({ noteFlashDuration: value });
+                  }}
+                />
+              }
+            />
+          )}
         </>
       )}
     </>

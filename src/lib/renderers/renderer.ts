@@ -16,7 +16,9 @@ interface PianoRollConfigValues {
   timeWindow: number;
   showNoteFlash: boolean;
   noteFlashDuration: number;
+  noteFlashMode: "on" | "duration";
   noteFlashIntensity: number;
+  noteFlashFadeOutDuration: number;
   viewRangeTop: number;
   viewRangeBottom: number;
   showNotePressEffect: boolean;
@@ -89,7 +91,9 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     timeWindow: 5,
     showNoteFlash: true,
     noteFlashDuration: 1,
+    noteFlashMode: "duration",
     noteFlashIntensity: 0.5,
+    noteFlashFadeOutDuration: 0.2,
     viewRangeTop: 127,
     viewRangeBottom: 0,
     showNotePressEffect: true,

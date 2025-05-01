@@ -30,6 +30,9 @@ export class PianoRollRenderer extends Renderer {
     {
       noteStart: number;
       color: string;
+      isDurationMode: boolean;
+      hasCompleted: boolean;
+      wasTouchingPlayhead: boolean;
     }
   >();
 
@@ -184,30 +187,72 @@ export class PianoRollRenderer extends Renderer {
         if (
           this.config.pianoRollConfig.showNoteFlash &&
           isTouchingPlayhead &&
-          wasNotTouchingPlayhead &&
-          !this.noteFlashStates.has(noteKey)
+          wasNotTouchingPlayhead
         ) {
           this.noteFlashStates.set(noteKey, {
             noteStart: currentTime,
             color: track.config.color,
+            isDurationMode:
+              this.config.pianoRollConfig.noteFlashMode === "duration",
+            hasCompleted: false,
+            wasTouchingPlayhead: true,
           });
         }
 
         const flashState = this.noteFlashStates.get(noteKey);
         if (flashState) {
-          const flashProgress = Math.min(
-            1,
-            (currentTime - flashState.noteStart) /
-              this.config.pianoRollConfig.noteFlashDuration,
-          );
-          const flashIntensity =
-            (1 - flashProgress) *
-            this.config.pianoRollConfig.noteFlashIntensity;
-          if (flashIntensity > 0) {
+          const fadeOutDuration =
+            this.config.pianoRollConfig.noteFlashFadeOutDuration;
+          const flashDuration = this.config.pianoRollConfig.noteFlashDuration;
+          const timeSinceStart = currentTime - flashState.noteStart;
+
+          let intensity = 0;
+
+          if (this.config.pianoRollConfig.noteFlashMode === "on") {
+            if (isTouchingPlayhead) {
+              intensity = this.config.pianoRollConfig.noteFlashIntensity;
+              flashState.noteStart = currentTime; // Reset fade out timer while touching
+            } else {
+              // Fade out
+              const fadeProgress = Math.min(
+                1,
+                timeSinceStart / fadeOutDuration,
+              );
+              intensity =
+                this.config.pianoRollConfig.noteFlashIntensity *
+                (1 - fadeProgress);
+            }
+          } else {
+            // duration mode
+            if (!flashState.hasCompleted) {
+              const progress = Math.min(1, timeSinceStart / flashDuration);
+              intensity =
+                this.config.pianoRollConfig.noteFlashIntensity * (1 - progress);
+
+              if (progress >= 1) {
+                flashState.hasCompleted = true;
+              }
+            }
+          }
+
+          if (intensity > 0) {
             this.ctx.fillStyle = this.adjustColorBrightness(
               track.config.color,
-              flashIntensity,
+              intensity,
             );
+          }
+
+          // Update touch state
+          if (isTouchingPlayhead !== flashState.wasTouchingPlayhead) {
+            flashState.wasTouchingPlayhead = isTouchingPlayhead;
+            if (!isTouchingPlayhead) {
+              flashState.noteStart = currentTime; // Start fade out timer
+            }
+          }
+
+          // Remove effect if fade out is complete
+          if (!isTouchingPlayhead && timeSinceStart >= fadeOutDuration) {
+            this.noteFlashStates.delete(noteKey);
           }
         }
 
