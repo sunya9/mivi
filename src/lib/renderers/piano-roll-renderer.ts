@@ -1,16 +1,9 @@
-import { MidiTrack } from "../midi/midi";
-import { PlaybackState } from "@/lib/player/player";
-import { RendererConfig, RendererContext } from "./renderer";
-import { Renderer } from "./renderer";
+import { MidiTrack } from "@/lib/midi";
+import { PlaybackState } from "@/lib/player";
+import { Renderer, RendererConfig } from "./renderer";
 
 export class PianoRollRenderer extends Renderer {
   private readonly overflowFactor = 0.5;
-
-  private readonly rippleRadius = 50;
-
-  private readonly rippleDuration = 0.5;
-
-  private readonly pressAnimationDuration = 0.1;
 
   private lastCurrentTime: number = 0;
 
@@ -30,6 +23,9 @@ export class PianoRollRenderer extends Renderer {
     {
       noteStart: number;
       color: string;
+      isDurationMode: boolean;
+      hasCompleted: boolean;
+      wasTouchingPlayhead: boolean;
     }
   >();
 
@@ -42,10 +38,11 @@ export class PianoRollRenderer extends Renderer {
   >();
 
   constructor(
-    ctx: RendererContext,
-    readonly config: RendererConfig,
+    ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+    config: RendererConfig,
+    backgroundImageBitmap?: ImageBitmap,
   ) {
-    super(ctx, config);
+    super(ctx, config, backgroundImageBitmap);
   }
 
   private noteToY(midi: number) {
@@ -170,44 +167,85 @@ export class PianoRollRenderer extends Renderer {
           const pressState = this.pressStates.get(noteKey)!;
           const pressProgress = Math.min(
             1,
-            (currentTime - pressState.startTime) / this.pressAnimationDuration,
+            (currentTime - pressState.startTime) /
+              this.config.pianoRollConfig.pressAnimationDuration,
           );
-          const targetOffset = pressState.isPressed
-            ? this.config.pianoRollConfig.notePressDepth
-            : 0;
+          const targetOffset = this.config.pianoRollConfig.notePressDepth;
           const currentOffset = pressState.isPressed
             ? pressProgress * targetOffset
-            : (1 - pressProgress) * targetOffset;
+            : targetOffset * (1 - pressProgress);
           pressOffset = -currentOffset;
         }
 
         if (
           this.config.pianoRollConfig.showNoteFlash &&
           isTouchingPlayhead &&
-          wasNotTouchingPlayhead &&
-          !this.noteFlashStates.has(noteKey)
+          wasNotTouchingPlayhead
         ) {
           this.noteFlashStates.set(noteKey, {
             noteStart: currentTime,
             color: track.config.color,
+            isDurationMode:
+              this.config.pianoRollConfig.noteFlashMode === "duration",
+            hasCompleted: false,
+            wasTouchingPlayhead: true,
           });
         }
 
         const flashState = this.noteFlashStates.get(noteKey);
         if (flashState) {
-          const flashProgress = Math.min(
-            1,
-            (currentTime - flashState.noteStart) /
-              this.config.pianoRollConfig.noteFlashDuration,
-          );
-          const flashIntensity =
-            (1 - flashProgress) *
-            this.config.pianoRollConfig.noteFlashIntensity;
-          if (flashIntensity > 0) {
+          const fadeOutDuration =
+            this.config.pianoRollConfig.noteFlashFadeOutDuration;
+          const flashDuration = this.config.pianoRollConfig.noteFlashDuration;
+          const timeSinceStart = currentTime - flashState.noteStart;
+
+          let intensity = 0;
+
+          if (this.config.pianoRollConfig.noteFlashMode === "on") {
+            if (isTouchingPlayhead) {
+              intensity = this.config.pianoRollConfig.noteFlashIntensity;
+              flashState.noteStart = currentTime; // Reset fade out timer while touching
+            } else {
+              // Fade out
+              const fadeProgress = Math.min(
+                1,
+                timeSinceStart / fadeOutDuration,
+              );
+              intensity =
+                this.config.pianoRollConfig.noteFlashIntensity *
+                (1 - fadeProgress);
+            }
+          } else {
+            // duration mode
+            if (!flashState.hasCompleted) {
+              const progress = Math.min(1, timeSinceStart / flashDuration);
+              intensity =
+                this.config.pianoRollConfig.noteFlashIntensity * (1 - progress);
+
+              if (progress >= 1) {
+                flashState.hasCompleted = true;
+              }
+            }
+          }
+
+          if (intensity > 0) {
             this.ctx.fillStyle = this.adjustColorBrightness(
               track.config.color,
-              flashIntensity,
+              intensity,
             );
+          }
+
+          // Update touch state
+          if (isTouchingPlayhead !== flashState.wasTouchingPlayhead) {
+            flashState.wasTouchingPlayhead = isTouchingPlayhead;
+            if (!isTouchingPlayhead) {
+              flashState.noteStart = currentTime; // Start fade out timer
+            }
+          }
+
+          // Remove effect if fade out is complete
+          if (!isTouchingPlayhead && timeSinceStart >= fadeOutDuration) {
+            this.noteFlashStates.delete(noteKey);
           }
         }
 
@@ -237,7 +275,9 @@ export class PianoRollRenderer extends Renderer {
             noteEnd: noteEnd,
             x: playheadX,
             y: y - pressOffset + noteHeight / 2,
-            color: track.config.color,
+            color: this.config.pianoRollConfig.useCustomRippleColor
+              ? this.config.pianoRollConfig.rippleColor
+              : track.config.color,
           });
         }
       });
@@ -250,7 +290,8 @@ export class PianoRollRenderer extends Renderer {
     this.rippleStates.forEach((state, noteKey) => {
       const rippleProgress = Math.min(
         1,
-        (currentTime - state.noteStart) / this.rippleDuration,
+        (currentTime - state.noteStart) /
+          this.config.pianoRollConfig.rippleDuration,
       );
 
       this.drawRippleEffect(
@@ -261,7 +302,10 @@ export class PianoRollRenderer extends Renderer {
         rippleProgress,
       );
 
-      if (currentTime >= state.noteStart + this.rippleDuration) {
+      if (
+        currentTime >=
+        state.noteStart + this.config.pianoRollConfig.rippleDuration
+      ) {
         this.rippleStates.delete(noteKey);
       }
     });
@@ -289,7 +333,10 @@ export class PianoRollRenderer extends Renderer {
     const maxRipples = 1;
 
     for (let i = 0; i < maxRipples; i++) {
-      const radius = Math.max(0, this.rippleRadius * radiusProgress);
+      const radius = Math.max(
+        0,
+        this.config.pianoRollConfig.rippleRadius * radiusProgress,
+      );
       const alpha = 0.4 * (1 - fadeProgress);
 
       if (alpha <= 0) return;

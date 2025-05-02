@@ -16,16 +16,22 @@ import { useMidi } from "@/lib/midi";
 import { useAudio } from "@/lib/audio";
 import { useRecorder } from "@/lib/media-compositor";
 import { useRendererConfig } from "@/lib/renderers";
+import { useBackgroundImage } from "./lib/background-image/use-background-image";
+import { createRecorderResources } from "./lib/media-compositor/recorder-resources";
 
 export function App() {
   const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();
   const { setMidiFile, midiTracks, setMidiTracks } = useMidi();
   const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
-  const { recordingState, toggleRecording } = useRecorder({
+  const { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile } =
+    useBackgroundImage();
+  const recordResources = createRecorderResources({
     midiTracks,
     serializedAudio,
     rendererConfig,
+    backgroundImageBitmap,
   });
+  const { recordingState, toggleRecording } = useRecorder(recordResources);
 
   return (
     <div className="flex flex-1 flex-col md:h-dvh">
@@ -68,6 +74,7 @@ export function App() {
                 rendererConfig={rendererConfig}
                 audioBuffer={audioBuffer}
                 midiTracks={midiTracks}
+                backgroundImageBitmap={backgroundImageBitmap}
               />
             </ResizablePanel>
             <ResizableHandle />
@@ -80,6 +87,8 @@ export function App() {
                   onChangeMidiFile={setMidiFile}
                   audioFilename={audioFile?.name}
                   onChangeAudioFile={setAudioFile}
+                  backgroundImageFilename={backgroundImageFile?.name}
+                  onChangeBackgroundImage={setBackgroundImageFile}
                 />
               </ScrollArea>
             </ResizablePanel>
@@ -96,6 +105,7 @@ export function App() {
             <VisualizerStyle
               rendererConfig={rendererConfig}
               onUpdateRendererConfig={onUpdateRendererConfig}
+              midiTracks={midiTracks}
             />
           </ScrollArea>
         </ResizablePanel>

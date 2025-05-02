@@ -1,9 +1,9 @@
 import { createContext } from "react";
 
-export const FilesContext = createContext<{
-  files: Map<string, File | undefined>;
-  setFile: (key: string, file: File | undefined) => void;
+export const CacheContext = createContext<{
+  caches: Map<string, unknown>;
+  setCache: (key: string, cache: unknown) => void;
 }>({
-  files: new Map(),
-  setFile: () => {},
+  caches: new Map(),
+  setCache: () => {},
 });

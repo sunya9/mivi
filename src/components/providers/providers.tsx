@@ -6,14 +6,15 @@ import { Fallback } from "./fallback";
 import { Loading } from "./loading";
 import { TooltipProvider } from "../ui/tooltip";
 import { ThemeProvider } from "next-themes";
-import { FilesContext } from "@/contexts/files-context";
+import { CacheContext } from "@/contexts/files-context";
+
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [files, setFiles] = useState<Map<string, File | undefined>>(new Map());
-  const setFile = useCallback((key: string, file: File | undefined) => {
-    setFiles((prev) => {
-      const newFiles = new Map(prev);
-      newFiles.set(key, file);
-      return newFiles;
+  const [caches, setCaches] = useState<Map<string, unknown>>(new Map());
+  const setCache = useCallback((key: string, cache: unknown) => {
+    setCaches((prev) => {
+      const newCaches = new Map(prev);
+      newCaches.set(key, cache);
+      return newCaches;
     });
   }, []);
   return (
@@ -23,13 +24,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
       attribute="class"
     >
       <TooltipProvider>
-        <FilesContext value={{ files, setFile }}>
+        <CacheContext value={{ caches, setCache }}>
           <AppContext value={appContextValue}>
             <ErrorBoundary fallbackRender={Fallback}>
               <Suspense fallback={<Loading />}>{children}</Suspense>
             </ErrorBoundary>
           </AppContext>
-        </FilesContext>
+        </CacheContext>
       </TooltipProvider>
     </ThemeProvider>
   );

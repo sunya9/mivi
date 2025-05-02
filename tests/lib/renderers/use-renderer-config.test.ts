@@ -9,8 +9,8 @@ test("returns initial state is equal to default config", () => {
   expect(result.current.rendererConfig).toEqual(getDefaultRendererConfig());
 });
 
-test("updates config with partial changes", async () => {
-  const { result } = await act(() => renderHook(() => useRendererConfig()));
+test("updates config with partial changes", () => {
+  const { result } = renderHook(() => useRendererConfig());
 
   act(() => {
     result.current.onUpdateRendererConfig({

@@ -1,34 +1,24 @@
-import { MidiTracks } from "@/lib/midi/midi";
 import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
-import { RendererConfig } from "@/lib/renderers/renderer";
-import { SerializedAudio } from "@/lib/audio";
 import { MP4Muxer, WebMMuxer, MuxerOptions, Muxer } from "@/lib/muxer";
 import { expose } from "comlink";
+import { RecorderResources } from "./recorder-resources";
 
 export async function startRecording(
-  rendererConfig: RendererConfig,
-  midiTracks: MidiTracks,
-  serializedAudio: SerializedAudio,
+  resources: RecorderResources,
   onProgress: (progress: number) => void,
 ) {
   const muxerOptions: MuxerOptions = {
-    frameRate: rendererConfig.fps,
-    width: rendererConfig.resolution.width,
-    height: rendererConfig.resolution.height,
-    numberOfChannels: serializedAudio.numberOfChannels,
-    sampleRate: serializedAudio.sampleRate,
+    frameRate: resources.rendererConfig.fps,
+    width: resources.rendererConfig.resolution.width,
+    height: resources.rendererConfig.resolution.height,
+    numberOfChannels: resources.serializedAudio.numberOfChannels,
+    sampleRate: resources.serializedAudio.sampleRate,
   };
   const muxer: Muxer =
-    rendererConfig.format === "webm"
+    resources.rendererConfig.format === "webm"
       ? new WebMMuxer(muxerOptions)
       : new MP4Muxer(muxerOptions);
-  using mediaCompositor = new MediaCompositor(
-    rendererConfig,
-    midiTracks,
-    serializedAudio,
-    muxer,
-    onProgress,
-  );
+  using mediaCompositor = new MediaCompositor(resources, muxer, onProgress);
   const response = await mediaCompositor.composite();
   return response;
 }

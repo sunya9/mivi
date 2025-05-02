@@ -17,12 +17,14 @@ export function Fallback(props: FallbackProps) {
           <CardTitle>Error</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mt-4">
+          <p>
             If you are seeing this, please try resetting the configuration. If
             the problem persists, please contact the developer.
           </p>
           <pre className="bg-muted mt-3 max-h-96 overflow-auto px-2 py-4">
-            {JSON.stringify(props.error, null, 2)}
+            {props.error instanceof Error
+              ? props.error.message
+              : JSON.stringify(props.error, null, 2)}
           </pre>
         </CardContent>
         <CardFooter>

@@ -1,16 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import {
-  cn,
-  formatTime,
-  getRendererFromConfig,
-  resetConfig,
-} from "@/lib/utils";
-import {
-  RendererContext,
-  RendererConfig,
-  resolutions,
-} from "@/lib/renderers/renderer";
-import { PianoRollRenderer } from "@/lib/renderers/piano-roll-renderer";
+import { cn, formatTime, resetConfig } from "@/lib/utils";
 import { saveFile } from "@/lib/file-db/file-db";
 
 describe("cn", () => {
@@ -28,56 +17,6 @@ describe("formatTime", () => {
     expect(formatTime(60)).toBe("1:00");
     expect(formatTime(125)).toBe("2:05");
     expect(formatTime(3599)).toBe("59:59");
-  });
-});
-
-describe("getRendererFromConfig", () => {
-  const canvas = document.createElement("canvas");
-  const mockContext: RendererContext = canvas.getContext("2d")!;
-
-  const mockConfig: RendererConfig = {
-    type: "pianoRoll",
-    backgroundColor: "#000000",
-    resolution: resolutions[0],
-    fps: 60,
-    format: "mp4",
-    pianoRollConfig: {
-      noteMargin: 2,
-      noteVerticalMargin: 1,
-      gridColor: "#ffffff",
-      showRippleEffect: true,
-      showPlayhead: true,
-      playheadPosition: 20,
-      playheadColor: "#ff4081",
-      playheadOpacity: 1,
-      playheadWidth: 2,
-      noteHeight: 4,
-      noteCornerRadius: 2,
-      timeWindow: 5,
-      showNoteFlash: true,
-      noteFlashDuration: 1,
-      noteFlashIntensity: 1,
-      viewRangeTop: 0,
-      viewRangeBottom: 127,
-      showNotePressEffect: true,
-      notePressDepth: 1,
-    },
-  };
-
-  it("should return PianoRollRenderer for pianoRoll type", () => {
-    const config: RendererConfig = { ...mockConfig, type: "pianoRoll" };
-    const renderer = getRendererFromConfig(mockContext, config);
-    expect(renderer).toBeInstanceOf(PianoRollRenderer);
-  });
-
-  it("should throw error for unknown renderer type", () => {
-    const config = {
-      ...mockConfig,
-      type: "unknown",
-    } as unknown as RendererConfig;
-    expect(() => getRendererFromConfig(mockContext, config)).toThrow(
-      "Unknown renderer type",
-    );
   });
 });
 

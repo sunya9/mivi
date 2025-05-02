@@ -1,11 +1,5 @@
-import { PianoRollRenderer } from "@/lib/renderers";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import {
-  Renderer,
-  RendererConfig,
-  RendererContext,
-} from "@/lib/renderers/renderer";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,20 +9,6 @@ export function formatTime(timeInSeconds: number): string {
   const minutes = Math.floor(timeInSeconds / 60);
   const seconds = Math.floor(timeInSeconds % 60);
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-}
-
-export function getRendererFromConfig(
-  ctx: RendererContext,
-  config: RendererConfig,
-): Renderer {
-  switch (config.type) {
-    case "pianoRoll":
-      return new PianoRollRenderer(ctx, config);
-    default: {
-      const configType = config.type satisfies never;
-      throw new Error(`Unknown renderer type: ${String(configType)}`);
-    }
-  }
 }
 
 export async function resetConfig() {

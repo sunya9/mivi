@@ -13,14 +13,16 @@ import { CollapsibleCardPane } from "@/components/common/collapsible-card-pane";
 import { DeepPartial } from "@/lib/type-utils";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import React from "react";
-
+import { MidiTracks } from "@/lib/midi/midi";
 interface Props {
   rendererConfig: RendererConfig;
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
+  midiTracks?: MidiTracks;
 }
 export const VisualizerStyle = React.memo(function VisualizerStyle({
   rendererConfig,
   onUpdateRendererConfig,
+  midiTracks,
 }: Props) {
   return (
     <Card className="border-0 bg-transparent shadow-none">
@@ -51,6 +53,7 @@ export const VisualizerStyle = React.memo(function VisualizerStyle({
             <PianoRollConfigPanel
               pianoRollConfig={rendererConfig.pianoRollConfig}
               onUpdateRendererConfig={onUpdateRendererConfig}
+              midiTracks={midiTracks}
             />
           )}
         </CardContent>
