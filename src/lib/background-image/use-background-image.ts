@@ -17,7 +17,6 @@ function loadInitialBackgroundImage(
   throw createImageBitmap(backgroundImageFile)
     .catch((error) => {
       console.error("failed to load background image", error);
-      return undefined;
     })
     .then((res) => {
       cacheContext.setCache(initialBackgroundImageCacheKey, res);

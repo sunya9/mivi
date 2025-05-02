@@ -26,10 +26,14 @@ function loadInitialAudioBuffer(
     return cacheContext.caches.get(initialAudioBufferCacheKey) as
       | AudioBuffer
       | undefined;
-  throw createAudioBufferFromFile(audioFile, audioContext).then((res) => {
-    cacheContext.setCache(initialAudioBufferCacheKey, res);
-    return res;
-  });
+  throw createAudioBufferFromFile(audioFile, audioContext)
+    .catch((error) => {
+      console.error("Failed to create audio buffer from file", error);
+    })
+    .then((res) => {
+      cacheContext.setCache(initialAudioBufferCacheKey, res);
+      return res;
+    });
 }
 
 export function useAudio() {
