@@ -4,7 +4,7 @@ import { beforeEach, expect, test, vi } from "vitest";
 import {
   backgroundImageDbKey,
   useBackgroundImage,
-} from "../background-image/use-background-image";
+} from "@/lib/background-image";
 import { customRenderHook } from "tests/util";
 
 beforeEach(() => {
