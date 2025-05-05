@@ -17,7 +17,7 @@ export function Loading() {
       <div className="h-10 w-10 animate-spin rounded-full border-4 border-transparent border-t-blue-500"></div>
       <p className="text-gray-500">Loading...</p>
 
-      <div className={cn({ invisible: !showReset })}>
+      <div className={cn({ invisible: !showReset })} aria-hidden={!showReset}>
         <p className="text-gray-500">
           If nothing appears after a few seconds, please try resetting.
         </p>
