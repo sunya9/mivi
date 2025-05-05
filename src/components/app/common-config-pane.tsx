@@ -314,15 +314,15 @@ function FileButton({
   setFile,
   accept,
   children,
-  placeholder = "Select file",
-  cancelLabel = "Cancel",
+  placeholder,
+  cancelLabel,
 }: {
   filename: string | undefined;
   setFile: (file: File | undefined) => void;
   accept: string;
   children: React.ReactNode;
-  placeholder?: string;
-  cancelLabel?: string;
+  placeholder: string;
+  cancelLabel: string;
 }) {
   const onChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
