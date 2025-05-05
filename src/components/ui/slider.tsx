@@ -6,22 +6,32 @@ import { cn } from "@/lib/utils";
 const Slider = React.forwardRef<
   React.ComponentRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
->(({ "aria-label": ariaLabel, className, ...props }, ref) => (
-  <SliderPrimitive.Root
-    ref={ref}
-    className={cn(
-      "relative flex w-full touch-none items-center select-none",
+>(
+  (
+    {
+      "aria-label": ariaLabel,
+      "aria-labelledby": ariaLabelledby,
       className,
-    )}
-    {...props}
-  >
-    <SliderPrimitive.Track className="bg-secondary relative h-2 w-full grow overflow-hidden rounded-full">
-      <SliderPrimitive.Range className="bg-primary absolute h-full" />
-    </SliderPrimitive.Track>
-    {<Thumb aria-label={ariaLabel} />}
-    {<Thumb aria-label={ariaLabel} />}
-  </SliderPrimitive.Root>
-));
+      ...props
+    },
+    ref,
+  ) => (
+    <SliderPrimitive.Root
+      ref={ref}
+      className={cn(
+        "relative flex w-full touch-none items-center select-none",
+        className,
+      )}
+      {...props}
+    >
+      <SliderPrimitive.Track className="bg-secondary relative h-2 w-full grow overflow-hidden rounded-full">
+        <SliderPrimitive.Range className="bg-primary absolute h-full" />
+      </SliderPrimitive.Track>
+      {<Thumb aria-label={ariaLabel} aria-labelledby={ariaLabelledby} />}
+      {<Thumb aria-label={ariaLabel} aria-labelledby={ariaLabelledby} />}
+    </SliderPrimitive.Root>
+  ),
+);
 Slider.displayName = SliderPrimitive.Root.displayName;
 
 type ThumbProps = React.ComponentPropsWithoutRef<typeof SliderPrimitive.Thumb>;
