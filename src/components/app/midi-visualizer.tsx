@@ -107,16 +107,22 @@ export function MidiVisualizer({
         <div className="flex items-center gap-2">
           <Button onClick={togglePlay} variant="ghostSecondary">
             {isPlaying ? <Pause /> : <Play />}
+            <span className="sr-only">{isPlaying ? "Pause" : "Play"}</span>
           </Button>
           <div className="flex items-center gap-2">
             <HoverCard openDelay={100}>
               <HoverCardTrigger asChild>
-                <Button variant="ghostSecondary" onClick={toggleMute}>
+                <Button
+                  variant="ghostSecondary"
+                  onClick={toggleMute}
+                  aria-pressed={muted}
+                >
                   {muted ? (
                     <VolumeX className="size-4" />
                   ) : (
                     <Volume2 className="size-4" />
                   )}
+                  <span className="sr-only">{muted ? "Unmute" : "Mute"}</span>
                 </Button>
               </HoverCardTrigger>
               <HoverCardContent side="top" className="w-48">
@@ -131,6 +137,7 @@ export function MidiVisualizer({
                   onValueCommit={([value]) => {
                     setVolume(value);
                   }}
+                  aria-label="Volume"
                 />
               </HoverCardContent>
             </HoverCard>
