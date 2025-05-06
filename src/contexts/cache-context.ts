@@ -5,5 +5,6 @@ export const CacheContext = createContext<{
   setCache: (key: string, cache: unknown) => void;
 }>({
   caches: new Map(),
+  /* istanbul ignore next */
   setCache: () => {},
 });
