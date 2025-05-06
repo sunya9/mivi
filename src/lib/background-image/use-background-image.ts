@@ -1,7 +1,7 @@
 import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { ContextType, use, useCallback, useState } from "react";
 import { FileLike } from "../file-db";
-import { CacheContext } from "@/contexts/files-context";
+import { CacheContext } from "@/contexts/cache-context";
 
 export const initialBackgroundImageCacheKey = "initial:background-image";
 export const backgroundImageDbKey = "db:background-image";

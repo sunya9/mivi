@@ -6,7 +6,7 @@ import { Fallback } from "./fallback";
 import { Loading } from "./loading";
 import { TooltipProvider } from "../ui/tooltip";
 import { ThemeProvider } from "next-themes";
-import { CacheContext } from "@/contexts/files-context";
+import { CacheContext } from "@/contexts/cache-context";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [caches, setCaches] = useState<Map<string, unknown>>(new Map());

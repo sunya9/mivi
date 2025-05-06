@@ -4,7 +4,7 @@ import { SerializedAudio } from "@/lib/audio";
 import { ContextType, use, useCallback, useMemo, useState } from "react";
 import { FileLike } from "@/lib/file-db";
 import { toast } from "sonner";
-import { CacheContext } from "@/contexts/files-context";
+import { CacheContext } from "@/contexts/cache-context";
 
 export async function createAudioBufferFromFile(
   audioFile: FileLike,
