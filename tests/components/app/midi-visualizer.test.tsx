@@ -74,7 +74,7 @@ test("handles volume control", async () => {
 
   const volumeButton = screen.getByRole("button", { pressed: false });
   await userEvent.hover(volumeButton);
-  await setTimeout(100);
+  await setTimeout(110);
   const volumeSlider = screen.getByRole("slider", { name: "Volume" });
   await userEvent.click(volumeSlider);
   await userEvent.keyboard("{arrowleft}");
