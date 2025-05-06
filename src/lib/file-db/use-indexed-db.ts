@@ -1,7 +1,7 @@
 import { fetchFile, saveFile } from "@/lib/file-db/file-db";
 import { ContextType, use, useCallback, useState } from "react";
 import { toast } from "sonner";
-import { CacheContext } from "../../contexts/files-context";
+import { CacheContext } from "../../contexts/cache-context";
 import type { FileLike } from "@/lib/file-db";
 function loadInitialFile(
   cacheContext: ContextType<typeof CacheContext>,
