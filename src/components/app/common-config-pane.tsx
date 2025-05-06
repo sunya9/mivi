@@ -16,6 +16,12 @@ import {
   formatOptions,
   VideoFormat,
   RendererConfig,
+  BackgroundImagePosition,
+  backgroundImagePositions,
+  BackgroundImageRepeat,
+  backgroundImageRepeats,
+  BackgroundImageFit,
+  backgroundImageFitOptions,
 } from "@/lib/renderers";
 import { CollapsibleCardPane, FormRow } from "@/components/common";
 import {
@@ -105,7 +111,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 controller={
                   <Select
                     value={rendererConfig.backgroundImageFit}
-                    onValueChange={(value: "cover" | "contain") =>
+                    onValueChange={(value: BackgroundImageFit) =>
                       onUpdateRendererConfig({ backgroundImageFit: value })
                     }
                   >
@@ -113,8 +119,11 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                       <SelectValue placeholder="Select image fit" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="cover">Cover</SelectItem>
-                      <SelectItem value="contain">Contain</SelectItem>
+                      {backgroundImageFitOptions.map((fit) => (
+                        <SelectItem key={fit.value} value={fit.value}>
+                          {fit.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 }
@@ -125,33 +134,18 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                   <Select
                     value={rendererConfig.backgroundImagePosition}
                     onValueChange={(
-                      value:
-                        | "top-left"
-                        | "top"
-                        | "top-right"
-                        | "left"
-                        | "center"
-                        | "right"
-                        | "bottom-left"
-                        | "bottom"
-                        | "bottom-right",
-                    ) =>
-                      onUpdateRendererConfig({ backgroundImagePosition: value })
-                    }
+                      backgroundImagePosition: BackgroundImagePosition,
+                    ) => onUpdateRendererConfig({ backgroundImagePosition })}
                   >
                     <SelectTrigger className="w-48">
                       <SelectValue placeholder="Select image position" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="top-left">Top Left</SelectItem>
-                      <SelectItem value="top">Top</SelectItem>
-                      <SelectItem value="top-right">Top Right</SelectItem>
-                      <SelectItem value="left">Left</SelectItem>
-                      <SelectItem value="center">Center</SelectItem>
-                      <SelectItem value="right">Right</SelectItem>
-                      <SelectItem value="bottom-left">Bottom Left</SelectItem>
-                      <SelectItem value="bottom">Bottom</SelectItem>
-                      <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                      {backgroundImagePositions.map((position) => (
+                        <SelectItem key={position.value} value={position.value}>
+                          {position.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 }
@@ -161,9 +155,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 controller={
                   <Select
                     value={rendererConfig.backgroundImageRepeat}
-                    onValueChange={(
-                      value: "repeat" | "no-repeat" | "repeat-x" | "repeat-y",
-                    ) =>
+                    onValueChange={(value: BackgroundImageRepeat) =>
                       onUpdateRendererConfig({ backgroundImageRepeat: value })
                     }
                   >
@@ -171,26 +163,28 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                       <SelectValue placeholder="Select image repeat" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="no-repeat">No Repeat</SelectItem>
-                      <SelectItem value="repeat">Repeat</SelectItem>
-                      <SelectItem value="repeat-x">Repeat X</SelectItem>
-                      <SelectItem value="repeat-y">Repeat Y</SelectItem>
+                      {backgroundImageRepeats.map((repeat) => (
+                        <SelectItem key={repeat.value} value={repeat.value}>
+                          {repeat.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 }
               />
               <FormRow
                 label={
-                  <span>
+                  <span id="image-opacity-label">
                     Image Opacity: {rendererConfig.backgroundImageOpacity}
                   </span>
                 }
-                controller={
+                controller={({ labelId }) => (
                   <Slider
                     className="w-full min-w-24"
                     min={0}
                     max={1}
                     step={0.01}
+                    aria-labelledby={labelId}
                     value={[rendererConfig.backgroundImageOpacity]}
                     onValueChange={([value]) =>
                       onUpdateRendererConfig({
@@ -198,7 +192,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                       })
                     }
                   />
-                }
+                )}
               />
             </>
           )}

@@ -49,3 +49,4 @@ Object.defineProperty(window, "crypto", {
 
 // https://github.com/radix-ui/primitives/issues/1822
 window.HTMLElement.prototype.hasPointerCapture = vi.fn();
+window.HTMLElement.prototype.setPointerCapture = vi.fn();
