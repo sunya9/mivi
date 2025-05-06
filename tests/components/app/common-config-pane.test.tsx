@@ -137,3 +137,83 @@ test("should clear selected file when cancel button is clicked", async () => {
   await userEvent.click(cancelButton);
   expect(mockOnChangeMidiFile).toHaveBeenCalledWith(undefined);
 });
+
+test("should call onChangeBackgroundImage when background image is selected", () => {
+  renderCommonConfigPane();
+  const backgroundImageInput = screen.getByLabelText("Open Background Image");
+  const file = new File(["test"], "test.png", { type: "image/png" });
+  fireEvent.change(backgroundImageInput, { target: { files: [file] } });
+  expect(mockOnChangeBackgroundImage).toHaveBeenCalledWith(file);
+});
+
+test("should call onUpdateRendererConfig when background image fit is changed", async () => {
+  renderCommonConfigPane();
+  const fitTrigger = screen.getByRole("combobox", { name: "Image Fit" });
+  await userEvent.click(fitTrigger);
+  const fitOption = screen.getByRole("option", { name: "Contain" });
+  await userEvent.click(fitOption);
+  expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({
+    backgroundImageFit: "contain",
+  });
+});
+
+test("should call onUpdateRendererConfig when background image position is changed", async () => {
+  renderCommonConfigPane();
+  const positionTrigger = screen.getByRole("combobox", {
+    name: "Image Position",
+  });
+  await userEvent.click(positionTrigger);
+  const positionOption = screen.getByRole("option", { name: "Top Left" });
+  await userEvent.click(positionOption);
+  expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({
+    backgroundImagePosition: "top-left",
+  });
+});
+
+test("should call onUpdateRendererConfig when background image repeat is changed", async () => {
+  renderCommonConfigPane();
+  const repeatTrigger = screen.getByRole("combobox", { name: "Image Repeat" });
+  await userEvent.click(repeatTrigger);
+  const repeatOption = screen.getByRole("option", { name: "Repeat" });
+  await userEvent.click(repeatOption);
+  expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({
+    backgroundImageRepeat: "repeat",
+  });
+});
+
+test("should call onUpdateRendererConfig when background image opacity is changed", async () => {
+  renderCommonConfigPane();
+  const opacitySlider = screen.getByRole("slider", { name: /Image Opacity/ });
+  await userEvent.click(opacitySlider);
+  await userEvent.keyboard("{arrowleft}");
+  expect(mockOnUpdateRendererConfig).toHaveBeenCalledWith({
+    backgroundImageOpacity: 0.99,
+  });
+});
+
+test("should clear background image when cancel button is clicked", async () => {
+  renderCommonConfigPane({ backgroundImageFilename: "test.png" });
+
+  const cancelButton = screen.getByRole("button", {
+    name: "Cancel background image",
+  });
+  await userEvent.click(cancelButton);
+  expect(mockOnChangeBackgroundImage).toHaveBeenCalledWith(undefined);
+});
+
+test("should not show background image settings when no image is selected", () => {
+  renderCommonConfigPane({ backgroundImageFilename: undefined });
+
+  expect(
+    screen.queryByRole("combobox", { name: "Image Fit" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("combobox", { name: "Image Position" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("combobox", { name: "Image Repeat" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("slider", { name: /Image Opacity/ }),
+  ).not.toBeInTheDocument();
+});
