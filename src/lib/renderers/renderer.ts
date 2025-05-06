@@ -62,22 +62,43 @@ export const formatOptions = [
 export type FPS = (typeof fpsOptions)[number]["value"];
 export type VideoFormat = (typeof formatOptions)[number]["value"];
 
+export const backgroundImageFitOptions = [
+  { value: "cover", label: "Cover" },
+  { value: "contain", label: "Contain" },
+] as const;
+export type BackgroundImageFit =
+  (typeof backgroundImageFitOptions)[number]["value"];
+
+export const backgroundImagePositions = [
+  { value: "top-left", label: "Top Left" },
+  { value: "top", label: "Top" },
+  { value: "top-right", label: "Top Right" },
+  { value: "left", label: "Left" },
+  { value: "center", label: "Center" },
+  { value: "right", label: "Right" },
+  { value: "bottom-left", label: "Bottom Left" },
+  { value: "bottom", label: "Bottom" },
+  { value: "bottom-right", label: "Bottom Right" },
+] as const;
+export type BackgroundImagePosition =
+  (typeof backgroundImagePositions)[number]["value"];
+
+export const backgroundImageRepeats = [
+  { value: "repeat", label: "Repeat" },
+  { value: "no-repeat", label: "No Repeat" },
+  { value: "repeat-x", label: "Repeat X" },
+  { value: "repeat-y", label: "Repeat Y" },
+] as const;
+export type BackgroundImageRepeat =
+  (typeof backgroundImageRepeats)[number]["value"];
+
 export interface RendererConfig {
   type: RendererType;
   backgroundColor: string;
   backgroundImageUrl: string;
-  backgroundImageFit: "cover" | "contain";
-  backgroundImagePosition:
-    | "top-left"
-    | "top"
-    | "top-right"
-    | "left"
-    | "center"
-    | "right"
-    | "bottom-left"
-    | "bottom"
-    | "bottom-right";
-  backgroundImageRepeat: "repeat" | "no-repeat" | "repeat-x" | "repeat-y";
+  backgroundImageFit: BackgroundImageFit;
+  backgroundImagePosition: BackgroundImagePosition;
+  backgroundImageRepeat: BackgroundImageRepeat;
   backgroundImageOpacity: number;
   resolution: Resolution;
   fps: FPS;
