@@ -43,7 +43,7 @@ test("should render basic layout", () => {
   ).toBeInTheDocument();
   expect(screen.getByRole("link", { name: "Repository" })).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: "Switch Theme" }),
+    screen.getByRole("button", { name: "Switch theme to dark" }),
   ).toBeInTheDocument();
 });
 
