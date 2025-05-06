@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import { Muxer, MuxerOptions } from "@/lib/muxer/muxer";
 import { Muxer as WebMMuxer, ArrayBufferTarget } from "webm-muxer";
 

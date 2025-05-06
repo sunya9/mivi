@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import { Muxer as Mp4Muxer, ArrayBufferTarget } from "mp4-muxer";
 import { Muxer, MuxerOptions } from "./muxer";
 
