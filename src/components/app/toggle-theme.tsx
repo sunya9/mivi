@@ -12,13 +12,20 @@ export function ToggleTheme() {
 
   return (
     <Button
-      aria-label="Switch Theme"
+      aria-pressed={isDark}
       onClick={toggleTheme}
       className="p-2"
       size="icon"
       variant="icon"
     >
-      {isDark ? <Moon className="size-4" /> : <Sun className="size-4" />}
+      {isDark ? (
+        <Moon className="size-4" aria-hidden="true" />
+      ) : (
+        <Sun className="size-4" aria-hidden="true" />
+      )}
+      <span className="sr-only">
+        Switch theme to {isDark ? "light" : "dark"}
+      </span>
     </Button>
   );
 }
