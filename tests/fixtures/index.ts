@@ -5,7 +5,7 @@ import { RendererConfig } from "@/lib/renderers/renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import { appContextValue } from "@/lib/globals";
 import { File } from "node:buffer";
-
+import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 const midiFilename = "test.mid";
 const midiFilepath = path.resolve(__dirname, midiFilename);
 const midiBuffer = fs.readFileSync(midiFilepath);
@@ -126,6 +126,18 @@ const audioBuffer = audioContext.createBuffer(2, 22050, 44100);
 
 const rendererConfig: RendererConfig = getDefaultRendererConfig();
 
+const resources: RecorderResources = {
+  midiTracks: expectedMidiTracks,
+  serializedAudio: {
+    channels: [new Float32Array(1), new Float32Array(1)],
+    duration: 1,
+    length: 1,
+    sampleRate: 44100,
+    numberOfChannels: 2,
+  },
+  rendererConfig,
+};
+
 export {
   midiFile,
   expectedMidiTracks,
@@ -133,4 +145,5 @@ export {
   invalidFile,
   rendererConfig,
   audioBuffer,
+  resources,
 };

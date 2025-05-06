@@ -1,7 +1,6 @@
-import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { runWorker } from "@/lib/media-compositor/run-worker";
 import { createEndpoint, releaseProxy, wrap } from "comlink";
-import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
+import { resources } from "tests/fixtures";
 import { expect, test, vi, beforeEach } from "vitest";
 
 vi.mock("comlink", async (importOriginal) => ({
@@ -12,18 +11,6 @@ vi.mock("comlink", async (importOriginal) => ({
 beforeEach(() => {
   vi.clearAllMocks();
 });
-
-const resources: RecorderResources = {
-  midiTracks: expectedMidiTracks,
-  serializedAudio: {
-    channels: [new Float32Array(1), new Float32Array(1)],
-    duration: 1,
-    length: 1,
-    sampleRate: 44100,
-    numberOfChannels: 2,
-  },
-  rendererConfig,
-};
 
 test("worker is completed", async () => {
   vi.mocked(wrap).mockImplementationOnce(() => ({
