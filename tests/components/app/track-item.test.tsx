@@ -50,7 +50,7 @@ test("should render opacity slider when track is visible", () => {
   expect(screen.getByRole("slider", { name: "Opacity" })).toBeInTheDocument();
 });
 
-test.todo("should call onUpdateTrackConfig when opacity is changed", () => {
+test("should call onUpdateTrackConfig when opacity is changed", async () => {
   render(
     <TrackItem
       track={mockTrack}
@@ -59,10 +59,11 @@ test.todo("should call onUpdateTrackConfig when opacity is changed", () => {
     />,
   );
 
-  const slider = screen.getByRole("slider");
-  fireEvent.change(slider, { target: { value: 0.5 } });
+  const slider = screen.getByRole("slider", { name: "Opacity" });
+  await userEvent.click(slider);
+  await userEvent.keyboard("{arrowleft}");
 
-  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, { opacity: 0.5 });
+  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, { opacity: 0.95 });
 });
 
 test("should render color picker when track is visible", () => {
@@ -132,10 +133,10 @@ test("should render scale slider when track is visible", () => {
   );
 
   expect(screen.getByText("Scale: 100%")).toBeInTheDocument();
-  expect(screen.getAllByRole("slider")[1]).toBeInTheDocument();
+  expect(screen.getByRole("slider", { name: "Scale" })).toBeInTheDocument();
 });
 
-test.todo("should call onUpdateTrackConfig when scale is changed", () => {
+test("should call onUpdateTrackConfig when scale is changed", async () => {
   render(
     <TrackItem
       track={mockTrack}
@@ -144,10 +145,11 @@ test.todo("should call onUpdateTrackConfig when scale is changed", () => {
     />,
   );
 
-  const slider = screen.getAllByRole("slider")[1];
-  fireEvent.change(slider, { target: { value: 0.75 } });
+  const slider = screen.getByRole("slider", { name: "Scale" });
+  await userEvent.click(slider);
+  await userEvent.keyboard("{arrowleft}");
 
-  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, { scale: 0.75 });
+  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, { scale: 0.95 });
 });
 
 test("should not render controls when track is not visible", () => {
