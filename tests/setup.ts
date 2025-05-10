@@ -4,6 +4,7 @@ import "vitest-canvas-mock";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
+import { HTMLCanvasElement } from "@playcanvas/canvas-mock";
 
 // runs a cleanup after each test case (e.g. clearing jsdom)
 afterEach(() => {
@@ -45,6 +46,10 @@ Object.defineProperty(window, "crypto", {
       return result;
     },
   },
+});
+
+Object.defineProperty(window, "HTMLCanvasElement", {
+  value: HTMLCanvasElement,
 });
 
 // https://github.com/radix-ui/primitives/issues/1822
