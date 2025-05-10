@@ -52,6 +52,7 @@
     "@babel/plugin-proposal-explicit-resource-management": "^7.27.1",
     "@codecov/vite-plugin": "^1.9.0",
     "@eslint/js": "^9.26.0",
+    "@playcanvas/canvas-mock": "^1.1.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
