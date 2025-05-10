@@ -1,10 +1,9 @@
-import { expect, test, vi } from "vitest";
+import { beforeEach, expect, test, vi } from "vitest";
 import { screen } from "@testing-library/react";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { rendererConfig } from "tests/fixtures";
-import { setTimeout } from "timers/promises";
 import { usePlayer } from "@/lib/player";
 
 const defaultPlayerMock: ReturnType<typeof usePlayer> = {
@@ -23,6 +22,10 @@ const defaultPlayerMock: ReturnType<typeof usePlayer> = {
 
 // Mock the usePlayer hook
 vi.mock("@/lib/player", () => ({ usePlayer: vi.fn(() => defaultPlayerMock) }));
+
+beforeEach(() => {
+  vi.resetAllMocks();
+});
 
 class MockedAudioBuffer implements AudioBuffer {
   copyFromChannel: AudioBuffer["copyFromChannel"];
@@ -72,10 +75,9 @@ test("handles volume control", async () => {
     />,
   );
 
-  const volumeButton = screen.getByRole("button", { pressed: false });
+  const volumeButton = screen.getByRole("button", { name: "Mute" });
   await userEvent.hover(volumeButton);
-  await setTimeout(110);
-  const volumeSlider = screen.getByRole("slider", { name: "Volume" });
+  const volumeSlider = await screen.findByRole("slider", { name: "Volume" });
   await userEvent.click(volumeSlider);
   await userEvent.keyboard("{arrowleft}");
 
