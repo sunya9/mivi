@@ -5,7 +5,7 @@ test("should render the app", async () => {
   const container = document.createElement("div");
   container.id = "root";
   document.body.appendChild(container);
-  await import("./main");
+  await import("../src/main");
   const app = await screen.findByRole("application");
   expect(app).toBeInTheDocument();
 });
