@@ -14,15 +14,17 @@ export function formatTime(timeInSeconds: number): string {
 export async function resetConfig() {
   // delete indexedDB databases
   const databases = await indexedDB.databases();
-  const promises = databases.map((db) => {
-    if (!db.name) return Promise.resolve();
-    const req = indexedDB.deleteDatabase(db.name);
-    return new Promise<void>((resolve, reject) => {
-      req.onsuccess = () => resolve();
-      req.onblocked = reject;
-      req.onerror = reject;
+  const promises = databases
+    .map((db) => db.name)
+    .filter((name) => typeof name === "string")
+    .map((name) => {
+      const req = indexedDB.deleteDatabase(name);
+      return new Promise<void>((resolve, reject) => {
+        req.onsuccess = () => resolve();
+        req.onblocked = reject;
+        req.onerror = reject;
+      });
     });
-  });
   await Promise.all(promises);
 
   // delete localStorage
