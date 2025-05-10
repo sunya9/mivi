@@ -7,7 +7,7 @@ import React, { useCallback } from "react";
 import {
   getRandomTailwindColor,
   getRandomTailwindColorPalette,
-} from "@/lib/colors/tailwind-colors";
+} from "@/lib/colors";
 import { produce } from "immer";
 
 interface Props {

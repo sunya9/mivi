@@ -4,7 +4,7 @@ import { useMidi } from "@/lib/midi";
 import { expectedMidiTracks, midiFile } from "tests/fixtures";
 import { MidiTracks } from "@/lib/midi";
 
-vi.mock("@/lib/colors/tailwind-colors", () => ({
+vi.mock("@/lib/colors", () => ({
   getRandomTailwindColor: vi.fn(() => "#000000"),
 }));
 
