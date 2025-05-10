@@ -34,7 +34,7 @@ export function App() {
   const { recordingState, toggleRecording } = useRecorder(recordResources);
 
   return (
-    <div className="flex flex-1 flex-col md:h-dvh">
+    <div className="flex flex-1 flex-col md:h-dvh" role="application">
       <AppHeader
         className="flex-none"
         toggleRecording={toggleRecording}
