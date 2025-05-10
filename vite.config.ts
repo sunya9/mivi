@@ -84,7 +84,6 @@ export default defineConfig(({ mode }) => ({
     setupFiles: ["./tests/setup.ts", "@vitest/web-worker"],
     watch: false,
     coverage: {
-      provider: "istanbul",
       exclude: [
         ...(configDefaults.coverage?.exclude ?? []),
         "src/components/ui/**",
