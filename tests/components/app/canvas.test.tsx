@@ -30,13 +30,8 @@ test("should render canvas with correct aspect ratio", () => {
 });
 
 test("should call onInit with canvas context", () => {
-  const mockGetContext = vi.fn().mockReturnValue({});
-  HTMLCanvasElement.prototype.getContext = mockGetContext;
-
   render(<Canvas {...defaultProps} />);
-
-  expect(mockGetContext).toHaveBeenCalledWith("2d");
-  expect(mockOnInit).toHaveBeenCalledWith({});
+  expect(mockOnInit).toHaveBeenCalledWith(expect.any(CanvasRenderingContext2D));
 });
 
 test.todo("should call onRedraw when canvas is resized", () => {
