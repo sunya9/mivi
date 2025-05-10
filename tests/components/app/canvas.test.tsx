@@ -1,4 +1,4 @@
-import { screen, render } from "@testing-library/react";
+import { screen, render, waitFor } from "@testing-library/react";
 import { Canvas } from "@/components/app/canvas";
 import { beforeEach, expect, test, vi } from "vitest";
 import { ComponentProps } from "react";
@@ -34,13 +34,46 @@ test("should call onInit with canvas context", () => {
   expect(mockOnInit).toHaveBeenCalledWith(expect.any(CanvasRenderingContext2D));
 });
 
-test.todo("should call onRedraw when canvas is resized", () => {
+test("should call onRedraw when canvas is resized", async () => {
+  let resizeCallback: ((element: Element) => void) | undefined;
+  class MockedResizeObserver implements ResizeObserver {
+    constructor(
+      private callback: ConstructorParameters<typeof ResizeObserver>[0],
+    ) {
+      resizeCallback = (element: Element) =>
+        this.callback(
+          [
+            {
+              borderBoxSize: [{ blockSize: 0, inlineSize: 0 }],
+              contentBoxSize: [{ blockSize: 0, inlineSize: 0 }],
+              contentRect: DOMRectReadOnly.fromRect({
+                x: 0,
+                y: 0,
+                width: 0,
+                height: 0,
+              }),
+              devicePixelContentBoxSize: [{ blockSize: 0, inlineSize: 0 }],
+              target: element,
+            },
+          ],
+          this,
+        );
+    }
+    disconnect = vi.fn();
+    observe = vi.fn();
+    unobserve = vi.fn();
+  }
+
+  window.ResizeObserver = MockedResizeObserver;
+
   render(<Canvas {...defaultProps} />);
 
-  // Simulate window resize
-  // TODO
-
-  expect(mockOnRedraw).toHaveBeenCalled();
+  const canvas = findCanvas();
+  expect(canvas).toBeInTheDocument();
+  await waitFor(() => {
+    resizeCallback?.(canvas);
+    expect(mockOnRedraw).toHaveBeenCalledOnce();
+  });
 });
 
 test("should call onClickCanvas when canvas is clicked", async () => {
