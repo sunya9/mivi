@@ -167,51 +167,50 @@ export abstract class Renderer {
     height: number,
   ) {
     const { backgroundImageFit } = this.config;
-
-    if (backgroundImageFit === "cover") {
-      if (imgRatio > canvasRatio) {
-        return {
-          drawWidth: height * imgRatio,
-          drawHeight: height,
-          offsetX: (width - height * imgRatio) / 2,
-          offsetY: 0,
-        };
-      } else {
-        return {
-          drawWidth: width,
-          drawHeight: width / imgRatio,
-          offsetX: 0,
-          offsetY: (height - width / imgRatio) / 2,
-        };
-      }
-    } else if (backgroundImageFit === "contain") {
-      if (imgRatio > canvasRatio) {
-        return {
-          drawWidth: width,
-          drawHeight: width / imgRatio,
-          offsetX: 0,
-          offsetY: (height - width / imgRatio) / 2,
-        };
-      } else {
-        return {
-          drawWidth: height * imgRatio,
-          drawHeight: height,
-          offsetX: (width - height * imgRatio) / 2,
-          offsetY: 0,
-        };
+    switch (backgroundImageFit) {
+      case "cover":
+        if (imgRatio > canvasRatio) {
+          return {
+            drawWidth: height * imgRatio,
+            drawHeight: height,
+            offsetX: (width - height * imgRatio) / 2,
+            offsetY: 0,
+          };
+        } else {
+          return {
+            drawWidth: width,
+            drawHeight: width / imgRatio,
+            offsetX: 0,
+            offsetY: (height - width / imgRatio) / 2,
+          };
+        }
+      case "contain":
+        if (imgRatio > canvasRatio) {
+          return {
+            drawWidth: width,
+            drawHeight: width / imgRatio,
+            offsetX: 0,
+            offsetY: (height - width / imgRatio) / 2,
+          };
+        } else {
+          return {
+            drawWidth: height * imgRatio,
+            drawHeight: height,
+            offsetX: (width - height * imgRatio) / 2,
+            offsetY: 0,
+          };
+        }
+      default: {
+        const _exhaustiveCheck: never = backgroundImageFit;
+        throw new Error(
+          `Unknown background image fit: ${String(_exhaustiveCheck)}`,
+        );
       }
     }
-
-    return {
-      drawWidth: width,
-      drawHeight: height,
-      offsetX: 0,
-      offsetY: 0,
-    };
   }
 
   private adjustImagePosition(
-    position: string,
+    position: BackgroundImagePosition,
     width: number,
     height: number,
     drawWidth: number,
@@ -236,8 +235,14 @@ export abstract class Renderer {
         return { offsetX: 0, offsetY: height - drawHeight };
       case "bottom-right":
         return { offsetX: width - drawWidth, offsetY: height - drawHeight };
-      default:
+      case "center":
         return { offsetX, offsetY };
+      default: {
+        const _exhaustiveCheck: never = position;
+        throw new Error(
+          `Unknown background image position: ${String(_exhaustiveCheck)}`,
+        );
+      }
     }
   }
 
