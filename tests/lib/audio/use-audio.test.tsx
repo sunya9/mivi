@@ -1,4 +1,4 @@
-import { test, expect, vi } from "vitest";
+import { test, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useAudio } from "@/lib/audio/use-audio";
 import { audioFile, invalidFile } from "../../fixtures";
@@ -11,6 +11,10 @@ import { toast } from "sonner";
 import { audioDbKey } from "@/lib/audio/use-audio";
 
 vi.mock("sonner", { spy: true });
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 test("returns initial state", async () => {
   const { result } = customRenderHook(() => useAudio());
@@ -51,6 +55,35 @@ test("sets audioBuffer to undefined when setAudioFile is called with undefined",
   expect(result.current.audioFile).toBeUndefined();
 });
 
+test("audioBuffer is undefined if failed to load initial audio buffer", async () => {
+  await saveFile(audioDbKey, audioFile);
+  const audioContext = new AudioContext();
+  const error = new Error("Failed to decode audio data");
+  vi.mocked(audioContext.decodeAudioData).mockImplementation(() => {
+    throw error;
+  });
+  const consoleErrorSpy = vi
+    .spyOn(console, "error")
+    .mockImplementation(() => {});
+  const { result } = renderHook(() => useAudio(), {
+    wrapper: ({ children }) => (
+      <Providers>
+        <AppContext value={{ ...appContextValue, audioContext }}>
+          {children}
+        </AppContext>
+      </Providers>
+    ),
+  });
+  await waitFor(() => {
+    expect(result.current.audioBuffer).toBeUndefined();
+    expect(result.current.serializedAudio).toBeUndefined();
+    expect(result.current.audioFile).toBeDefined();
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Failed to create audio buffer from file",
+      error,
+    );
+  });
+});
 test("handles audio file loading errors", async () => {
   const audioContext = new AudioContext();
   vi.mocked(audioContext.decodeAudioData).mockImplementation(() => {
