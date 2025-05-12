@@ -44,7 +44,7 @@
     "react-resize-detector": "^12.0.2",
     "sonner": "^2.0.3",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss": "^4.1.5",
+    "tailwindcss": "^4.1.6",
     "throttle-debounce": "^5.0.2",
     "webm-muxer": "^5.1.2"
   },
