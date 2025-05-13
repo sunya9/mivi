@@ -1,7 +1,7 @@
 import { memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { CircleXIcon, Info } from "lucide-react";
+import { CircleXIcon } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -23,12 +23,7 @@ import {
   BackgroundImageFit,
   backgroundImageFitOptions,
 } from "@/lib/renderers";
-import { CollapsibleCardPane, FormRow } from "@/components/common";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { CollapsibleCardPane, FormRow, InfoTooltip } from "@/components/common";
 import { Separator } from "@/components/ui/separator";
 import { DeepPartial } from "@/lib/type-utils";
 import { ToggleTheme } from "@/components/app";
@@ -200,14 +195,9 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             label={
               <span className="inline-flex items-center gap-2">
                 Resolution
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="size-4" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Only aspect ratio is reflected in preview</p>
-                  </TooltipContent>
-                </Tooltip>
+                <InfoTooltip>
+                  <p>Only aspect ratio is reflected in preview</p>
+                </InfoTooltip>
               </span>
             }
             controller={
