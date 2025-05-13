@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -32,4 +33,9 @@ export async function resetConfig() {
 
   // reload page
   location.reload();
+}
+
+export function errorLogWithToast(message: string, error?: unknown) {
+  console.error(...[message, error].filter(Boolean));
+  toast.error(message);
 }

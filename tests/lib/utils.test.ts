@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { cn, formatTime, resetConfig } from "@/lib/utils";
+import { cn, formatTime, resetConfig, errorLogWithToast } from "@/lib/utils";
 import { saveFile } from "@/lib/file-db/file-db";
+import { toast } from "sonner";
+
+vi.mock("sonner", { spy: true });
 
 describe("cn", () => {
   it("should merge class names correctly", () => {
@@ -38,5 +41,37 @@ describe("resetConfig", () => {
     expect(location.reload).toHaveBeenCalledTimes(1);
     const databasesAfter = await indexedDB.databases();
     expect(databasesAfter.length).toBe(0);
+  });
+});
+
+describe("errorLogWithToast", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  it("should call console.error and toast.error with message", () => {
+    const message = "Test error message";
+    errorLogWithToast(message);
+
+    expect(console.error).toHaveBeenCalledWith(message);
+    expect(toast.error).toHaveBeenCalledWith(message);
+  });
+
+  it("should call console.error and toast.error with message and error object", () => {
+    const message = "Test error message";
+    const error = new Error("Test error");
+    errorLogWithToast(message, error);
+
+    expect(console.error).toHaveBeenCalledWith(message, error);
+    expect(toast.error).toHaveBeenCalledWith(message);
+  });
+
+  it("should handle undefined error object", () => {
+    const message = "Test error message";
+    errorLogWithToast(message, undefined);
+
+    expect(console.error).toHaveBeenCalledWith(message);
+    expect(toast.error).toHaveBeenCalledWith(message);
   });
 });
