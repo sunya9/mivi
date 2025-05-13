@@ -43,9 +43,9 @@ export function Canvas({
   return (
     <div
       className={cn(
-        "h-full w-full bg-gray-50",
+        "h-full w-full",
         "flex items-center justify-center",
-        "bg-white dark:bg-gray-600",
+        "bg-gray-50 dark:bg-gray-600",
         "bg-[linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas)),linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas))]",
         "bg-[position:0_0,8px_8px]",
         "bg-[size:16px_16px]",
