@@ -31,7 +31,6 @@
     "clsx": "^2.1.1",
     "colorjs.io": "^0.5.2",
     "comlink": "^4.4.2",
-    "immer": "^10.1.1",
     "lodash.defaultsdeep": "^4.6.1",
     "lodash.merge": "^4.6.2",
     "lucide-react": "^0.509.0",

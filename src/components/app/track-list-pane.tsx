@@ -8,7 +8,6 @@ import {
   getRandomTailwindColor,
   getRandomTailwindColorPalette,
 } from "@/lib/colors";
-import { produce } from "immer";
 
 interface Props {
   midiTracks?: MidiTracks;
@@ -21,12 +20,17 @@ export const TrackListPane = React.memo(function TrackListPane({
   const onTrackConfigUpdate = useCallback(
     (trackIndex: number, config: Partial<MidiTrack["config"]>) => {
       if (!midiTracks) return;
-      const newMidiTracks = produce(midiTracks, (draft) => {
-        draft.tracks[trackIndex].config = {
-          ...draft.tracks[trackIndex].config,
-          ...config,
-        };
-      });
+
+      const newMidiTracks = {
+        ...midiTracks,
+        tracks: midiTracks.tracks.with(trackIndex, {
+          ...midiTracks.tracks[trackIndex],
+          config: {
+            ...midiTracks.tracks[trackIndex].config,
+            ...config,
+          },
+        }),
+      };
       setMidiTracks(newMidiTracks);
     },
     [midiTracks, setMidiTracks],
