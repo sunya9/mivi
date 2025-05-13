@@ -27,7 +27,8 @@ export function Fallback(props: FallbackProps) {
               : JSON.stringify(props.error, null, 2)}
           </pre>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex gap-2">
+          <Button onClick={props.resetErrorBoundary}>Reload app</Button>
           <Button variant="outline" onClick={resetConfig}>
             Reset configuration
           </Button>
