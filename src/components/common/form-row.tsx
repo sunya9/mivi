@@ -14,7 +14,7 @@ export function FormRow({ label, controller }: Props) {
       <div className="flex-1" id={id}>
         {label}
       </div>
-      <div className="flex-none" aria-labelledby={id}>
+      <div className="flex-none" aria-labelledby={isFunction ? id : undefined}>
         {isFunction ? controller({ id }) : controller}
       </div>
     </label>
