@@ -222,7 +222,14 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             }
           />
           <FormRow
-            label={<span>FPS</span>}
+            label={
+              <span className="inline-flex items-center gap-2">
+                FPS
+                <InfoTooltip>
+                  <p>Not reflected in preview</p>
+                </InfoTooltip>
+              </span>
+            }
             controller={
               <Select
                 value={rendererConfig.fps.toString()}
