@@ -6,6 +6,13 @@ import { RendererConfig } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
 import { useCallback } from "react";
 import { MidiTracks } from "@/lib/midi/midi";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 interface Props {
   pianoRollConfig: RendererConfig["pianoRollConfig"];
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
@@ -408,18 +415,22 @@ export function PianoRollConfigPanel({
           <FormRow
             label={<span>Flash Mode</span>}
             controller={
-              <select
+              <Select
                 value={pianoRollConfig.noteFlashMode}
-                onChange={(e) => {
+                onValueChange={(value) => {
                   setPianoRollConfig({
-                    noteFlashMode: e.target.value as "on" | "duration",
+                    noteFlashMode: value as "on" | "duration",
                   });
                 }}
-                className="border-input bg-background w-full max-w-48 min-w-24 rounded-md border px-3 py-2"
               >
-                <option value="on">On</option>
-                <option value="duration">Duration</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select flash mode" />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  <SelectItem value="on">On</SelectItem>
+                  <SelectItem value="duration">Duration</SelectItem>
+                </SelectContent>
+              </Select>
             }
           />
           {pianoRollConfig.noteFlashMode === "duration" && (
