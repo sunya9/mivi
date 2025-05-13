@@ -1,7 +1,9 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 import { App } from "@/app";
 import { customRender } from "./util";
 import { page, userEvent } from "@vitest/browser/context";
+
+vi.spyOn(console, "error").mockImplementation(() => {});
 
 test("complete happy path", async () => {
   // TODO: add more assertions
