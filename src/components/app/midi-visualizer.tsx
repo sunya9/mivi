@@ -1,7 +1,15 @@
 import { formatTime } from "@/lib/utils";
 import { Canvas } from "@/components/app/canvas";
 import { Button } from "@/components/ui/button";
-import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import {
+  Pause,
+  Play,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Minimize,
+  X,
+} from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -65,9 +73,29 @@ export function MidiVisualizer({
     updateCurrentTime,
   ]);
   useAnimationFrame(onAnimate);
+  const [expanded, setExpanded] = useState(false);
+  const setExpandedAnimation = useCallback(
+    (expanded: React.SetStateAction<boolean>) => {
+      if (!document.startViewTransition) {
+        setExpanded(expanded);
+        return;
+      }
+      document.startViewTransition(() => {
+        setExpanded(expanded);
+      });
+    },
+    [],
+  );
+  const toggleExpanded = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      setExpandedAnimation((prev) => !prev);
+      e.currentTarget.blur();
+    },
+    [setExpandedAnimation],
+  );
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const handleSpace = (e: KeyboardEvent) => {
       const activeElement = document.activeElement;
       if (
         !(activeElement instanceof HTMLElement) ||
@@ -81,81 +109,154 @@ export function MidiVisualizer({
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isPlaying, togglePlay]);
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.code !== "Escape" || !expanded) return;
+      e.preventDefault();
+      setExpandedAnimation(false);
+    };
+
+    window.addEventListener("keydown", handleSpace);
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      window.removeEventListener("keydown", handleSpace);
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [expanded, isPlaying, setExpandedAnimation, togglePlay]);
+  const closeExpanded = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (e.currentTarget === e.target) {
+        setExpandedAnimation(false);
+      }
+    },
+    [setExpandedAnimation],
+  );
   return (
     <div
-      className="group relative h-full w-full select-none"
-      data-is-playing={isPlaying}
+      onClick={closeExpanded}
+      className={cn("group select-none", {
+        "relative h-full w-full": !expanded,
+        "bg-background/50 fixed inset-0 z-10 flex items-center justify-center backdrop-blur-sm":
+          expanded,
+      })}
+      aria-expanded={expanded}
+      aria-label="Midi Visualizer Player"
     >
-      <Canvas
-        aspectRatio={
-          rendererConfig.resolution.height / rendererConfig.resolution.width
-        }
-        onRedraw={onAnimate}
-        onInit={setContext}
-        onClickCanvas={togglePlay}
-      />
-      <PlayIcon isPlaying={isPlaying} />
+      {expanded && (
+        <Button
+          variant="icon"
+          onClick={closeExpanded}
+          className="absolute top-2 right-2 z-10 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16 [&_svg]:size-full"
+        >
+          <X strokeWidth={1} />
+          <span className="sr-only">Close</span>
+        </Button>
+      )}
       <div
-        className={cn(
-          "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-opacity",
-          "group-data-[is-playing=true]:opacity-0 group-data-[is-playing=true]:group-hover:opacity-100",
-          "light",
-        )}
+        data-is-playing={isPlaying}
+        style={
+          {
+            "--aspect-ratio":
+              rendererConfig.resolution.width /
+              rendererConfig.resolution.height,
+          } as React.CSSProperties
+        }
+        className={cn("aspect-[var(--aspect-ratio)]", {
+          "h-full w-full": !expanded,
+          "absolute inset-4 m-auto max-h-3/4 max-w-4xl shadow-lg": expanded,
+        })}
+        aria-modal={expanded}
       >
-        <div className="flex items-center gap-2">
-          <Button onClick={togglePlay} variant="ghostSecondary">
-            {isPlaying ? <Pause /> : <Play />}
-            <span className="sr-only">{isPlaying ? "Pause" : "Play"}</span>
-          </Button>
-          <div className="flex items-center gap-2">
-            <HoverCard openDelay={100}>
-              <HoverCardTrigger asChild>
-                <Button
-                  variant="ghostSecondary"
-                  onClick={toggleMute}
-                  aria-pressed={muted}
-                >
-                  {muted ? (
-                    <VolumeX className="size-4" />
-                  ) : (
-                    <Volume2 className="size-4" />
-                  )}
-                  <span className="sr-only">{muted ? "Unmute" : "Mute"}</span>
-                </Button>
-              </HoverCardTrigger>
-              <HoverCardContent side="top" className="light w-48">
-                <Slider
-                  value={[volume]}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  onValueChange={([value]) => {
-                    setVolume(value);
-                  }}
-                  onValueCommit={([value]) => {
-                    setVolume(value);
-                  }}
-                  aria-label="Volume"
-                />
-              </HoverCardContent>
-            </HoverCard>
+        <Canvas
+          aspectRatio={
+            rendererConfig.resolution.height / rendererConfig.resolution.width
+          }
+          onRedraw={onAnimate}
+          onInit={setContext}
+          onClickCanvas={togglePlay}
+          style={{
+            viewTransitionName: "visualizer-canvas",
+          }}
+        />
+        <PlayIcon isPlaying={isPlaying} />
+        <div
+          className={cn(
+            "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-opacity",
+            "group-data-[is-playing=true]:opacity-0 group-data-[is-playing=true]:group-hover:opacity-100",
+            "light",
+          )}
+        >
+          <div
+            className="flex items-center gap-2"
+            style={{
+              viewTransitionName: "visualizer-controls",
+            }}
+          >
+            <Button onClick={togglePlay} variant="ghostSecondary">
+              {isPlaying ? <Pause /> : <Play />}
+              <span className="sr-only">{isPlaying ? "Pause" : "Play"}</span>
+            </Button>
+            <div className="flex items-center gap-2">
+              <HoverCard openDelay={100}>
+                <HoverCardTrigger asChild>
+                  <Button
+                    variant="ghostSecondary"
+                    onClick={toggleMute}
+                    aria-pressed={muted}
+                  >
+                    {muted ? (
+                      <VolumeX className="size-4" />
+                    ) : (
+                      <Volume2 className="size-4" />
+                    )}
+                    <span className="sr-only">{muted ? "Unmute" : "Mute"}</span>
+                  </Button>
+                </HoverCardTrigger>
+                <HoverCardContent side="top" className="light w-48">
+                  <Slider
+                    value={[volume]}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onValueChange={([value]) => {
+                      setVolume(value);
+                    }}
+                    onValueCommit={([value]) => {
+                      setVolume(value);
+                    }}
+                    aria-label="Volume"
+                  />
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+            <span className="mr-2 min-w-28 text-right text-white">
+              {formatTime(currentTimeSec)} / {formatTime(duration)}
+            </span>
+            <Slider
+              max={duration}
+              value={[currentTimeSec]}
+              step={0.1}
+              onValueChange={([e]) => seek(e, false)}
+              onValueCommit={([e]) => seek(e, true)}
+              // https://github.com/radix-ui/primtives/issues/1760#issuecomment-2133137759
+              onLostPointerCapture={makeSureToCommit}
+              className="flex-1"
+            />
+            <Button
+              variant="ghostSecondary"
+              onClick={toggleExpanded}
+              className="hidden md:block"
+              aria-haspopup="dialog"
+            >
+              {expanded ? (
+                <Minimize className="size-4" />
+              ) : (
+                <Maximize className="size-4" />
+              )}
+              <span className="sr-only">Expand</span>
+            </Button>
           </div>
-          <span className="mr-2 min-w-28 text-right text-white">
-            {formatTime(currentTimeSec)} / {formatTime(duration)}
-          </span>
-          <Slider
-            max={duration}
-            value={[currentTimeSec]}
-            step={0.1}
-            onValueChange={([e]) => seek(e, false)}
-            onValueCommit={([e]) => seek(e, true)}
-            // https://github.com/radix-ui/primtives/issues/1760#issuecomment-2133137759
-            onLostPointerCapture={makeSureToCommit}
-            className="flex-1"
-          />
         </div>
       </div>
     </div>
