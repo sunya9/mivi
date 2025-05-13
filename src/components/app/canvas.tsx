@@ -15,6 +15,7 @@ export function Canvas({
   onClickCanvas,
   className,
   aspectRatio,
+  style,
   ...props
 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -56,6 +57,7 @@ export function Canvas({
         className={cn("h-auto w-full object-contain", className)}
         aria-label="Visualized Midi"
         style={{
+          ...style,
           aspectRatio: `${1 / aspectRatio}`,
           maxHeight: "100%",
         }}

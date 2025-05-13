@@ -111,3 +111,101 @@ test("toggle play state when space key is pressed", async () => {
 
   expect(defaultPlayerMock.togglePlay).toHaveBeenCalled();
 });
+
+// mock View Transitions API
+const mockStartViewTransition = vi.fn((callback: () => void) => {
+  callback();
+  return {
+    finished: Promise.resolve(),
+    ready: Promise.resolve(),
+    updateCallbackDone: Promise.resolve(),
+  };
+});
+
+function findPlayer() {
+  return screen.getByLabelText("Midi Visualizer Player");
+}
+
+// --- Expand UI tests ---
+test("should not be expanded initially", () => {
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  expect(findPlayer()).toHaveAttribute("aria-expanded", "false");
+});
+
+test("should expand when expand button is clicked", async () => {
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+  const expandButton = screen.getByRole("button", { name: /expand/i });
+  await userEvent.click(expandButton);
+  expect(findPlayer()).toHaveAttribute("aria-expanded", "true");
+});
+
+test("should call View Transitions API when expanding", async () => {
+  Object.defineProperty(document, "startViewTransition", {
+    value: mockStartViewTransition,
+    writable: true,
+  });
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+  const expandButton = screen.getByRole("button", { name: /expand/i });
+  await userEvent.click(expandButton);
+  expect(mockStartViewTransition).toHaveBeenCalled();
+});
+
+test("should collapse when ESC key is pressed", async () => {
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+  const expandButton = screen.getByRole("button", { name: /expand/i });
+  await userEvent.click(expandButton);
+  await userEvent.keyboard("{Escape}");
+  expect(findPlayer()).toHaveAttribute("aria-expanded", "false");
+});
+
+test("should collapse when background is clicked", async () => {
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+  const expandButton = screen.getByRole("button", { name: /expand/i });
+  await userEvent.click(expandButton);
+  const container = findPlayer();
+  await userEvent.click(container);
+  expect(container).toHaveAttribute("aria-expanded", "false");
+});
+
+test("should work without View Transitions API support", async () => {
+  Object.defineProperty(document, "startViewTransition", {
+    value: undefined,
+    writable: true,
+  });
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+  const expandButton = screen.getByRole("button", { name: /expand/i });
+  await userEvent.click(expandButton);
+  expect(mockStartViewTransition).not.toHaveBeenCalled();
+  expect(findPlayer()).toHaveAttribute("aria-expanded", "true");
+});
