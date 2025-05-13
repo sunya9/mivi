@@ -9,7 +9,9 @@ export default defineWorkspace([
         "@": path.resolve(__dirname, "./src"),
       },
     },
-
+    optimizeDeps: {
+      include: ["react/jsx-dev-runtime", "mp4-muxer", "webm-muxer"],
+    },
     test: {
       browser: {
         enabled: true,
