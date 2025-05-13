@@ -19,15 +19,19 @@ export const TrackItem = React.memo(function TrackItem({
   onUpdateTrackConfig,
   index,
 }: Props) {
+  const id = `${track.id}-visible`;
   return (
-    <div
-      className={cn("grid grid-cols-1 gap-2 py-4 @[300px]:grid-cols-2", {
-        "opacity-70": !track.config.visible,
-      })}
-    >
-      <label htmlFor={`${track.id}-visible`}>{track.config.name}</label>
+    <div className={cn("grid grid-cols-1 gap-2 py-4 @[300px]:grid-cols-2")}>
+      <label
+        htmlFor={id}
+        className={cn({
+          "text-muted-foreground": !track.config.visible,
+        })}
+      >
+        {track.config.name}
+      </label>
       <Switch
-        id={`${track.id}-visible`}
+        id={id}
         checked={track.config.visible}
         onCheckedChange={(checked) =>
           onUpdateTrackConfig(index, { visible: checked })
