@@ -102,6 +102,7 @@ export function MidiVisualizer({
         className={cn(
           "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-opacity",
           "group-data-[is-playing=true]:opacity-0 group-data-[is-playing=true]:group-hover:opacity-100",
+          "light",
         )}
       >
         <div className="flex items-center gap-2">
@@ -125,7 +126,7 @@ export function MidiVisualizer({
                   <span className="sr-only">{muted ? "Unmute" : "Mute"}</span>
                 </Button>
               </HoverCardTrigger>
-              <HoverCardContent side="top" className="w-48">
+              <HoverCardContent side="top" className="light w-48">
                 <Slider
                   value={[volume]}
                   min={0}

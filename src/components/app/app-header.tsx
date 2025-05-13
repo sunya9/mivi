@@ -17,7 +17,7 @@ export function AppHeader({
   return (
     <div
       className={cn(
-        "border-b bg-white/90 shadow-xs dark:bg-zinc-800/90",
+        "border-b bg-white/90 shadow-xs dark:bg-neutral-800/30",
         className,
       )}
     >
