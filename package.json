@@ -92,6 +92,7 @@
   "packageManager": "pnpm@10.5.2",
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@tailwindcss/oxide",
       "esbuild",
       "lefthook"
     ]
