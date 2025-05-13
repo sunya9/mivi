@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { CardHeader, CardTitle } from "@/components/ui/card";
+import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Collapsible,
   CollapsibleTrigger,
@@ -11,6 +11,7 @@ import { useState } from "react";
 type Props = {
   header: React.ReactNode;
   children: React.ReactNode;
+  description?: React.ReactNode;
 };
 
 export function CollapsibleCardPane(props: Props) {
@@ -36,6 +37,9 @@ export function CollapsibleCardPane(props: Props) {
             </Button>
           </CollapsibleTrigger>
         </CardTitle>
+        {props.description && (
+          <CardDescription>{props.description}</CardDescription>
+        )}
       </CardHeader>
       <CollapsibleContent>{props.children}</CollapsibleContent>
     </Collapsible>

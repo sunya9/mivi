@@ -33,8 +33,11 @@ export const TrackListPane = React.memo(function TrackListPane({
   );
   return (
     <Card className="border-0 bg-transparent shadow-none">
-      <CollapsibleCardPane header={<h2>Tracks</h2>}>
-        {midiTracks ? (
+      <CollapsibleCardPane
+        header={<h2>Tracks</h2>}
+        description={!midiTracks && <p>Select a MIDI file</p>}
+      >
+        {midiTracks && (
           <>
             <CardContent>
               <div className="divide-y">
@@ -77,8 +80,6 @@ export const TrackListPane = React.memo(function TrackListPane({
               </div>
             </CardFooter>
           </>
-        ) : (
-          <p className="text-gray-500">Select a MIDI file</p>
         )}
       </CollapsibleCardPane>
     </Card>
