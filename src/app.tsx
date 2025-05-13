@@ -18,6 +18,7 @@ import { useRecorder } from "@/lib/media-compositor";
 import { useRendererConfig } from "@/lib/renderers";
 import { useBackgroundImage } from "./lib/background-image/use-background-image";
 import { createRecorderResources } from "./lib/media-compositor/recorder-resources";
+import { useDnd } from "@/hooks/use-dnd";
 
 export function App() {
   const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();
@@ -33,8 +34,21 @@ export function App() {
   });
   const { recordingState, toggleRecording } = useRecorder(recordResources);
 
+  const { handleDrop, handleDragOver, handleDragLeave, DragDropOverlay } =
+    useDnd({
+      onDropMidi: setMidiFile,
+      onDropAudio: setAudioFile,
+      onDropImage: setBackgroundImageFile,
+    });
   return (
-    <div className="flex flex-1 flex-col md:h-dvh" role="application">
+    <div
+      className="flex flex-1 flex-col md:h-dvh"
+      role="application"
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+    >
+      {DragDropOverlay}
       <AppHeader
         className="flex-none"
         toggleRecording={toggleRecording}
