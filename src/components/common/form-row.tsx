@@ -2,26 +2,20 @@ import { useId } from "react";
 
 interface Props {
   label: React.ReactNode;
-  controller:
-    | React.ReactNode
-    | ((props: { labelId: string }) => React.ReactNode);
+  controller: React.ReactNode | ((props: { id: string }) => React.ReactNode);
 }
 
 export function FormRow({ label, controller }: Props) {
   const id = useId();
-  const labelId = `${id}-label`;
+  const isFunction = typeof controller === "function";
+
   return (
-    <label
-      className="-mx-6 my-4 flex items-center justify-between px-6"
-      htmlFor={labelId}
-    >
-      <div className="flex-1" id={labelId}>
+    <label className="-mx-6 my-4 flex items-center justify-between px-6">
+      <div className="flex-1" id={id}>
         {label}
       </div>
       <div className="flex-none" aria-labelledby={id}>
-        {typeof controller === "function"
-          ? controller({ labelId })
-          : controller}
+        {isFunction ? controller({ id }) : controller}
       </div>
     </label>
   );

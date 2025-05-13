@@ -174,17 +174,17 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               />
               <FormRow
                 label={
-                  <span id="image-opacity-label">
+                  <span>
                     Image Opacity: {rendererConfig.backgroundImageOpacity}
                   </span>
                 }
-                controller={({ labelId }) => (
+                controller={({ id }) => (
                   <Slider
                     className="w-full min-w-24"
                     min={0}
                     max={1}
                     step={0.01}
-                    aria-labelledby={labelId}
+                    aria-labelledby={id}
                     value={[rendererConfig.backgroundImageOpacity]}
                     onValueChange={([value]) =>
                       onUpdateRendererConfig({
