@@ -5,6 +5,7 @@ import { resolutions } from "@/lib/renderers";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { rendererConfig } from "tests/fixtures";
+import { ComponentProps } from "react";
 
 const mockOnChangeMidiFile = vi.fn();
 const mockOnChangeAudioFile = vi.fn();
@@ -15,7 +16,9 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-const renderCommonConfigPane = (props = {}) => {
+function renderCommonConfigPane(
+  props: Partial<ComponentProps<typeof CommonConfigPane>> = {},
+) {
   return customRender(
     <CommonConfigPane
       rendererConfig={rendererConfig}
@@ -29,7 +32,7 @@ const renderCommonConfigPane = (props = {}) => {
       {...props}
     />,
   );
-};
+}
 
 test("should render basic layout", () => {
   renderCommonConfigPane();
