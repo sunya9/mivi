@@ -135,7 +135,7 @@ export function MidiVisualizer({
   return (
     <div
       onClick={closeExpanded}
-      className={cn("group select-none", {
+      className={cn("select-none", {
         "relative h-full w-full": !expanded,
         "bg-background/50 fixed inset-0 z-10 flex items-center justify-center backdrop-blur-sm":
           expanded,
@@ -162,7 +162,7 @@ export function MidiVisualizer({
               rendererConfig.resolution.height,
           } as React.CSSProperties
         }
-        className={cn("aspect-[var(--aspect-ratio)]", {
+        className={cn("group aspect-[var(--aspect-ratio)] overflow-hidden", {
           "h-full w-full": !expanded,
           "absolute inset-4 m-auto max-h-3/4 max-w-4xl shadow-lg": expanded,
         })}
@@ -180,8 +180,9 @@ export function MidiVisualizer({
         <PlayIcon isPlaying={isPlaying} />
         <div
           className={cn(
-            "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-opacity",
-            "group-data-[is-playing=true]:opacity-0 group-data-[is-playing=true]:group-hover:opacity-100",
+            "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
+            "group-data-[is-playing=true]:translate-y-full group-data-[is-playing=true]:delay-1000",
+            "group-data-[is-playing=true]:group-hover:translate-y-0 group-data-[is-playing=true]:group-hover:delay-0",
             "light",
           )}
         >
