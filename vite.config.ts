@@ -63,6 +63,9 @@ export default defineConfig(({ mode }) => ({
       uploadToken: process.env.CODECOV_TOKEN,
     }),
   ],
+  optimizeDeps: {
+    include: ["mp4-muxer", "webm-muxer"],
+  },
   build: {
     rollupOptions: {
       output: {
