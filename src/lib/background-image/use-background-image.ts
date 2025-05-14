@@ -3,7 +3,7 @@ import { ContextType, use, useCallback, useState } from "react";
 import { FileLike } from "../file-db";
 import { CacheContext } from "@/contexts/cache-context";
 
-export const initialBackgroundImageCacheKey = "initial:background-image";
+const initialBackgroundImageCacheKey = "initial:background-image";
 export const backgroundImageDbKey = "db:background-image";
 function loadInitialBackgroundImage(
   cacheContext: ContextType<typeof CacheContext>,

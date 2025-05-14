@@ -14,7 +14,7 @@ export async function createAudioBufferFromFile(
   return audioContext.decodeAudioData(arrayBuffer);
 }
 
-export const initialAudioBufferCacheKey = "initial:audio-buffer";
+const initialAudioBufferCacheKey = "initial:audio-buffer";
 export const audioDbKey = "db:audio";
 function loadInitialAudioBuffer(
   cacheContext: ContextType<typeof CacheContext>,
