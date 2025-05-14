@@ -147,9 +147,9 @@ export function MidiVisualizer({
         <Button
           variant="icon"
           onClick={closeExpanded}
-          className="absolute top-2 right-2 z-10 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16 [&_svg]:size-full"
+          className="absolute top-2 right-2 z-10 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16"
         >
-          <X strokeWidth={1} />
+          <X strokeWidth={1} className="size-full" />
           <span className="sr-only">Close</span>
         </Button>
       )}
@@ -175,9 +175,7 @@ export function MidiVisualizer({
           onRedraw={onAnimate}
           onInit={setContext}
           onClickCanvas={togglePlay}
-          style={{
-            viewTransitionName: "visualizer-canvas",
-          }}
+          className="[view-transition-name:visualizer-canvas]"
         />
         <PlayIcon isPlaying={isPlaying} />
         <div
@@ -187,12 +185,7 @@ export function MidiVisualizer({
             "light",
           )}
         >
-          <div
-            className="flex items-center gap-2"
-            style={{
-              viewTransitionName: "visualizer-controls",
-            }}
-          >
+          <div className="flex items-center gap-2 [view-transition-name:visualizer-controls]">
             <Button onClick={togglePlay} variant="ghostSecondary">
               {isPlaying ? <Pause /> : <Play />}
               <span className="sr-only">{isPlaying ? "Pause" : "Play"}</span>
