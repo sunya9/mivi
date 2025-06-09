@@ -1,4 +1,5 @@
 /// <reference types="vitest" />
+/// <reference types="@vitest/browser/providers/playwright" />
 import path from "path";
 import { defineConfig, PluginOption } from "vite";
 import { configDefaults } from "vitest/config";
@@ -104,7 +105,11 @@ export default defineConfig(({ mode }) => ({
         extends: true,
         test: {
           name: "e2e",
+          setupFiles: ["./tests/browser.setup.ts"],
           browser: {
+            commands: {
+              waitForDownload: (ctx) => ctx.page.waitForEvent("download"),
+            },
             enabled: true,
             provider: "playwright",
             // https://vitest.dev/guide/browser/playwright
