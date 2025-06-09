@@ -11,11 +11,11 @@ test("complete happy path", async () => {
   await expect.element(page.getByText("MiVi")).toBeInTheDocument();
   await userEvent.upload(
     page.getByLabelText("Open MIDI file"),
-    "./fixtures/test.mid",
+    "./tests/fixtures/test.mid",
   );
   await userEvent.upload(
     page.getByLabelText("Open Audio file"),
-    "./fixtures/test.mp3",
+    "./tests/fixtures/test.mp3",
   );
   await page.getByRole("button", { name: "Start export" }).click();
   await expect.element(page.getByText("Exporting…")).toBeInTheDocument();
