@@ -83,15 +83,37 @@ export default defineConfig(({ mode }) => ({
   },
   base: "/mivi/",
   test: {
-    environment: "happy-dom",
-    setupFiles: ["./tests/setup.ts", "@vitest/web-worker"],
     watch: false,
     coverage: {
       exclude: [
-        ...(configDefaults.coverage?.exclude ?? []),
+        ...(configDefaults.coverage.exclude || []),
         "src/components/ui/**",
         "dev-dist",
       ],
     },
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: "unit",
+          environment: "happy-dom",
+          setupFiles: ["./tests/setup.ts", "@vitest/web-worker"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "e2e",
+          browser: {
+            enabled: true,
+            provider: "playwright",
+            // https://vitest.dev/guide/browser/playwright
+            instances: [{ browser: "chromium" }],
+            headless: process.env.CI === "true",
+          },
+          include: ["**/*.browser.?(c|m)[jt]s?(x)"],
+        },
+      },
+    ],
   },
 }));
