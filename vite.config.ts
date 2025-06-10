@@ -47,7 +47,7 @@ export default defineConfig(({ mode }) => ({
         display: "standalone",
       },
       devOptions: {
-        enabled: mode === "development",
+        enabled: mode === "generateSW",
       },
     }),
     mode === "analyze" &&

@@ -89,7 +89,8 @@
     "vite-plugin-pwa": "^1.0.0",
     "vitest": "^3.2.3",
     "vitest-browser-react": "^0.2.0",
-    "vitest-canvas-mock": "^0.3.3"
+    "vitest-canvas-mock": "^0.3.3",
+    "workbox-window": "^7.3.0"
   },
   "packageManager": "pnpm@10.12.1",
   "pnpm": {
