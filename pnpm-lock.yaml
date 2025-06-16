@@ -102,8 +102,8 @@ importers:
         specifier: ^5.0.2
         version: 5.0.2
       webm-muxer:
-        specifier: ^5.1.2
-        version: 5.1.2
+        specifier: ^5.1.3
+        version: 5.1.3
     devDependencies:
       '@babel/plugin-proposal-explicit-resource-management':
         specifier: ^7.27.4
@@ -4092,8 +4092,8 @@ packages:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
     engines: {node: '>=12'}
 
-  webm-muxer@5.1.2:
-    resolution: {integrity: sha512-gl9pXKRD/zr/njtW6P2Z/a4qSWFHjEL1OxMjoRVR10eZCw0b/J3Z0pX5RAX8x03Q78P585KVxQQkd4lWuek5rQ==}
+  webm-muxer@5.1.3:
+    resolution: {integrity: sha512-zHLsTCXJ1m+sSVt2xefsmGuGz/mHcGtKzjL7Tekx2HaodpjT4xYyZnm+DrECv5D7EPt8p+XV74MUy41Ley1mdg==}
 
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
@@ -8239,7 +8239,7 @@ snapshots:
   webidl-conversions@7.0.0:
     optional: true
 
-  webm-muxer@5.1.2:
+  webm-muxer@5.1.3:
     dependencies:
       '@types/dom-webcodecs': 0.1.15
       '@types/wicg-file-system-access': 2020.9.8
