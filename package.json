@@ -45,7 +45,7 @@
     "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4.1.8",
     "throttle-debounce": "^5.0.2",
-    "webm-muxer": "^5.1.2"
+    "webm-muxer": "^5.1.3"
   },
   "devDependencies": {
     "@babel/plugin-proposal-explicit-resource-management": "^7.27.4",
