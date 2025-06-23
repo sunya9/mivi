@@ -37,24 +37,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(jq -r '.devDependencies.playwright' package.json)" >> $GITHUB_OUTPUT
+
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
           restore-keys: |
             playwright-${{ runner.os }}-
 
       - name: Install Playwright Browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm dlx playwright install --with-deps
+        run: pnpm dlx playwright install --with-deps chromium
 
       - name: Lint
         run: pnpm lint
 
       - name: Format Check
         run: pnpm format:check
+
+      - name: Typecheck
+        run: pnpm typecheck
 
       - name: Build
         run: pnpm run build
