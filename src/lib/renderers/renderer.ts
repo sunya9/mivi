@@ -30,6 +30,25 @@ interface PianoRollConfigValues {
   pressAnimationDuration: number;
 }
 
+interface CometConfigValues {
+  fallAngle: number;
+  fallDistancePercent: number;
+  fallDuration: number;
+  fadeOutDuration: number;
+  cometSize: number;
+  trailLength: number;
+  trailWidth: number;
+  trailOpacity: number;
+  viewRangeTop: number;
+  viewRangeBottom: number;
+  spacingMargin: number;
+  spacingRandomness: number;
+  startPositionX: number;
+  startPositionY: number;
+  angleRandomness: number;
+  reverseStacking: boolean;
+}
+
 export type Resolution = {
   width: number;
   height: number;
@@ -46,7 +65,7 @@ export const resolutions: Resolution[] = [
   { width: 720, height: 720, label: "720×720 (1:1)" },
 ];
 
-export type RendererType = "pianoRoll";
+export type RendererType = "pianoRoll" | "comet";
 
 export const fpsOptions = [
   { value: 24, label: "24 fps" },
@@ -104,6 +123,7 @@ export interface RendererConfig {
   fps: FPS;
   format: VideoFormat;
   pianoRollConfig: PianoRollConfigValues;
+  cometConfig: CometConfigValues;
 }
 
 export type RendererContext =
@@ -148,6 +168,24 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     showNotePressEffect: true,
     notePressDepth: 4,
     pressAnimationDuration: 0.1,
+  },
+  cometConfig: {
+    fallAngle: 135,
+    fallDistancePercent: 80,
+    fallDuration: 2.0,
+    fadeOutDuration: 0.5,
+    cometSize: 8,
+    trailLength: 1.0,
+    trailWidth: 3,
+    trailOpacity: 0.7,
+    viewRangeTop: 127,
+    viewRangeBottom: 0,
+    spacingMargin: 20,
+    spacingRandomness: 15,
+    startPositionX: 100,
+    startPositionY: 10,
+    angleRandomness: 15,
+    reverseStacking: false,
   },
 });
 

@@ -8,7 +8,6 @@ import {
   AppHeader,
   TrackListPane,
   MidiVisualizer,
-  VisualizerStyle,
   CommonConfigPane,
 } from "@/components/app";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,8 +20,9 @@ import { createRecorderResources } from "./lib/media-compositor/recorder-resourc
 import { useDnd } from "@/hooks/use-dnd";
 
 export function App() {
-  const { rendererConfig, onUpdateRendererConfig } = useRendererConfig();
   const { setMidiFile, midiTracks, setMidiTracks } = useMidi();
+  const { rendererConfig, onUpdateRendererConfig, VisualizerStyle } =
+    useRendererConfig(midiTracks);
   const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
   const { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile } =
     useBackgroundImage();
@@ -116,11 +116,7 @@ export function App() {
           className="order-3 max-md:flex-none! md:order-none"
         >
           <ScrollArea className="h-full w-full" type="auto">
-            <VisualizerStyle
-              rendererConfig={rendererConfig}
-              onUpdateRendererConfig={onUpdateRendererConfig}
-              midiTracks={midiTracks}
-            />
+            {VisualizerStyle}
           </ScrollArea>
         </ResizablePanel>
       </ResizablePanelGroup>

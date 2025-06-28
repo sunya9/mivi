@@ -1,6 +1,6 @@
 import { MidiTrack } from "@/lib/midi";
 import { PlaybackState } from "@/lib/player";
-import { Renderer, RendererConfig } from "./renderer";
+import { Renderer, RendererConfig } from "../renderer";
 
 export class PianoRollRenderer extends Renderer {
   private readonly overflowFactor = 0.5;

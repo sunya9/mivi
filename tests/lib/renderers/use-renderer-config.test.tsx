@@ -1,7 +1,9 @@
 import { test, expect } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, render, screen } from "@testing-library/react";
 import { useRendererConfig } from "@/lib/renderers/use-renderer-config";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import userEvent from "@testing-library/user-event";
+import { JSX } from "react";
 
 test("returns initial state is equal to default config", () => {
   const { result } = renderHook(() => useRendererConfig());
@@ -37,3 +39,16 @@ test("deep merges nested config objects", () => {
     },
   });
 });
+
+test("should render", async () => {
+  const { result } = renderHook(() => useRendererConfig());
+  render(<Wrapper>{result.current.VisualizerStyle}</Wrapper>);
+  expect(screen.getByText("Visualizer Style")).toBeInTheDocument();
+  await userEvent.click(screen.getByRole("combobox", { name: "Style" }));
+  await userEvent.click(screen.getByLabelText("Comet"));
+  expect(result.current.rendererConfig.type).toBe("comet");
+});
+
+const Wrapper = ({ children }: { children: JSX.Element }) => {
+  return <>{children}</>;
+};

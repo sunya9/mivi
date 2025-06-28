@@ -1,34 +1,35 @@
 import { screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
-import { PianoRollConfigPanel } from "@/components/app/renderer-config/piano-roll-config";
+import { CometConfigPanel } from "@/lib/renderers/comet/comet-config-panel";
 import { customRender } from "../../../util";
 import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
 import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
-type Props = ComponentProps<typeof PianoRollConfigPanel>;
+type Props = ComponentProps<typeof CometConfigPanel>;
 const onUpdateRendererConfig: Props["onUpdateRendererConfig"] = vi.fn();
-const pianoRollConfig = rendererConfig.pianoRollConfig;
+const cometConfig = rendererConfig.cometConfig;
 function renderPane(overrideProps?: Props) {
   customRender(
-    <PianoRollConfigPanel
+    <CometConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
-      pianoRollConfig={pianoRollConfig}
+      cometConfig={cometConfig}
       midiTracks={expectedMidiTracks}
       {...overrideProps}
     />,
   );
 }
 
-test("should render PianoRoll component", async () => {
+test("should render Comet component", async () => {
   renderPane();
-  const switchPlayheadBorder = screen.getByRole("switch", {
-    name: "Show Playhead Border",
+  const fallAngleSlider = screen.getByRole("slider", {
+    name: /Fall Angle/,
   });
-  expect(switchPlayheadBorder).toBeInTheDocument();
-  await userEvent.click(switchPlayheadBorder);
+  expect(fallAngleSlider).toBeInTheDocument();
+  await userEvent.click(fallAngleSlider);
+  await userEvent.keyboard("{arrowleft}");
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: {
-      showPlayhead: false,
+    cometConfig: {
+      fallAngle: 130,
     },
   });
 });
