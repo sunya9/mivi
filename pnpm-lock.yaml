@@ -69,8 +69,8 @@ importers:
         specifier: ^0.525.0
         version: 0.525.0(react@19.1.0)
       mp4-muxer:
-        specifier: ^5.2.1
-        version: 5.2.1
+        specifier: ^5.2.2
+        version: 5.2.2
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -3279,8 +3279,8 @@ packages:
   moo-color@1.0.3:
     resolution: {integrity: sha512-i/+ZKXMDf6aqYtBhuOcej71YSlbjT3wCO/4H1j8rPvxDJEifdwgg5MaFyu6iYAT8GBZJg2z0dkgK4YMzvURALQ==}
 
-  mp4-muxer@5.2.1:
-    resolution: {integrity: sha512-O9eNqyzUivPJvNinPzBtEnPo7epPeYrryiCB+/+3/ktIXgTIeIB7o8tC+5i+8Zi3JthKGDws9jx7ceIY3PKhXw==}
+  mp4-muxer@5.2.2:
+    resolution: {integrity: sha512-dhozjTywI0h2qFzeShagt8YYw811fh1XlwiDCE2f6Aeqf6xG2CyuShoSa5E0AZDO8pPF0JOZ3wOmWBNWIGdSpQ==}
     deprecated: This library is superseded by Mediabunny. Please migrate to it.
 
   mrmime@2.0.1:
@@ -7601,7 +7601,7 @@ snapshots:
     dependencies:
       color-name: 1.1.4
 
-  mp4-muxer@5.2.1:
+  mp4-muxer@5.2.2:
     dependencies:
       '@types/dom-webcodecs': 0.1.15
       '@types/wicg-file-system-access': 2020.9.8
