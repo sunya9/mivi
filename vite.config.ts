@@ -9,6 +9,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
 import { codecovVitePlugin } from "@codecov/vite-plugin";
+import { BrowserCommand } from "vitest/node";
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -107,9 +108,7 @@ export default defineConfig(({ mode }) => ({
           name: "e2e",
           setupFiles: ["./tests/browser.setup.ts"],
           browser: {
-            commands: {
-              waitForDownload: (ctx) => ctx.page.waitForEvent("download"),
-            },
+            commands: { waitForDownload },
             enabled: true,
             provider: "playwright",
             // https://vitest.dev/guide/browser/playwright
@@ -122,3 +121,6 @@ export default defineConfig(({ mode }) => ({
     ],
   },
 }));
+
+const waitForDownload: BrowserCommand<[]> = (ctx) =>
+  ctx.page.waitForEvent("download");
