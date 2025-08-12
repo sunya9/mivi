@@ -2,13 +2,13 @@ import { fetchFile, saveFile } from "@/lib/file-db/file-db";
 import { ContextType, use, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { CacheContext } from "../../contexts/cache-context";
-import type { FileLike } from "@/lib/file-db";
+
 function loadInitialFile(
   cacheContext: ContextType<typeof CacheContext>,
   key: string,
 ) {
   if (cacheContext.caches.has(key)) {
-    return cacheContext.caches.get(key) as FileLike | undefined;
+    return cacheContext.caches.get(key) as File | undefined;
   } else {
     throw fetchFile(key).then((file) => {
       cacheContext.setCache(key, file);
@@ -19,11 +19,11 @@ function loadInitialFile(
 
 export function useIndexedDb(key: string) {
   const cacheContext = use(CacheContext);
-  const [file, setFileInternal] = useState<FileLike | undefined>(() =>
+  const [file, setFileInternal] = useState<File | undefined>(() =>
     loadInitialFile(cacheContext, key),
   );
   const setFile = useCallback(
-    async (newFile: FileLike | undefined) => {
+    async (newFile: File | undefined) => {
       try {
         setFileInternal(newFile);
         // optimistic update

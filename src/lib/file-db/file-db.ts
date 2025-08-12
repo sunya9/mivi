@@ -1,10 +1,5 @@
-// workaround for testing
-import type { File as NodeFile } from "node:buffer";
-
 export const storeName = "key-value";
 export const dbName = "mivi:file";
-
-export type FileLike = NodeFile | File;
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -36,10 +31,16 @@ export async function fetchFile(key: string) {
     db.close();
   };
 
-  return new Promise<FileLike | undefined>((resolve, reject) => {
+  return new Promise<File | undefined>((resolve, reject) => {
     request.onsuccess = () => {
       if (request.result) {
-        resolve(request.result as FileLike);
+        const file = request.result as File;
+        resolve(
+          new File([file], file.name, {
+            lastModified: file.lastModified,
+            type: file.type,
+          }),
+        );
       } else {
         resolve(undefined);
       }
@@ -50,7 +51,7 @@ export async function fetchFile(key: string) {
   });
 }
 
-export async function saveFile(key: string, newFile: FileLike | undefined) {
+export async function saveFile(key: string, newFile: File | undefined) {
   const db = await openDB();
   const transaction = db.transaction(storeName, "readwrite");
   const store = transaction.objectStore(storeName);

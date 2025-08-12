@@ -9,11 +9,10 @@ import {
 import { Midi } from "@tonejs/midi";
 import defaultsDeep from "lodash.defaultsdeep";
 import { useMemo, useCallback } from "react";
-import { FileLike } from "../file-db";
 
 const defaultTrackConfig = getDefaultTrackConfig("");
 
-export async function loadMidi(midiFile: FileLike) {
+export async function loadMidi(midiFile: File) {
   const arrayBuffer = await midiFile.arrayBuffer();
   const midi = new Midi(arrayBuffer);
   const tracks = midi.tracks.map((track, index): MidiTrack => {
@@ -63,7 +62,7 @@ export function useMidi() {
     [rawMidiTracks],
   );
   const setMidiFile = useCallback(
-    async (midiFile: FileLike | undefined) => {
+    async (midiFile: File | undefined) => {
       if (!midiFile) {
         setMidiTracks(undefined);
       } else {
