@@ -1,13 +1,12 @@
 import { AppContext } from "@/contexts/app-context";
-import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
+import { useIndexedDb } from "@/lib/file-db";
 import { SerializedAudio } from "@/lib/audio";
 import { ContextType, use, useCallback, useMemo, useState } from "react";
-import { FileLike } from "@/lib/file-db";
 import { toast } from "sonner";
 import { CacheContext } from "@/contexts/cache-context";
 
 export async function createAudioBufferFromFile(
-  audioFile: FileLike,
+  audioFile: File,
   audioContext: AudioContext,
 ) {
   const arrayBuffer = await audioFile.arrayBuffer();
@@ -18,7 +17,7 @@ const initialAudioBufferCacheKey = "initial:audio-buffer";
 export const audioDbKey = "db:audio";
 function loadInitialAudioBuffer(
   cacheContext: ContextType<typeof CacheContext>,
-  audioFile: FileLike | undefined,
+  audioFile: File | undefined,
   audioContext: AudioContext,
 ) {
   if (!audioFile) return;
@@ -45,7 +44,7 @@ export function useAudio() {
   );
 
   const setAudioFile = useCallback(
-    async (newAudioFile: FileLike | undefined) => {
+    async (newAudioFile: File | undefined) => {
       if (newAudioFile) {
         try {
           const audioBuffer = await createAudioBufferFromFile(
