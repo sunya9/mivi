@@ -177,7 +177,10 @@ export function MidiVisualizer({
           onClickCanvas={togglePlay}
           className="[view-transition-name:visualizer-canvas]"
         />
-        <PlayIcon isPlaying={isPlaying} />
+        <PlayIcon
+          isPlaying={isPlaying}
+          key={isPlaying ? "playing" : "paused"}
+        />
         <div
           className={cn(
             "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
@@ -258,12 +261,11 @@ export function MidiVisualizer({
 }
 
 function PlayIcon({ isPlaying }: { isPlaying: boolean }) {
-  const [showPlayIcon, setShowPlayIcon] = useState(false);
+  const [showPlayIcon, setShowPlayIcon] = useState(true);
   useEffect(() => {
-    setShowPlayIcon(true);
     const timer = setTimeout(() => setShowPlayIcon(false), 500);
     return () => clearTimeout(timer);
-  }, [isPlaying]);
+  }, []);
   return (
     <div
       className={cn(
