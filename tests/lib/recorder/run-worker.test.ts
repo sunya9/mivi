@@ -54,7 +54,7 @@ test("worker is aborted", async () => {
   expect(onprogress).toHaveBeenCalledExactlyOnceWith(0.1);
   controller.abort(error);
   workerOnProgress(0.3);
-  expect(onprogress).not.toHaveBeenCalledExactlyOnceWith(0.3);
+  expect(onprogress).not.toHaveBeenCalledWith(0.3);
   expect(onprogress).toHaveBeenCalledTimes(1);
   await expect(p).rejects.toThrow(error);
   expect(console.error).toHaveBeenCalledExactlyOnceWith("aborted", {
