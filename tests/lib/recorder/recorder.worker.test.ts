@@ -18,7 +18,7 @@ beforeEach(() => {
 test("should create WebMMuxer when format is webm", async () => {
   await startRecording(resources, mockOnProgress);
 
-  expect(WebMMuxer).toHaveBeenCalledWith({
+  expect(WebMMuxer).toHaveBeenCalledExactlyOnceWith({
     frameRate: resources.rendererConfig.fps,
     width: resources.rendererConfig.resolution.width,
     height: resources.rendererConfig.resolution.height,
@@ -39,7 +39,7 @@ test("should create MP4Muxer when format is mp4", async () => {
 
   await startRecording(mp4Resources, mockOnProgress);
 
-  expect(MP4Muxer).toHaveBeenCalledWith({
+  expect(MP4Muxer).toHaveBeenCalledExactlyOnceWith({
     frameRate: mp4Resources.rendererConfig.fps,
     width: mp4Resources.rendererConfig.resolution.width,
     height: mp4Resources.rendererConfig.resolution.height,

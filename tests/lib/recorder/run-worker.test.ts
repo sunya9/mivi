@@ -51,11 +51,13 @@ test("worker is aborted", async () => {
   const onprogress = vi.fn();
   const p = runWorker(resources, onprogress, controller.signal);
   workerOnProgress(0.1);
-  expect(onprogress).toHaveBeenCalledWith(0.1);
+  expect(onprogress).toHaveBeenCalledExactlyOnceWith(0.1);
   controller.abort(error);
   workerOnProgress(0.3);
-  expect(onprogress).not.toHaveBeenCalledWith(0.3);
+  expect(onprogress).not.toHaveBeenCalledExactlyOnceWith(0.3);
   expect(onprogress).toHaveBeenCalledTimes(1);
   await expect(p).rejects.toThrow(error);
-  expect(console.error).toHaveBeenCalledWith("aborted", { cause: error });
+  expect(console.error).toHaveBeenCalledExactlyOnceWith("aborted", {
+    cause: error,
+  });
 });

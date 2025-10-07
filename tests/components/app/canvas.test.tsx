@@ -31,7 +31,9 @@ test("should render canvas with correct aspect ratio", () => {
 
 test("should call onInit with canvas context", () => {
   render(<Canvas {...defaultProps} />);
-  expect(mockOnInit).toHaveBeenCalledWith(expect.any(CanvasRenderingContext2D));
+  expect(mockOnInit).toHaveBeenCalledExactlyOnceWith(
+    expect.any(CanvasRenderingContext2D),
+  );
 });
 
 test("should call onRedraw when canvas is resized", async () => {
@@ -72,7 +74,7 @@ test("should call onRedraw when canvas is resized", async () => {
   expect(canvas).toBeInTheDocument();
   await waitFor(() => {
     resizeCallback?.(canvas);
-    expect(mockOnRedraw).toHaveBeenCalledOnce();
+    expect(mockOnRedraw).toHaveBeenCalledExactlyOnceWith();
   });
 });
 

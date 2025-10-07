@@ -70,9 +70,9 @@ test("should render", () => {
   context.fillStyle = "";
   context.fillRect = vi.fn();
   renderer.render();
-  expect(context.clearRect).toHaveBeenCalledWith(0, 0, 300, 150);
+  expect(context.clearRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
   expect(context.fillStyle).toBe("#00ff00");
-  expect(context.fillRect).toHaveBeenCalledWith(0, 0, 300, 150);
+  expect(context.fillRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
   expect(context.drawImage).not.toHaveBeenCalled();
 });
 
@@ -109,7 +109,7 @@ test.each([
   context.drawImage = vi.fn();
   renderer.render();
 
-  expect(context.drawImage).toHaveBeenCalledWith(
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
     imageBitmap,
     expected.offsetX,
     expected.offsetY,
@@ -168,7 +168,7 @@ test.each([
   context.drawImage = vi.fn();
   renderer.render();
 
-  expect(context.drawImage).toHaveBeenCalledWith(
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
     imageBitmap,
     expected.x,
     expected.y,
@@ -218,7 +218,7 @@ test("should render with no-repeat", async () => {
   context.drawImage = vi.fn();
   renderer.render();
 
-  expect(context.drawImage).toHaveBeenCalledWith(
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
     imageBitmap,
     noRepeatParameters.expected.x,
     noRepeatParameters.expected.y,
@@ -243,8 +243,12 @@ test.each(patternParameters)(
     context.fillRect = vi.fn();
     renderer.render();
 
-    expect(context.createPattern).toHaveBeenCalledWith(imageBitmap, pattern);
-    expect(context.fillRect).toHaveBeenCalledWith(0, 0, 300, 150);
+    expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(
+      imageBitmap,
+      pattern,
+    );
+    // draw background color + draw pattern
+    expect(context.fillRect).toHaveBeenNthCalledWith(2, 0, 0, 300, 150);
   },
 );
 
@@ -267,7 +271,13 @@ test("should render with opacity", async () => {
   expect(context.save).toHaveBeenCalled();
   expect(context.globalAlpha).toBe(0.5);
   expect(context.restore).toHaveBeenCalled();
-  expect(context.drawImage).toHaveBeenCalledWith(imageBitmap, 0, -75, 300, 300);
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
+    imageBitmap,
+    0,
+    -75,
+    300,
+    300,
+  );
 });
 
 test("should render with cover when imgRatio > canvasRatio (no fraction)", async () => {
@@ -292,7 +302,13 @@ test("should render with cover when imgRatio > canvasRatio (no fraction)", async
   renderer.render();
 
   // cover: 高さに合わせて描画、幅は100*2=200, xオフセットは(100-200)/2=-50
-  expect(ctx.drawImage).toHaveBeenCalledWith(imageBitmap, -50, 0, 200, 100);
+  expect(ctx.drawImage).toHaveBeenCalledExactlyOnceWith(
+    imageBitmap,
+    -50,
+    0,
+    200,
+    100,
+  );
 });
 
 test("should render with contain when imgRatio > canvasRatio (no fraction)", async () => {
@@ -317,7 +333,13 @@ test("should render with contain when imgRatio > canvasRatio (no fraction)", asy
   renderer.render();
 
   // contain: 幅に合わせて描画、幅100, 高さ100/2=50, yオフセットは(100-50)/2=25
-  expect(ctx.drawImage).toHaveBeenCalledWith(imageBitmap, 0, 25, 100, 50);
+  expect(ctx.drawImage).toHaveBeenCalledExactlyOnceWith(
+    imageBitmap,
+    0,
+    25,
+    100,
+    50,
+  );
 });
 
 test("should render with contain when canvasRatio > imgRatio (no fraction)", async () => {
@@ -336,7 +358,13 @@ test("should render with contain when canvasRatio > imgRatio (no fraction)", asy
   renderer.render();
 
   // contain: 高さに合わせて描画、高さ100, 幅100*0.5=50, xオフセットは(200-50)/2=75
-  expect(context.drawImage).toHaveBeenCalledWith(imageBitmap, 75, 0, 50, 100);
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
+    imageBitmap,
+    75,
+    0,
+    50,
+    100,
+  );
 });
 
 test("throw error when unknown background image fit", async () => {
@@ -379,7 +407,10 @@ test("should handle null pattern", async () => {
   context.fillRect = vi.fn();
   renderer.render();
 
-  expect(context.createPattern).toHaveBeenCalledWith(imageBitmap, "repeat");
+  expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(
+    imageBitmap,
+    "repeat",
+  );
   // fillRect is called once with background color only
   expect(context.fillRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
 });

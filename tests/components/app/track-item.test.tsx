@@ -34,7 +34,9 @@ test("should call onUpdateTrackConfig when visibility is toggled", async () => {
   const switchElement = screen.getByRole("switch");
   await userEvent.click(switchElement);
 
-  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, { visible: false });
+  expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {
+    visible: false,
+  });
 });
 
 test("should render opacity slider when track is visible", () => {
@@ -63,7 +65,9 @@ test("should call onUpdateTrackConfig when opacity is changed", async () => {
   await userEvent.click(slider);
   await userEvent.keyboard("{arrowleft}");
 
-  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, { opacity: 0.95 });
+  expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {
+    opacity: 0.95,
+  });
 });
 
 test("should render color picker when track is visible", () => {
@@ -90,7 +94,7 @@ test("should call onUpdateTrackConfig when color is changed", () => {
   const colorPicker = screen.getByDisplayValue("#000000");
   fireEvent.change(colorPicker, { target: { value: "#00ff00" } });
 
-  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, {
+  expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {
     color: "#00ff00",
   });
 });
@@ -120,7 +124,9 @@ test("should call onUpdateTrackConfig when staccato is toggled", async () => {
   const checkbox = screen.getByRole("checkbox");
   await userEvent.click(checkbox);
 
-  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, { staccato: true });
+  expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {
+    staccato: true,
+  });
 });
 
 test("should render scale slider when track is visible", () => {
@@ -149,7 +155,9 @@ test("should call onUpdateTrackConfig when scale is changed", async () => {
   await userEvent.click(slider);
   await userEvent.keyboard("{arrowleft}");
 
-  expect(mockOnUpdateTrackConfig).toHaveBeenCalledWith(0, { scale: 0.95 });
+  expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {
+    scale: 0.95,
+  });
 });
 
 test("should not render controls when track is not visible", () => {

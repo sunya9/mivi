@@ -26,7 +26,7 @@ test("should render PianoRoll component", async () => {
   });
   expect(switchPlayheadBorder).toBeInTheDocument();
   await userEvent.click(switchPlayheadBorder);
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
+  expect(onUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
     pianoRollConfig: {
       showPlayhead: false,
     },

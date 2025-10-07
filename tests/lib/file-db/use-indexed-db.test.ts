@@ -55,8 +55,11 @@ test("should handle saveFile error gracefully", async () => {
 
   await waitFor(async () => {
     await result.current.setFile(mockFile);
-    expect(consoleSpy).toHaveBeenCalledWith("Failed to save file", error);
-    expect(toastSpy).toHaveBeenCalledWith("Failed to save file");
+    expect(consoleSpy).toHaveBeenCalledExactlyOnceWith(
+      "Failed to save file",
+      error,
+    );
+    expect(toastSpy).toHaveBeenCalledExactlyOnceWith("Failed to save file");
   });
 
   consoleSpy.mockRestore();

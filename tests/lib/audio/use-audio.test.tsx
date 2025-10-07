@@ -78,7 +78,7 @@ test("audioBuffer is undefined if failed to load initial audio buffer", async ()
     expect(result.current.audioBuffer).toBeUndefined();
     expect(result.current.serializedAudio).toBeUndefined();
     expect(result.current.audioFile).toBeDefined();
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith(
       "Failed to create audio buffer from file",
       error,
     );
@@ -109,7 +109,9 @@ test("handles audio file loading errors", async () => {
     await expect(
       result.current.setAudioFile(invalidFile),
     ).resolves.toBeUndefined();
-    expect(toast.error).toHaveBeenCalledWith("Failed to set audio file");
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith(
+      "Failed to set audio file",
+    );
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "Failed to set audio file",
       new Error("Failed to decode audio data"),

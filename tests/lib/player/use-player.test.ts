@@ -53,7 +53,7 @@ test("should handle volume changes", async () => {
   await waitFor(() => {
     expect(result.current.volume).toBe(0.5);
 
-    expect(gainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
+    expect(gainNode.gain.setTargetAtTime).toHaveBeenCalledExactlyOnceWith(
       0.5,
       expect.any(Number),
       0,
@@ -69,7 +69,7 @@ test("should handle mute toggle", () => {
   });
 
   expect(result.current.muted).toBe(true);
-  expect(gainNode.gain.setTargetAtTime).toHaveBeenCalledWith(
+  expect(gainNode.gain.setTargetAtTime).toHaveBeenCalledExactlyOnceWith(
     0,
     expect.any(Number),
     0,
