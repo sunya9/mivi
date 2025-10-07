@@ -52,7 +52,7 @@ test("should show error toast when trying to start recording without required fi
     await result.current.toggleRecording();
   });
 
-  expect(toast.error).toHaveBeenCalledWith(
+  expect(toast.error).toHaveBeenCalledExactlyOnceWith(
     "Please select a MIDI file and audio file.",
   );
 });
@@ -67,7 +67,7 @@ test("should start recording when all required files are present", async () => {
     await result.current.toggleRecording();
   });
 
-  expect(runWorker).toHaveBeenCalledWith(
+  expect(runWorker).toHaveBeenCalledExactlyOnceWith(
     {
       rendererConfig: mockProps.rendererConfig,
       midiTracks: mockProps.midiTracks,

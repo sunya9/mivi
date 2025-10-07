@@ -61,7 +61,7 @@ test("should handle errors when loading background image", async () => {
   const { result } = customRenderHook(() => useBackgroundImage());
 
   await waitFor(() => {
-    expect(console.error).toHaveBeenCalledWith(
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(
       "failed to load background image",
       error,
     );
@@ -79,7 +79,7 @@ test("should handle errors when setting background image", async () => {
   const { result } = customRenderHook(() => useBackgroundImage());
 
   await waitFor(() => result.current.setBackgroundImageFile(mockImage));
-  expect(console.error).toHaveBeenCalledWith(
+  expect(console.error).toHaveBeenCalledExactlyOnceWith(
     "failed to load background image",
     error,
   );

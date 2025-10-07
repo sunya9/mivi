@@ -27,7 +27,7 @@ test("should render Comet component", async () => {
   expect(fallAngleSlider).toBeInTheDocument();
   await userEvent.click(fallAngleSlider);
   await userEvent.keyboard("{arrowleft}");
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
+  expect(onUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
     cometConfig: {
       fallAngle: 130,
     },

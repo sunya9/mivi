@@ -81,7 +81,7 @@ test("handles volume control", async () => {
   await userEvent.click(volumeSlider);
   await userEvent.keyboard("{arrowleft}");
 
-  expect(defaultPlayerMock.setVolume).toHaveBeenCalledWith(0.99);
+  expect(defaultPlayerMock.setVolume).toHaveBeenLastCalledWith(0.99);
 });
 
 test("handles seek control", async () => {
@@ -96,7 +96,8 @@ test("handles seek control", async () => {
   await userEvent.click(seekSlider);
   await userEvent.keyboard("{arrowright}");
 
-  expect(defaultPlayerMock.seek).toHaveBeenCalledWith(0.1, true);
+  expect(defaultPlayerMock.seek).toHaveBeenNthCalledWith(1, 0.1, true);
+  expect(defaultPlayerMock.seek).toHaveBeenNthCalledWith(2, 0.1, false);
 });
 
 test("toggle play state when space key is pressed", async () => {

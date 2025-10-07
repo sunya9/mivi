@@ -54,8 +54,8 @@ describe("errorLogWithToast", () => {
     const message = "Test error message";
     errorLogWithToast(message);
 
-    expect(console.error).toHaveBeenCalledWith(message);
-    expect(toast.error).toHaveBeenCalledWith(message);
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(message);
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith(message);
   });
 
   it("should call console.error and toast.error with message and error object", () => {
@@ -63,15 +63,15 @@ describe("errorLogWithToast", () => {
     const error = new Error("Test error");
     errorLogWithToast(message, error);
 
-    expect(console.error).toHaveBeenCalledWith(message, error);
-    expect(toast.error).toHaveBeenCalledWith(message);
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(message, error);
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith(message);
   });
 
   it("should handle undefined error object", () => {
     const message = "Test error message";
     errorLogWithToast(message, undefined);
 
-    expect(console.error).toHaveBeenCalledWith(message);
-    expect(toast.error).toHaveBeenCalledWith(message);
+    expect(console.error).toHaveBeenCalledExactlyOnceWith(message);
+    expect(toast.error).toHaveBeenCalledExactlyOnceWith(message);
   });
 });
