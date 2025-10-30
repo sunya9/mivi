@@ -76,7 +76,7 @@
     "fake-indexeddb": "^6.2.4",
     "globals": "^16.4.0",
     "happy-dom": "^20.0.8",
-    "lefthook": "^1.13.6",
+    "lefthook": "^2.0.2",
     "playwright": "^1.56.1",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
