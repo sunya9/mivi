@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => ({
     tailwindcss(),
     react({
       babel: {
-        plugins: ["@babel/plugin-proposal-explicit-resource-management"],
+        plugins: ["@babel/plugin-transform-explicit-resource-management"],
       },
     }),
     Unfonts({
