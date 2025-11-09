@@ -1,30 +1,33 @@
-import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
-import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  ThemeAnimationType,
+  useModeAnimation,
+} from "react-theme-switch-animation";
 
 export function ToggleTheme() {
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === "dark";
-  const toggleTheme = useCallback(() => {
-    setTheme((theme) => (theme === "light" ? "dark" : "light"));
-  }, [setTheme]);
+  const { ref, toggleSwitchTheme, isDarkMode } = useModeAnimation({
+    animationType: ThemeAnimationType.BLUR_CIRCLE,
+    blurAmount: 4,
+    duration: 400,
+  });
 
   return (
     <Button
-      aria-pressed={isDark}
-      onClick={toggleTheme}
+      aria-pressed={isDarkMode}
+      onClick={toggleSwitchTheme}
       className="p-2"
       size="icon"
       variant="icon"
+      ref={ref}
     >
-      {isDark ? (
+      {isDarkMode ? (
         <Moon className="size-4" aria-hidden="true" />
       ) : (
         <Sun className="size-4" aria-hidden="true" />
       )}
       <span className="sr-only">
-        Switch theme to {isDark ? "light" : "dark"}
+        Switch theme to {isDarkMode ? "light" : "dark"}
       </span>
     </Button>
   );
