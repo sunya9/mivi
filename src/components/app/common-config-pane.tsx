@@ -58,11 +58,9 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             filename={audioFilename}
             setFile={onChangeAudioFile}
             accept="audio/*"
-            placeholder="Choose audio file"
+            placeholder="Choose Audio file"
             cancelLabel="Cancel audio file"
-          >
-            Open Audio file
-          </FileButton>
+          />
         </CardContent>
       </CollapsibleCardPane>
 
@@ -85,11 +83,9 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             filename={backgroundImageFilename}
             setFile={onChangeBackgroundImage}
             accept="image/*"
-            placeholder="Can set background image"
+            placeholder="Choose Background Image"
             cancelLabel="Cancel background image"
-          >
-            Open Background Image
-          </FileButton>
+          />
           {backgroundImageFilename && (
             <>
               <FormRow

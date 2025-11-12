@@ -49,7 +49,7 @@ test("should render basic layout", () => {
 
 test("should call onChangeAudioFile when audio file is selected", () => {
   renderCommonConfigPane();
-  const audioFileInput = screen.getByLabelText("Open Audio file");
+  const audioFileInput = screen.getByLabelText("Choose Audio file");
   const file = new File(["test"], "test.mp3", { type: "audio/mpeg" });
   fireEvent.change(audioFileInput, { target: { files: [file] } });
   expect(mockOnChangeAudioFile).toHaveBeenCalledExactlyOnceWith(file);
@@ -57,7 +57,7 @@ test("should call onChangeAudioFile when audio file is selected", () => {
 
 test("not call onChangeAudioFile when file is not selected", () => {
   renderCommonConfigPane();
-  const audioFileInput = screen.getByLabelText("Open Audio file");
+  const audioFileInput = screen.getByLabelText("Choose Audio file");
   fireEvent.change(audioFileInput, { target: { files: [] } });
   expect(mockOnChangeAudioFile).not.toHaveBeenCalled();
 });
@@ -110,7 +110,7 @@ test("should call onUpdateRendererConfig when format is changed", async () => {
 
 test("should call onChangeBackgroundImage when background image is selected", () => {
   renderCommonConfigPane();
-  const backgroundImageInput = screen.getByLabelText("Open Background Image");
+  const backgroundImageInput = screen.getByLabelText("Choose Background Image");
   const file = new File(["test"], "test.png", { type: "image/png" });
   fireEvent.change(backgroundImageInput, { target: { files: [file] } });
   expect(mockOnChangeBackgroundImage).toHaveBeenCalledExactlyOnceWith(file);

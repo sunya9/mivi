@@ -29,8 +29,8 @@ function renderTrackListPane(
 test("should render MIDI file selection form when no tracks are provided", () => {
   renderTrackListPane();
 
-  expect(screen.getByText("Open MIDI file")).toBeInTheDocument();
-  expect(screen.getByText("Choose MIDI file")).toBeInTheDocument();
+  expect(screen.getByText("Open")).toBeInTheDocument();
+  expect(screen.getByDisplayValue("Choose MIDI file")).toBeInTheDocument();
 });
 
 test("should render track list when tracks are provided", () => {
