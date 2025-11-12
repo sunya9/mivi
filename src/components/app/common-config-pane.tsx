@@ -1,7 +1,6 @@
-import { memo, useCallback } from "react";
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { CircleXIcon } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -23,7 +22,12 @@ import {
   BackgroundImageFit,
   backgroundImageFitOptions,
 } from "@/lib/renderers";
-import { CollapsibleCardPane, FormRow, InfoTooltip } from "@/components/common";
+import {
+  CollapsibleCardPane,
+  FileButton,
+  FormRow,
+  InfoTooltip,
+} from "@/components/common";
 import { Separator } from "@/components/ui/separator";
 import { DeepPartial } from "@/lib/type-utils";
 import { ToggleTheme } from "@/components/app";
@@ -32,8 +36,6 @@ import { Slider } from "@/components/ui/slider";
 interface Props {
   rendererConfig: RendererConfig;
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
-  midiFilename?: string;
-  onChangeMidiFile: (file: File | undefined) => void;
   audioFilename?: string;
   onChangeAudioFile: (file: File | undefined) => void;
   backgroundImageFilename?: string;
@@ -43,8 +45,6 @@ interface Props {
 export const CommonConfigPane = memo(function CommonConfigPane({
   rendererConfig,
   onUpdateRendererConfig,
-  midiFilename,
-  onChangeMidiFile,
   audioFilename,
   onChangeAudioFile,
   backgroundImageFilename,
@@ -52,17 +52,8 @@ export const CommonConfigPane = memo(function CommonConfigPane({
 }: Props) {
   return (
     <Card className="border-0 bg-transparent shadow-none">
-      <CollapsibleCardPane header={<h2>MIDI / Audio Settings</h2>}>
+      <CollapsibleCardPane header={<h2>Audio Settings</h2>}>
         <CardContent className="grid grid-cols-1 gap-2">
-          <FileButton
-            filename={midiFilename}
-            setFile={onChangeMidiFile}
-            accept=".mid,.midi"
-            placeholder="Choose MIDI file"
-            cancelLabel="Cancel MIDI file"
-          >
-            Open MIDI file
-          </FileButton>
           <FileButton
             filename={audioFilename}
             setFile={onChangeAudioFile}
@@ -299,69 +290,3 @@ export const CommonConfigPane = memo(function CommonConfigPane({
     </Card>
   );
 });
-
-function FileButton({
-  filename,
-  setFile,
-  accept,
-  children,
-  placeholder,
-  cancelLabel,
-}: {
-  filename: string | undefined;
-  setFile: (file: File | undefined) => void;
-  accept: string;
-  children: React.ReactNode;
-  placeholder: string;
-  cancelLabel: string;
-}) {
-  const onChangeFile = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      e.preventDefault();
-      const file = e.target.files?.[0];
-      if (!file) return;
-      setFile(file);
-      e.currentTarget.value = "";
-    },
-    [setFile],
-  );
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <span className="inline-flex items-center overflow-hidden">
-        {filename ? (
-          <>
-            <Button
-              variant="icon"
-              size="icon"
-              onClick={() => setFile(undefined)}
-              className="mr-2 w-auto justify-start p-1"
-            >
-              <CircleXIcon />
-              <span className="sr-only">{cancelLabel}</span>
-            </Button>
-            <span className="flex-1 truncate">{filename}</span>
-          </>
-        ) : (
-          <span className="text-muted-foreground">{placeholder}</span>
-        )}
-      </span>
-
-      <Button
-        size="default"
-        variant="default"
-        className="flex-none cursor-pointer"
-        asChild
-      >
-        <label>
-          <input
-            type="file"
-            accept={accept}
-            onChange={onChangeFile}
-            className="hidden"
-          />
-          {children}
-        </label>
-      </Button>
-    </div>
-  );
-}

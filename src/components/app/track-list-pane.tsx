@@ -1,7 +1,7 @@
 import { TrackItem } from "./track-item";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { CollapsibleCardPane } from "@/components/common/collapsible-card-pane";
+import { CollapsibleCardPane, FileButton } from "@/components/common";
 import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
 import React, { useCallback } from "react";
 import {
@@ -12,10 +12,14 @@ import {
 interface Props {
   midiTracks?: MidiTracks;
   setMidiTracks: (midiTracks: MidiTracks) => void;
+  midiFilename?: string;
+  onChangeMidiFile: (file: File | undefined) => void;
 }
 export const TrackListPane = React.memo(function TrackListPane({
   midiTracks,
   setMidiTracks,
+  midiFilename,
+  onChangeMidiFile,
 }: Props) {
   const onTrackConfigUpdate = useCallback(
     (trackIndex: number, config: Partial<MidiTrack["config"]>) => {
@@ -37,10 +41,18 @@ export const TrackListPane = React.memo(function TrackListPane({
   );
   return (
     <Card className="border-0 bg-transparent shadow-none">
-      <CollapsibleCardPane
-        header={<h2>Tracks</h2>}
-        description={!midiTracks && <p>Select a MIDI file</p>}
-      >
+      <CollapsibleCardPane header={<h2>Tracks</h2>}>
+        <CardContent className="grid grid-cols-1 gap-2">
+          <FileButton
+            filename={midiFilename}
+            setFile={onChangeMidiFile}
+            accept=".mid,.midi"
+            placeholder="Choose MIDI file"
+            cancelLabel="Cancel MIDI file"
+          >
+            Open MIDI file
+          </FileButton>
+        </CardContent>
         {midiTracks && (
           <>
             <CardContent>

@@ -4,50 +4,51 @@ import { TrackListPane } from "@/components/app/track-list-pane";
 import { expectedMidiTracks } from "tests/fixtures";
 import { MidiTracks } from "@/lib/midi/midi";
 import userEvent from "@testing-library/user-event";
+import { ComponentProps } from "react";
 
 const mockSetMidiTracks = vi.fn();
+const mockOnChangeMidiFile = vi.fn();
 
 beforeEach(() => {
   mockSetMidiTracks.mockClear();
+  mockOnChangeMidiFile.mockClear();
 });
 
-test("should render 'Select a MIDI file' message when no tracks are provided", () => {
-  render(<TrackListPane setMidiTracks={mockSetMidiTracks} />);
+function renderTrackListPane(
+  props: Partial<ComponentProps<typeof TrackListPane>> = {},
+) {
+  return render(
+    <TrackListPane
+      setMidiTracks={mockSetMidiTracks}
+      onChangeMidiFile={mockOnChangeMidiFile}
+      {...props}
+    />,
+  );
+}
 
-  expect(screen.getByText("Select a MIDI file")).toBeInTheDocument();
+test("should render MIDI file selection form when no tracks are provided", () => {
+  renderTrackListPane();
+
+  expect(screen.getByText("Open MIDI file")).toBeInTheDocument();
+  expect(screen.getByText("Choose MIDI file")).toBeInTheDocument();
 });
 
 test("should render track list when tracks are provided", () => {
-  render(
-    <TrackListPane
-      midiTracks={expectedMidiTracks}
-      setMidiTracks={mockSetMidiTracks}
-    />,
-  );
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
 
   expect(screen.getByText("Tracks")).toBeInTheDocument();
   expect(screen.getByText("Acoustic Piano - Full")).toBeInTheDocument();
 });
 
 test("should render randomize color buttons when tracks are provided", () => {
-  render(
-    <TrackListPane
-      midiTracks={expectedMidiTracks}
-      setMidiTracks={mockSetMidiTracks}
-    />,
-  );
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
 
   expect(screen.getByText("Randomize colors (colorful)")).toBeInTheDocument();
   expect(screen.getByText("Randomize colors (gradient)")).toBeInTheDocument();
 });
 
 test("should call setMidiTracks with new colors when colorful button is clicked", async () => {
-  render(
-    <TrackListPane
-      midiTracks={expectedMidiTracks}
-      setMidiTracks={mockSetMidiTracks}
-    />,
-  );
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
 
   const button = screen.getByText("Randomize colors (colorful)");
   await userEvent.click(button);
@@ -57,12 +58,7 @@ test("should call setMidiTracks with new colors when colorful button is clicked"
 });
 
 test("should call setMidiTracks with new colors when gradient button is clicked", async () => {
-  render(
-    <TrackListPane
-      midiTracks={expectedMidiTracks}
-      setMidiTracks={mockSetMidiTracks}
-    />,
-  );
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
 
   const button = screen.getByText("Randomize colors (gradient)");
   await userEvent.click(button);
@@ -73,12 +69,7 @@ test("should call setMidiTracks with new colors when gradient button is clicked"
 });
 
 test("should update track config when TrackItem triggers update", async () => {
-  render(
-    <TrackListPane
-      midiTracks={expectedMidiTracks}
-      setMidiTracks={mockSetMidiTracks}
-    />,
-  );
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
 
   // TrackItemのvisibilityスイッチをクリック
   const switchElement = screen.getByRole("switch");
