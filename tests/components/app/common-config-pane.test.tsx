@@ -7,7 +7,6 @@ import userEvent from "@testing-library/user-event";
 import { rendererConfig } from "tests/fixtures";
 import { ComponentProps } from "react";
 
-const mockOnChangeMidiFile = vi.fn();
 const mockOnChangeAudioFile = vi.fn();
 const mockOnUpdateRendererConfig = vi.fn();
 const mockOnChangeBackgroundImage = vi.fn();
@@ -22,11 +21,9 @@ function renderCommonConfigPane(
   return customRender(
     <CommonConfigPane
       rendererConfig={rendererConfig}
-      onChangeMidiFile={mockOnChangeMidiFile}
       onChangeAudioFile={mockOnChangeAudioFile}
       onUpdateRendererConfig={mockOnUpdateRendererConfig}
       onChangeBackgroundImage={mockOnChangeBackgroundImage}
-      midiFilename="test.mid"
       audioFilename="test.mp3"
       backgroundImageFilename="test.png"
       {...props}
@@ -36,7 +33,7 @@ function renderCommonConfigPane(
 
 test("should render basic layout", () => {
   renderCommonConfigPane();
-  expect(screen.getByText("MIDI / Audio Settings")).toBeInTheDocument();
+  expect(screen.getByText("Audio Settings")).toBeInTheDocument();
   expect(screen.getByText("Common settings")).toBeInTheDocument();
   const footerParagraph = screen.getByText(/Created by/);
   expect(footerParagraph).toBeInTheDocument();
@@ -50,27 +47,12 @@ test("should render basic layout", () => {
   ).toBeInTheDocument();
 });
 
-test("should call onChangeMidiFile when MIDI file is selected", () => {
-  renderCommonConfigPane();
-  const midiFileInput = screen.getByLabelText("Open MIDI file");
-  const file = new File(["test"], "test.mid", { type: "audio/midi" });
-  fireEvent.change(midiFileInput, { target: { files: [file] } });
-  expect(mockOnChangeMidiFile).toHaveBeenCalledExactlyOnceWith(file);
-});
-
 test("should call onChangeAudioFile when audio file is selected", () => {
   renderCommonConfigPane();
   const audioFileInput = screen.getByLabelText("Open Audio file");
   const file = new File(["test"], "test.mp3", { type: "audio/mpeg" });
   fireEvent.change(audioFileInput, { target: { files: [file] } });
   expect(mockOnChangeAudioFile).toHaveBeenCalledExactlyOnceWith(file);
-});
-
-test("not call onChangeMidiFile when file is not selected", () => {
-  renderCommonConfigPane();
-  const midiFileInput = screen.getByLabelText("Open MIDI file");
-  fireEvent.change(midiFileInput, { target: { files: [] } });
-  expect(mockOnChangeMidiFile).not.toHaveBeenCalled();
 });
 
 test("not call onChangeAudioFile when file is not selected", () => {
@@ -124,25 +106,6 @@ test("should call onUpdateRendererConfig when format is changed", async () => {
   expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
     format: "mp4",
   });
-});
-
-test("should clear file input after selection", () => {
-  renderCommonConfigPane();
-
-  const midiFileInput: HTMLInputElement =
-    screen.getByLabelText("Open MIDI file");
-  const file = new File(["test"], "test.mid", { type: "audio/midi" });
-
-  fireEvent.change(midiFileInput, { target: { files: [file] } });
-  expect(midiFileInput.value).toBe("");
-});
-
-test("should clear selected file when cancel button is clicked", async () => {
-  renderCommonConfigPane({ midiFilename: "test.mid" });
-
-  const cancelButton = screen.getByRole("button", { name: "Cancel MIDI file" });
-  await userEvent.click(cancelButton);
-  expect(mockOnChangeMidiFile).toHaveBeenCalledExactlyOnceWith(undefined);
 });
 
 test("should call onChangeBackgroundImage when background image is selected", () => {

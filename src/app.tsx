@@ -68,6 +68,8 @@ export function App() {
             <TrackListPane
               midiTracks={midiTracks}
               setMidiTracks={setMidiTracks}
+              midiFilename={midiTracks?.name}
+              onChangeMidiFile={setMidiFile}
             />
           </ScrollArea>
         </ResizablePanel>
@@ -97,8 +99,6 @@ export function App() {
                 <CommonConfigPane
                   rendererConfig={rendererConfig}
                   onUpdateRendererConfig={onUpdateRendererConfig}
-                  midiFilename={midiTracks?.name}
-                  onChangeMidiFile={setMidiFile}
                   audioFilename={audioFile?.name}
                   onChangeAudioFile={setAudioFile}
                   backgroundImageFilename={backgroundImageFile?.name}
