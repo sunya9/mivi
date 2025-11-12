@@ -11,12 +11,14 @@ test("complete happy path", async () => {
   // TODO: add more assertions
   const screen = customPageRender(<App />);
   await expect.element(screen.getByText("MiVi")).toBeInTheDocument();
+
+  // Get file inputs by their aria-label (now using placeholder as label)
   await userEvent.upload(
-    screen.getByLabelText("Open MIDI file"),
+    screen.getByLabelText("Choose MIDI file"),
     "./tests/fixtures/test.mid",
   );
   await userEvent.upload(
-    screen.getByLabelText("Open Audio file"),
+    screen.getByLabelText("Choose Audio file"),
     "./tests/fixtures/test.mp3",
   );
   const downloadPromise = commands.waitForDownload();

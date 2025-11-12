@@ -49,9 +49,7 @@ export const TrackListPane = React.memo(function TrackListPane({
             accept=".mid,.midi"
             placeholder="Choose MIDI file"
             cancelLabel="Cancel MIDI file"
-          >
-            Open MIDI file
-          </FileButton>
+          />
         </CardContent>
         {midiTracks && (
           <>
