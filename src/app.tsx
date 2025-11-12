@@ -62,7 +62,7 @@ export function App() {
         <ResizablePanel
           defaultSize={33}
           id="track-list-pane"
-          className="order-2 max-md:flex-none! md:order-none"
+          className="order-2 max-md:flex-none! md:order-0"
         >
           <ScrollArea type="auto" className="@container h-full w-full">
             <TrackListPane
@@ -77,7 +77,7 @@ export function App() {
         <ResizablePanel
           defaultSize={34}
           id="visualizer-wrapper-pane"
-          className="order-1 max-md:flex-none! md:order-none"
+          className="order-1 max-md:flex-none! md:order-0"
         >
           <ResizablePanelGroup
             direction="vertical"
@@ -113,7 +113,7 @@ export function App() {
           defaultSize={33}
           id="visualizer-style-pane"
           order={3}
-          className="order-3 max-md:flex-none! md:order-none"
+          className="order-3 max-md:flex-none! md:order-0"
         >
           <ScrollArea className="h-full w-full" type="auto">
             {VisualizerStyle}
