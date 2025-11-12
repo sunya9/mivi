@@ -1,7 +1,7 @@
 pre-commit:
   commands:
     eslint:
-      glob: "*.{tsx,ts,mts,mcs,mjs,cjs,js,json,md,yml,yaml}"
+      glob: "*.{tsx,ts,json}"
       run: |
         pnpm dlx eslint --fix {staged_files}
       stage_fixed: true
@@ -9,7 +9,7 @@ pre-commit:
         - merge
         - rebase
     prettier:
-      glob: "*.{tsx,ts,mts,mcs,mjs,cjs,js,json,md,yml,yaml}"
+      glob: "*.{tsx,ts,json,md,yml,yaml}"
       run: |
         pnpm dlx prettier --write {staged_files}
       stage_fixed: true
