@@ -1,4 +1,4 @@
-import { fetchFile, saveFile } from "@/lib/file-db";
+import { fetchFile, saveFile } from "@/lib/file-db/file-db";
 import { ContextType, use, useCallback, useState } from "react";
 import { toast } from "sonner";
 import { CacheContext } from "../../contexts/cache-context";

@@ -1,6 +1,6 @@
 import { throttle } from "throttle-debounce";
-import { getRendererFromConfig } from "@/lib/renderers";
-import { Muxer } from "@/lib/muxer";
+import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+import { Muxer } from "@/lib/muxer/muxer";
 import { RecorderResources } from "./recorder-resources";
 
 const frameSize = 20;

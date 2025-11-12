@@ -2,7 +2,7 @@ import { test, expect, beforeEach, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
-import { SerializedAudio } from "@/lib/audio";
+import { SerializedAudio } from "@/lib/audio/audio";
 import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
 import { runWorker } from "@/lib/media-compositor/run-worker";
 

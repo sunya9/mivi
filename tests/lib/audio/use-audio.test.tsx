@@ -3,10 +3,10 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { useAudio } from "@/lib/audio/use-audio";
 import { audioFile, invalidFile } from "../../fixtures";
 import { customRenderHook } from "tests/util";
-import { saveFile } from "@/lib/file-db";
+import { saveFile } from "@/lib/file-db/file-db";
 import { AppContext } from "@/contexts/app-context";
 import { appContextValue } from "@/lib/globals";
-import { Providers } from "@/components/providers";
+import { Providers } from "@/components/providers/providers";
 import { toast } from "sonner";
 import { audioDbKey } from "@/lib/audio/use-audio";
 

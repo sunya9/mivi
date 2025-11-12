@@ -1,6 +1,6 @@
-import { SerializedAudio } from "../audio";
-import { MidiTracks } from "../midi";
-import { RendererConfig } from "../renderers";
+import { SerializedAudio } from "../audio/audio";
+import { MidiTracks } from "../midi/midi";
+import { RendererConfig } from "../renderers/renderer";
 
 export function createRecorderResources(resources: {
   midiTracks?: MidiTracks;

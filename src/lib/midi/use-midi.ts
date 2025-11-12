@@ -1,4 +1,4 @@
-import { getRandomTailwindColor } from "@/lib/colors";
+import { getRandomTailwindColor } from "@/lib/colors/tailwind-colors";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
   getDefaultTrackConfig,

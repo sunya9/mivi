@@ -1,10 +1,10 @@
 import { test, expect, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useMidi } from "@/lib/midi";
+import { useMidi } from "@/lib/midi/use-midi";
 import { expectedMidiTracks, midiFile } from "tests/fixtures";
-import { MidiTracks } from "@/lib/midi";
+import { MidiTracks } from "@/lib/midi/midi";
 
-vi.mock("@/lib/colors", () => ({
+vi.mock("@/lib/colors/tailwind-colors", () => ({
   getRandomTailwindColor: vi.fn(() => "#000000"),
 }));
 

@@ -4,17 +4,15 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import {
-  AppHeader,
-  TrackListPane,
-  MidiVisualizer,
-  CommonConfigPane,
-} from "@/components/app";
+import { AppHeader } from "@/components/app/app-header";
+import { TrackListPane } from "@/components/app/track-list-pane";
+import { MidiVisualizer } from "@/components/app/midi-visualizer";
+import { CommonConfigPane } from "@/components/app/common-config-pane";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMidi } from "@/lib/midi";
-import { useAudio } from "@/lib/audio";
-import { useRecorder } from "@/lib/media-compositor";
-import { useRendererConfig } from "@/lib/renderers";
+import { useMidi } from "@/lib/midi/use-midi";
+import { useAudio } from "@/lib/audio/use-audio";
+import { useRecorder } from "@/lib/media-compositor/use-recorder";
+import { useRendererConfig } from "@/lib/renderers/use-renderer-config";
 import { useBackgroundImage } from "./lib/background-image/use-background-image";
 import { createRecorderResources } from "./lib/media-compositor/recorder-resources";
 import { useDnd } from "@/hooks/use-dnd";

@@ -18,10 +18,11 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
-import { getRendererFromConfig, RendererConfig } from "@/lib/renderers";
-import { usePlayer } from "@/lib/player";
-import { MidiTracks } from "@/lib/midi";
-import { useAnimationFrame } from "@/hooks";
+import { RendererConfig } from "@/lib/renderers/renderer";
+import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+import { usePlayer } from "@/lib/player/use-player";
+import { MidiTracks } from "@/lib/midi/midi";
+import { useAnimationFrame } from "@/hooks/use-animation-frame";
 
 interface Props {
   rendererConfig: RendererConfig;

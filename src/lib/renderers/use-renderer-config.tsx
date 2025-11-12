@@ -8,10 +8,11 @@ import { DeepPartial } from "@/lib/type-utils";
 import defaultsDeep from "lodash.defaultsdeep";
 import merge from "lodash.merge";
 import { useMemo, useCallback } from "react";
-import { MidiTracks } from "../midi";
+import { MidiTracks } from "../midi/midi";
 import { PianoRollConfigPanel } from "@/lib/renderers/piano-roll/piano-roll-config-panel";
 import { CometConfigPanel } from "@/lib/renderers/comet/comet-config-panel";
-import { CollapsibleCardPane, FormRow } from "@/components/common";
+import { CollapsibleCardPane } from "@/components/common/collapsible-card-pane";
+import { FormRow } from "@/components/common/form-row";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,

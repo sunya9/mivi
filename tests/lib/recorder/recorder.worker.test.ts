@@ -1,11 +1,13 @@
 import { test, expect, vi, beforeEach } from "vitest";
 import { startRecording } from "@/lib/media-compositor/recorder.worker";
-import { MP4Muxer, WebMMuxer } from "@/lib/muxer";
+import { MP4MuxerImpl } from "@/lib/muxer/mp4";
+import { WebMMuxerImpl } from "@/lib/muxer/webm";
 import { resources } from "tests/fixtures";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 
-vi.mock("@/lib/muxer");
+vi.mock("@/lib/muxer/mp4");
+vi.mock("@/lib/muxer/webm");
 vi.mock("@/lib/media-compositor/media-compositor");
 
 const mockOnProgress = vi.fn();
@@ -18,14 +20,14 @@ beforeEach(() => {
 test("should create WebMMuxer when format is webm", async () => {
   await startRecording(resources, mockOnProgress);
 
-  expect(WebMMuxer).toHaveBeenCalledExactlyOnceWith({
+  expect(WebMMuxerImpl).toHaveBeenCalledExactlyOnceWith({
     frameRate: resources.rendererConfig.fps,
     width: resources.rendererConfig.resolution.width,
     height: resources.rendererConfig.resolution.height,
     numberOfChannels: resources.serializedAudio.numberOfChannels,
     sampleRate: resources.serializedAudio.sampleRate,
   });
-  expect(MP4Muxer).not.toHaveBeenCalled();
+  expect(MP4MuxerImpl).not.toHaveBeenCalled();
 });
 
 test("should create MP4Muxer when format is mp4", async () => {
@@ -39,14 +41,14 @@ test("should create MP4Muxer when format is mp4", async () => {
 
   await startRecording(mp4Resources, mockOnProgress);
 
-  expect(MP4Muxer).toHaveBeenCalledExactlyOnceWith({
+  expect(MP4MuxerImpl).toHaveBeenCalledExactlyOnceWith({
     frameRate: mp4Resources.rendererConfig.fps,
     width: mp4Resources.rendererConfig.resolution.width,
     height: mp4Resources.rendererConfig.resolution.height,
     numberOfChannels: mp4Resources.serializedAudio.numberOfChannels,
     sampleRate: mp4Resources.serializedAudio.sampleRate,
   });
-  expect(WebMMuxer).not.toHaveBeenCalled();
+  expect(WebMMuxerImpl).not.toHaveBeenCalled();
 });
 
 test("should return blob from MediaCompositor", async () => {

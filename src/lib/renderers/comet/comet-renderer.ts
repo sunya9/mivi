@@ -1,5 +1,5 @@
-import { MidiTrack } from "@/lib/midi";
-import { PlaybackState } from "@/lib/player";
+import { MidiTrack } from "@/lib/midi/midi";
+import { PlaybackState } from "@/lib/player/player";
 import { Renderer, RendererConfig } from "../renderer";
 
 interface CometParticle {

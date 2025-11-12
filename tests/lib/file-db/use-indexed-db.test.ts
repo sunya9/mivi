@@ -1,7 +1,8 @@
 import { expect, test, vi, beforeEach } from "vitest";
 import { waitFor } from "@testing-library/react";
 import { customRenderHook } from "tests/util";
-import * as fileDb from "@/lib/file-db";
+import { saveFile } from "@/lib/file-db/file-db";
+import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { toast } from "sonner";
 
 const mockKey = "test-key";
@@ -12,22 +13,22 @@ beforeEach(() => {
 });
 
 test("should initialize with undefined file when no file exists", async () => {
-  const { result } = customRenderHook(() => fileDb.useIndexedDb(mockKey));
+  const { result } = customRenderHook(() => useIndexedDb(mockKey));
   await waitFor(() => {
     expect(result.current.file).toBeUndefined();
   });
 });
 
 test("should initialize with cached file when available", async () => {
-  await fileDb.saveFile(mockKey, mockFile);
-  const { result } = customRenderHook(() => fileDb.useIndexedDb(mockKey));
+  await saveFile(mockKey, mockFile);
+  const { result } = customRenderHook(() => useIndexedDb(mockKey));
   await waitFor(() => {
     expect(result.current.file?.name).toBe(mockFile.name);
   });
 });
 
 test("should set and save file successfully", async () => {
-  const { result } = customRenderHook(() => fileDb.useIndexedDb(mockKey));
+  const { result } = customRenderHook(() => useIndexedDb(mockKey));
 
   await waitFor(async () => {
     await result.current.setFile(mockFile);
@@ -36,8 +37,8 @@ test("should set and save file successfully", async () => {
 });
 
 test("should clear file when set to undefined", async () => {
-  await fileDb.saveFile(mockKey, mockFile);
-  const { result } = customRenderHook(() => fileDb.useIndexedDb(mockKey));
+  await saveFile(mockKey, mockFile);
+  const { result } = customRenderHook(() => useIndexedDb(mockKey));
 
   await waitFor(async () => {
     await result.current.setFile(undefined);
@@ -47,11 +48,13 @@ test("should clear file when set to undefined", async () => {
 
 test("should handle saveFile error gracefully", async () => {
   const error = new Error("Failed to save file");
-  const saveFileSpy = vi.spyOn(fileDb, "saveFile").mockRejectedValue(error);
+  const saveFileSpy = vi
+    .spyOn(await import("@/lib/file-db/file-db"), "saveFile")
+    .mockRejectedValue(error);
   const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   const toastSpy = vi.spyOn(toast, "error");
 
-  const { result } = customRenderHook(() => fileDb.useIndexedDb(mockKey));
+  const { result } = customRenderHook(() => useIndexedDb(mockKey));
 
   await waitFor(async () => {
     await result.current.setFile(mockFile);

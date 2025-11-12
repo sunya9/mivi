@@ -1,5 +1,7 @@
 import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
-import { MP4Muxer, WebMMuxer, MuxerOptions, Muxer } from "@/lib/muxer";
+import { MuxerOptions, Muxer } from "@/lib/muxer/muxer";
+import { WebMMuxerImpl as WebMMuxer } from "@/lib/muxer/webm";
+import { MP4MuxerImpl as MP4Muxer } from "@/lib/muxer/mp4";
 import { expose } from "comlink";
 import { RecorderResources } from "./recorder-resources";
 

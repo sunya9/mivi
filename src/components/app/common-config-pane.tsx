@@ -21,17 +21,15 @@ import {
   backgroundImageRepeats,
   BackgroundImageFit,
   backgroundImageFitOptions,
-} from "@/lib/renderers";
-import {
-  CollapsibleCardPane,
-  FileButton,
-  FormRow,
-  InfoTooltip,
-} from "@/components/common";
+} from "@/lib/renderers/renderer";
+import { CollapsibleCardPane } from "@/components/common/collapsible-card-pane";
+import { FormRow } from "@/components/common/form-row";
+import { InfoTooltip } from "@/components/common/info-tooltip";
 import { Separator } from "@/components/ui/separator";
 import { DeepPartial } from "@/lib/type-utils";
-import { ToggleTheme } from "@/components/app";
+import { ToggleTheme } from "@/components/app/toggle-theme";
 import { Slider } from "@/components/ui/slider";
+import { FileButton } from "@/components/common/file-button";
 
 interface Props {
   rendererConfig: RendererConfig;

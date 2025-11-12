@@ -1,13 +1,15 @@
 import { TrackItem } from "./track-item";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { CollapsibleCardPane, FileButton, FormRow } from "@/components/common";
+import { CollapsibleCardPane } from "@/components/common/collapsible-card-pane";
+import { FileButton } from "@/components/common/file-button";
+import { FormRow } from "@/components/common/form-row";
 import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
 import React, { useCallback, useState } from "react";
 import {
   getRandomTailwindColor,
   getRandomTailwindColorPalette,
-} from "@/lib/colors";
+} from "@/lib/colors/tailwind-colors";
 import {
   InputGroup,
   InputGroupAddon,

@@ -1,4 +1,4 @@
-import { useIndexedDb } from "@/lib/file-db";
+import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { ContextType, use, useCallback, useState } from "react";
 import { CacheContext } from "@/contexts/cache-context";
 

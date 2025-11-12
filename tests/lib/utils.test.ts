@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { cn, formatTime, resetConfig, errorLogWithToast } from "@/lib/utils";
-import { saveFile } from "@/lib/file-db";
+import { saveFile } from "@/lib/file-db/file-db";
 import { toast } from "sonner";
 
 vi.mock("sonner", { spy: true });

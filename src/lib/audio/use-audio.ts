@@ -1,6 +1,6 @@
 import { AppContext } from "@/contexts/app-context";
-import { useIndexedDb } from "@/lib/file-db";
-import { SerializedAudio } from "@/lib/audio";
+import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
+import { SerializedAudio } from "@/lib/audio/audio";
 import { ContextType, use, useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { CacheContext } from "@/contexts/cache-context";

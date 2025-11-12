@@ -1,5 +1,5 @@
 import { expect, test, vi, beforeEach } from "vitest";
-import { saveFile, fetchFile } from "@/lib/file-db";
+import { saveFile, fetchFile } from "@/lib/file-db/file-db";
 
 beforeEach(() => {
   vi.clearAllMocks();

@@ -4,7 +4,7 @@ import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { rendererConfig } from "tests/fixtures";
-import { usePlayer } from "@/lib/player";
+import { usePlayer } from "@/lib/player/use-player";
 
 const defaultPlayerMock: ReturnType<typeof usePlayer> = {
   seek: vi.fn(),
@@ -21,7 +21,9 @@ const defaultPlayerMock: ReturnType<typeof usePlayer> = {
 };
 
 // Mock the usePlayer hook
-vi.mock("@/lib/player", () => ({ usePlayer: vi.fn(() => defaultPlayerMock) }));
+vi.mock("@/lib/player/use-player", () => ({
+  usePlayer: vi.fn(() => defaultPlayerMock),
+}));
 
 beforeEach(() => {
   vi.resetAllMocks();

@@ -1,7 +1,7 @@
 import { expect, test, vi, beforeEach } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { CommonConfigPane } from "@/components/app/common-config-pane";
-import { resolutions } from "@/lib/renderers";
+import { resolutions } from "@/lib/renderers/renderer";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { rendererConfig } from "tests/fixtures";

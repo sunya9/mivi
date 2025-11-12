@@ -2,9 +2,9 @@ import {
   RendererContext,
   RendererConfig,
   getDefaultRendererConfig,
-  getRendererFromConfig,
-  PianoRollRenderer,
-} from "@/lib/renderers";
+} from "@/lib/renderers/renderer";
+import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+import { PianoRollRenderer } from "@/lib/renderers/piano-roll/piano-roll-renderer";
 import { test, expect } from "vitest";
 
 const canvas = document.createElement("canvas");

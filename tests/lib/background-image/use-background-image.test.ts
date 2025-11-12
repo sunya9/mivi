@@ -1,10 +1,10 @@
 import { act, waitFor } from "@testing-library/react";
-import { saveFile } from "@/lib/file-db";
+import { saveFile } from "@/lib/file-db/file-db";
 import { beforeEach, expect, test, vi } from "vitest";
 import {
   backgroundImageDbKey,
   useBackgroundImage,
-} from "@/lib/background-image";
+} from "@/lib/background-image/use-background-image";
 import { customRenderHook } from "tests/util";
 
 beforeEach(() => {
