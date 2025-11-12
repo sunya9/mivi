@@ -36,6 +36,7 @@ export async function loadMidi(midiFile: File) {
     duration: midi.duration,
     minNote: min,
     maxNote: max,
+    midiOffset: 0,
   };
   return newMidiTracks;
 }
@@ -49,7 +50,11 @@ function overwriteMidiTracks(midiTracks: MidiTracks | undefined) {
       config,
     };
   });
-  return { ...midiTracks, tracks };
+  return {
+    ...midiTracks,
+    tracks,
+    midiOffset: midiTracks.midiOffset ?? 0,
+  };
 }
 
 export function useMidi() {

@@ -58,8 +58,9 @@ export function MidiVisualizer({
   } = usePlayer(audioBuffer);
   const onAnimate = useCallback(() => {
     if (!renderer) return;
+    const midiOffset = midiTracks?.midiOffset ?? 0;
     renderer.render(midiTracks?.tracks || [], {
-      currentTime: getCurrentTime(),
+      currentTime: getCurrentTime() + midiOffset,
       duration,
     });
     if (!isPlaying) return;

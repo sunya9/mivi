@@ -21,6 +21,7 @@ export interface MidiTracks {
   duration: number;
   minNote: number;
   maxNote: number;
+  midiOffset: number;
 }
 
 export const getDefaultTrackConfig = (

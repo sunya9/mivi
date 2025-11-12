@@ -18,6 +18,7 @@ const expectedMidiTracks: MidiTracks = {
   minNote: 60,
   maxNote: 72,
   name: "test.mid",
+  midiOffset: 0,
   tracks: [
     {
       config: {
