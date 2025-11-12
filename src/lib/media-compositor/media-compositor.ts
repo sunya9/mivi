@@ -23,8 +23,8 @@ export class MediaCompositor {
       console.error("error on media compositor", error);
     };
     const audioEncoder = new AudioEncoder({
-      output: (chunk) => {
-        this.muxer.addAudioChunk(chunk);
+      output: (chunk, metadata) => {
+        void this.muxer.addAudioChunk(chunk, metadata);
       },
       error: onError,
     });
@@ -41,7 +41,7 @@ export class MediaCompositor {
 
     const videoEncoder = new VideoEncoder({
       output: (chunk, metadata) => {
-        this.muxer.addVideoChunk(chunk, metadata);
+        void this.muxer.addVideoChunk(chunk, metadata);
       },
       error: onError,
     });
@@ -95,11 +95,12 @@ export class MediaCompositor {
   }
 
   async composite() {
+    await this.muxer.start();
     this.renderAudio();
     this.renderVideo();
 
     await Promise.all([this.videoEncoder.flush(), this.audioEncoder.flush()]);
-    this.muxer.finalize();
+    await this.muxer.finalize();
     const videoBlob = new Blob([this.muxer.buffer], {
       type: "video/webm",
     });

@@ -2,13 +2,15 @@ export interface Muxer {
   addVideoChunk(
     chunk: EncodedVideoChunk,
     metadata?: EncodedVideoChunkMetadata,
-  ): void;
+  ): Promise<void>;
   addAudioChunk(
     chunk: EncodedAudioChunk,
     metadata?: EncodedAudioChunkMetadata,
-  ): void;
+  ): Promise<void>;
 
-  finalize(): void;
+  start(): Promise<void>;
+
+  finalize(): Promise<void>;
   get buffer(): ArrayBuffer;
   get videoCodec(): string;
   get audioCodec(): string;
