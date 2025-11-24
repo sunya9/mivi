@@ -90,7 +90,7 @@
     "vite-plugin-pwa": "^1.1.0",
     "vitest": "^3.2.4",
     "vitest-browser-react": "^1.0.1",
-    "vitest-canvas-mock": "^0.3.3",
+    "vitest-canvas-mock": "^1.1.2",
     "workbox-window": "^7.4.0"
   },
   "packageManager": "pnpm@10.12.1",
