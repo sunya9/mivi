@@ -2,6 +2,7 @@ import { expect, test, vi } from "vitest";
 import { App } from "@/app";
 import { customPageRender } from "./browser.util";
 import { commands, userEvent } from "vitest/browser";
+import { fireEvent } from "@testing-library/react";
 import "@/index.css";
 
 vi.spyOn(console, "error").mockImplementation(() => {});
@@ -20,6 +21,11 @@ test("complete happy path", async () => {
     screen.getByLabelText("Choose Audio file"),
     "./tests/fixtures/test.mp3",
   );
+  const colorInputElement = screen.getByLabelText("Note color");
+  fireEvent.input(colorInputElement.element(), {
+    target: { value: "#ffffff" },
+  });
+
   const downloadPromise = commands.waitForDownload();
   await screen.getByRole("button", { name: "Start export" }).click();
   await expect.element(screen.getByText("Exporting…")).toBeInTheDocument();
