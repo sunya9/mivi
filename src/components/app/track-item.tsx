@@ -66,6 +66,7 @@ export const TrackItem = React.memo(function TrackItem({
               onUpdateTrackConfig(index, { color: e.target.value })
             }
             className="cursor-pointer justify-self-end bg-transparent"
+            aria-label="Note color"
           />
 
           <label className="text-muted-foreground flex items-center gap-1 text-xs">
