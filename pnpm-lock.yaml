@@ -69,8 +69,8 @@ importers:
         specifier: ^0.554.0
         version: 0.554.0(react@19.2.0)
       mediabunny:
-        specifier: ^1.25.1
-        version: 1.25.1
+        specifier: ^1.25.3
+        version: 1.25.3
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1995,9 +1995,6 @@ packages:
   '@types/dom-webcodecs@0.1.13':
     resolution: {integrity: sha512-O5hkiFIcjjszPIYyUSyvScyvrBoV3NOEEZx/pMlsu44TKzWNkLVBBxnxJz42in5n3QIolYOcBYFCPZZ0h8SkwQ==}
 
-  '@types/dom-webcodecs@0.1.17':
-    resolution: {integrity: sha512-IwKW5uKL0Zrv5ccUJpjIlqf7ppk2v29l/ZLQxLlwHxljBfnDD9Gxm+hzMkGM0AOAL/21H0pp7cTUYLiiVUGchA==}
-
   '@types/estree@0.0.39':
     resolution: {integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==}
 
@@ -3601,8 +3598,8 @@ packages:
     resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
     engines: {node: '>= 0.8'}
 
-  mediabunny@1.25.1:
-    resolution: {integrity: sha512-0Rrd47PMCVJbTPA7IJaXPCupV5/RZ/icgr+a0qExRJAr0n5vB4fsGSo+fdHIehG0CrddXtVRvNZwFtJz709yfA==}
+  mediabunny@1.25.3:
+    resolution: {integrity: sha512-+LDXv/kybsElRQCmMlrdbKmPNvegeIyouGeOUzW5DJ8+M56H4G6wyEL2AJ1A45UcOB+U62qJMV7tuFO9S7yA7g==}
 
   merge-descriptors@2.0.0:
     resolution: {integrity: sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==}
@@ -6791,11 +6788,9 @@ snapshots:
 
   '@types/dom-mediacapture-transform@0.1.11':
     dependencies:
-      '@types/dom-webcodecs': 0.1.17
+      '@types/dom-webcodecs': 0.1.13
 
   '@types/dom-webcodecs@0.1.13': {}
-
-  '@types/dom-webcodecs@0.1.17': {}
 
   '@types/estree@0.0.39': {}
 
@@ -8520,7 +8515,7 @@ snapshots:
 
   media-typer@1.1.0: {}
 
-  mediabunny@1.25.1:
+  mediabunny@1.25.3:
     dependencies:
       '@types/dom-mediacapture-transform': 0.1.11
       '@types/dom-webcodecs': 0.1.13
