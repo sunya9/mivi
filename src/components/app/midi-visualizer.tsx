@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   HoverCard,
   HoverCardContent,
@@ -179,10 +179,7 @@ export function MidiVisualizer({
           onClickCanvas={togglePlay}
           className="[view-transition-name:visualizer-canvas]"
         />
-        <PlayIcon
-          isPlaying={isPlaying}
-          key={isPlaying ? "playing" : "paused"}
-        />
+        <PlayIcon isPlaying={isPlaying} />
         <div
           className={cn(
             "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
@@ -263,23 +260,34 @@ export function MidiVisualizer({
 }
 
 function PlayIcon({ isPlaying }: { isPlaying: boolean }) {
-  const [showPlayIcon, setShowPlayIcon] = useState(true);
+  const isPlayingRef = useRef(isPlaying);
+  const ref = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const timer = setTimeout(() => setShowPlayIcon(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
+    if (isPlayingRef.current === isPlaying) {
+      return;
+    }
+    ref.current?.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 500,
+      fill: "forwards",
+    });
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
   return (
     <div
+      ref={ref}
       className={cn(
-        "pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/50 p-4 text-white transition-opacity duration-200",
-        showPlayIcon ? "opacity-100" : "opacity-0",
+        "pointer-events-none absolute inset-0 flex items-center justify-center opacity-0",
       )}
     >
-      {isPlaying ? (
-        <Play strokeWidth={0.5} className="size-12" />
-      ) : (
-        <Pause strokeWidth={0.5} className="size-12" />
-      )}
+      <span className="rounded-full bg-black/50 p-4 text-white">
+        {isPlaying ? (
+          <Play strokeWidth={0.5} className="size-12" />
+        ) : (
+          <Pause strokeWidth={0.5} className="size-12" />
+        )}
+      </span>
     </div>
   );
 }
