@@ -10,6 +10,16 @@ updates:
     schedule:
       interval: "weekly"
     groups:
+      vitest:
+        patterns:
+          - "vitest"
+          - "vitest-*"
+          - "@vitest/*"
+      eslint:
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+          - "typescript-eslint"
       dev-dependency:
         dependency-type: development
         update-types:
