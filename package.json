@@ -98,7 +98,8 @@
     "onlyBuiltDependencies": [
       "@tailwindcss/oxide",
       "esbuild",
-      "lefthook"
+      "lefthook",
+      "msw"
     ]
   }
 }
