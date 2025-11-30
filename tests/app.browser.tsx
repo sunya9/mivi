@@ -1,15 +1,14 @@
-/// <reference types="@vitest/browser/providers/playwright" />
 import { expect, test, vi } from "vitest";
 import { App } from "@/app";
 import { customPageRender } from "./browser.util";
-import { commands, userEvent } from "@vitest/browser/context";
+import { commands, userEvent } from "vitest/browser";
 import "@/index.css";
 
 vi.spyOn(console, "error").mockImplementation(() => {});
 
 test("complete happy path", async () => {
   // TODO: add more assertions
-  const screen = customPageRender(<App />);
+  const screen = await customPageRender(<App />);
   await expect.element(screen.getByText("MiVi")).toBeInTheDocument();
 
   // Get file inputs by their aria-label (now using placeholder as label)

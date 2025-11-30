@@ -10,47 +10,44 @@ import { HTMLCanvasElement } from "@playcanvas/canvas-mock";
 afterEach(() => {
   cleanup();
   localStorage.clear();
-  Object.defineProperty(window, "indexedDB", {
-    value: new IDBFactory(),
-  });
+  indexedDB = new IDBFactory();
 });
 
-Object.defineProperty(window, "AudioContext", {
-  value: vi.fn(() => ({
-    decodeAudioData: vi.fn(() => ({})),
-    currentTime: 0,
-    createBuffer: vi.fn(() => ({})),
-    createBufferSource: vi.fn(() => ({
+vi.stubGlobal("indexedDB", new IDBFactory());
+
+vi.stubGlobal(
+  "AudioContext",
+  class {
+    decodeAudioData = vi.fn(() => ({}));
+    currentTime = 0;
+    createBuffer = vi.fn(() => ({}));
+    createBufferSource = vi.fn(() => ({
       connect: vi.fn(),
       start: vi.fn(),
       stop: vi.fn(),
       disconnect: vi.fn(),
-    })),
-    createGain: vi.fn(() => ({
+    }));
+    createGain = vi.fn(() => ({
       connect: vi.fn(),
       gain: {
         cancelScheduledValues: vi.fn(),
         setTargetAtTime: vi.fn(),
       },
-    })),
-  })),
-});
+    }));
+  },
+);
 
 let idCounter = 0;
 
-Object.defineProperty(window, "crypto", {
-  value: {
-    randomUUID: () => {
-      const result = String(idCounter);
-      idCounter++;
-      return result;
-    },
+vi.stubGlobal("crypto", {
+  randomUUID: () => {
+    const result = String(idCounter);
+    idCounter++;
+    return result;
   },
 });
 
-Object.defineProperty(window, "HTMLCanvasElement", {
-  value: HTMLCanvasElement,
-});
+vi.stubGlobal("HTMLCanvasElement", HTMLCanvasElement);
 
 // https://github.com/radix-ui/primitives/issues/1822
 window.HTMLElement.prototype.hasPointerCapture = vi.fn();

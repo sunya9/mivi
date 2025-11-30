@@ -1,5 +1,4 @@
 /// <reference types="vitest" />
-/// <reference types="@vitest/browser/providers/playwright" />
 import path from "path";
 import { defineConfig, PluginOption } from "vite";
 import { configDefaults } from "vitest/config";
@@ -10,6 +9,7 @@ import { VitePWA } from "vite-plugin-pwa";
 import { visualizer } from "rollup-plugin-visualizer";
 import { codecovVitePlugin } from "@codecov/vite-plugin";
 import { BrowserCommand } from "vitest/node";
+import { playwright } from "@vitest/browser-playwright";
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -66,7 +66,7 @@ export default defineConfig(({ mode }) => ({
     }),
   ],
   optimizeDeps: {
-    include: ["mp4-muxer", "webm-muxer"],
+    include: ["mediabunny", "throttle-debounce"],
   },
   build: {
     rollupOptions: {
@@ -110,7 +110,7 @@ export default defineConfig(({ mode }) => ({
           browser: {
             commands: { waitForDownload },
             enabled: true,
-            provider: "playwright",
+            provider: playwright(),
             // https://vitest.dev/guide/browser/playwright
             instances: [{ browser: "chromium" }],
             headless: process.env.CI === "true",
