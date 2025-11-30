@@ -110,7 +110,7 @@ const expectedMidiTracks: MidiTracks = {
 
 const audioFilename = "test.mp3";
 const audioFilepath = path.resolve(__dirname, audioFilename);
-export const audioData = fs.readFileSync(audioFilepath);
+const audioData = fs.readFileSync(audioFilepath);
 
 const audioFile = new File([audioData], audioFilename, {
   type: "audio/mpeg",

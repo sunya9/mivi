@@ -5,7 +5,7 @@ import { ContextType, use, useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { CacheContext } from "@/contexts/cache-context";
 
-export async function createAudioBufferFromFile(
+async function createAudioBufferFromFile(
   audioFile: File,
   audioContext: AudioContext,
 ) {

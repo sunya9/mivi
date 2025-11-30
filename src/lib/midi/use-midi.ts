@@ -12,7 +12,7 @@ import { useMemo, useCallback } from "react";
 
 const defaultTrackConfig = getDefaultTrackConfig("");
 
-export async function loadMidi(midiFile: File) {
+async function loadMidi(midiFile: File) {
   const arrayBuffer = await midiFile.arrayBuffer();
   const midi = new Midi(arrayBuffer);
   const tracks = midi.tracks.map((track, index): MidiTrack => {
