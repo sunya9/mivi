@@ -79,7 +79,7 @@ jobs:
 
       - name: Upload build artifact
         if: inputs.upload_artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: dist
           path: dist/
