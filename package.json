@@ -44,7 +44,7 @@
     "react-theme-switch-animation": "^1.0.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.17",
+    "tailwindcss": "^4.1.18",
     "throttle-debounce": "^5.0.2"
   },
   "devDependencies": {
