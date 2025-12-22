@@ -69,8 +69,8 @@ importers:
         specifier: ^0.561.0
         version: 0.561.0(react@19.2.3)
       mediabunny:
-        specifier: ^1.25.7
-        version: 1.25.7
+        specifier: ^1.27.1
+        version: 1.27.1
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -2714,6 +2714,7 @@ packages:
 
   eslint-plugin-react-refresh@0.4.25:
     resolution: {integrity: sha512-dRUD2LOdEqI4zXHqbQ442blQAzdSuShAaiSq5Vtyy6LT08YUf0oOjBDo4VPx0dCPgiPWh1WB4dtbLOd0kOlDPQ==}
+    deprecated: This version introduced false positive. This was reverted in 0.4.26
     peerDependencies:
       eslint: '>=8.40'
 
@@ -3606,8 +3607,8 @@ packages:
     resolution: {integrity: sha512-aisnrDP4GNe06UcKFnV5bfMNPBUw4jsLGaWwWfnH3v02GnBuXX2MCVn5RbrWo0j3pczUilYblq7fQ7Nw2t5XKw==}
     engines: {node: '>= 0.8'}
 
-  mediabunny@1.25.7:
-    resolution: {integrity: sha512-DL0E1h29HTDaD9bYRXLSSHiAoLbDBksrdYS+4OHWA+aNhQeN+CAGEG7EU6wlhPZ8MOpwXIeC7uv06lo4ziohQQ==}
+  mediabunny@1.27.1:
+    resolution: {integrity: sha512-XdgXNox1hx2ynQy3jcCbzX1YsJt9en9VnZVidNXTNnQUdl6q2twSoV1GjgTb7Wlw9evCYXcKkgjE8KNU7K5trg==}
 
   merge-descriptors@2.0.0:
     resolution: {integrity: sha512-Snk314V5ayFLhp3fkUREub6WtjBfPdCPY1Ln8/8munuLuiYhsABgBVWsozAG+MWMbVEvcdcpbi9R7ww22l9Q3g==}
@@ -8534,7 +8535,7 @@ snapshots:
 
   media-typer@1.1.0: {}
 
-  mediabunny@1.25.7:
+  mediabunny@1.27.1:
     dependencies:
       '@types/dom-mediacapture-transform': 0.1.11
       '@types/dom-webcodecs': 0.1.13
