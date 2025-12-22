@@ -86,7 +86,7 @@
     "unplugin-fonts": "^1.4.0",
     "vite": "^7.2.7",
     "vite-plugin-pwa": "^1.2.0",
-    "vitest": "^4.0.15",
+    "vitest": "^4.0.16",
     "vitest-browser-react": "^2.0.2",
     "vitest-canvas-mock": "^1.1.3",
     "workbox-window": "^7.4.0"
