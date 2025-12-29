@@ -54,8 +54,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       colorjs.io:
-        specifier: ^0.5.2
-        version: 0.5.2
+        specifier: ^0.6.0
+        version: 0.6.0
       comlink:
         specifier: ^4.4.2
         version: 4.4.2
@@ -2387,8 +2387,8 @@ packages:
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
 
-  colorjs.io@0.5.2:
-    resolution: {integrity: sha512-twmVoizEW7ylZSN32OgKdXRmo1qg+wT5/6C3xu5b9QsWzSFAhHLn2xd8ro0diCsKfCj1RdaTP/nrcW+vAoQPIw==}
+  colorjs.io@0.6.0:
+    resolution: {integrity: sha512-NgaccdK0ajJ9DPfa5OrIFRfTm4XILboOuqKV6tu9UonREcve+RUilZR3cdo7BbG+xIHFbDv4CxTE4M2vsj7nqw==}
 
   comlink@4.4.2:
     resolution: {integrity: sha512-OxGdvBmJuNKSCMO4NTl1L47VRp6xn2wG4F/2hYzB6tiCb709otOxtEYCSvK80PtjODfXXZu8ds+Nw5kVCjqd2g==}
@@ -4781,6 +4781,7 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+    deprecated: Use @exodus/bytes instead for a more spec-conformant and faster implementation
 
   whatwg-mimetype@3.0.0:
     resolution: {integrity: sha512-nt+N2dzIutVRxARx1nghPKGv1xHikU7HKdfafKkLNLindmPU/ch3U31NOCGGA/dmPcmb1VlofO0vnKAcsm0o/Q==}
@@ -7259,7 +7260,7 @@ snapshots:
 
   color-name@1.1.4: {}
 
-  colorjs.io@0.5.2: {}
+  colorjs.io@0.6.0: {}
 
   comlink@4.4.2: {}
 
