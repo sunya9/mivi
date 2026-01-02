@@ -42,12 +42,12 @@ function toHex(value: number) {
     .padStart(2, "0");
 }
 
-const getTailwindColors = () => {
+function getTailwindColors() {
   const getPropertyValue = (colorKey: ColorKey, brightness: Brightness) => {
     const key = `--color-${colorKey}-${brightness}` as const;
     const oklch = tailwindDefaultColors[key];
     const [r, g, b] = new Color(oklch).srgb;
-    const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    const hex = `#${toHex(r ?? 0)}${toHex(g ?? 0)}${toHex(b ?? 0)}` as const;
     return hex;
   };
   return colorKeys.map((color) => ({
@@ -63,7 +63,7 @@ const getTailwindColors = () => {
     900: getPropertyValue(color, 900),
     950: getPropertyValue(color, 950),
   }));
-};
+}
 
 const getColorsPerPalette = getTailwindColors();
 
