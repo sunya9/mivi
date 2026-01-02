@@ -29,7 +29,7 @@
     "@tonejs/midi": "^2.0.28",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "colorjs.io": "^0.5.2",
+    "colorjs.io": "^0.6.0",
     "comlink": "^4.4.2",
     "lodash.defaultsdeep": "^4.6.1",
     "lodash.merge": "^4.6.2",
