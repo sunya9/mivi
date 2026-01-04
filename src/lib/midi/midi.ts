@@ -16,6 +16,7 @@ export interface MidiTrack {
 }
 
 export interface MidiTracks {
+  hash: string;
   name: string;
   tracks: MidiTrack[];
   duration: number;

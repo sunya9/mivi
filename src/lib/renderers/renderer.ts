@@ -114,6 +114,7 @@ export type BackgroundImageRepeat =
 export interface RendererConfig {
   type: RendererType;
   backgroundColor: string;
+  backgroundImageEnabled: boolean;
   backgroundImageUrl: string;
   backgroundImageFit: BackgroundImageFit;
   backgroundImagePosition: BackgroundImagePosition;
@@ -133,6 +134,7 @@ export type RendererContext =
 export const getDefaultRendererConfig = (): RendererConfig => ({
   type: "pianoRoll",
   backgroundColor: "#1a1a1a",
+  backgroundImageEnabled: true,
   backgroundImageUrl: "",
   backgroundImageFit: "cover",
   backgroundImagePosition: "center",
@@ -295,7 +297,7 @@ export abstract class Renderer {
     this.ctx.fillRect(0, 0, width, height);
 
     // 背景画像を描画
-    if (this.backgroundImageBitmap) {
+    if (this.backgroundImageBitmap && this.config.backgroundImageEnabled) {
       this.ctx.save();
       this.ctx.globalAlpha = this.config.backgroundImageOpacity;
 

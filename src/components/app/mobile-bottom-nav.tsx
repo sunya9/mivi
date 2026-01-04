@@ -1,0 +1,74 @@
+import { ListMusic, Settings, Palette } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
+import * as TabsPrimitive from "@radix-ui/react-tabs";
+
+export type MobileTabValue = "tracks" | "visualizer" | "style";
+
+interface TabConfig {
+  value: MobileTabValue;
+  label: string;
+  icon: ReactNode;
+}
+
+const tabs: TabConfig[] = [
+  { value: "tracks", label: "Tracks", icon: <ListMusic className="size-5" /> },
+  {
+    value: "visualizer",
+    label: "Settings",
+    icon: <Settings className="size-5" />,
+  },
+  { value: "style", label: "Style", icon: <Palette className="size-5" /> },
+] as const;
+
+interface MobileBottomNavProps {
+  value: MobileTabValue;
+  onValueChange: (value: MobileTabValue) => void;
+  className?: string;
+}
+
+export function MobileBottomNav({
+  value,
+  onValueChange,
+  className,
+}: MobileBottomNavProps) {
+  return (
+    <TabsPrimitive.Root
+      value={value}
+      onValueChange={(v) => onValueChange(v as MobileTabValue)}
+      className={cn(
+        "bg-background border-border border-t drop-shadow",
+        className,
+      )}
+    >
+      <TabsPrimitive.List
+        className={cn(
+          "relative grid grid-cols-3",
+          "before:absolute before:inset-[anchor(--tab_top)_anchor(--tab_right)_anchor(--tab_bottom)_anchor(--tab_left)] before:-z-10 before:[position-anchor:--tab]",
+          "before:bg-secondary before:m-1 before:rounded-md before:transition-all before:duration-1000",
+        )}
+      >
+        {tabs.map((tab) => (
+          <TabsPrimitive.Trigger
+            key={tab.value}
+            value={tab.value}
+            className={cn(
+              "text-muted-foreground relative flex flex-1 flex-col items-center gap-1 border-transparent bg-clip-padding py-2 text-xs font-normal",
+              "not-data-[state=active]:hover:text-primary data-[state=active]:text-primary",
+              "[:active,[data-state=active]]:[anchor-name:--tab]",
+              "not-supports-position-anchor:data-[state=active]:before:bg-secondary",
+              "not-supports-position-anchor:before:absolute",
+              "not-supports-position-anchor:before:inset-0",
+              "not-supports-position-anchor:before:-z-10",
+              "not-supports-position-anchor:before:m-1",
+              "not-supports-position-anchor:before:rounded-md",
+            )}
+          >
+            {tab.icon}
+            <span>{tab.label}</span>
+          </TabsPrimitive.Trigger>
+        ))}
+      </TabsPrimitive.List>
+    </TabsPrimitive.Root>
+  );
+}

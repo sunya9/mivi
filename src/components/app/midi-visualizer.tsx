@@ -12,11 +12,6 @@ import {
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
@@ -76,6 +71,35 @@ export function MidiVisualizer({
   ]);
   useAnimationFrame(onAnimate);
   const [expanded, setExpanded] = useState(false);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const [isTouchRevealed, setIsTouchRevealed] = useState(false);
+  const touchRevealTimeoutRef = useRef<number>(null);
+
+  const handleCanvasClick = useCallback(
+    (pointerType: string) => {
+      // Touch on mobile: reveal UI first, then toggle play on second tap
+      if (pointerType === "touch" && isPlaying && !isTouchRevealed) {
+        setIsTouchRevealed(true);
+        if (touchRevealTimeoutRef.current) {
+          clearTimeout(touchRevealTimeoutRef.current);
+        }
+        touchRevealTimeoutRef.current = window.setTimeout(() => {
+          setIsTouchRevealed(false);
+        }, 3000);
+        return;
+      }
+      // Mouse or second touch: toggle play
+      togglePlay();
+      // Reset touch reveal state
+      if (isTouchRevealed) {
+        setIsTouchRevealed(false);
+        if (touchRevealTimeoutRef.current) {
+          clearTimeout(touchRevealTimeoutRef.current);
+        }
+      }
+    },
+    [isPlaying, isTouchRevealed, togglePlay],
+  );
   const setExpandedAnimation = useCallback(
     (expanded: React.SetStateAction<boolean>) => {
       if (!document.startViewTransition) {
@@ -139,7 +163,7 @@ export function MidiVisualizer({
       onClick={closeExpanded}
       className={cn("select-none", {
         "relative h-full w-full": !expanded,
-        "bg-background/50 fixed inset-0 z-10 flex items-center justify-center backdrop-blur-sm":
+        "bg-background/50 fixed inset-0 z-30 flex items-center justify-center backdrop-blur-sm":
           expanded,
       })}
       aria-expanded={expanded}
@@ -149,7 +173,7 @@ export function MidiVisualizer({
         <Button
           variant="icon"
           onClick={closeExpanded}
-          className="absolute top-2 right-2 z-10 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16"
+          className="absolute top-2 right-2 z-50 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16"
         >
           <X strokeWidth={1} className="size-full" />
           <span className="sr-only">Close</span>
@@ -157,6 +181,8 @@ export function MidiVisualizer({
       )}
       <div
         data-is-playing={isPlaying}
+        data-is-interacting={isInteracting}
+        data-is-touch-revealed={isTouchRevealed}
         style={
           {
             "--aspect-ratio":
@@ -164,94 +190,100 @@ export function MidiVisualizer({
               rendererConfig.resolution.height,
           } as React.CSSProperties
         }
-        className={cn("group aspect-[var(--aspect-ratio)] overflow-hidden", {
+        className={cn("group aspect-(--aspect-ratio) overflow-hidden", {
           "h-full w-full": !expanded,
           "absolute inset-4 m-auto max-h-3/4 max-w-4xl shadow-lg": expanded,
         })}
         aria-modal={expanded}
       >
         <Canvas
+          key={rendererConfig.resolution.label}
           aspectRatio={
             rendererConfig.resolution.height / rendererConfig.resolution.width
           }
           onRedraw={onAnimate}
           onInit={setContext}
-          onClickCanvas={togglePlay}
+          onClickCanvas={handleCanvasClick}
           className="[view-transition-name:visualizer-canvas]"
         />
         <PlayIcon isPlaying={isPlaying} />
         <div
           className={cn(
             "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
-            "group-data-[is-playing=true]:translate-y-full group-data-[is-playing=true]:delay-1000",
-            "group-data-[is-playing=true]:group-hover:translate-y-0 group-data-[is-playing=true]:group-hover:delay-0",
+            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:translate-y-full group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:delay-3000",
+            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-hover:translate-y-0 group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-hover:delay-0",
             "light",
           )}
         >
-          <div className="flex items-center gap-2 [view-transition-name:visualizer-controls]">
-            <Button onClick={togglePlay} variant="ghostSecondary">
-              {isPlaying ? <Pause /> : <Play />}
-              <span className="sr-only">{isPlaying ? "Pause" : "Play"}</span>
-            </Button>
-            <div className="flex items-center gap-2">
-              <HoverCard openDelay={100}>
-                <HoverCardTrigger asChild>
-                  <Button
-                    variant="ghostSecondary"
-                    onClick={toggleMute}
-                    aria-pressed={muted}
-                  >
-                    {muted ? (
-                      <VolumeX className="size-4" />
-                    ) : (
-                      <Volume2 className="size-4" />
-                    )}
-                    <span className="sr-only">{muted ? "Unmute" : "Mute"}</span>
-                  </Button>
-                </HoverCardTrigger>
-                <HoverCardContent side="top" className="light w-48">
-                  <Slider
-                    value={[volume]}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    onValueChange={([value]) => {
-                      setVolume(value);
-                    }}
-                    onValueCommit={([value]) => {
-                      setVolume(value);
-                    }}
-                    aria-label="Volume"
-                  />
-                </HoverCardContent>
-              </HoverCard>
-            </div>
-            <span className="mr-2 min-w-28 text-right text-white">
-              {formatTime(currentTimeSec)} / {formatTime(duration)}
-            </span>
+          <div className="flex flex-col gap-1 [view-transition-name:visualizer-controls]">
             <Slider
               max={duration}
               value={[currentTimeSec]}
               step={0.1}
+              onPointerDown={() => setIsInteracting(true)}
               onValueChange={([e]) => seek(e, false)}
-              onValueCommit={([e]) => seek(e, true)}
-              // https://github.com/radix-ui/primtives/issues/1760#issuecomment-2133137759
-              onLostPointerCapture={makeSureToCommit}
-              className="flex-1"
+              onValueCommit={([e]) => {
+                seek(e, true);
+                setIsInteracting(false);
+              }}
+              // https://github.com/radix-ui/primitives/issues/1760#issuecomment-2133137759
+              onLostPointerCapture={() => {
+                makeSureToCommit();
+                setIsInteracting(false);
+              }}
+              className="*:data-[slot=slider-track]:bg-muted/30"
             />
-            <Button
-              variant="ghostSecondary"
-              onClick={toggleExpanded}
-              className="hidden md:block"
-              aria-haspopup="dialog"
-            >
-              {expanded ? (
-                <Minimize className="size-4" />
-              ) : (
-                <Maximize className="size-4" />
-              )}
-              <span className="sr-only">Expand</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button onClick={togglePlay} variant="ghostSecondary">
+                {isPlaying ? <Pause /> : <Play />}
+                <span className="sr-only">{isPlaying ? "Pause" : "Play"}</span>
+              </Button>
+              <Button
+                variant="ghostSecondary"
+                onClick={toggleMute}
+                aria-pressed={muted}
+              >
+                {muted ? (
+                  <VolumeX className="size-4" />
+                ) : (
+                  <Volume2 className="size-4" />
+                )}
+                <span className="sr-only">{muted ? "Unmute" : "Mute"}</span>
+              </Button>
+              <Slider
+                value={[volume]}
+                min={0}
+                max={1}
+                step={0.01}
+                onPointerDown={() => setIsInteracting(true)}
+                onValueChange={([value]) => {
+                  setVolume(value);
+                }}
+                onValueCommit={([value]) => {
+                  setVolume(value);
+                  setIsInteracting(false);
+                }}
+                onLostPointerCapture={() => setIsInteracting(false)}
+                aria-label="Volume"
+                className="w-24"
+              />
+              <span className="flex-1 text-white tabular-nums">
+                {formatTime(currentTimeSec)} / {formatTime(duration)}
+              </span>
+              <Button
+                variant="ghostSecondary"
+                onClick={toggleExpanded}
+                className="hidden md:block"
+                aria-haspopup="dialog"
+              >
+                {expanded ? (
+                  <Minimize className="size-4" />
+                ) : (
+                  <Maximize className="size-4" />
+                )}
+                <span className="sr-only">Expand</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>

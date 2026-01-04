@@ -188,4 +188,26 @@ test("should not show background image settings when no image is selected", () =
   expect(
     screen.queryByRole("slider", { name: /Image Opacity/ }),
   ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("switch", { name: "Show Background Image" }),
+  ).not.toBeInTheDocument();
+});
+
+test("should call onUpdateRendererConfig when background image enabled is toggled", async () => {
+  renderCommonConfigPane();
+  const enabledSwitch = screen.getByRole("switch", {
+    name: "Show Background Image",
+  });
+  expect(enabledSwitch).toBeInTheDocument();
+  await userEvent.click(enabledSwitch);
+  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
+    backgroundImageEnabled: false,
+  });
+});
+
+test("should show background image toggle when image is selected", () => {
+  renderCommonConfigPane({ backgroundImageFilename: "test.png" });
+  expect(
+    screen.getByRole("switch", { name: "Show Background Image" }),
+  ).toBeInTheDocument();
 });

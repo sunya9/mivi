@@ -11,9 +11,8 @@ import { useMemo, useCallback } from "react";
 import { MidiTracks } from "../midi/midi";
 import { PianoRollConfigPanel } from "@/lib/renderers/piano-roll/piano-roll-config-panel";
 import { CometConfigPanel } from "@/lib/renderers/comet/comet-config-panel";
-import { CollapsibleCardPane } from "@/components/common/collapsible-card-pane";
 import { FormRow } from "@/components/common/form-row";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectTrigger,
@@ -88,40 +87,43 @@ export function useRendererConfig(midiTracks?: MidiTracks) {
   }));
   const VisualizerStyle = (
     <Card className="border-0 bg-transparent shadow-none">
-      <CollapsibleCardPane header={<h2>Visualizer Style</h2>}>
-        <CardContent>
-          <FormRow
-            label={<span>Style</span>}
-            controller={
-              <Select
-                value={rendererConfig.type}
-                onValueChange={(value: RendererType) =>
-                  onUpdateRendererConfig({ type: value })
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue
-                    className="display w-auto"
-                    placeholder="Select visualization style"
-                  />
-                </SelectTrigger>
-                <SelectContent align="end">
-                  {renderers.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            }
-          />
-          {selectedRenderer?.renderConfig(
-            rendererConfig,
-            onUpdateRendererConfig,
-            midiTracks,
-          )}
-        </CardContent>
-      </CollapsibleCardPane>
+      <CardHeader>
+        <CardTitle>
+          <h2>Visualizer Style</h2>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <FormRow
+          label={<span>Style</span>}
+          controller={
+            <Select
+              value={rendererConfig.type}
+              onValueChange={(value: RendererType) =>
+                onUpdateRendererConfig({ type: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue
+                  className="display w-auto"
+                  placeholder="Select visualization style"
+                />
+              </SelectTrigger>
+              <SelectContent align="end">
+                {renderers.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          }
+        />
+        {selectedRenderer?.renderConfig(
+          rendererConfig,
+          onUpdateRendererConfig,
+          midiTracks,
+        )}
+      </CardContent>
     </Card>
   );
 
