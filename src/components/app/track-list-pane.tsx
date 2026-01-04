@@ -1,7 +1,12 @@
 import { TrackItem } from "./track-item";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { CollapsibleCardPane } from "@/components/common/collapsible-card-pane";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { FileButton } from "@/components/common/file-button";
 import { FormRow } from "@/components/common/form-row";
 import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
@@ -102,99 +107,102 @@ export const TrackListPane = React.memo(function TrackListPane({
   );
   return (
     <Card className="border-0 bg-transparent shadow-none">
-      <CollapsibleCardPane header={<h2>Tracks</h2>}>
-        <CardContent className="grid grid-cols-1 gap-2">
-          <FileButton
-            filename={midiFilename}
-            setFile={onChangeMidiFile}
-            accept=".mid,.midi"
-            placeholder="Choose MIDI file"
-            cancelLabel="Cancel MIDI file"
+      <CardHeader>
+        <CardTitle>
+          <h2>Tracks</h2>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="grid grid-cols-1 gap-2">
+        <FileButton
+          filename={midiFilename}
+          setFile={onChangeMidiFile}
+          accept=".mid,.midi"
+          placeholder="Choose MIDI file"
+          cancelLabel="Cancel MIDI file"
+        />
+      </CardContent>
+      {midiTracks && (
+        <CardContent>
+          <FormRow
+            label="MIDI Offset (s)"
+            controller={({ id }) => (
+              <InputGroup className="w-32">
+                <InputGroupAddon align="inline-start">
+                  <InputGroupButton
+                    size="icon-xs"
+                    onClick={decrementOffset}
+                    aria-label="Decrease offset"
+                  >
+                    <Minus />
+                  </InputGroupButton>
+                </InputGroupAddon>
+                <InputGroupInput
+                  id={id}
+                  type="number"
+                  className="text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  value={offsetInputValue}
+                  onChange={handleOffsetInputChange}
+                  onBlur={handleOffsetInputBlur}
+                  step={0.1}
+                />
+                <InputGroupAddon align="inline-end">
+                  <InputGroupButton
+                    size="icon-xs"
+                    onClick={incrementOffset}
+                    aria-label="Increase offset"
+                  >
+                    <Plus />
+                  </InputGroupButton>
+                </InputGroupAddon>
+              </InputGroup>
+            )}
           />
         </CardContent>
-        {midiTracks && (
+      )}
+      {midiTracks && (
+        <>
           <CardContent>
-            <FormRow
-              label="MIDI Offset (s)"
-              controller={({ id }) => (
-                <InputGroup className="w-32">
-                  <InputGroupAddon align="inline-start">
-                    <InputGroupButton
-                      size="icon-xs"
-                      onClick={decrementOffset}
-                      aria-label="Decrease offset"
-                    >
-                      <Minus />
-                    </InputGroupButton>
-                  </InputGroupAddon>
-                  <InputGroupInput
-                    id={id}
-                    type="number"
-                    className="text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                    value={offsetInputValue}
-                    onChange={handleOffsetInputChange}
-                    onBlur={handleOffsetInputBlur}
-                    step={0.1}
-                  />
-                  <InputGroupAddon align="inline-end">
-                    <InputGroupButton
-                      size="icon-xs"
-                      onClick={incrementOffset}
-                      aria-label="Increase offset"
-                    >
-                      <Plus />
-                    </InputGroupButton>
-                  </InputGroupAddon>
-                </InputGroup>
-              )}
-            />
+            <div className="divide-y">
+              {midiTracks.tracks.map((track, i) => (
+                <TrackItem
+                  key={track.id}
+                  track={track}
+                  index={i}
+                  onUpdateTrackConfig={onTrackConfigUpdate}
+                />
+              ))}
+            </div>
           </CardContent>
-        )}
-        {midiTracks && (
-          <>
-            <CardContent>
-              <div className="divide-y">
-                {midiTracks.tracks.map((track, i) => (
-                  <TrackItem
-                    key={track.id}
-                    track={track}
-                    index={i}
-                    onUpdateTrackConfig={onTrackConfigUpdate}
-                  />
-                ))}
-              </div>
-            </CardContent>
-            <CardFooter className="flex-col items-start gap-2">
-              <div className="flex flex-row flex-wrap items-center justify-start gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
-                    setMidiTracks({
-                      ...midiTracks,
-                      tracks: randomizeColorsColorful(midiTracks.tracks),
-                    })
-                  }
-                >
-                  Randomize colors (colorful)
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() =>
-                    setMidiTracks({
-                      ...midiTracks,
-                      tracks: randomizeColorsGradient(midiTracks.tracks),
-                    })
-                  }
-                >
-                  Randomize colors (gradient)
-                </Button>
-              </div>
-            </CardFooter>
-          </>
-        )}
-      </CollapsibleCardPane>
+          <CardFooter className="flex-col items-start gap-2">
+            <div className="flex flex-row flex-wrap items-center justify-start gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  setMidiTracks({
+                    ...midiTracks,
+                    tracks: randomizeColorsColorful(midiTracks.tracks),
+                  })
+                }
+              >
+                Randomize colors (colorful)
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  setMidiTracks({
+                    ...midiTracks,
+                    tracks: randomizeColorsGradient(midiTracks.tracks),
+                  })
+                }
+              >
+                Randomize colors (gradient)
+              </Button>
+            </div>
+          </CardFooter>
+        </>
+      )}
     </Card>
   );
 });

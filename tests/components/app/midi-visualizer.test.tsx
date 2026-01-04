@@ -65,7 +65,8 @@ test("renders basic controls", () => {
   );
 
   expect(screen.getByRole("button", { name: "Play" })).toBeInTheDocument();
-  expect(screen.getByRole("slider")).toBeInTheDocument();
+  expect(screen.getAllByRole("slider")).toHaveLength(2); // seek + volume
+  expect(screen.getByRole("slider", { name: "Volume" })).toBeInTheDocument();
   expect(screen.getByText(/0:00 \/ 0:10/)).toBeInTheDocument();
 });
 
@@ -77,9 +78,8 @@ test("handles volume control", async () => {
     />,
   );
 
-  const volumeButton = screen.getByRole("button", { name: "Mute" });
-  await userEvent.hover(volumeButton);
-  const volumeSlider = await screen.findByRole("slider", { name: "Volume" });
+  // Volume slider is always visible (no longer in HoverCard)
+  const volumeSlider = screen.getByRole("slider", { name: "Volume" });
   await userEvent.click(volumeSlider);
   await userEvent.keyboard("{arrowleft}");
 
@@ -94,7 +94,8 @@ test("handles seek control", async () => {
     />,
   );
 
-  const seekSlider = screen.getByRole("slider");
+  // First slider is the seek bar, second is volume
+  const seekSlider = screen.getAllByRole("slider")[0];
   await userEvent.click(seekSlider);
   await userEvent.keyboard("{arrowright}");
 

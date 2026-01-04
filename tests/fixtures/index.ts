@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import * as crypto from "node:crypto";
 import { MidiTracks } from "@/lib/midi/midi";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
@@ -8,12 +9,14 @@ import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 const midiFilename = "test.mid";
 const midiFilepath = path.resolve(__dirname, midiFilename);
 const midiBuffer = fs.readFileSync(midiFilepath);
+const midiHash = crypto.createHash("sha256").update(midiBuffer).digest("hex");
 
 const midiFile = new File([midiBuffer], midiFilename, {
   type: "audio/midi",
 });
 
 const expectedMidiTracks: MidiTracks = {
+  hash: midiHash,
   duration: 4,
   minNote: 60,
   maxNote: 72,

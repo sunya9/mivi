@@ -14,7 +14,7 @@ export function Loading() {
   }, []);
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center space-y-4">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-transparent border-t-blue-500"></div>
+      <div className="border-t-primary h-10 w-10 animate-spin rounded-full border-4 border-transparent"></div>
       <p className="text-muted-foreground">Loading...</p>
 
       <div className={cn({ invisible: !showReset })} aria-hidden={!showReset}>

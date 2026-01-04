@@ -21,7 +21,7 @@ test("renders error message when error is an Error instance", () => {
 });
 
 test("renders stringified error when error is not an Error instance", () => {
-  const error = { message: "Custom error object" };
+  const error = new Error("Custom error object");
   render(<Fallback error={error} resetErrorBoundary={() => {}} />);
 
   expect(screen.getByText("Error")).toBeInTheDocument();
