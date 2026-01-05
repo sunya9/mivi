@@ -87,6 +87,7 @@ export default defineConfig(({ mode }) => ({
   test: {
     watch: false,
     coverage: {
+      include: ["src/**/*.ts", "src/**/*.tsx"],
       exclude: [
         ...(configDefaults.coverage.exclude || []),
         "src/components/ui/**",
