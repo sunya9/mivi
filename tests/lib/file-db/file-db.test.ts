@@ -19,3 +19,16 @@ test("return empty if file not found", async () => {
   const result = await fetchFile(key);
   expect(result).toBeUndefined();
 });
+
+test("should delete file when saveFile is called with undefined", async () => {
+  const key = "delete-test-key";
+  const file = new File(["test content"], "test.txt", { type: "text/plain" });
+
+  await saveFile(key, file);
+  const saved = await fetchFile(key);
+  expect(saved?.name).toEqual(file.name);
+
+  await saveFile(key, undefined);
+  const deleted = await fetchFile(key);
+  expect(deleted).toBeUndefined();
+});
