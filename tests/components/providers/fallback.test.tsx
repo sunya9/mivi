@@ -20,14 +20,6 @@ test("renders error message when error is an Error instance", () => {
   expect(screen.getByText("Reset configuration")).toBeInTheDocument();
 });
 
-test("renders stringified error when error is not an Error instance", () => {
-  const error = new Error("Custom error object");
-  render(<Fallback error={error} resetErrorBoundary={() => {}} />);
-
-  expect(screen.getByText("Error")).toBeInTheDocument();
-  expect(screen.getByText(new RegExp(error.message, "i"))).toBeInTheDocument();
-});
-
 test("calls resetConfig when reset button is clicked", () => {
   render(
     <Fallback error={new Error("Test error")} resetErrorBoundary={() => {}} />,
