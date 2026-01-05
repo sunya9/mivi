@@ -52,8 +52,8 @@ export function Canvas({
         "flex items-center justify-center",
         "bg-gray-50 dark:bg-gray-600",
         "bg-[linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas)),linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas))]",
-        "bg-[position:0_0,8px_8px]",
-        "bg-[size:16px_16px]",
+        "bg-position-[0_0,8px_8px]",
+        "bg-size-[16px_16px]",
         "[view-transition-name:canvas-wrapper]",
       )}
     >
