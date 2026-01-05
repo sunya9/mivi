@@ -35,25 +35,6 @@ export const TrackListPane = React.memo(function TrackListPane({
   midiFilename,
   onChangeMidiFile,
 }: Props) {
-  const onTrackConfigUpdate = useCallback(
-    (trackIndex: number, config: Partial<MidiTrack["config"]>) => {
-      if (!midiTracks) return;
-
-      const newMidiTracks = {
-        ...midiTracks,
-        tracks: midiTracks.tracks.with(trackIndex, {
-          ...midiTracks.tracks[trackIndex],
-          config: {
-            ...midiTracks.tracks[trackIndex].config,
-            ...config,
-          },
-        }),
-      };
-      setMidiTracks(newMidiTracks);
-    },
-    [midiTracks, setMidiTracks],
-  );
-
   const [offsetInputValue, setOffsetInputValue] = useState(
     () => `${midiTracks?.midiOffset || 0}`,
   );
@@ -163,14 +144,10 @@ export const TrackListPane = React.memo(function TrackListPane({
         <>
           <CardContent>
             <div className="divide-y">
-              {midiTracks.tracks.map((track, i) => (
-                <TrackItem
-                  key={track.id}
-                  track={track}
-                  index={i}
-                  onUpdateTrackConfig={onTrackConfigUpdate}
-                />
-              ))}
+              <TrackList
+                midiTracks={midiTracks}
+                onUpdateMidiTracks={setMidiTracks}
+              />
             </div>
           </CardContent>
           <CardFooter className="flex-col items-start gap-2">
@@ -205,6 +182,39 @@ export const TrackListPane = React.memo(function TrackListPane({
       )}
     </Card>
   );
+});
+
+const TrackList = React.memo(function TrackList({
+  midiTracks,
+  onUpdateMidiTracks,
+}: {
+  midiTracks: MidiTracks;
+  onUpdateMidiTracks: (midiTracks: MidiTracks) => void;
+}) {
+  const onTrackConfigUpdate = useCallback(
+    (trackIndex: number, config: Partial<MidiTrack["config"]>) => {
+      const newTracks = midiTracks.tracks.with(trackIndex, {
+        ...midiTracks.tracks[trackIndex],
+        config: {
+          ...midiTracks.tracks[trackIndex].config,
+          ...config,
+        },
+      });
+      onUpdateMidiTracks({
+        ...midiTracks,
+        tracks: newTracks,
+      });
+    },
+    [midiTracks, onUpdateMidiTracks],
+  );
+  return midiTracks.tracks.map((track, i) => (
+    <TrackItem
+      key={track.id}
+      track={track}
+      index={i}
+      onUpdateTrackConfig={onTrackConfigUpdate}
+    />
+  ));
 });
 
 function randomizeColorsGradient(midiTracks: MidiTracks["tracks"]) {
