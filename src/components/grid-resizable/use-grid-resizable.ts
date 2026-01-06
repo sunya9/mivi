@@ -177,15 +177,19 @@ export function useGridResizable({
   }, [panels]);
 
   const [sizes, setSizesInternal] = useState<Record<string, PanelSize>>(() => {
-    if (storedLayout) {
-      return storedLayout.sizes;
-    }
-    return Object.fromEntries(panels.map((p) => [p.id, p.defaultSize]));
+    return storedLayout
+      ? storedLayout.sizes
+      : Object.fromEntries(panels.map((p) => [p.id, p.defaultSize]));
   });
+
+  // Ref to track latest sizes synchronously for endResize callback
+  // useRef only uses the argument on first render
+  const sizesRef = useRef(sizes);
 
   const setSizes = useCallback(
     (newSizes: Record<string, PanelSize>) => {
       const constrained = applyConstraints(newSizes, panelConfigs);
+      sizesRef.current = constrained;
       setSizesInternal(constrained);
       onLayoutChange?.({ sizes: constrained });
     },
@@ -268,10 +272,10 @@ export function useGridResizable({
 
   const endResize = useCallback(() => {
     if (resizeStateRef.current?.active) {
-      persistLayout(sizes);
+      persistLayout(sizesRef.current);
     }
     resizeStateRef.current = null;
-  }, [sizes, persistLayout]);
+  }, [persistLayout]);
 
   const resizeByKeyboard = useCallback(
     (
