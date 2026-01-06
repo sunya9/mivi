@@ -173,13 +173,14 @@
     grid-template-areas:
       "track-list sep-h1 visualizer sep-h2 style"
       "track-list sep-h1 sep-v sep-h2 style"
-      "track-list sep-h1 config sep-h2 style";
+      "track-list sep-h1 config sep-h2 style"
+      "about about about about about";
     grid-template-columns:
       minmax(0, var(--panel-track-list)) 1px
       minmax(0, var(--panel-center)) 1px
       minmax(0, var(--panel-style));
     grid-template-rows:
       minmax(0, var(--panel-visualizer))
-      1px minmax(0, var(--panel-config));
+      1px minmax(0, var(--panel-config)) auto;
   }
 }
