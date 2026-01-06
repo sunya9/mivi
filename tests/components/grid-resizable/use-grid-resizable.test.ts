@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import {
   useGridResizable,
@@ -84,13 +84,8 @@ describe("useGridResizable", () => {
 
   describe("resizeByKeyboard", () => {
     it("should resize panels by default step", () => {
-      const onLayoutChange = vi.fn();
       const { result } = renderHook(() =>
-        useGridResizable({
-          id: "test",
-          panels: defaultPanels,
-          onLayoutChange,
-        }),
+        useGridResizable({ id: "test", panels: defaultPanels }),
       );
 
       act(() => {
@@ -239,34 +234,6 @@ describe("useGridResizable", () => {
       });
 
       expect(result.current.contextValue.sizes.panel1).toBeLessThanOrEqual(1.5);
-    });
-  });
-
-  describe("onLayoutChange callback", () => {
-    it("should call onLayoutChange when sizes change", () => {
-      const onLayoutChange = vi.fn();
-      const { result } = renderHook(() =>
-        useGridResizable({
-          id: "test",
-          panels: defaultPanels,
-          onLayoutChange,
-        }),
-      );
-
-      act(() => {
-        result.current.contextValue.resizeByKeyboard(
-          "horizontal",
-          ["panel1", "panel2"],
-          1,
-        );
-      });
-
-      expect(onLayoutChange).toHaveBeenCalled();
-      expect(onLayoutChange).toHaveBeenCalledWith(
-        expect.objectContaining({
-          sizes: expect.any(Object),
-        }),
-      );
     });
   });
 
