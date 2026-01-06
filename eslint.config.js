@@ -49,6 +49,10 @@ export default defineConfig(
           allowThrowingAny: true,
         },
       ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { ignoreRestSiblings: true },
+      ],
     },
   },
   {

@@ -24,7 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export function App() {
-  const { setMidiFile, midiTracks, setMidiTracks } = useMidi();
+  const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();
   const { rendererConfig, onUpdateRendererConfig, VisualizerStyle } =
     useRendererConfig(midiTracks);
   const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
@@ -91,7 +91,7 @@ export function App() {
         >
           <ScrollArea type="auto" className="@container h-full w-full">
             <TrackListPane
-              key={midiTracks?.hash}
+              key={midiTracks?.instanceKey}
               midiTracks={midiTracks}
               setMidiTracks={setMidiTracks}
               midiFilename={midiTracks?.name}
@@ -159,6 +159,7 @@ export function App() {
         onValueChange={setMobileTab}
       />
       <Toaster position="top-center" />
+      {ConfirmDialog}
     </div>
   );
 }

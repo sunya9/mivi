@@ -17,6 +17,8 @@ export interface MidiTrack {
 
 export interface MidiTracks {
   hash: string;
+  /** Random key generated on each load, used for React key prop to trigger remount */
+  instanceKey: string;
   name: string;
   tracks: MidiTrack[];
   duration: number;

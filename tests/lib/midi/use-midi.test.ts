@@ -29,7 +29,11 @@ test("loads and processes MIDI file", async () => {
     await result.current.setMidiFile(midiFile);
   });
 
-  expect(result.current.midiTracks).toEqual(expectedMidiTracks);
+  const { instanceKey, ...rest } = result.current.midiTracks!;
+  const { instanceKey: _, ...expectedRest } = expectedMidiTracks;
+  expect(rest).toEqual(expectedRest);
+  expect(typeof instanceKey).toBe("string");
+  expect(instanceKey.length).toBeGreaterThan(0);
 });
 
 test("sets midiTracks to undefined when setMidiFile is called with undefined", async () => {
