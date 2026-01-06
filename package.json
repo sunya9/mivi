@@ -66,6 +66,7 @@
     "@vitest/coverage-v8": "4.0.16",
     "@vitest/eslint-plugin": "^1.6.4",
     "@vitest/web-worker": "^4.0.16",
+    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.0.1",
