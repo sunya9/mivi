@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GridResizableSeparator } from "@/components/grid-resizable/grid-resizable-separator";
 import {
@@ -300,6 +300,21 @@ describe("GridResizableSeparator", () => {
         "aria-orientation",
         "horizontal",
       );
+    });
+  });
+
+  describe("pointer interaction", () => {
+    it("should call endResize on pointercancel", () => {
+      const context = renderSeparator();
+      const separator = screen.getByRole("separator");
+
+      const releasePointerCapture = vi.fn();
+      separator.releasePointerCapture = releasePointerCapture;
+
+      fireEvent.pointerCancel(separator, { pointerId: 1 });
+
+      expect(releasePointerCapture).toHaveBeenCalledWith(1);
+      expect(context.endResize).toHaveBeenCalled();
     });
   });
 });

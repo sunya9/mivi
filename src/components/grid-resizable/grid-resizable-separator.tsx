@@ -58,11 +58,15 @@ export function GridResizableSeparator({
     [endResize],
   );
 
-  const handlePointerCancel = useCallback((e: React.PointerEvent) => {
-    if (e.target instanceof HTMLElement) {
-      e.target.releasePointerCapture(e.pointerId);
-    }
-  }, []);
+  const handlePointerCancel = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.target instanceof HTMLElement) {
+        e.target.releasePointerCapture(e.pointerId);
+      }
+      endResize();
+    },
+    [endResize],
+  );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
