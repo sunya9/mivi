@@ -65,7 +65,7 @@ export function Canvas({
           ...style,
           aspectRatio: `${1 / aspectRatio}`,
         }}
-        onPointerUp={(e) => onClickCanvas(e.pointerType)}
+        onPointerUp={(e) => e.button === 0 && onClickCanvas(e.pointerType)}
         {...props}
       />
     </div>
