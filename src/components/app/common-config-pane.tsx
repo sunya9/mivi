@@ -1,12 +1,5 @@
 import { memo } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectTrigger,
@@ -31,7 +24,6 @@ import {
 import { FormRow } from "@/components/common/form-row";
 import { InfoTooltip } from "@/components/common/info-tooltip";
 import { DeepPartial } from "@/lib/type-utils";
-import { ToggleTheme } from "@/components/app/toggle-theme";
 import { Slider } from "@/components/ui/slider";
 import { FileButton } from "@/components/common/file-button";
 import { Switch } from "@/components/ui/switch";
@@ -286,23 +278,6 @@ export const CommonConfigPane = memo(function CommonConfigPane({
           }
         />
       </CardContent>
-      <CardFooter className="text-muted-foreground mt-4 flex-wrap gap-2 border-t text-sm">
-        <p className="flex-none">
-          Created by{" "}
-          <Button variant="linkSmall" size="link" asChild>
-            <a href="https://x.com/ephemeralMocha">@ephemeralMocha</a>
-          </Button>
-          .
-        </p>
-        <p>
-          <Button variant="linkSmall" size="link" asChild>
-            <a href="https://github.com/sunya9/mivi">Repository</a>
-          </Button>
-        </p>
-        <p>
-          <ToggleTheme />
-        </p>
-      </CardFooter>
     </Card>
   );
 });

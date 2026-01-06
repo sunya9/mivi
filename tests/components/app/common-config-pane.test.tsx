@@ -35,16 +35,6 @@ test("should render basic layout", () => {
   renderCommonConfigPane();
   expect(screen.getByText("Audio Settings")).toBeInTheDocument();
   expect(screen.getByText("Common settings")).toBeInTheDocument();
-  const footerParagraph = screen.getByText(/Created by/);
-  expect(footerParagraph).toBeInTheDocument();
-
-  expect(
-    screen.getByRole("link", { name: "@ephemeralMocha" }),
-  ).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: "Repository" })).toBeInTheDocument();
-  expect(
-    screen.getByRole("button", { name: "Switch theme to dark" }),
-  ).toBeInTheDocument();
 });
 
 test("should call onChangeAudioFile when audio file is selected", () => {

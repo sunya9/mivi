@@ -4,12 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { MobileBottomNav } from "@/components/app/mobile-bottom-nav";
 
 describe("MobileBottomNav", () => {
-  it("should render all three tabs", () => {
+  it("should render all four tabs", () => {
     render(<MobileBottomNav value="tracks" onValueChange={vi.fn()} />);
 
     expect(screen.getByText("Tracks")).toBeInTheDocument();
     expect(screen.getByText("Settings")).toBeInTheDocument();
     expect(screen.getByText("Style")).toBeInTheDocument();
+    expect(screen.getByText("About")).toBeInTheDocument();
   });
 
   it("should highlight the active tab", () => {
@@ -61,12 +62,15 @@ describe("MobileBottomNav", () => {
 
     await user.click(screen.getByRole("tab", { name: /style/i }));
     expect(onValueChange).toHaveBeenLastCalledWith("style");
+
+    await user.click(screen.getByRole("tab", { name: /about/i }));
+    expect(onValueChange).toHaveBeenLastCalledWith("about");
   });
 
   it("should render icons for each tab", () => {
     render(<MobileBottomNav value="tracks" onValueChange={vi.fn()} />);
 
     const svgIcons = document.querySelectorAll("svg");
-    expect(svgIcons).toHaveLength(3);
+    expect(svgIcons).toHaveLength(4);
   });
 });

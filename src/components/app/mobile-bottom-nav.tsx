@@ -1,9 +1,9 @@
-import { ListMusic, Settings, Palette } from "lucide-react";
+import { ListMusic, Settings, Palette, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 
-export type MobileTabValue = "tracks" | "visualizer" | "style";
+export type MobileTabValue = "tracks" | "visualizer" | "style" | "about";
 
 interface TabConfig {
   value: MobileTabValue;
@@ -19,6 +19,7 @@ const tabs: TabConfig[] = [
     icon: <Settings className="size-5" />,
   },
   { value: "style", label: "Style", icon: <Palette className="size-5" /> },
+  { value: "about", label: "About", icon: <Info className="size-5" /> },
 ] as const;
 
 interface MobileBottomNavProps {
@@ -43,7 +44,7 @@ export function MobileBottomNav({
     >
       <TabsPrimitive.List
         className={cn(
-          "relative grid grid-cols-3",
+          "relative grid grid-cols-4",
           "before:absolute before:inset-[anchor(--tab_top)_anchor(--tab_right)_anchor(--tab_bottom)_anchor(--tab_left)] before:-z-10 before:[position-anchor:--tab]",
           "before:bg-secondary before:m-1 before:rounded-md before:transition-all before:duration-1000",
         )}

@@ -9,6 +9,7 @@ import { AppHeader } from "@/components/app/app-header";
 import { TrackListPane } from "@/components/app/track-list-pane";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { CommonConfigPane } from "@/components/app/common-config-pane";
+import { AboutPanel } from "@/components/app/about-panel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMidi } from "@/lib/midi/use-midi";
 import { useAudio } from "@/lib/audio/use-audio";
@@ -73,7 +74,10 @@ export function App() {
       >
         <GridResizablePanel
           panelId="visualizer"
-          className="area-[visualizer] max-h-[calc(100dvh/3)] md:max-h-none"
+          className={cn(
+            "area-[visualizer] max-h-[calc(100dvh/3)] md:max-h-none",
+            { "hidden md:block": mobileTab === "about" },
+          )}
         >
           <MidiVisualizer
             rendererConfig={rendererConfig}
@@ -150,6 +154,18 @@ export function App() {
           <ScrollArea className="h-full w-full" type="auto">
             {VisualizerStyle}
           </ScrollArea>
+        </GridResizablePanel>
+
+        <GridResizablePanel
+          panelId="about"
+          className={cn(
+            "area-[content] md:area-[about] md:block",
+            mobileTab === "about" ? "block" : "hidden",
+            "md:-mx-[calc((100dvw-min(100dvw,--spacing(384)))/2)] md:border-t",
+          )}
+          asChild
+        >
+          <AboutPanel />
         </GridResizablePanel>
       </GridResizablePanelGroup>
 
