@@ -17,8 +17,14 @@ export function GridResizableSeparator({
   controls,
   className,
 }: GridResizableSeparatorProps) {
-  const { sizes, startResize, updateResize, endResize, resizeByKeyboard } =
-    useGridResizableContext();
+  const {
+    sizes,
+    startResize,
+    updateResize,
+    endResize,
+    resizeByKeyboard,
+    resizeToMin,
+  } = useGridResizableContext();
 
   const [beforeId, afterId] = controls;
 
@@ -75,15 +81,19 @@ export function GridResizableSeparator({
           break;
         case "Home":
           e.preventDefault();
-          resizeByKeyboard(orientation, controls, -1, sizes[beforeId] ?? 1);
+          if (resizeToMin) {
+            resizeToMin(controls, beforeId);
+          }
           break;
         case "End":
           e.preventDefault();
-          resizeByKeyboard(orientation, controls, 1, sizes[afterId] ?? 1);
+          if (resizeToMin) {
+            resizeToMin(controls, afterId);
+          }
           break;
       }
     },
-    [orientation, controls, resizeByKeyboard, sizes, beforeId, afterId],
+    [orientation, controls, resizeByKeyboard, resizeToMin, beforeId, afterId],
   );
 
   const valueNow = useMemo(() => {

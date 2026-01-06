@@ -304,6 +304,45 @@ export function useGridResizable({
     [sizes, setSizes, persistLayout],
   );
 
+  const resizeToMin = useCallback(
+    (controls: [string, string], shrinkPanelId: string) => {
+      const [beforeId, afterId] = controls;
+      const beforeSize = sizes[beforeId];
+      const afterSize = sizes[afterId];
+
+      if (beforeSize === undefined || afterSize === undefined) return;
+
+      const shrinkPanel = panelConfigs.get(shrinkPanelId);
+      const minSize = shrinkPanel?.constraints?.minSize ?? 0.1;
+      const totalSize = beforeSize + afterSize;
+
+      let newSizes: Record<string, PanelSize>;
+      if (shrinkPanelId === beforeId) {
+        // Shrink before panel to minimum, expand after panel
+        const newBeforeSize = minSize;
+        const newAfterSize = totalSize - minSize;
+        newSizes = {
+          ...sizes,
+          [beforeId]: newBeforeSize,
+          [afterId]: newAfterSize,
+        };
+      } else {
+        // Shrink after panel to minimum, expand before panel
+        const newAfterSize = minSize;
+        const newBeforeSize = totalSize - minSize;
+        newSizes = {
+          ...sizes,
+          [beforeId]: newBeforeSize,
+          [afterId]: newAfterSize,
+        };
+      }
+
+      setSizes(newSizes);
+      persistLayout(newSizes);
+    },
+    [sizes, panelConfigs, setSizes, persistLayout],
+  );
+
   const panelStyles = useMemo<CSSProperties>(() => {
     const vars: Record<string, string> = {};
     for (const [panelId, size] of Object.entries(sizes)) {
@@ -320,6 +359,7 @@ export function useGridResizable({
       updateResize,
       endResize,
       resizeByKeyboard,
+      resizeToMin,
       getContainerRef,
     }),
     [
@@ -329,6 +369,7 @@ export function useGridResizable({
       updateResize,
       endResize,
       resizeByKeyboard,
+      resizeToMin,
       getContainerRef,
     ],
   );
