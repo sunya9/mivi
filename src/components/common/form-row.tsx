@@ -10,7 +10,7 @@ export function FormRow({ label, controller }: Props) {
   const isFunction = typeof controller === "function";
 
   return (
-    <label className="-mx-6 my-4 flex items-center justify-between px-6">
+    <label className="-mx-6 flex items-center justify-between px-6">
       <div className="flex-1" id={id}>
         {label}
       </div>

@@ -92,7 +92,7 @@ export function useRendererConfig(midiTracks?: MidiTracks) {
           <h2>Visualizer Style</h2>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <FormRow
           label={<span>Style</span>}
           controller={
