@@ -75,6 +75,15 @@ export function MidiVisualizer({
   const [isTouchRevealed, setIsTouchRevealed] = useState(false);
   const touchRevealTimeoutRef = useRef<number>(null);
 
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (touchRevealTimeoutRef.current) {
+        clearTimeout(touchRevealTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleCanvasClick = useCallback(
     (pointerType: string) => {
       // Touch on mobile: reveal UI first, then toggle play on second tap
