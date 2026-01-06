@@ -8,7 +8,6 @@ import { DeepPartial } from "@/lib/type-utils";
 import defaultsDeep from "lodash.defaultsdeep";
 import merge from "lodash.merge";
 import { useMemo, useCallback } from "react";
-import { MidiTracks } from "../midi/midi";
 import { PianoRollConfigPanel } from "@/lib/renderers/piano-roll/piano-roll-config-panel";
 import { CometConfigPanel } from "@/lib/renderers/comet/comet-config-panel";
 import { FormRow } from "@/components/common/form-row";
@@ -30,7 +29,8 @@ interface RendererOption {
   renderConfig: (
     rendererConfig: RendererConfig,
     onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void,
-    midiTracks?: MidiTracks,
+    minNote?: number,
+    maxNote?: number,
   ) => React.ReactNode;
 }
 
@@ -38,28 +38,40 @@ const RENDERER_OPTIONS: RendererOption[] = [
   {
     value: "pianoRoll",
     label: "Piano Roll",
-    renderConfig: (rendererConfig, onUpdateRendererConfig, midiTracks) => (
+    renderConfig: (
+      rendererConfig,
+      onUpdateRendererConfig,
+      minNote,
+      maxNote,
+    ) => (
       <PianoRollConfigPanel
         pianoRollConfig={rendererConfig.pianoRollConfig}
         onUpdateRendererConfig={onUpdateRendererConfig}
-        midiTracks={midiTracks}
+        minNote={minNote}
+        maxNote={maxNote}
       />
     ),
   },
   {
     value: "comet",
     label: "Comet",
-    renderConfig: (rendererConfig, onUpdateRendererConfig, midiTracks) => (
+    renderConfig: (
+      rendererConfig,
+      onUpdateRendererConfig,
+      minNote,
+      maxNote,
+    ) => (
       <CometConfigPanel
         cometConfig={rendererConfig.cometConfig}
         onUpdateRendererConfig={onUpdateRendererConfig}
-        midiTracks={midiTracks}
+        minNote={minNote}
+        maxNote={maxNote}
       />
     ),
   },
 ];
 
-export function useRendererConfig(midiTracks?: MidiTracks) {
+export function useRendererConfig(minNote?: number, maxNote?: number) {
   const [storedRendererConfig, setRendererConfig] =
     useLocalStorage<RendererConfig>("mivi:renderer-config");
   // add new default config always
@@ -121,7 +133,8 @@ export function useRendererConfig(midiTracks?: MidiTracks) {
         {selectedRenderer?.renderConfig(
           rendererConfig,
           onUpdateRendererConfig,
-          midiTracks,
+          minNote,
+          maxNote,
         )}
       </CardContent>
     </Card>

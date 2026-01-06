@@ -5,7 +5,6 @@ import { Separator } from "@/components/ui/separator";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
 import { useCallback } from "react";
-import { MidiTracks } from "@/lib/midi/midi";
 import {
   Select,
   SelectTrigger,
@@ -16,19 +15,20 @@ import {
 interface Props {
   pianoRollConfig: RendererConfig["pianoRollConfig"];
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
-  midiTracks?: MidiTracks;
+  minNote?: number;
+  maxNote?: number;
 }
 export function PianoRollConfigPanel({
   pianoRollConfig,
   onUpdateRendererConfig,
-  midiTracks,
+  minNote,
+  maxNote,
 }: Props) {
   const setPianoRollConfig = useCallback(
     (pianoRollConfig: DeepPartial<RendererConfig["pianoRollConfig"]>) =>
       onUpdateRendererConfig({ pianoRollConfig }),
     [onUpdateRendererConfig],
   );
-  const { minNote, maxNote } = midiTracks || {};
   return (
     <>
       <FormRow
@@ -119,7 +119,7 @@ export function PianoRollConfigPanel({
               View Range: {pianoRollConfig.viewRangeBottom} -{" "}
               {pianoRollConfig.viewRangeTop}
             </span>
-            {midiTracks && (
+            {minNote && maxNote && (
               <span className="text-muted-foreground">
                 (Detected range: {minNote} - {maxNote})
               </span>

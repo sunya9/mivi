@@ -15,7 +15,8 @@ function renderPane(overrideProps?: Partial<Props>) {
     <PianoRollConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
       pianoRollConfig={pianoRollConfig}
-      midiTracks={expectedMidiTracks}
+      minNote={expectedMidiTracks.minNote}
+      maxNote={expectedMidiTracks.maxNote}
       {...overrideProps}
     />,
   );
@@ -90,7 +91,7 @@ describe("PianoRollConfigPanel", () => {
   });
 
   test("should not display detected note range when no midiTracks", () => {
-    renderPane({ midiTracks: undefined });
+    renderPane({ minNote: undefined, maxNote: undefined });
     expect(screen.queryByText(/Detected range/)).not.toBeInTheDocument();
   });
 
