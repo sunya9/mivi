@@ -81,8 +81,8 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3(react@19.2.3)
       react-error-boundary:
-        specifier: ^6.0.1
-        version: 6.0.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        specifier: ^6.0.2
+        version: 6.0.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-resize-detector:
         specifier: ^12.3.0
         version: 12.3.0(react@19.2.3)
@@ -4014,8 +4014,8 @@ packages:
     peerDependencies:
       react: ^19.2.3
 
-  react-error-boundary@6.0.1:
-    resolution: {integrity: sha512-zArgQpjJUN1ZLMEKWtifxQweW3yfvwL5j2nh3Pesze1qG6r5oCDMy/TA97bUF01wy4xCeeL4/pd8GHmvEsP3Bg==}
+  react-error-boundary@6.0.2:
+    resolution: {integrity: sha512-yvWErn55ag/ywZEFqYpXYX9rxIDPIabXIX25F184KY3F5Szk2x/cVieOflw5R47ltN3KzWOw82Lmlb4vNjyn9A==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -4918,6 +4918,18 @@ packages:
 
   ws@8.18.3:
     resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
+  ws@8.19.0:
+    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -8322,7 +8334,7 @@ snapshots:
       whatwg-encoding: 3.1.1
       whatwg-mimetype: 4.0.0
       whatwg-url: 14.2.0
-      ws: 8.18.3
+      ws: 8.19.0
       xml-name-validator: 5.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -8857,7 +8869,7 @@ snapshots:
       react: 19.2.3
       scheduler: 0.27.0
 
-  react-error-boundary@6.0.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+  react-error-boundary@6.0.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
@@ -9909,6 +9921,9 @@ snapshots:
   wrappy@1.0.2: {}
 
   ws@8.18.3: {}
+
+  ws@8.19.0:
+    optional: true
 
   wsl-utils@0.3.0:
     dependencies:
