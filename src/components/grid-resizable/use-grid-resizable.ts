@@ -27,7 +27,6 @@ const LARGE_KEYBOARD_STEP = 0.1;
 interface UseGridResizableOptions {
   id: string;
   panels: PanelConfig[];
-  onLayoutChange?: (state: LayoutState) => void;
 }
 
 interface UseGridResizableReturn {
@@ -163,7 +162,6 @@ function getResizableRange(
 export function useGridResizable({
   id,
   panels,
-  onLayoutChange,
 }: UseGridResizableOptions): UseGridResizableReturn {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const resizeStateRef = useRef<ResizeState | null>(null);
@@ -191,9 +189,8 @@ export function useGridResizable({
       const constrained = applyConstraints(newSizes, panelConfigs);
       sizesRef.current = constrained;
       setSizesInternal(constrained);
-      onLayoutChange?.({ sizes: constrained });
     },
-    [panelConfigs, onLayoutChange],
+    [panelConfigs],
   );
 
   const persistLayout = useCallback(
@@ -303,7 +300,7 @@ export function useGridResizable({
       };
 
       setSizes(newSizes);
-      persistLayout(newSizes);
+      persistLayout(sizesRef.current);
     },
     [sizes, setSizes, persistLayout],
   );
@@ -342,7 +339,7 @@ export function useGridResizable({
       }
 
       setSizes(newSizes);
-      persistLayout(newSizes);
+      persistLayout(sizesRef.current);
     },
     [sizes, panelConfigs, setSizes, persistLayout],
   );
