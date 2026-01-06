@@ -17,6 +17,7 @@ const midiFile = new File([midiBuffer], midiFilename, {
 
 const expectedMidiTracks: MidiTracks = {
   hash: midiHash,
+  instanceKey: "test-instance-key",
   duration: 4,
   minNote: 60,
   maxNote: 72,
