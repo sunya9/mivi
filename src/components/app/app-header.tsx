@@ -39,7 +39,7 @@ export function AppHeader({
               />
             </>
           )}
-          <Button onClick={toggleRecording} className="max-md:h-8 max-md:px-3">
+          <Button onClick={toggleRecording} className="h-8 px-3 md:h-9 md:px-4">
             {recordingState.isRecording ? (
               <>
                 <Loader2 className="animate-spin" />
