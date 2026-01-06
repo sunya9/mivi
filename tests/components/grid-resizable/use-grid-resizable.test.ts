@@ -280,6 +280,89 @@ describe("useGridResizable", () => {
     });
   });
 
+  describe("resizeToMin", () => {
+    it("should shrink before panel to minimum size on Home", () => {
+      const panelsWithMinSize: PanelConfig[] = [
+        { id: "panel1", defaultSize: 1, constraints: { minSize: 0.2 } },
+        { id: "panel2", defaultSize: 1 },
+      ];
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test", panels: panelsWithMinSize }),
+      );
+
+      act(() => {
+        result.current.contextValue.resizeToMin(["panel1", "panel2"], "panel1");
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBe(0.2);
+      expect(result.current.contextValue.sizes.panel2).toBeCloseTo(1.8);
+    });
+
+    it("should shrink after panel to minimum size on End", () => {
+      const panelsWithMinSize: PanelConfig[] = [
+        { id: "panel1", defaultSize: 1 },
+        { id: "panel2", defaultSize: 1, constraints: { minSize: 0.3 } },
+      ];
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test", panels: panelsWithMinSize }),
+      );
+
+      act(() => {
+        result.current.contextValue.resizeToMin(["panel1", "panel2"], "panel2");
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBeCloseTo(1.7);
+      expect(result.current.contextValue.sizes.panel2).toBe(0.3);
+    });
+
+    it("should use default minSize of 0.1 when no constraint is set", () => {
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test", panels: defaultPanels }),
+      );
+
+      act(() => {
+        result.current.contextValue.resizeToMin(["panel1", "panel2"], "panel1");
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBe(0.1);
+      expect(result.current.contextValue.sizes.panel2).toBeCloseTo(1.9);
+    });
+
+    it("should persist layout to localStorage after resizeToMin", () => {
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test", panels: defaultPanels }),
+      );
+
+      act(() => {
+        result.current.contextValue.resizeToMin(["panel1", "panel2"], "panel1");
+      });
+
+      const stored = localStorage.getItem(STORAGE_KEY_PREFIX + "test");
+      expect(stored).not.toBeNull();
+      const parsed = JSON.parse(stored!) as { sizes: Record<string, number> };
+      expect(parsed.sizes.panel1).toBe(0.1);
+    });
+
+    it("should not change sizes if panel sizes are undefined", () => {
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test", panels: defaultPanels }),
+      );
+
+      // Manually set sizes to undefined (shouldn't happen in practice)
+      act(() => {
+        // This should not throw or change anything
+        result.current.contextValue.resizeToMin(
+          ["nonexistent1", "nonexistent2"],
+          "nonexistent1",
+        );
+      });
+
+      // Original sizes should remain unchanged
+      expect(result.current.contextValue.sizes.panel1).toBe(1);
+      expect(result.current.contextValue.sizes.panel2).toBe(1);
+    });
+  });
+
   describe("exported constants", () => {
     it("should export DEFAULT_KEYBOARD_STEP as 0.05", () => {
       expect(DEFAULT_KEYBOARD_STEP).toBe(0.05);

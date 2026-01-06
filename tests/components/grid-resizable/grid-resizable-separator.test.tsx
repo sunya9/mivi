@@ -6,6 +6,8 @@ import {
   GridResizableContext,
   type GridResizableContextValue,
 } from "@/components/grid-resizable/grid-resizable-context";
+import { GridResizablePanelGroup } from "@/components/grid-resizable/grid-resizable-panel-group";
+import type { PanelConfig } from "@/components/grid-resizable/types";
 
 const createMockContext = (
   overrides?: Partial<GridResizableContextValue>,
@@ -19,6 +21,7 @@ const createMockContext = (
   updateResize: vi.fn(),
   endResize: vi.fn(),
   resizeByKeyboard: vi.fn(),
+  resizeToMin: vi.fn(),
   getContainerRef: vi.fn(() => null),
   ...overrides,
 });
@@ -148,6 +151,100 @@ describe("GridResizableSeparator", () => {
         1,
         undefined,
       );
+    });
+
+    it("should call resizeToMin on Home key", async () => {
+      const user = userEvent.setup();
+      const context = renderSeparator();
+
+      const separator = screen.getByRole("separator");
+      separator.focus();
+      await user.keyboard("{Home}");
+
+      expect(context.resizeToMin).toHaveBeenCalledWith(
+        ["panel1", "panel2"],
+        "panel1",
+      );
+    });
+
+    it("should call resizeToMin on End key", async () => {
+      const user = userEvent.setup();
+      const context = renderSeparator();
+
+      const separator = screen.getByRole("separator");
+      separator.focus();
+      await user.keyboard("{End}");
+
+      expect(context.resizeToMin).toHaveBeenCalledWith(
+        ["panel1", "panel2"],
+        "panel2",
+      );
+    });
+  });
+
+  describe("resizeToMin integration", () => {
+    it("should actually resize panels when Home key is pressed", async () => {
+      const user = userEvent.setup();
+      const panels: PanelConfig[] = [
+        { id: "panel1", defaultSize: 1, constraints: { minSize: 0.1 } },
+        { id: "panel2", defaultSize: 1 },
+      ];
+
+      render(
+        <GridResizablePanelGroup id="test-integration" panels={panels}>
+          <div data-panel-id="panel1" />
+          <GridResizableSeparator
+            id="sep1"
+            orientation="horizontal"
+            controls={["panel1", "panel2"]}
+          />
+          <div data-panel-id="panel2" />
+        </GridResizablePanelGroup>,
+      );
+
+      const separator = screen.getByRole("separator");
+      expect(separator).toHaveAttribute("aria-valuenow", "50");
+
+      separator.focus();
+      await user.keyboard("{Home}");
+
+      // Verify that aria-valuenow changed (panel1 shrunk to minimum)
+      // panel1: 0.1, panel2: 1.9, so valueNow should be ~5 (0.1 / 2.0 * 100)
+      const newValueNow = separator.getAttribute("aria-valuenow");
+      expect(newValueNow).not.toBe("50");
+      expect(Number(newValueNow)).toBeLessThan(10); // Should be around 5
+    });
+
+    it("should actually resize panels when End key is pressed", async () => {
+      const user = userEvent.setup();
+      const panels: PanelConfig[] = [
+        { id: "panel1", defaultSize: 1 },
+        { id: "panel2", defaultSize: 1, constraints: { minSize: 0.2 } },
+      ];
+
+      render(
+        <GridResizablePanelGroup id="test-integration-end" panels={panels}>
+          <div data-panel-id="panel1" />
+          <GridResizableSeparator
+            id="sep1"
+            orientation="horizontal"
+            controls={["panel1", "panel2"]}
+          />
+          <div data-panel-id="panel2" />
+        </GridResizablePanelGroup>,
+      );
+
+      const separator = screen.getByRole("separator");
+      expect(separator).toHaveAttribute("aria-valuenow", "50");
+
+      separator.focus();
+      await user.keyboard("{End}");
+
+      // Verify that aria-valuenow changed (panel2 shrunk to minimum)
+      // panel1: 1.8, panel2: 0.2, so valueNow should be ~90 (1.8 / 2.0 * 100)
+      const newValueNow = separator.getAttribute("aria-valuenow");
+      expect(newValueNow).not.toBe("50");
+      expect(Number(newValueNow)).toBeGreaterThan(85); // Should be around 90
     });
   });
 
