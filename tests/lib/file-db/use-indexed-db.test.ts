@@ -1,4 +1,4 @@
-import { expect, test, vi, beforeEach } from "vitest";
+import { expect, test, vi } from "vitest";
 import { waitFor } from "@testing-library/react";
 import { customRenderHook } from "tests/util";
 import { saveFile } from "@/lib/file-db/file-db";
@@ -7,10 +7,6 @@ import { toast } from "sonner";
 
 const mockKey = "test-key";
 const mockFile = new File(["test content"], "test.txt", { type: "text/plain" });
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 test("should initialize with undefined file when no file exists", async () => {
   const { result } = customRenderHook(() => useIndexedDb(mockKey));

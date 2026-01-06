@@ -1,4 +1,4 @@
-import { expect, test, vi, beforeEach } from "vitest";
+import { expect, test, vi } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { CommonConfigPane } from "@/components/app/common-config-pane";
 import { resolutions } from "@/lib/renderers/renderer";
@@ -10,10 +10,6 @@ import { ComponentProps } from "react";
 const mockOnChangeAudioFile = vi.fn();
 const mockOnUpdateRendererConfig = vi.fn();
 const mockOnChangeBackgroundImage = vi.fn();
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 function renderCommonConfigPane(
   props: Partial<ComponentProps<typeof CommonConfigPane>> = {},

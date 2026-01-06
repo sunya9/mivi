@@ -1,4 +1,4 @@
-import { test, expect, vi, beforeEach } from "vitest";
+import { test, expect, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { useAudio } from "@/lib/audio/use-audio";
 import { audioFile, invalidFile } from "../../fixtures";
@@ -11,10 +11,6 @@ import { toast } from "sonner";
 import { audioDbKey } from "@/lib/audio/use-audio";
 
 vi.mock("sonner", { spy: true });
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 test("returns initial state", async () => {
   const { result } = customRenderHook(() => useAudio());

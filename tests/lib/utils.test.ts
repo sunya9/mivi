@@ -46,7 +46,6 @@ describe("resetConfig", () => {
 
 describe("errorLogWithToast", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
 

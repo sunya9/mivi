@@ -1,9 +1,5 @@
-import { expect, test, vi, beforeEach } from "vitest";
+import { expect, test } from "vitest";
 import { saveFile, fetchFile } from "@/lib/file-db/file-db";
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 test("should save and fetch file successfully", async () => {
   const key = "test-key";

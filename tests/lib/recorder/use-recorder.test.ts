@@ -1,4 +1,4 @@
-import { test, expect, beforeEach, vi } from "vitest";
+import { test, expect, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
@@ -8,10 +8,6 @@ import { runWorker } from "@/lib/media-compositor/run-worker";
 
 vi.mock("@/lib/media-compositor/run-worker", { spy: true });
 vi.mock("sonner", { spy: true });
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 const mockSerializedAudio: SerializedAudio = {
   length: 100,
@@ -26,10 +22,6 @@ const mockProps: Parameters<typeof useRecorder>[0] = {
   midiTracks: expectedMidiTracks,
   rendererConfig: rendererConfig,
 };
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 vi.mock("@/lib/media-compositor/worker-wrapper", { spy: true });
 

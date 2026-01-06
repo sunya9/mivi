@@ -10,7 +10,6 @@ vi.mock("sonner", { spy: true });
 vi.mock("@/lib/utils", { spy: true });
 
 beforeEach(() => {
-  vi.clearAllMocks();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 

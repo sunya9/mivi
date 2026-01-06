@@ -6,12 +6,20 @@ import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
 import { HTMLCanvasElement } from "@playcanvas/canvas-mock";
 import * as nodeCrypto from "node:crypto";
+import { RafStub } from "./raf-stub";
+
+export const rafStub = new RafStub();
+
+vi.stubGlobal("requestAnimationFrame", rafStub.requestAnimationFrame);
+vi.stubGlobal("cancelAnimationFrame", rafStub.cancelAnimationFrame);
 
 // runs a cleanup after each test case (e.g. clearing jsdom)
 afterEach(() => {
   cleanup();
   localStorage.clear();
   indexedDB = new IDBFactory();
+  rafStub.reset();
+  vi.clearAllMocks();
 });
 
 vi.stubGlobal("indexedDB", new IDBFactory());

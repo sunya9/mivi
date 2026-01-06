@@ -1,4 +1,4 @@
-import { test, expect, vi, beforeEach } from "vitest";
+import { test, expect, vi } from "vitest";
 import { startRecording } from "@/lib/media-compositor/recorder.worker";
 import { MP4MuxerImpl } from "@/lib/muxer/mp4";
 import { WebMMuxerImpl } from "@/lib/muxer/webm";
@@ -12,10 +12,6 @@ vi.mock("@/lib/media-compositor/media-compositor");
 
 const mockOnProgress = vi.fn();
 const mockBlob = new Blob(["test"], { type: "video/webm" });
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 test("should create WebMMuxer when format is webm", async () => {
   await startRecording(resources, mockOnProgress);

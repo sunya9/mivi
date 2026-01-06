@@ -1,6 +1,6 @@
 import { screen, render, waitFor, fireEvent } from "@testing-library/react";
 import { Canvas } from "@/components/app/canvas";
-import { beforeEach, expect, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
 
@@ -13,10 +13,6 @@ const defaultProps: ComponentProps<typeof Canvas> = {
   invalidate: mockInvalidate,
   onClickCanvas: mockOnClickCanvas,
 };
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 function findCanvas() {
   return screen.getByLabelText("Visualized Midi");
