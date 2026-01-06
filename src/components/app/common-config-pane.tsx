@@ -30,7 +30,6 @@ import {
 } from "@/lib/renderers/renderer";
 import { FormRow } from "@/components/common/form-row";
 import { InfoTooltip } from "@/components/common/info-tooltip";
-import { Separator } from "@/components/ui/separator";
 import { DeepPartial } from "@/lib/type-utils";
 import { ToggleTheme } from "@/components/app/toggle-theme";
 import { Slider } from "@/components/ui/slider";
@@ -287,8 +286,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
           }
         />
       </CardContent>
-      <Separator />
-      <CardFooter className="text-muted-foreground mt-4 flex-wrap gap-2 text-sm">
+      <CardFooter className="text-muted-foreground mt-4 flex-wrap gap-2 border-t text-sm">
         <p className="flex-none">
           Created by{" "}
           <Button variant="linkSmall" size="link" asChild>
