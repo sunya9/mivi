@@ -158,3 +158,28 @@
     cursor: pointer;
   }
 }
+
+@utility area-* {
+  grid-area: --value([*]);
+}
+
+/* Main layout grid */
+@utility grid-main-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "visualizer" "content";
+  @media (min-width: theme(--breakpoint-md)) {
+    grid-template-areas:
+      "track-list sep-h1 visualizer sep-h2 style"
+      "track-list sep-h1 sep-v sep-h2 style"
+      "track-list sep-h1 config sep-h2 style";
+    grid-template-columns:
+      minmax(0, var(--panel-track-list)) 1px
+      minmax(0, var(--panel-center)) 1px
+      minmax(0, var(--panel-style));
+    grid-template-rows:
+      minmax(0, var(--panel-visualizer))
+      1px minmax(0, var(--panel-config));
+  }
+}

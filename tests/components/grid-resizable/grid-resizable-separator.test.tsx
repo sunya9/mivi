@@ -2,8 +2,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GridResizableSeparator } from "@/components/grid-resizable/grid-resizable-separator";
-import { GridResizableContext } from "@/components/grid-resizable/grid-resizable-context";
-import type { GridResizableContextValue } from "@/components/grid-resizable/types";
+import {
+  GridResizableContext,
+  type GridResizableContextValue,
+} from "@/components/grid-resizable/grid-resizable-context";
 
 const createMockContext = (
   overrides?: Partial<GridResizableContextValue>,
@@ -13,7 +15,6 @@ const createMockContext = (
     ["panel1", { id: "panel1", defaultSize: 1 }],
     ["panel2", { id: "panel2", defaultSize: 1 }],
   ]),
-  isMobile: false,
   startResize: vi.fn(),
   updateResize: vi.fn(),
   endResize: vi.fn(),
@@ -77,20 +78,10 @@ describe("GridResizableSeparator", () => {
       expect(screen.getByRole("separator")).toHaveAttribute("tabIndex", "0");
     });
 
-    it("should return null when isMobile is true", () => {
-      const { container } = render(
-        <GridResizableContext.Provider
-          value={createMockContext({ isMobile: true })}
-        >
-          <GridResizableSeparator
-            id="sep1"
-            orientation="horizontal"
-            controls={["panel1", "panel2"]}
-          />
-        </GridResizableContext.Provider>,
-      );
-
-      expect(container.querySelector('[role="separator"]')).toBeNull();
+    it("should have hidden md:block class for responsive visibility", () => {
+      renderSeparator();
+      const separator = screen.getByRole("separator");
+      expect(separator).toHaveClass("hidden", "md:block");
     });
   });
 
@@ -157,23 +148,6 @@ describe("GridResizableSeparator", () => {
         1,
         undefined,
       );
-    });
-
-    it("should not respond to keyboard when isMobile", () => {
-      const context = createMockContext({ isMobile: true });
-
-      const { container } = render(
-        <GridResizableContext.Provider value={context}>
-          <GridResizableSeparator
-            id="sep1"
-            orientation="horizontal"
-            controls={["panel1", "panel2"]}
-          />
-        </GridResizableContext.Provider>,
-      );
-
-      // Separator doesn't render on mobile
-      expect(container.querySelector('[role="separator"]')).toBeNull();
     });
   });
 
