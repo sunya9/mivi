@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { GridResizableSeparator } from "@/components/grid-resizable/grid-resizable-separator";
@@ -43,10 +43,6 @@ function renderSeparator(
 }
 
 describe("GridResizableSeparator", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe("rendering", () => {
     it("should render separator with correct role", () => {
       renderSeparator();

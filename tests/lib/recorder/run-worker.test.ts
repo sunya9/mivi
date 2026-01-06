@@ -1,16 +1,12 @@
 import { runWorker } from "@/lib/media-compositor/run-worker";
 import { createEndpoint, releaseProxy, wrap } from "comlink";
 import { resources } from "tests/fixtures";
-import { expect, test, vi, beforeEach } from "vitest";
+import { expect, test, vi } from "vitest";
 
 vi.mock("comlink", async (importOriginal) => ({
   ...(await importOriginal<typeof import("comlink")>()),
   wrap: vi.fn(),
 }));
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 test("worker is completed", async () => {
   vi.mocked(wrap).mockImplementationOnce(() => ({

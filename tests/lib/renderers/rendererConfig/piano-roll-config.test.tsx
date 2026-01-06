@@ -1,5 +1,5 @@
 import { screen } from "@testing-library/react";
-import { describe, expect, test, vi, beforeEach } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { PianoRollConfigPanel } from "@/lib/renderers/piano-roll/piano-roll-config-panel";
 import { customRender } from "tests/util";
 import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
@@ -21,10 +21,6 @@ function renderPane(overrideProps?: Partial<Props>) {
     />,
   );
 }
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 describe("PianoRollConfigPanel", () => {
   test("should render PianoRoll component", async () => {

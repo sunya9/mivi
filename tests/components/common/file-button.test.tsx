@@ -1,4 +1,4 @@
-import { expect, test, vi, beforeEach } from "vitest";
+import { expect, test, vi } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { FileButton } from "@/components/common/file-button";
 import { customRender } from "tests/util";
@@ -6,10 +6,6 @@ import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
 
 const mockSetFile = vi.fn();
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 function renderFileButton(
   props: Partial<ComponentProps<typeof FileButton>> = {},

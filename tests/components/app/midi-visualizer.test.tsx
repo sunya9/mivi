@@ -1,4 +1,4 @@
-import { beforeEach, expect, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import { screen } from "@testing-library/react";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { customRender } from "tests/util";
@@ -24,10 +24,6 @@ const defaultPlayerMock: ReturnType<typeof usePlayer> = {
 vi.mock("@/lib/player/use-player", () => ({
   usePlayer: vi.fn(() => defaultPlayerMock),
 }));
-
-beforeEach(() => {
-  vi.resetAllMocks();
-});
 
 class MockedAudioBuffer implements AudioBuffer {
   copyFromChannel: AudioBuffer["copyFromChannel"];

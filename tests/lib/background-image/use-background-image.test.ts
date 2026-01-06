@@ -1,15 +1,11 @@
 import { act, waitFor } from "@testing-library/react";
 import { saveFile } from "@/lib/file-db/file-db";
-import { beforeEach, expect, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
 import {
   backgroundImageDbKey,
   useBackgroundImage,
 } from "@/lib/background-image/use-background-image";
 import { customRenderHook } from "tests/util";
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 test("should initialize with empty background image", async () => {
   const { result } = customRenderHook(() => useBackgroundImage());

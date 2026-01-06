@@ -1,13 +1,9 @@
 import { act, waitFor } from "@testing-library/react";
 import { usePlayer } from "../../../src/lib/player/use-player";
 import { customRenderHook } from "../../util";
-import { beforeEach, expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { audioBuffer } from "tests/fixtures";
 import { appContextValue } from "@/lib/globals";
-
-beforeEach(() => {
-  vi.clearAllMocks();
-});
 
 test("should initialize with default values", () => {
   const { result } = customRenderHook(() => usePlayer(audioBuffer));

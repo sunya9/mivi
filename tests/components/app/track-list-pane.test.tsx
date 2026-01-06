@@ -1,4 +1,4 @@
-import { expect, test, vi, beforeEach } from "vitest";
+import { expect, test, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TrackListPane } from "@/components/app/track-list-pane";
 import { expectedMidiTracks } from "tests/fixtures";
@@ -8,11 +8,6 @@ import { ComponentProps } from "react";
 
 const mockSetMidiTracks = vi.fn();
 const mockOnChangeMidiFile = vi.fn();
-
-beforeEach(() => {
-  mockSetMidiTracks.mockClear();
-  mockOnChangeMidiFile.mockClear();
-});
 
 function renderTrackListPane(
   props: Partial<ComponentProps<typeof TrackListPane>> = {},

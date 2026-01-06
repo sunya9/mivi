@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import {
   useGridResizable,
@@ -14,10 +14,6 @@ describe("useGridResizable", () => {
     { id: "panel1", defaultSize: 1 },
     { id: "panel2", defaultSize: 1 },
   ];
-
-  beforeEach(() => {
-    localStorage.clear();
-  });
 
   describe("initialization", () => {
     it("should initialize with default sizes from panels", () => {
