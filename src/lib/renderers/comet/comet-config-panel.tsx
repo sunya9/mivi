@@ -5,27 +5,25 @@ import { Switch } from "@/components/ui/switch";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
 import { useCallback } from "react";
-import { MidiTracks } from "@/lib/midi/midi";
 
 interface Props {
   cometConfig: RendererConfig["cometConfig"];
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
-  midiTracks?: MidiTracks;
+  minNote?: number;
+  maxNote?: number;
 }
 
 export function CometConfigPanel({
   cometConfig,
   onUpdateRendererConfig,
-  midiTracks,
+  minNote,
+  maxNote,
 }: Props) {
   const setCometConfig = useCallback(
     (cometConfig: DeepPartial<RendererConfig["cometConfig"]>) =>
       onUpdateRendererConfig({ cometConfig }),
     [onUpdateRendererConfig],
   );
-
-  const { minNote, maxNote } = midiTracks || {};
-
   return (
     <>
       <FormRow
@@ -252,7 +250,7 @@ export function CometConfigPanel({
               View Range: {cometConfig.viewRangeBottom} -{" "}
               {cometConfig.viewRangeTop}
             </span>
-            {midiTracks && (
+            {minNote && maxNote && (
               <span className="text-muted-foreground">
                 (Detected range: {minNote} - {maxNote})
               </span>

@@ -13,7 +13,8 @@ function renderPane(overrideProps?: Props) {
     <CometConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
       cometConfig={cometConfig}
-      midiTracks={expectedMidiTracks}
+      minNote={expectedMidiTracks.minNote}
+      maxNote={expectedMidiTracks.maxNote}
       {...overrideProps}
     />,
   );

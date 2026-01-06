@@ -26,7 +26,7 @@ import { cn } from "@/lib/utils";
 export function App() {
   const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();
   const { rendererConfig, onUpdateRendererConfig, VisualizerStyle } =
-    useRendererConfig(midiTracks);
+    useRendererConfig(midiTracks?.minNote, midiTracks?.maxNote);
   const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
   const { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile } =
     useBackgroundImage();
