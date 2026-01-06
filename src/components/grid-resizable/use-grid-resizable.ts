@@ -1,11 +1,24 @@
-import { useState, useRef, useCallback, useMemo } from "react";
-import type {
-  PanelConfig,
-  PanelSize,
-  LayoutState,
-  ResizeState,
-  Orientation,
-} from "./types";
+import {
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  type CSSProperties,
+} from "react";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import type { GridResizableContextValue } from "./grid-resizable-context";
+import type { PanelConfig, PanelSize, LayoutState, Orientation } from "./types";
+
+/** Resize state during drag (position-based) */
+interface ResizeState {
+  active: boolean;
+  separatorId: string;
+  orientation: Orientation;
+  controls: [string, string];
+  rangeStart: number;
+  rangeEnd: number;
+  controlledFrSum: number;
+}
 
 const STORAGE_KEY_PREFIX = "grid-resizable:";
 const DEFAULT_KEYBOARD_STEP = 0.05;
@@ -18,43 +31,9 @@ interface UseGridResizableOptions {
 }
 
 interface UseGridResizableReturn {
-  sizes: Record<string, PanelSize>;
-  panelConfigs: Map<string, PanelConfig>;
   containerRef: React.RefObject<HTMLDivElement | null>;
-  startResize: (
-    separatorId: string,
-    orientation: Orientation,
-    controls: [string, string],
-  ) => void;
-  updateResize: (currentPosition: number) => void;
-  endResize: () => void;
-  resizeByKeyboard: (
-    orientation: Orientation,
-    controls: [string, string],
-    direction: 1 | -1,
-    step?: number,
-  ) => void;
-  getContainerRef: () => HTMLDivElement | null;
-}
-
-function loadFromStorage(key: string): LayoutState | null {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY_PREFIX + key);
-    if (stored) {
-      return JSON.parse(stored) as LayoutState;
-    }
-  } catch {
-    // ignore
-  }
-  return null;
-}
-
-function saveToStorage(key: string, state: LayoutState): void {
-  try {
-    localStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(state));
-  } catch {
-    // ignore
-  }
+  panelStyles: CSSProperties;
+  contextValue: GridResizableContextValue;
 }
 
 function applyConstraints(
@@ -189,14 +168,17 @@ export function useGridResizable({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const resizeStateRef = useRef<ResizeState | null>(null);
 
+  const [storedLayout, setStoredLayout] = useLocalStorage<LayoutState>(
+    STORAGE_KEY_PREFIX + id,
+  );
+
   const panelConfigs = useMemo(() => {
     return new Map(panels.map((p) => [p.id, p]));
   }, [panels]);
 
   const [sizes, setSizesInternal] = useState<Record<string, PanelSize>>(() => {
-    const stored = loadFromStorage(id);
-    if (stored) {
-      return stored.sizes;
+    if (storedLayout) {
+      return storedLayout.sizes;
     }
     return Object.fromEntries(panels.map((p) => [p.id, p.defaultSize]));
   });
@@ -212,9 +194,9 @@ export function useGridResizable({
 
   const persistLayout = useCallback(
     (sizesToSave: Record<string, PanelSize>) => {
-      saveToStorage(id, { sizes: sizesToSave });
+      setStoredLayout({ sizes: sizesToSave });
     },
-    [id],
+    [setStoredLayout],
   );
 
   const getContainerRef = useCallback(() => containerRef.current, []);
@@ -322,16 +304,36 @@ export function useGridResizable({
     [sizes, setSizes, persistLayout],
   );
 
-  return {
-    sizes,
-    panelConfigs,
-    containerRef,
-    startResize,
-    updateResize,
-    endResize,
-    resizeByKeyboard,
-    getContainerRef,
-  };
+  const panelStyles = useMemo<CSSProperties>(() => {
+    const vars: Record<string, string> = {};
+    for (const [panelId, size] of Object.entries(sizes)) {
+      vars[`--panel-${panelId}`] = `${size}fr`;
+    }
+    return vars;
+  }, [sizes]);
+
+  const contextValue = useMemo<GridResizableContextValue>(
+    () => ({
+      sizes,
+      panelConfigs,
+      startResize,
+      updateResize,
+      endResize,
+      resizeByKeyboard,
+      getContainerRef,
+    }),
+    [
+      sizes,
+      panelConfigs,
+      startResize,
+      updateResize,
+      endResize,
+      resizeByKeyboard,
+      getContainerRef,
+    ],
+  );
+
+  return { containerRef, panelStyles, contextValue };
 }
 
 export { DEFAULT_KEYBOARD_STEP, LARGE_KEYBOARD_STEP };

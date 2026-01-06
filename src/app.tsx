@@ -22,28 +22,6 @@ import {
   type MobileTabValue,
 } from "@/components/app/mobile-bottom-nav";
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "./hooks/use-mobile";
-import type { GridAreaConfig } from "@/components/grid-resizable";
-
-const desktopGridArea: GridAreaConfig = {
-  areas: `
-    "track-list sep-h1 visualizer sep-h2 style"
-    "track-list sep-h1 sep-v      sep-h2 style"
-    "track-list sep-h1 config     sep-h2 style"
-  `,
-  columns:
-    "minmax(0,var(--panel-track-list)) 1px minmax(0,var(--panel-center)) 1px minmax(0,var(--panel-style))",
-  rows: "minmax(0,var(--panel-visualizer)) 1px minmax(0,var(--panel-config))",
-};
-
-const mobileGridArea: GridAreaConfig = {
-  areas: `
-    "visualizer"
-    "content"
-  `,
-  columns: "1fr",
-  rows: "auto 1fr",
-};
 
 export function App() {
   const { setMidiFile, midiTracks, setMidiTracks } = useMidi();
@@ -67,7 +45,6 @@ export function App() {
       onDropImage: setBackgroundImageFile,
     });
 
-  const isMobile = useIsMobile();
   const [mobileTab, setMobileTab] = useState<MobileTabValue>("visualizer");
 
   return (
@@ -92,15 +69,11 @@ export function App() {
           { id: "config", defaultSize: 1.5 },
           { id: "style", defaultSize: 1, constraints: { minSize: 0.3 } },
         ]}
-        gridArea={desktopGridArea}
-        mobileGridArea={mobileGridArea}
-        isMobile={isMobile}
-        className="mx-auto min-h-0 max-w-384"
+        className="grid-main-layout mx-auto min-h-0 max-w-384"
       >
         <GridResizablePanel
-          id="visualizer"
-          area="visualizer"
-          className={cn({ "max-h-[calc(100dvh/3)]": isMobile })}
+          panelId="visualizer"
+          className="area-[visualizer] max-h-[calc(100dvh/3)] md:max-h-none"
         >
           <MidiVisualizer
             rendererConfig={rendererConfig}
@@ -110,9 +83,11 @@ export function App() {
           />
         </GridResizablePanel>
         <GridResizablePanel
-          id="track-list"
-          area={isMobile ? "content" : "track-list"}
-          className={cn({ hidden: isMobile && mobileTab !== "tracks" })}
+          panelId="track-list"
+          className={cn(
+            "area-[content] md:area-[track-list] md:block",
+            mobileTab === "tracks" ? "block" : "hidden",
+          )}
         >
           <ScrollArea type="auto" className="@container h-full w-full">
             <TrackListPane
@@ -129,22 +104,22 @@ export function App() {
           id="sep-h1"
           orientation="horizontal"
           controls={["track-list", "center"]}
-          area="sep-h1"
+          className="area-[sep-h1]"
         />
 
         <GridResizableSeparator
           id="sep-v"
           orientation="vertical"
           controls={["visualizer", "config"]}
-          area="sep-v"
+          className="area-[sep-v]"
         />
 
         <GridResizablePanel
-          id="config"
-          area={isMobile ? "content" : "config"}
-          className={cn({
-            hidden: isMobile && mobileTab !== "visualizer",
-          })}
+          panelId="config"
+          className={cn(
+            "area-[content] md:area-[config] md:block",
+            mobileTab === "visualizer" ? "block" : "hidden",
+          )}
         >
           <ScrollArea className="h-full w-full" type="auto">
             <CommonConfigPane
@@ -162,13 +137,15 @@ export function App() {
           id="sep-h2"
           orientation="horizontal"
           controls={["center", "style"]}
-          area="sep-h2"
+          className="area-[sep-h2]"
         />
 
         <GridResizablePanel
-          id="style"
-          area={isMobile ? "content" : "style"}
-          className={cn({ hidden: isMobile && mobileTab !== "style" })}
+          panelId="style"
+          className={cn(
+            "area-[content] md:area-[style] md:block",
+            mobileTab === "style" ? "block" : "hidden",
+          )}
         >
           <ScrollArea className="h-full w-full" type="auto">
             {VisualizerStyle}

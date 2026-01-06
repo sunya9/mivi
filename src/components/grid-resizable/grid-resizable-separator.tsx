@@ -1,30 +1,29 @@
-import { useCallback, useMemo, type CSSProperties } from "react";
+import { useCallback, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useGridResizableContext } from "./grid-resizable-context";
 import { LARGE_KEYBOARD_STEP } from "./use-grid-resizable";
-import type { GridResizableSeparatorProps } from "./types";
+import type { Orientation } from "./types";
+
+interface GridResizableSeparatorProps {
+  id: string;
+  orientation: Orientation;
+  controls: [string, string];
+  className?: string;
+}
 
 export function GridResizableSeparator({
   id,
   orientation,
   controls,
-  area,
   className,
 }: GridResizableSeparatorProps) {
-  const {
-    sizes,
-    isMobile,
-    startResize,
-    updateResize,
-    endResize,
-    resizeByKeyboard,
-  } = useGridResizableContext();
+  const { sizes, startResize, updateResize, endResize, resizeByKeyboard } =
+    useGridResizableContext();
 
   const [beforeId, afterId] = controls;
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
-      if (isMobile) return;
       if (!(e.target instanceof HTMLElement)) return;
 
       e.preventDefault();
@@ -32,7 +31,7 @@ export function GridResizableSeparator({
 
       startResize(id, orientation, controls);
     },
-    [isMobile, orientation, controls, id, startResize],
+    [orientation, controls, id, startResize],
   );
 
   const handlePointerMove = useCallback(
@@ -53,10 +52,14 @@ export function GridResizableSeparator({
     [endResize],
   );
 
+  const handlePointerCancel = useCallback((e: React.PointerEvent) => {
+    if (e.target instanceof HTMLElement) {
+      e.target.releasePointerCapture(e.pointerId);
+    }
+  }, []);
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (isMobile) return;
-
       const step = e.shiftKey ? LARGE_KEYBOARD_STEP : undefined;
 
       switch (e.key) {
@@ -80,15 +83,7 @@ export function GridResizableSeparator({
           break;
       }
     },
-    [
-      isMobile,
-      orientation,
-      controls,
-      resizeByKeyboard,
-      sizes,
-      beforeId,
-      afterId,
-    ],
+    [orientation, controls, resizeByKeyboard, sizes, beforeId, afterId],
   );
 
   const valueNow = useMemo(() => {
@@ -98,18 +93,10 @@ export function GridResizableSeparator({
     return Math.round((beforeSize / total) * 100);
   }, [sizes, beforeId, afterId]);
 
-  const style: CSSProperties = {
-    gridArea: area ?? id,
-  };
-
   // aria-orientation is opposite of separator orientation
   // horizontal separator controls vertical split (and vice versa)
   const ariaOrientation =
     orientation === "horizontal" ? "vertical" : "horizontal";
-
-  if (isMobile) {
-    return null;
-  }
 
   return (
     <div
@@ -125,17 +112,21 @@ export function GridResizableSeparator({
       aria-valuemax={100}
       aria-label={`Resize ${beforeId} and ${afterId} panels`}
       className={cn(
-        "group relative z-10",
+        "hidden md:block", // Hidden on mobile, visible on desktop
+        "group relative z-10 touch-none",
         "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
-        orientation === "horizontal"
-          ? "-mx-[7.5px] h-full w-4 cursor-col-resize"
-          : "-my-[7.5px] h-4 w-full cursor-row-resize",
+        {
+          "-mx-[7.5px] h-full w-4 cursor-col-resize":
+            orientation === "horizontal",
+          "-my-[7.5px] h-4 w-full cursor-row-resize":
+            orientation === "vertical",
+        },
         className,
       )}
-      style={style}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
       onKeyDown={handleKeyDown}
     >
       {/* Visual separator line - centered at 50% of wrapper */}

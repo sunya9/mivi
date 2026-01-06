@@ -25,7 +25,7 @@ describe("useGridResizable", () => {
         useGridResizable({ id: "test", panels: defaultPanels }),
       );
 
-      expect(result.current.sizes).toEqual({
+      expect(result.current.contextValue.sizes).toEqual({
         panel1: 1,
         panel2: 1,
       });
@@ -42,7 +42,7 @@ describe("useGridResizable", () => {
         useGridResizable({ id: "test", panels: defaultPanels }),
       );
 
-      expect(result.current.sizes).toEqual({
+      expect(result.current.contextValue.sizes).toEqual({
         panel1: 0.5,
         panel2: 1.5,
       });
@@ -53,11 +53,11 @@ describe("useGridResizable", () => {
         useGridResizable({ id: "test", panels: defaultPanels }),
       );
 
-      expect(result.current.panelConfigs).toBeInstanceOf(Map);
-      expect(result.current.panelConfigs.get("panel1")).toEqual(
+      expect(result.current.contextValue.panelConfigs).toBeInstanceOf(Map);
+      expect(result.current.contextValue.panelConfigs.get("panel1")).toEqual(
         defaultPanels[0],
       );
-      expect(result.current.panelConfigs.get("panel2")).toEqual(
+      expect(result.current.contextValue.panelConfigs.get("panel2")).toEqual(
         defaultPanels[1],
       );
     });
@@ -68,6 +68,17 @@ describe("useGridResizable", () => {
       );
 
       expect(result.current.containerRef).toBeDefined();
+    });
+
+    it("should generate panelStyles with CSS variables", () => {
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test", panels: defaultPanels }),
+      );
+
+      expect(result.current.panelStyles).toEqual({
+        "--panel-panel1": "1fr",
+        "--panel-panel2": "1fr",
+      });
     });
   });
 
@@ -83,13 +94,17 @@ describe("useGridResizable", () => {
       );
 
       act(() => {
-        result.current.resizeByKeyboard("horizontal", ["panel1", "panel2"], 1);
+        result.current.contextValue.resizeByKeyboard(
+          "horizontal",
+          ["panel1", "panel2"],
+          1,
+        );
       });
 
-      expect(result.current.sizes.panel1).toBeCloseTo(
+      expect(result.current.contextValue.sizes.panel1).toBeCloseTo(
         1 + DEFAULT_KEYBOARD_STEP,
       );
-      expect(result.current.sizes.panel2).toBeCloseTo(
+      expect(result.current.contextValue.sizes.panel2).toBeCloseTo(
         1 - DEFAULT_KEYBOARD_STEP,
       );
     });
@@ -100,7 +115,7 @@ describe("useGridResizable", () => {
       );
 
       act(() => {
-        result.current.resizeByKeyboard(
+        result.current.contextValue.resizeByKeyboard(
           "horizontal",
           ["panel1", "panel2"],
           1,
@@ -108,8 +123,12 @@ describe("useGridResizable", () => {
         );
       });
 
-      expect(result.current.sizes.panel1).toBeCloseTo(1 + LARGE_KEYBOARD_STEP);
-      expect(result.current.sizes.panel2).toBeCloseTo(1 - LARGE_KEYBOARD_STEP);
+      expect(result.current.contextValue.sizes.panel1).toBeCloseTo(
+        1 + LARGE_KEYBOARD_STEP,
+      );
+      expect(result.current.contextValue.sizes.panel2).toBeCloseTo(
+        1 - LARGE_KEYBOARD_STEP,
+      );
     });
 
     it("should resize in negative direction", () => {
@@ -118,13 +137,17 @@ describe("useGridResizable", () => {
       );
 
       act(() => {
-        result.current.resizeByKeyboard("horizontal", ["panel1", "panel2"], -1);
+        result.current.contextValue.resizeByKeyboard(
+          "horizontal",
+          ["panel1", "panel2"],
+          -1,
+        );
       });
 
-      expect(result.current.sizes.panel1).toBeCloseTo(
+      expect(result.current.contextValue.sizes.panel1).toBeCloseTo(
         1 - DEFAULT_KEYBOARD_STEP,
       );
-      expect(result.current.sizes.panel2).toBeCloseTo(
+      expect(result.current.contextValue.sizes.panel2).toBeCloseTo(
         1 + DEFAULT_KEYBOARD_STEP,
       );
     });
@@ -139,12 +162,16 @@ describe("useGridResizable", () => {
       );
 
       act(() => {
-        result.current.resizeByKeyboard("horizontal", ["panel1", "panel2"], -1);
+        result.current.contextValue.resizeByKeyboard(
+          "horizontal",
+          ["panel1", "panel2"],
+          -1,
+        );
       });
 
       // Should not change because newBeforeSize would be <= 0
-      expect(result.current.sizes.panel1).toBe(0.01);
-      expect(result.current.sizes.panel2).toBe(1);
+      expect(result.current.contextValue.sizes.panel1).toBe(0.01);
+      expect(result.current.contextValue.sizes.panel2).toBe(1);
     });
 
     it("should persist layout to localStorage after resize", () => {
@@ -153,7 +180,11 @@ describe("useGridResizable", () => {
       );
 
       act(() => {
-        result.current.resizeByKeyboard("horizontal", ["panel1", "panel2"], 1);
+        result.current.contextValue.resizeByKeyboard(
+          "horizontal",
+          ["panel1", "panel2"],
+          1,
+        );
       });
 
       const stored = localStorage.getItem(STORAGE_KEY_PREFIX + "test");
@@ -175,7 +206,7 @@ describe("useGridResizable", () => {
 
       // Try to resize panel1 below minSize
       act(() => {
-        result.current.resizeByKeyboard(
+        result.current.contextValue.resizeByKeyboard(
           "horizontal",
           ["panel1", "panel2"],
           -1,
@@ -183,7 +214,9 @@ describe("useGridResizable", () => {
         );
       });
 
-      expect(result.current.sizes.panel1).toBeGreaterThanOrEqual(0.5);
+      expect(result.current.contextValue.sizes.panel1).toBeGreaterThanOrEqual(
+        0.5,
+      );
     });
 
     it("should apply maxSize constraint", () => {
@@ -197,7 +230,7 @@ describe("useGridResizable", () => {
 
       // Try to resize panel1 above maxSize
       act(() => {
-        result.current.resizeByKeyboard(
+        result.current.contextValue.resizeByKeyboard(
           "horizontal",
           ["panel1", "panel2"],
           1,
@@ -205,7 +238,7 @@ describe("useGridResizable", () => {
         );
       });
 
-      expect(result.current.sizes.panel1).toBeLessThanOrEqual(1.5);
+      expect(result.current.contextValue.sizes.panel1).toBeLessThanOrEqual(1.5);
     });
   });
 
@@ -221,7 +254,11 @@ describe("useGridResizable", () => {
       );
 
       act(() => {
-        result.current.resizeByKeyboard("horizontal", ["panel1", "panel2"], 1);
+        result.current.contextValue.resizeByKeyboard(
+          "horizontal",
+          ["panel1", "panel2"],
+          1,
+        );
       });
 
       expect(onLayoutChange).toHaveBeenCalled();
@@ -239,7 +276,7 @@ describe("useGridResizable", () => {
         useGridResizable({ id: "test", panels: defaultPanels }),
       );
 
-      expect(result.current.getContainerRef()).toBeNull();
+      expect(result.current.contextValue.getContainerRef()).toBeNull();
     });
   });
 
