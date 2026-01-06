@@ -5,12 +5,12 @@ import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
 
 const mockOnInit = vi.fn();
-const mockOnRedraw = vi.fn();
+const mockInvalidate = vi.fn();
 const mockOnClickCanvas = vi.fn();
 const defaultProps: ComponentProps<typeof Canvas> = {
   aspectRatio: 1,
   onInit: mockOnInit,
-  onRedraw: mockOnRedraw,
+  invalidate: mockInvalidate,
   onClickCanvas: mockOnClickCanvas,
 };
 
@@ -74,7 +74,7 @@ test("should call onRedraw when canvas is resized", async () => {
   expect(canvas).toBeInTheDocument();
   await waitFor(() => {
     resizeCallback?.(canvas);
-    expect(mockOnRedraw).toHaveBeenCalledExactlyOnceWith();
+    expect(mockInvalidate).toHaveBeenCalledExactlyOnceWith();
   });
 });
 

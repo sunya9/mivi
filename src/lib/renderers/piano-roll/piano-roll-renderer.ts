@@ -1,5 +1,4 @@
 import { MidiTrack } from "@/lib/midi/midi";
-import { PlaybackState } from "@/lib/player/player";
 import { Renderer, RendererConfig } from "../renderer";
 
 export class PianoRollRenderer extends Renderer {
@@ -60,9 +59,7 @@ export class PianoRollRenderer extends Renderer {
 
     return height * ((viewRangeTop - midi) / viewRangeSize) - noteHeight / 2;
   }
-  render(tracks: MidiTrack[], playbackState: PlaybackState) {
-    const currentTime = playbackState.currentTime;
-
+  render(tracks: MidiTrack[], currentTime: number) {
     if (currentTime < this.lastCurrentTime) {
       this.rippleStates.clear();
       this.noteFlashStates.clear();

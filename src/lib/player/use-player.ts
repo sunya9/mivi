@@ -29,10 +29,7 @@ export function usePlayer(audioBuffer: AudioBuffer | undefined) {
   const [playingState, setPlayingState] = useState<PlayingState>({
     type: "paused",
   });
-  const isPlaying = useMemo(
-    () => playingState.type === "playing",
-    [playingState],
-  );
+  const isPlaying = playingState.type === "playing";
   const duration = useMemo(() => audioBuffer?.duration || 0, [audioBuffer]);
   const [currentTimeSec, setCurrentTimeSec] = useState(0);
 
@@ -56,7 +53,7 @@ export function usePlayer(audioBuffer: AudioBuffer | undefined) {
         ? audioContext.currentTime - startTime
         : sec;
       if (currentTime === undefined) return;
-      setCurrentTimeSec(Math.floor(currentTime));
+      setCurrentTimeSec(currentTime);
       pauseIfNeeded(currentTime);
       currentTimeRef.current = currentTime;
     },

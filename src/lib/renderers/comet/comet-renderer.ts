@@ -1,5 +1,4 @@
 import { MidiTrack } from "@/lib/midi/midi";
-import { PlaybackState } from "@/lib/player/player";
 import { Renderer, RendererConfig } from "../renderer";
 
 interface CometParticle {
@@ -33,9 +32,7 @@ export class CometRenderer extends Renderer {
     super(ctx, config, backgroundImageBitmap);
   }
 
-  render(tracks: MidiTrack[], playbackState: PlaybackState) {
-    const currentTime = playbackState.currentTime;
-
+  render(tracks: MidiTrack[], currentTime: number) {
     if (currentTime < this.lastCurrentTime) {
       this.activeComets.clear();
       this.cometAngleOffsets.clear();

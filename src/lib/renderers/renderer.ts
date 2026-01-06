@@ -1,4 +1,3 @@
-import { PlaybackState } from "@/lib/player/player";
 import { MidiTrack } from "../midi/midi";
 
 interface PianoRollConfigValues {
@@ -338,5 +337,5 @@ export abstract class Renderer {
     }
   }
 
-  abstract render(tracks: MidiTrack[], playbackState: PlaybackState): void;
+  abstract render(tracks: MidiTrack[], currentTime: number): void;
 }

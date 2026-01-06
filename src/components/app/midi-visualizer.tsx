@@ -52,28 +52,33 @@ export function MidiVisualizer({
     toggleMute,
     makeSureToCommit,
   } = usePlayer(audioBuffer);
-  const onAnimate = useCallback(() => {
-    if (!renderer) return;
-    const midiOffset = midiTracks?.midiOffset ?? 0;
-    renderer.render(midiTracks?.tracks || [], {
-      currentTime: getCurrentTime() + midiOffset,
-      duration,
-    });
-    if (!isPlaying) return;
-    updateCurrentTime();
-  }, [
-    duration,
-    getCurrentTime,
-    isPlaying,
-    midiTracks,
-    renderer,
-    updateCurrentTime,
-  ]);
-  useAnimationFrame(onAnimate);
   const [expanded, setExpanded] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
   const [isTouchRevealed, setIsTouchRevealed] = useState(false);
   const touchRevealTimeoutRef = useRef<number>(null);
+
+  const invalidate = useCallback(() => {
+    renderer?.render(
+      midiTracks?.tracks || [],
+      getCurrentTime() + (midiTracks?.midiOffset ?? 0),
+    );
+  }, [getCurrentTime, midiTracks?.midiOffset, midiTracks?.tracks, renderer]);
+
+  const invalidateSeek = useCallback(
+    (time: number, commit: boolean) => {
+      seek(time, commit);
+      invalidate();
+    },
+    [seek, invalidate],
+  );
+
+  const onAnimate: FrameRequestCallback = useCallback(() => {
+    if (!isPlaying) return;
+    invalidate();
+    updateCurrentTime();
+  }, [isPlaying, updateCurrentTime, invalidate]);
+
+  useAnimationFrame(isPlaying, onAnimate);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -210,7 +215,7 @@ export function MidiVisualizer({
           aspectRatio={
             rendererConfig.resolution.height / rendererConfig.resolution.width
           }
-          onRedraw={onAnimate}
+          invalidate={invalidate}
           onInit={setContext}
           onClickCanvas={handleCanvasClick}
           className="[view-transition-name:visualizer-canvas]"
@@ -230,9 +235,9 @@ export function MidiVisualizer({
               value={[currentTimeSec]}
               step={0.1}
               onPointerDown={() => setIsInteracting(true)}
-              onValueChange={([e]) => seek(e, false)}
+              onValueChange={([e]) => invalidateSeek(e, false)}
               onValueCommit={([e]) => {
-                seek(e, true);
+                invalidateSeek(e, true);
                 setIsInteracting(false);
               }}
               // https://github.com/radix-ui/primitives/issues/1760#issuecomment-2133137759

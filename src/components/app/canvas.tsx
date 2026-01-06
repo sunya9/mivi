@@ -5,17 +5,17 @@ import { useResizeDetector } from "react-resize-detector";
 interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   aspectRatio: number;
   onInit: (ctx: CanvasRenderingContext2D) => void;
-  onRedraw: () => void;
+  invalidate: () => void;
   onClickCanvas: (pointerType: string) => void;
 }
 
 export function Canvas({
-  onRedraw,
   onInit,
   onClickCanvas,
   className,
   aspectRatio,
   style,
+  invalidate,
   ...props
 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -28,8 +28,8 @@ export function Canvas({
     const canvasHeight = calculatedHeight * window.devicePixelRatio;
     ref.current.width = canvasWidth;
     ref.current.height = canvasHeight;
-    onRedraw();
-  }, [aspectRatio, onRedraw]);
+    invalidate();
+  }, [aspectRatio, invalidate]);
   useResizeDetector({
     onResize,
     targetRef: ref,
@@ -42,8 +42,9 @@ export function Canvas({
       const ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Failed to get canvas context");
       onInit(ctx);
+      invalidate();
     },
-    [onInit],
+    [onInit, invalidate],
   );
   return (
     <div

@@ -1,24 +1,31 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 
-export function useAnimationFrame(onAnimate: FrameRequestCallback) {
-  const animationFrameRef = useRef<number>(0);
-  const onAnimateRef = useRef(onAnimate);
-
+export function useAnimationFrame(
+  isPlaying: boolean,
+  onAnimate: FrameRequestCallback,
+) {
+  const animationFrameRef = useRef<number | null>(null);
+  const onAnimateEffect = useEffectEvent(onAnimate);
   useEffect(() => {
-    onAnimateRef.current = onAnimate;
-  }, [onAnimate]);
+    if (!isPlaying) {
+      if (animationFrameRef.current != null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      return;
+    }
 
-  useEffect(() => {
-    const animate: FrameRequestCallback = (timestamp) => {
-      onAnimateRef.current(timestamp);
-      animationFrameRef.current = requestAnimationFrame(animate);
+    const loop: FrameRequestCallback = (time) => {
+      onAnimateEffect(time);
+      animationFrameRef.current = requestAnimationFrame(loop);
     };
 
-    animationFrameRef.current = requestAnimationFrame(animate);
+    animationFrameRef.current = requestAnimationFrame(loop);
+
     return () => {
-      if (animationFrameRef.current) {
+      if (animationFrameRef.current != null) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, []);
+  }, [isPlaying]);
 }
