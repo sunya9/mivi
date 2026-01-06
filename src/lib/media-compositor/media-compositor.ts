@@ -171,10 +171,10 @@ export class MediaCompositor {
     const totalVideoFrames = this.totalVideoFrames;
     for (let i = 0; i < totalVideoFrames; i++) {
       const progress = i / totalVideoFrames;
-      renderer.render(this.midiTracks.tracks, {
-        currentTime: progress * this.duration + midiOffset,
-        duration: this.duration,
-      });
+      renderer.render(
+        this.midiTracks.tracks,
+        progress * this.duration + midiOffset,
+      );
 
       this.updateProgress("video", "render");
 
