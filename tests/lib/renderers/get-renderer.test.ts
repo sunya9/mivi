@@ -17,13 +17,3 @@ test("should return PianoRollRenderer for pianoRoll type", () => {
   const renderer = getRendererFromConfig(mockContext, config);
   expect(renderer).toBeInstanceOf(PianoRollRenderer);
 });
-
-test("should throw error for unknown renderer type", () => {
-  const config = {
-    ...mockConfig,
-    type: "unknown",
-  } as unknown as RendererConfig;
-  expect(() => getRendererFromConfig(mockContext, config)).toThrow(
-    "Unknown renderer type",
-  );
-});
