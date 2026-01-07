@@ -168,7 +168,7 @@ export function PianoRollConfigPanel({
         }
       />
       <FormRow
-        label={<span>Show Playhead Border</span>}
+        label={<span>Playhead Border</span>}
         controller={
           <Switch
             checked={pianoRollConfig.showPlayhead}
@@ -235,7 +235,7 @@ export function PianoRollConfigPanel({
       )}
       <Separator />
       <FormRow
-        label={<span>Show Ripple Effect</span>}
+        label={<span>Ripple Effect</span>}
         controller={
           <Switch
             checked={pianoRollConfig.showRippleEffect}

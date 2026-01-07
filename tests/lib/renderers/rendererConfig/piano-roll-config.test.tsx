@@ -26,7 +26,7 @@ describe("PianoRollConfigPanel", () => {
   test("should render PianoRoll component", async () => {
     renderPane();
     const switchPlayheadBorder = screen.getByRole("switch", {
-      name: "Show Playhead Border",
+      name: "Playhead Border",
     });
     expect(switchPlayheadBorder).toBeInTheDocument();
     await userEvent.click(switchPlayheadBorder);
@@ -40,7 +40,7 @@ describe("PianoRollConfigPanel", () => {
   test("should toggle ripple effect", async () => {
     renderPane();
     const switchRipple = screen.getByRole("switch", {
-      name: "Show Ripple Effect",
+      name: "Ripple Effect",
     });
     expect(switchRipple).toBeInTheDocument();
     await userEvent.click(switchRipple);
