@@ -1,8 +1,9 @@
 import { memo } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ToggleTheme } from "@/components/app/toggle-theme";
+import { ThemeSelect } from "@/components/app/theme-select";
+import { AboutDialog } from "@/components/app/about-dialog";
 import { cn } from "@/lib/utils";
+import { AboutContent } from "./about-content";
 
 interface AboutPanelProps {
   className?: string;
@@ -29,21 +30,11 @@ export const AboutPanel = memo(function AboutPanel({
             "md:mx-auto md:flex md:flex-row md:items-center md:justify-center md:gap-4 md:space-y-0 md:px-0 md:py-1 md:text-sm",
           )}
         >
-          <p>
-            Created by{" "}
-            <Button variant="linkSmall" size="link" asChild>
-              <a href="https://x.com/ephemeralMocha">@ephemeralMocha</a>
-            </Button>
-            .
-          </p>
-          <p>
-            <Button variant="linkSmall" size="link" asChild>
-              <a href="https://github.com/sunya9/mivi">GitHub Repository</a>
-            </Button>
-          </p>
-          <p className="md:ml-auto">
-            <ToggleTheme />
-          </p>
+          <AboutDialog className="hidden md:inline-flex">
+            <AboutContent />
+          </AboutDialog>
+          <AboutContent className="md:hidden" />
+          <ThemeSelect className="md:ml-auto" />
         </CardContent>
       </Card>
     </footer>
