@@ -113,6 +113,7 @@ export default defineConfig(({ mode }) => ({
           setupFiles: ["./tests/browser.setup.ts"],
           browser: {
             commands: { waitForDownload },
+            screenshotFailures: false,
             enabled: true,
             provider: playwright(),
             // https://vitest.dev/guide/browser/playwright
