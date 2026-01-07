@@ -189,8 +189,7 @@ export function MidiVisualizer({
           onClick={closeExpanded}
           className="absolute top-2 right-2 z-50 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16"
         >
-          <X strokeWidth={1} className="size-full" />
-          <span className="sr-only">Close</span>
+          <X strokeWidth={1} className="size-full" aria-label="Close" />
         </Button>
       )}
       <div
@@ -249,8 +248,11 @@ export function MidiVisualizer({
             />
             <div className="flex items-center gap-2">
               <Button onClick={togglePlay} variant="ghost-secondary">
-                {isPlaying ? <Pause /> : <Play />}
-                <span className="sr-only">{isPlaying ? "Pause" : "Play"}</span>
+                {isPlaying ? (
+                  <Pause aria-label="Pause" />
+                ) : (
+                  <Play aria-label="Play" />
+                )}
               </Button>
               <Button
                 variant="ghost-secondary"
@@ -258,11 +260,10 @@ export function MidiVisualizer({
                 aria-pressed={muted}
               >
                 {muted ? (
-                  <VolumeX className="size-4" />
+                  <VolumeX className="size-4" aria-label="Unmute" />
                 ) : (
-                  <Volume2 className="size-4" />
+                  <Volume2 className="size-4" aria-label="Mute" />
                 )}
-                <span className="sr-only">{muted ? "Unmute" : "Mute"}</span>
               </Button>
               <Slider
                 value={[volume]}
@@ -291,11 +292,10 @@ export function MidiVisualizer({
                 aria-haspopup="dialog"
               >
                 {expanded ? (
-                  <Minimize className="size-4" />
+                  <Minimize className="size-4" aria-label="Minimize" />
                 ) : (
-                  <Maximize className="size-4" />
+                  <Maximize className="size-4" aria-label="Maximize" />
                 )}
-                <span className="sr-only">Expand</span>
               </Button>
             </div>
           </div>
