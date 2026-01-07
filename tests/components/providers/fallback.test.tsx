@@ -29,3 +29,17 @@ test("calls resetConfig when reset button is clicked", () => {
   fireEvent.click(resetButton);
   expect(resetConfig).toHaveBeenCalledTimes(1);
 });
+
+test("calls resetErrorBoundary when Reload app button is clicked", () => {
+  const resetErrorBoundary = vi.fn();
+  render(
+    <Fallback
+      error={new Error("Test error")}
+      resetErrorBoundary={resetErrorBoundary}
+    />,
+  );
+
+  const reloadButton = screen.getByText("Reload app");
+  fireEvent.click(reloadButton);
+  expect(resetErrorBoundary).toHaveBeenCalledTimes(1);
+});
