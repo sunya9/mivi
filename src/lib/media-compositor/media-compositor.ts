@@ -102,7 +102,7 @@ export class MediaCompositor {
     await Promise.all([this.videoEncoder.flush(), this.audioEncoder.flush()]);
     await this.muxer.finalize();
     const videoBlob = new Blob([this.muxer.buffer], {
-      type: "video/webm",
+      type: this.muxer.mimeType,
     });
     return videoBlob;
   }

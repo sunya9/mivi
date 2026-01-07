@@ -1,32 +1,26 @@
 import { test, expect, vi } from "vitest";
 import { startRecording } from "@/lib/media-compositor/recorder.worker";
-import { MP4MuxerImpl } from "@/lib/muxer/mp4";
-import { WebMMuxerImpl } from "@/lib/muxer/webm";
+import { MuxerImpl } from "@/lib/muxer/muxer";
 import { resources } from "tests/fixtures";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 
-vi.mock("@/lib/muxer/mp4");
-vi.mock("@/lib/muxer/webm");
+vi.mock("@/lib/muxer/muxer");
 vi.mock("@/lib/media-compositor/media-compositor");
 
 const mockOnProgress = vi.fn();
 const mockBlob = new Blob(["test"], { type: "video/webm" });
 
-test("should create WebMMuxer when format is webm", async () => {
+test("should create MuxerImpl with webm format", async () => {
   await startRecording(resources, mockOnProgress);
 
-  expect(WebMMuxerImpl).toHaveBeenCalledExactlyOnceWith({
+  expect(MuxerImpl).toHaveBeenCalledExactlyOnceWith({
+    format: "webm",
     frameRate: resources.rendererConfig.fps,
-    width: resources.rendererConfig.resolution.width,
-    height: resources.rendererConfig.resolution.height,
-    numberOfChannels: resources.serializedAudio.numberOfChannels,
-    sampleRate: resources.serializedAudio.sampleRate,
   });
-  expect(MP4MuxerImpl).not.toHaveBeenCalled();
 });
 
-test("should create MP4Muxer when format is mp4", async () => {
+test("should create MuxerImpl with mp4 format", async () => {
   const mp4Resources: RecorderResources = {
     ...resources,
     rendererConfig: {
@@ -37,14 +31,10 @@ test("should create MP4Muxer when format is mp4", async () => {
 
   await startRecording(mp4Resources, mockOnProgress);
 
-  expect(MP4MuxerImpl).toHaveBeenCalledExactlyOnceWith({
+  expect(MuxerImpl).toHaveBeenCalledWith({
+    format: "mp4",
     frameRate: mp4Resources.rendererConfig.fps,
-    width: mp4Resources.rendererConfig.resolution.width,
-    height: mp4Resources.rendererConfig.resolution.height,
-    numberOfChannels: mp4Resources.serializedAudio.numberOfChannels,
-    sampleRate: mp4Resources.serializedAudio.sampleRate,
   });
-  expect(WebMMuxerImpl).not.toHaveBeenCalled();
 });
 
 test("should return blob from MediaCompositor", async () => {

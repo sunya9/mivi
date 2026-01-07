@@ -1,7 +1,5 @@
 import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
-import { MuxerOptions, Muxer } from "@/lib/muxer/muxer";
-import { WebMMuxerImpl as WebMMuxer } from "@/lib/muxer/webm";
-import { MP4MuxerImpl as MP4Muxer } from "@/lib/muxer/mp4";
+import { MuxerImpl } from "@/lib/muxer/muxer";
 import { expose } from "comlink";
 import { RecorderResources } from "./recorder-resources";
 
@@ -9,17 +7,10 @@ export async function startRecording(
   resources: RecorderResources,
   onProgress: (progress: number) => void,
 ) {
-  const muxerOptions: MuxerOptions = {
+  const muxer = new MuxerImpl({
+    format: resources.rendererConfig.format,
     frameRate: resources.rendererConfig.fps,
-    width: resources.rendererConfig.resolution.width,
-    height: resources.rendererConfig.resolution.height,
-    numberOfChannels: resources.serializedAudio.numberOfChannels,
-    sampleRate: resources.serializedAudio.sampleRate,
-  };
-  const muxer: Muxer =
-    resources.rendererConfig.format === "webm"
-      ? new WebMMuxer(muxerOptions)
-      : new MP4Muxer(muxerOptions);
+  });
   using mediaCompositor = new MediaCompositor(resources, muxer, onProgress);
   const response = await mediaCompositor.composite();
   return response;
