@@ -248,12 +248,12 @@ export function MidiVisualizer({
               className="*:data-[slot=slider-track]:bg-muted/30"
             />
             <div className="flex items-center gap-2">
-              <Button onClick={togglePlay} variant="ghostSecondary">
+              <Button onClick={togglePlay} variant="ghost-secondary">
                 {isPlaying ? <Pause /> : <Play />}
                 <span className="sr-only">{isPlaying ? "Pause" : "Play"}</span>
               </Button>
               <Button
-                variant="ghostSecondary"
+                variant="ghost-secondary"
                 onClick={toggleMute}
                 aria-pressed={muted}
               >
@@ -285,7 +285,7 @@ export function MidiVisualizer({
                 {formatTime(currentTimeSec)} / {formatTime(duration)}
               </span>
               <Button
-                variant="ghostSecondary"
+                variant="ghost-secondary"
                 onClick={toggleExpanded}
                 className="hidden md:block"
                 aria-haspopup="dialog"
