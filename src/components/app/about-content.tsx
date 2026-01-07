@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { checkBrowserApis } from "@/lib/browser-compat/browser-compat";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   className?: string;
@@ -29,10 +30,7 @@ export function AboutContent({ className }: Props) {
             {apiStatuses.map((api) => (
               <li
                 key={api.name}
-                className={cn(
-                  "flex items-center gap-2 text-sm",
-                  api.supported ? "text-foreground" : "text-muted-foreground",
-                )}
+                className={cn("flex items-center gap-2 text-sm")}
               >
                 {api.supported ? (
                   <CheckIcon className="size-4 text-emerald-500" />
@@ -45,6 +43,18 @@ export function AboutContent({ className }: Props) {
           </ul>
         </AlertDescription>
       </Alert>
+      <p>
+        Created by{" "}
+        <Button variant="link" size="link" asChild>
+          <a href="https://x.com/ephemeralMocha">@ephemeralMocha</a>
+        </Button>
+        .
+      </p>
+      <p>
+        <Button variant="link" size="link" asChild>
+          <a href="https://github.com/sunya9/mivi">GitHub Repository</a>
+        </Button>
+      </p>
     </div>
   );
 }
