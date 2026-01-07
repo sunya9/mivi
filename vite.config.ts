@@ -89,6 +89,7 @@ export default defineConfig(({ mode }) => ({
   base: "/mivi/",
   test: {
     watch: false,
+    silent: "passed-only",
     coverage: {
       include: ["src/**/*.ts", "src/**/*.tsx"],
       exclude: [
