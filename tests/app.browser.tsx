@@ -10,7 +10,9 @@ vi.spyOn(console, "error").mockImplementation(() => {});
 test("complete happy path", async () => {
   // TODO: add more assertions
   const screen = await customPageRender(<App />);
-  await expect.element(screen.getByText("MiVi")).toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("heading", { name: "MiVi", level: 1 }))
+    .toBeInTheDocument();
 
   // Get file inputs by their aria-label (now using placeholder as label)
   await userEvent.upload(
