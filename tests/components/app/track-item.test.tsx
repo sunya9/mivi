@@ -181,4 +181,5 @@ test("should not render controls when track is not visible", () => {
   expect(screen.queryByRole("color")).not.toBeInTheDocument();
   expect(screen.queryByText("Staccato")).not.toBeInTheDocument();
   expect(screen.queryByText("Scale: 100%")).not.toBeInTheDocument();
+  expect(screen.getByRole("switch")).toBeVisible();
 });
