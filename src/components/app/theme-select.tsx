@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCallback, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 const themes = [
   { value: "light", label: "Light", icon: Sun },
@@ -68,7 +69,6 @@ export function ThemeSelect({ className }: Props) {
   const handleThemeChange = useCallback(
     async (newTheme: string) => {
       const animate = shouldAnimate(theme, newTheme, systemTheme);
-      console.log("animate", animate);
       if (!animate || !document.startViewTransition) {
         setTheme(newTheme);
         return;
@@ -91,7 +91,15 @@ export function ThemeSelect({ className }: Props) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className={className}>
+        <Button
+          variant="none"
+          className={cn(
+            "max-md:bg-secondary max-md:text-secondary-foreground max-md:hover:bg-secondary/80 max-md:shadow-sm", // secondary style on mobile
+            "md:hover:bg-accent md:hover:text-accent-foreground md:dark:hover:bg-accent/50", // ghost style on desktop
+            "md:h-8 md:gap-1.5 md:rounded-md md:px-3 md:text-xs", // sm style on desktop
+            className,
+          )}
+        >
           <PaletteIcon />
           Theme
         </Button>
