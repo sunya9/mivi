@@ -161,7 +161,7 @@ export function App() {
           className={cn(
             "area-[content] md:area-[about] md:block",
             mobileTab === "about" ? "block" : "hidden",
-            "md:-mx-[calc((100dvw-min(100dvw,--spacing(384)))/2)] md:border-t md:shadow",
+            "md:-mx-[calc((100dvw-min(100dvw,--spacing(384)))/2)] md:border-t",
           )}
           asChild
         >
