@@ -11,13 +11,20 @@ import {
   X,
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "@/lib/utils";
 import { RendererConfig } from "@/lib/renderers/renderer";
-import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
 import { usePlayer } from "@/lib/player/use-player";
 import { MidiTracks } from "@/lib/midi/midi";
 import { useAnimationFrame } from "@/hooks/use-animation-frame";
+import { RendererController } from "./renderer-controller";
 
 interface Props {
   rendererConfig: RendererConfig;
@@ -32,12 +39,8 @@ export function MidiVisualizer({
   midiTracks,
   backgroundImageBitmap,
 }: Props) {
-  const [context, setContext] = useState<CanvasRenderingContext2D>();
-  const renderer = useMemo(() => {
-    return context
-      ? getRendererFromConfig(context, rendererConfig, backgroundImageBitmap)
-      : undefined;
-  }, [backgroundImageBitmap, context, rendererConfig]);
+  const rendererControllerRef = useRef<RendererController>(undefined);
+
   const duration = useMemo(() => audioBuffer?.duration || 0, [audioBuffer]);
   const {
     seek,
@@ -58,11 +61,29 @@ export function MidiVisualizer({
   const touchRevealTimeoutRef = useRef<number>(null);
 
   const invalidate = useCallback(() => {
-    renderer?.render(
+    rendererControllerRef.current?.render(
       midiTracks?.tracks || [],
       getCurrentTime() + (midiTracks?.midiOffset ?? 0),
     );
-  }, [getCurrentTime, midiTracks?.midiOffset, midiTracks?.tracks, renderer]);
+  }, [getCurrentTime, midiTracks?.midiOffset, midiTracks?.tracks]);
+
+  const invalidateEffect = useEffectEvent(invalidate);
+
+  useEffect(() => {
+    rendererControllerRef.current?.setRendererConfig(rendererConfig);
+    invalidateEffect();
+  }, [rendererConfig]);
+
+  useEffect(() => {
+    rendererControllerRef.current?.setBackgroundImageBitmap(
+      backgroundImageBitmap,
+    );
+    invalidateEffect();
+  }, [backgroundImageBitmap]);
+
+  const handleInit = useCallback((ctx: CanvasRenderingContext2D) => {
+    rendererControllerRef.current = new RendererController(ctx);
+  }, []);
 
   const invalidateSeek = useCallback(
     (time: number, commit: boolean) => {
@@ -210,12 +231,11 @@ export function MidiVisualizer({
         aria-modal={expanded}
       >
         <Canvas
-          key={rendererConfig.resolution.label}
           aspectRatio={
             rendererConfig.resolution.height / rendererConfig.resolution.width
           }
           invalidate={invalidate}
-          onInit={setContext}
+          onInit={handleInit}
           onClickCanvas={handleCanvasClick}
           className="[view-transition-name:visualizer-canvas]"
         />

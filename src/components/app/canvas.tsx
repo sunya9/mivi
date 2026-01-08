@@ -1,5 +1,11 @@
 import { cn } from "@/lib/utils";
-import { CanvasHTMLAttributes, useCallback, useRef } from "react";
+import {
+  CanvasHTMLAttributes,
+  useCallback,
+  useEffectEvent,
+  useLayoutEffect,
+  useRef,
+} from "react";
 import { useResizeDetector } from "react-resize-detector";
 
 interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
@@ -20,7 +26,7 @@ export function Canvas({
 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
 
-  const onResize = useCallback(() => {
+  const fixCanvasSize = useCallback(() => {
     if (!ref.current) return;
     const width = ref.current.clientWidth;
     const calculatedHeight = width * aspectRatio;
@@ -28,24 +34,28 @@ export function Canvas({
     const canvasHeight = calculatedHeight * window.devicePixelRatio;
     ref.current.width = canvasWidth;
     ref.current.height = canvasHeight;
+  }, [aspectRatio]);
+
+  const onResize = useCallback(() => {
+    fixCanvasSize();
     invalidate();
-  }, [aspectRatio, invalidate]);
+  }, [fixCanvasSize, invalidate]);
   useResizeDetector({
     onResize,
     targetRef: ref,
   });
 
-  const callbackRef = useCallback(
-    (canvas: HTMLCanvasElement | null) => {
-      ref.current = canvas;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Failed to get canvas context");
-      onInit(ctx);
-      invalidate();
-    },
-    [onInit, invalidate],
-  );
+  const onInitEffectEvent = useEffectEvent(onInit);
+  useLayoutEffect(() => {
+    if (!ref.current) return;
+    const ctx = ref.current.getContext("2d");
+    if (!ctx) throw new Error("Failed to get canvas context");
+    onInitEffectEvent(ctx);
+  }, []);
+
+  useLayoutEffect(() => {
+    fixCanvasSize();
+  }, [fixCanvasSize]);
   return (
     <div
       className={cn(
@@ -59,7 +69,7 @@ export function Canvas({
       )}
     >
       <canvas
-        ref={callbackRef}
+        ref={ref}
         className={cn("h-auto max-h-full w-full object-contain", className)}
         aria-label="Visualized Midi"
         style={{
