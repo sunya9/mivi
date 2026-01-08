@@ -79,7 +79,7 @@ test("should render color picker when track is visible", () => {
     />,
   );
 
-  expect(screen.getByDisplayValue("#000000")).toBeInTheDocument();
+  expect(screen.getByDisplayValue("#ffffff")).toBeInTheDocument();
 });
 
 test("should call onUpdateTrackConfig when color is changed", () => {
@@ -91,7 +91,7 @@ test("should call onUpdateTrackConfig when color is changed", () => {
     />,
   );
 
-  const colorPicker = screen.getByDisplayValue("#000000");
+  const colorPicker = screen.getByDisplayValue("#ffffff");
   fireEvent.change(colorPicker, { target: { value: "#00ff00" } });
 
   expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {

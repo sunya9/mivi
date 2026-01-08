@@ -35,28 +35,62 @@ test("should render track list when tracks are provided", () => {
   expect(screen.getByText("Acoustic Piano - Full")).toBeInTheDocument();
 });
 
-test("should render randomize color buttons when tracks are provided", () => {
+test("should render color presets dropdown when tracks are provided", () => {
   renderTrackListPane({ midiTracks: expectedMidiTracks });
 
-  expect(screen.getByText("Randomize colors (colorful)")).toBeInTheDocument();
-  expect(screen.getByText("Randomize colors (gradient)")).toBeInTheDocument();
+  expect(screen.getByText("Color presets")).toBeInTheDocument();
 });
 
-test("should call setMidiTracks with new colors when colorful button is clicked", async () => {
+test("should call setMidiTracks with all white colors when All white is selected", async () => {
   renderTrackListPane({ midiTracks: expectedMidiTracks });
 
-  const button = screen.getByText("Randomize colors (colorful)");
-  await userEvent.click(button);
+  const dropdownButton = screen.getByText("Color presets");
+  await userEvent.click(dropdownButton);
+  const menuItem = screen.getByText("All white");
+  await userEvent.click(menuItem);
+
+  expect(mockSetMidiTracks).toHaveBeenCalled();
+  const newMidiTracks = mockSetMidiTracks.mock.calls[0][0] as MidiTracks;
+  expect(newMidiTracks.tracks.every((t) => t.config.color === "#ffffff")).toBe(
+    true,
+  );
+});
+
+test("should call setMidiTracks with all black colors when All black is selected", async () => {
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
+
+  const dropdownButton = screen.getByText("Color presets");
+  await userEvent.click(dropdownButton);
+  const menuItem = screen.getByText("All black");
+  await userEvent.click(menuItem);
+
+  expect(mockSetMidiTracks).toHaveBeenCalled();
+  const newMidiTracks = mockSetMidiTracks.mock.calls[0][0] as MidiTracks;
+  expect(newMidiTracks.tracks.every((t) => t.config.color === "#000000")).toBe(
+    true,
+  );
+});
+
+test("should call setMidiTracks with new colors when Randomize (colorful) is selected", async () => {
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
+
+  const dropdownButton = screen.getByText("Color presets");
+  await userEvent.click(dropdownButton);
+  const menuItem = screen.getByText("Randomize (colorful)");
+  await userEvent.click(menuItem);
+
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const newMidiTracks = mockSetMidiTracks.mock.calls[0][0] as MidiTracks;
   expect(newMidiTracks.tracks[0].config.color).toMatch(/#[0-9a-f]{6}/i);
 });
 
-test("should call setMidiTracks with new colors when gradient button is clicked", async () => {
+test("should call setMidiTracks with new colors when Randomize (gradient) is selected", async () => {
   renderTrackListPane({ midiTracks: expectedMidiTracks });
 
-  const button = screen.getByText("Randomize colors (gradient)");
-  await userEvent.click(button);
+  const dropdownButton = screen.getByText("Color presets");
+  await userEvent.click(dropdownButton);
+  const menuItem = screen.getByText("Randomize (gradient)");
+  await userEvent.click(menuItem);
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const newMidiTracks = mockSetMidiTracks.mock.calls[0][0] as MidiTracks;

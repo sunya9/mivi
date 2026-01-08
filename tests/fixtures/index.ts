@@ -26,7 +26,7 @@ const expectedMidiTracks: MidiTracks = {
   tracks: [
     {
       config: {
-        color: "#000000",
+        color: "#ffffff",
         name: "Acoustic Piano - Full",
         opacity: 1,
         scale: 1,
