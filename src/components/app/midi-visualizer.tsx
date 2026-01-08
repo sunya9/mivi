@@ -98,10 +98,10 @@ export function MidiVisualizer({
     [seek, invalidate],
   );
 
-  const onAnimate: FrameRequestCallback = useCallback(() => {
+  const onAnimate = useCallback(() => {
     if (!isPlaying) return;
-    invalidate();
     updateCurrentTime();
+    invalidate();
   }, [isPlaying, updateCurrentTime, invalidate]);
 
   useAnimationFrame(isPlaying, onAnimate);
