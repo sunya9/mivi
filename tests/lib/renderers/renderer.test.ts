@@ -414,3 +414,51 @@ test("should handle null pattern", async () => {
   // fillRect is called once with background color only
   expect(context.fillRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
 });
+
+test("setConfig should update config", () => {
+  const { context, renderer } = prepareTestRenderer({
+    rendererConfig: {
+      ...getDefaultRendererConfig(),
+      backgroundColor: "#000000",
+    },
+  });
+
+  const newConfig = {
+    ...getDefaultRendererConfig(),
+    backgroundColor: "#ff0000",
+  };
+  renderer.setConfig(newConfig);
+
+  context.clearRect = vi.fn();
+  context.fillStyle = "";
+  context.fillRect = vi.fn();
+  renderer.render();
+
+  expect(context.fillStyle).toBe("#ff0000");
+});
+
+test("setBackgroundImageBitmap should update backgroundImageBitmap", async () => {
+  const { context, renderer } = prepareTestRenderer();
+
+  const imageBitmap = await prepareImage(150, 150);
+  renderer.setBackgroundImageBitmap(imageBitmap);
+
+  context.drawImage = vi.fn();
+  renderer.render();
+
+  expect(context.drawImage).toHaveBeenCalled();
+});
+
+test("setBackgroundImageBitmap with undefined should clear backgroundImageBitmap", async () => {
+  const imageBitmap = await prepareImage(150, 150);
+  const { context, renderer } = prepareTestRenderer({
+    backgroundImageBitmap: imageBitmap,
+  });
+
+  renderer.setBackgroundImageBitmap(undefined);
+
+  context.drawImage = vi.fn();
+  renderer.render();
+
+  expect(context.drawImage).not.toHaveBeenCalled();
+});

@@ -195,9 +195,17 @@ export abstract class Renderer {
     protected readonly ctx:
       | CanvasRenderingContext2D
       | OffscreenCanvasRenderingContext2D,
-    protected readonly config: RendererConfig,
-    protected readonly backgroundImageBitmap?: ImageBitmap,
+    protected config: RendererConfig,
+    protected backgroundImageBitmap?: ImageBitmap,
   ) {}
+
+  setConfig(config: RendererConfig): void {
+    this.config = config;
+  }
+
+  setBackgroundImageBitmap(backgroundImageBitmap?: ImageBitmap): void {
+    this.backgroundImageBitmap = backgroundImageBitmap;
+  }
 
   private calculateImageDimensions(
     imgRatio: number,
