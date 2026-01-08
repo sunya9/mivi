@@ -7,7 +7,7 @@ describe("getDefaultTrackConfig", () => {
 
     expect(config).toEqual({
       visible: true,
-      color: "#4a9eff",
+      color: "#ffffff",
       opacity: 1,
       name: "Test Track",
       scale: 1,
@@ -25,7 +25,7 @@ describe("getDefaultTrackConfig", () => {
   it("should use default color when not specified", () => {
     const config = getDefaultTrackConfig("Track Name");
 
-    expect(config.color).toBe("#4a9eff");
+    expect(config.color).toBe("#ffffff");
   });
 
   it("should always have visible set to true", () => {

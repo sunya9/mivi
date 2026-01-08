@@ -21,7 +21,13 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { Minus, Plus } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown, Minus, Plus } from "lucide-react";
 
 interface Props {
   midiTracks?: MidiTracks;
@@ -151,32 +157,56 @@ export const TrackListPane = React.memo(function TrackListPane({
             </div>
           </CardContent>
           <CardFooter className="flex-col items-start gap-2">
-            <div className="flex flex-row flex-wrap items-center justify-start gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  setMidiTracks({
-                    ...midiTracks,
-                    tracks: randomizeColorsColorful(midiTracks.tracks),
-                  })
-                }
-              >
-                Randomize colors (colorful)
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  setMidiTracks({
-                    ...midiTracks,
-                    tracks: randomizeColorsGradient(midiTracks.tracks),
-                  })
-                }
-              >
-                Randomize colors (gradient)
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="sm">
+                  Color presets
+                  <ChevronDown className="ml-1 size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem
+                  onClick={() =>
+                    setMidiTracks({
+                      ...midiTracks,
+                      tracks: setAllColorsWhite(midiTracks.tracks),
+                    })
+                  }
+                >
+                  All white
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    setMidiTracks({
+                      ...midiTracks,
+                      tracks: setAllColorsBlack(midiTracks.tracks),
+                    })
+                  }
+                >
+                  All black
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    setMidiTracks({
+                      ...midiTracks,
+                      tracks: randomizeColorsColorful(midiTracks.tracks),
+                    })
+                  }
+                >
+                  Randomize (colorful)
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    setMidiTracks({
+                      ...midiTracks,
+                      tracks: randomizeColorsGradient(midiTracks.tracks),
+                    })
+                  }
+                >
+                  Randomize (gradient)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </CardFooter>
         </>
       )}
@@ -216,6 +246,26 @@ const TrackList = React.memo(function TrackList({
     />
   ));
 });
+
+function setAllColorsWhite(midiTracks: MidiTracks["tracks"]) {
+  return midiTracks.map((track) => ({
+    ...track,
+    config: {
+      ...track.config,
+      color: "#ffffff",
+    },
+  }));
+}
+
+function setAllColorsBlack(midiTracks: MidiTracks["tracks"]) {
+  return midiTracks.map((track) => ({
+    ...track,
+    config: {
+      ...track.config,
+      color: "#000000",
+    },
+  }));
+}
 
 function randomizeColorsGradient(midiTracks: MidiTracks["tracks"]) {
   const palette = getRandomTailwindColorPalette();

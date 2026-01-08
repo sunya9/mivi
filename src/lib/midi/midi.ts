@@ -29,7 +29,7 @@ export interface MidiTracks {
 
 export const getDefaultTrackConfig = (
   name: string,
-  color: string = "#4a9eff",
+  color: string = "#ffffff",
 ): TrackConfig => ({
   visible: true,
   color,

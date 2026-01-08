@@ -1,4 +1,3 @@
-import { getRandomTailwindColor } from "@/lib/colors/tailwind-colors";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import {
   getDefaultTrackConfig,
@@ -24,7 +23,7 @@ async function loadMidi(
     Promise.resolve(new Midi(arrayBuffer)),
   ]);
   const tracks = midi.tracks.map((track, index): MidiTrack => {
-    const color = getRandomTailwindColor();
+    const color = "#ffffff";
     const config = getDefaultTrackConfig(
       track.name || `Track ${index + 1}`,
       color,
