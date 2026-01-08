@@ -15,7 +15,7 @@ export function AppHeader({
   toggleRecording,
 }: Props) {
   return (
-    <div className={cn("border-b shadow-xs", className)}>
+    <div className={cn("relative border-b shadow-xs", className)}>
       <div className="mx-auto flex max-w-384 items-center justify-between gap-2 px-4 py-2 md:flex-row md:items-baseline md:p-6">
         <div className="inline-flex items-baseline gap-2">
           <h1 className="text-2xl font-bold tracking-tighter md:text-7xl">
@@ -28,16 +28,9 @@ export function AppHeader({
         </div>
         <div className="flex items-center gap-2 md:ml-auto">
           {recordingState.type === "recording" && (
-            <>
-              <span id="recording-progress" className="text-sm">
-                Exporting…
-              </span>
-              <Progress
-                aria-labelledby="recording-progress"
-                className="w-20 md:w-32"
-                value={recordingState.progress * 100}
-              />
-            </>
+            <span id="recording-progress" className="text-sm">
+              Exporting…
+            </span>
           )}
           <Button onClick={toggleRecording} className="h-8 px-3 md:h-9 md:px-4">
             {recordingState.isRecording ? (
@@ -51,6 +44,13 @@ export function AppHeader({
           </Button>
         </div>
       </div>
+      {recordingState.type === "recording" && (
+        <Progress
+          aria-label="Export progress"
+          className="animate-in fade-in absolute bottom-0 left-0 z-10 h-1 w-full rounded-none duration-300"
+          value={recordingState.progress * 100}
+        />
+      )}
     </div>
   );
 }
