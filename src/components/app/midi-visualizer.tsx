@@ -81,6 +81,11 @@ export function MidiVisualizer({
     invalidateEffect();
   }, [backgroundImageBitmap]);
 
+  // Re-render when midiTracks changes (e.g., color presets)
+  useEffect(() => {
+    invalidateEffect();
+  }, [midiTracks?.tracks]);
+
   const handleInit = useCallback((ctx: CanvasRenderingContext2D) => {
     rendererControllerRef.current = new RendererController(ctx);
   }, []);

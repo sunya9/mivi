@@ -3,8 +3,20 @@ import { screen } from "@testing-library/react";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
-import { rendererConfig } from "tests/fixtures";
+import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
 import { usePlayer } from "@/lib/player/use-player";
+import { RendererController } from "@/components/app/renderer-controller";
+import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
+
+const mockRender = vi.spyOn(RendererController.prototype, "render");
+const mockSetRendererConfig = vi.spyOn(
+  RendererController.prototype,
+  "setRendererConfig",
+);
+const mockSetBackgroundImageBitmap = vi.spyOn(
+  RendererController.prototype,
+  "setBackgroundImageBitmap",
+);
 
 const defaultPlayerMock: ReturnType<typeof usePlayer> = {
   seek: vi.fn(),
@@ -197,4 +209,89 @@ test("should work without View Transitions API support", async () => {
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   expect(findPlayer()).toHaveAttribute("aria-expanded", "true");
+});
+
+// --- Canvas invalidation tests ---
+test("should call render when midiTracks changes", () => {
+  const { rerender } = customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+      midiTracks={expectedMidiTracks}
+    />,
+  );
+
+  const initialCallCount = mockRender.mock.calls.length;
+
+  // Update midiTracks with different color
+  const updatedMidiTracks = {
+    ...expectedMidiTracks,
+    tracks: expectedMidiTracks.tracks.map((track) => ({
+      ...track,
+      config: { ...track.config, color: "#000000" },
+    })),
+  };
+
+  rerender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+      midiTracks={updatedMidiTracks}
+    />,
+  );
+
+  expect(mockRender.mock.calls.length).toBeGreaterThan(initialCallCount);
+});
+
+test("should call render when rendererConfig changes", () => {
+  const { rerender } = customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  const initialCallCount = mockRender.mock.calls.length;
+
+  // Update rendererConfig
+  const updatedRendererConfig: RendererConfig = {
+    ...rendererConfig,
+    resolution: resolutions[0],
+  };
+
+  rerender(
+    <MidiVisualizer
+      rendererConfig={updatedRendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  expect(mockRender.mock.calls.length).toBeGreaterThan(initialCallCount);
+  expect(mockSetRendererConfig).toHaveBeenCalledWith(updatedRendererConfig);
+});
+
+test("should call render when backgroundImageBitmap changes", async () => {
+  const { rerender } = customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  const initialCallCount = mockRender.mock.calls.length;
+
+  // Create a mock ImageBitmap
+  const imgEl = document.createElement("img");
+  const mockImageBitmap = await createImageBitmap(imgEl);
+
+  rerender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+      backgroundImageBitmap={mockImageBitmap}
+    />,
+  );
+
+  expect(mockRender.mock.calls.length).toBeGreaterThan(initialCallCount);
+  expect(mockSetBackgroundImageBitmap).toHaveBeenCalledWith(mockImageBitmap);
 });
