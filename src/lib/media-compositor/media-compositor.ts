@@ -225,7 +225,11 @@ export class MediaCompositor {
   [Symbol.dispose](): void {
     this.videoEncoder.removeEventListener("dequeue", this.onProgressInternal);
     this.audioEncoder.removeEventListener("dequeue", this.onProgressInternal);
-    this.audioEncoder.close();
-    this.videoEncoder.close();
+    if (this.audioEncoder.state !== "closed") {
+      this.audioEncoder.close();
+    }
+    if (this.videoEncoder.state !== "closed") {
+      this.videoEncoder.close();
+    }
   }
 }
