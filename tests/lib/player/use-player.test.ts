@@ -71,3 +71,49 @@ test("should handle mute toggle", () => {
     0,
   );
 });
+
+test("should reset playback time when audioBuffer becomes undefined", () => {
+  const { result, rerender } = customRenderHook(
+    ({ buffer }: { buffer: AudioBuffer | undefined }) => usePlayer(buffer),
+    { initialProps: { buffer: audioBuffer as AudioBuffer | undefined } },
+  );
+
+  // Seek to a position
+  act(() => {
+    result.current.seek(50, true);
+  });
+  expect(result.current.getCurrentTime()).toBe(50);
+  expect(result.current.currentTimeSec).toBe(50);
+
+  // Remove audio buffer
+  rerender({ buffer: undefined });
+
+  // Playback time should be reset
+  expect(result.current.getCurrentTime()).toBe(0);
+  expect(result.current.currentTimeSec).toBe(0);
+});
+
+test("should stop playing and reset when audioBuffer becomes undefined during playback", () => {
+  const { result, rerender } = customRenderHook(
+    ({ buffer }: { buffer: AudioBuffer | undefined }) => usePlayer(buffer),
+    { initialProps: { buffer: audioBuffer as AudioBuffer | undefined } },
+  );
+
+  // Start playing and seek to a position
+  act(() => {
+    result.current.togglePlay();
+  });
+  expect(result.current.isPlaying).toBe(true);
+
+  act(() => {
+    result.current.seek(30, true);
+  });
+
+  // Remove audio buffer while playing
+  rerender({ buffer: undefined });
+
+  // Should stop playing and reset time
+  expect(result.current.isPlaying).toBe(false);
+  expect(result.current.getCurrentTime()).toBe(0);
+  expect(result.current.currentTimeSec).toBe(0);
+});
