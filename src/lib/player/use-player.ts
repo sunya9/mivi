@@ -1,6 +1,6 @@
 import { AppContext } from "@/contexts/app-context";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { use, useCallback, useMemo, useRef, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type PlayingState =
   | {
@@ -25,13 +25,37 @@ export function usePlayer(audioBuffer: AudioBuffer | undefined) {
   const muted = useMemo(() => localStorageMuted ?? false, [localStorageMuted]);
   const [startTime, setStartTime] = useState(0);
   const currentTimeRef = useRef(0);
-  const getCurrentTime = useCallback(() => currentTimeRef.current, []);
+  // Return 0 if audioBuffer is removed
+  const getCurrentTime = useCallback(
+    () => (audioBuffer ? currentTimeRef.current : 0),
+    [audioBuffer],
+  );
   const [playingState, setPlayingState] = useState<PlayingState>({
     type: "paused",
   });
-  const isPlaying = playingState.type === "playing";
+  // Derived state: not playing if audioBuffer is removed
+  const isPlaying =
+    audioBuffer !== undefined && playingState.type === "playing";
   const duration = useMemo(() => audioBuffer?.duration || 0, [audioBuffer]);
-  const [currentTimeSec, setCurrentTimeSec] = useState(0);
+  const [currentTimeSecInternal, setCurrentTimeSec] = useState(0);
+  // Derived state: reset to 0 if audioBuffer is removed
+  const currentTimeSec = audioBuffer ? currentTimeSecInternal : 0;
+
+  // Track playingState in ref for cleanup without triggering re-renders
+  const playingStateRef = useRef(playingState);
+  useEffect(() => {
+    playingStateRef.current = playingState;
+  }, [playingState]);
+
+  // Stop audio and reset currentTimeRef when audio is removed
+  useEffect(() => {
+    if (!audioBuffer) {
+      if (playingStateRef.current.type === "playing") {
+        playingStateRef.current.audioSource.stop();
+      }
+      currentTimeRef.current = 0;
+    }
+  }, [audioBuffer]);
 
   const pause = useCallback(() => {
     if (playingState.type === "playing") {
