@@ -61,6 +61,8 @@ export function MidiVisualizer({
   const touchRevealTimeoutRef = useRef<number>(null);
   const [isMuteRevealed, setIsMuteRevealed] = useState(false);
   const muteRevealTimeoutRef = useRef<number>(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [keepPanelVisible, setKeepPanelVisible] = useState(false);
 
   const invalidate = useCallback(() => {
     rendererControllerRef.current?.render(
@@ -108,6 +110,29 @@ export function MidiVisualizer({
 
   useAnimationFrame(isPlaying, onAnimate);
 
+  // Wrapper for togglePlay that handles keepPanelVisible state
+  const handleTogglePlay = useCallback(() => {
+    if (isPlaying) {
+      // About to pause - check if panel is visible
+      const isPanelVisible =
+        isInteracting || isTouchRevealed || isMuteRevealed || isHovering;
+      if (isPanelVisible) {
+        setKeepPanelVisible(true);
+      }
+    } else {
+      // About to play - reset keepPanelVisible
+      setKeepPanelVisible(false);
+    }
+    togglePlay();
+  }, [
+    isPlaying,
+    isInteracting,
+    isTouchRevealed,
+    isMuteRevealed,
+    isHovering,
+    togglePlay,
+  ]);
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -134,7 +159,7 @@ export function MidiVisualizer({
         return;
       }
       // Mouse or second touch: toggle play
-      togglePlay();
+      handleTogglePlay();
       // Reset touch reveal state
       if (isTouchRevealed) {
         setIsTouchRevealed(false);
@@ -143,7 +168,7 @@ export function MidiVisualizer({
         }
       }
     },
-    [isPlaying, isTouchRevealed, togglePlay],
+    [isPlaying, isTouchRevealed, handleTogglePlay],
   );
   const setExpandedAnimation = useCallback(
     (expanded: React.SetStateAction<boolean>) => {
@@ -176,7 +201,7 @@ export function MidiVisualizer({
         return;
       if (activeElement === document.body || activeElement.role === "slider") {
         e.preventDefault();
-        togglePlay();
+        handleTogglePlay();
       }
     };
 
@@ -216,7 +241,7 @@ export function MidiVisualizer({
       window.removeEventListener("keydown", handleEsc);
       window.removeEventListener("keydown", handleMute);
     };
-  }, [expanded, isPlaying, setExpandedAnimation, togglePlay, toggleMute]);
+  }, [expanded, setExpandedAnimation, handleTogglePlay, toggleMute]);
   const closeExpanded = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
@@ -252,6 +277,9 @@ export function MidiVisualizer({
         data-is-interacting={isInteracting}
         data-is-touch-revealed={isTouchRevealed}
         data-is-mute-revealed={isMuteRevealed}
+        data-keep-panel-visible={keepPanelVisible}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
         style={
           {
             "--aspect-ratio":
@@ -278,8 +306,8 @@ export function MidiVisualizer({
         <div
           className={cn(
             "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
-            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:translate-y-full group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:delay-3000",
-            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:group-hover:translate-y-0 group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:group-hover:delay-0",
+            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:group-not-data-[keep-panel-visible=true]:translate-y-full group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:group-not-data-[keep-panel-visible=true]:delay-3000",
+            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:group-not-data-[keep-panel-visible=true]:group-hover:translate-y-0 group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:group-not-data-[keep-panel-visible=true]:group-hover:delay-0",
             "light",
           )}
         >
@@ -302,7 +330,7 @@ export function MidiVisualizer({
               className="*:data-[slot=slider-track]:bg-muted/30"
             />
             <div className="flex items-center gap-2">
-              <Button onClick={togglePlay} variant="ghost-secondary">
+              <Button onClick={handleTogglePlay} variant="ghost-secondary">
                 {isPlaying ? (
                   <Pause aria-label="Pause" />
                 ) : (
