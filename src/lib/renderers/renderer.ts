@@ -27,6 +27,13 @@ interface PianoRollConfigValues {
   showNotePressEffect: boolean;
   notePressDepth: number;
   pressAnimationDuration: number;
+  showNoiseTexture: boolean;
+  noiseIntensity: number;
+  noiseGrainSize: number;
+  noiseColorVariance: number;
+  showRoughEdge: boolean;
+  roughEdgeIntensity: number;
+  roughEdgeSegmentLength: number;
 }
 
 interface CometConfigValues {
@@ -169,6 +176,13 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     showNotePressEffect: true,
     notePressDepth: 4,
     pressAnimationDuration: 0.1,
+    showNoiseTexture: false,
+    noiseIntensity: 0.15,
+    noiseGrainSize: 4,
+    noiseColorVariance: 30,
+    showRoughEdge: false,
+    roughEdgeIntensity: 1.5,
+    roughEdgeSegmentLength: 4,
   },
   cometConfig: {
     fallAngle: 135,

@@ -36,6 +36,12 @@ export class PianoRollRenderer extends Renderer {
     }
   >();
 
+  private noisePatternLight: CanvasPattern | null = null;
+  private noisePatternDark: CanvasPattern | null = null;
+  private cachedNoiseIntensity: number = 0;
+  private cachedNoiseGrainSize: number = 0;
+  private cachedNoiseColorVariance: number = 0;
+
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     config: RendererConfig,
@@ -68,6 +74,7 @@ export class PianoRollRenderer extends Renderer {
     this.lastCurrentTime = currentTime;
 
     this.renderCommonVisual();
+    this.ensureNoisePattern();
     const {
       canvas: { width, height },
     } = this.ctx;
@@ -246,15 +253,56 @@ export class PianoRollRenderer extends Renderer {
           }
         }
 
-        this.ctx.beginPath();
-        this.ctx.roundRect(
-          x + noteMargin,
-          y - pressOffset,
-          noteWidth,
-          noteHeight,
-          this.config.pianoRollConfig.noteCornerRadius,
-        );
+        if (this.config.pianoRollConfig.showRoughEdge) {
+          const roughSeed = note.time * 1000 + note.midi;
+          this.drawRoughRect(
+            x + noteMargin,
+            y - pressOffset,
+            noteWidth,
+            noteHeight,
+            this.config.pianoRollConfig.noteCornerRadius,
+            this.config.pianoRollConfig.roughEdgeIntensity,
+            this.config.pianoRollConfig.roughEdgeSegmentLength,
+            roughSeed,
+          );
+        } else {
+          this.ctx.beginPath();
+          this.ctx.roundRect(
+            x + noteMargin,
+            y - pressOffset,
+            noteWidth,
+            noteHeight,
+            this.config.pianoRollConfig.noteCornerRadius,
+          );
+        }
         this.ctx.fill();
+
+        if (this.config.pianoRollConfig.showNoiseTexture) {
+          // Choose dark noise for light colors, light noise for dark colors
+          const luminance = this.getColorLuminance(track.config.color);
+          const noisePattern =
+            luminance > 0.5 ? this.noisePatternDark : this.noisePatternLight;
+
+          if (noisePattern) {
+            this.ctx.save();
+            // Use source-atop to blend noise only on the note (not background)
+            this.ctx.globalCompositeOperation = "source-atop";
+            // Generate unique offset per note for pattern variation
+            const noteSeed = note.time * 1000 + note.midi;
+            const uniqueOffsetX = this.seededRandom(noteSeed) * 256;
+            const uniqueOffsetY = this.seededRandom(noteSeed + 12345) * 256;
+            // Transform the pattern itself to move with the note
+            noisePattern.setTransform(
+              new DOMMatrix().translate(
+                x + noteMargin + uniqueOffsetX,
+                y - pressOffset + uniqueOffsetY,
+              ),
+            );
+            this.ctx.fillStyle = noisePattern;
+            this.ctx.fill();
+            this.ctx.restore();
+          }
+        }
 
         const velocityAlpha = note.velocity / 127;
         this.ctx.fillStyle = `rgba(255, 255, 255, ${velocityAlpha * 0.3})`;
@@ -364,5 +412,166 @@ export class PianoRollRenderer extends Renderer {
     const newB = Math.min(255, b + brightenValue);
 
     return `rgb(${newR}, ${newG}, ${newB})`;
+  }
+
+  private seededRandom(seed: number): number {
+    const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453;
+    return x - Math.floor(x);
+  }
+
+  private generateNoisePattern(
+    intensity: number,
+    grainSize: number,
+    colorVariance: number,
+    dark: boolean,
+  ): CanvasPattern | null {
+    const size = 256;
+    const canvas = new OffscreenCanvas(size, size);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    const imageData = ctx.createImageData(size, size);
+    const data = imageData.data;
+    const colorValue = dark ? 0 : 255;
+
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const grainX = Math.floor(x / grainSize);
+        const grainY = Math.floor(y / grainSize);
+        const grainIndex = grainY * Math.ceil(size / grainSize) + grainX;
+
+        // Generate subtle alpha noise for crayon-like effect
+        const noiseAlpha =
+          this.seededRandom(grainIndex) * intensity * colorVariance;
+
+        const i = (y * size + x) * 4;
+        data[i] = colorValue;
+        data[i + 1] = colorValue;
+        data[i + 2] = colorValue;
+        data[i + 3] = Math.floor(noiseAlpha);
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return this.ctx.createPattern(canvas, "repeat");
+  }
+
+  private getColorLuminance(hexColor: string): number {
+    const r = parseInt(hexColor.slice(1, 3), 16) / 255;
+    const g = parseInt(hexColor.slice(3, 5), 16) / 255;
+    const b = parseInt(hexColor.slice(5, 7), 16) / 255;
+    return 0.299 * r + 0.587 * g + 0.114 * b;
+  }
+
+  private drawRoughRect(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    cornerRadius: number,
+    intensity: number,
+    segmentLength: number,
+    seed: number,
+  ): void {
+    const cr = Math.min(cornerRadius, width / 2, height / 2);
+
+    this.ctx.beginPath();
+
+    // Top edge (left to right)
+    this.ctx.moveTo(x + cr, y + this.getRoughOffset(seed, 0, intensity));
+    const topSegments = Math.ceil((width - cr * 2) / segmentLength);
+    for (let i = 1; i <= topSegments; i++) {
+      const px = x + cr + ((width - cr * 2) * i) / topSegments;
+      const py = y + this.getRoughOffset(seed, i, intensity);
+      this.ctx.lineTo(px, py);
+    }
+
+    // Top-right corner (no offset on arcTo control points)
+    this.ctx.arcTo(x + width, y, x + width, y + cr, cr);
+
+    // Right edge (top to bottom)
+    const rightSegments = Math.ceil((height - cr * 2) / segmentLength);
+    for (let i = 1; i <= rightSegments; i++) {
+      const px = x + width + this.getRoughOffset(seed, 200 + i, intensity);
+      const py = y + cr + ((height - cr * 2) * i) / rightSegments;
+      this.ctx.lineTo(px, py);
+    }
+
+    // Bottom-right corner
+    this.ctx.arcTo(x + width, y + height, x + width - cr, y + height, cr);
+
+    // Bottom edge (right to left)
+    const bottomSegments = Math.ceil((width - cr * 2) / segmentLength);
+    for (let i = 1; i <= bottomSegments; i++) {
+      const px = x + width - cr - ((width - cr * 2) * i) / bottomSegments;
+      const py = y + height + this.getRoughOffset(seed, 400 + i, intensity);
+      this.ctx.lineTo(px, py);
+    }
+
+    // Bottom-left corner
+    this.ctx.arcTo(x, y + height, x, y + height - cr, cr);
+
+    // Left edge (bottom to top)
+    const leftSegments = Math.ceil((height - cr * 2) / segmentLength);
+    for (let i = 1; i <= leftSegments; i++) {
+      const px = x + this.getRoughOffset(seed, 600 + i, intensity);
+      const py = y + height - cr - ((height - cr * 2) * i) / leftSegments;
+      this.ctx.lineTo(px, py);
+    }
+
+    // Top-left corner
+    this.ctx.arcTo(x, y, x + cr, y, cr);
+
+    this.ctx.closePath();
+  }
+
+  private getRoughOffset(
+    seed: number,
+    index: number,
+    intensity: number,
+  ): number {
+    return (this.seededRandom(seed + index * 7.31) - 0.5) * 2 * intensity;
+  }
+
+  private ensureNoisePattern(): void {
+    const {
+      showNoiseTexture,
+      noiseIntensity,
+      noiseGrainSize,
+      noiseColorVariance,
+    } = this.config.pianoRollConfig;
+
+    if (!showNoiseTexture) {
+      this.noisePatternLight = null;
+      this.noisePatternDark = null;
+      this.cachedNoiseIntensity = 0;
+      this.cachedNoiseGrainSize = 0;
+      this.cachedNoiseColorVariance = 0;
+      return;
+    }
+
+    if (
+      this.cachedNoiseIntensity !== noiseIntensity ||
+      this.cachedNoiseGrainSize !== noiseGrainSize ||
+      this.cachedNoiseColorVariance !== noiseColorVariance ||
+      this.noisePatternLight === null ||
+      this.noisePatternDark === null
+    ) {
+      this.noisePatternLight = this.generateNoisePattern(
+        noiseIntensity,
+        noiseGrainSize,
+        noiseColorVariance,
+        false,
+      );
+      this.noisePatternDark = this.generateNoisePattern(
+        noiseIntensity,
+        noiseGrainSize,
+        noiseColorVariance,
+        true,
+      );
+      this.cachedNoiseIntensity = noiseIntensity;
+      this.cachedNoiseGrainSize = noiseGrainSize;
+      this.cachedNoiseColorVariance = noiseColorVariance;
+    }
   }
 }
