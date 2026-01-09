@@ -13,6 +13,7 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
 import { KeyboardShortcutsDialog } from "./keyboard-shortcuts-dialog";
 import { cn } from "@/lib/utils";
@@ -117,6 +118,7 @@ export function SettingsMenu({ className }: Props) {
           <DropdownMenuItem onSelect={() => setShortcutsDialogOpen(true)}>
             <Keyboard className="mr-2 size-4" />
             Keyboard Shortcuts
+            <DropdownMenuShortcut>?</DropdownMenuShortcut>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
