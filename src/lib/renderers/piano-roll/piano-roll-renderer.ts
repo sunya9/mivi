@@ -111,13 +111,17 @@ export class PianoRollRenderer extends Renderer {
         const noteStart = note.time;
         const noteEnd = note.time + note.duration;
 
+        // Calculate actual time corresponding to screen edges, accounting for scale
+        const scale = track.config.scale;
+        const leftEdgeTime = currentTime + (startTime - currentTime) / scale;
+        const rightEdgeTime = currentTime + (endTime - currentTime) / scale;
+        const scaledOverflow =
+          (this.config.pianoRollConfig.timeWindow * this.overflowFactor) /
+          scale;
+
         if (
-          noteEnd <
-            startTime -
-              this.config.pianoRollConfig.timeWindow * this.overflowFactor ||
-          noteStart >
-            endTime +
-              this.config.pianoRollConfig.timeWindow * this.overflowFactor ||
+          noteEnd < leftEdgeTime - scaledOverflow ||
+          noteStart > rightEdgeTime + scaledOverflow ||
           !isNoteInViewRange(note.midi)
         )
           return;
