@@ -25,7 +25,7 @@ import { usePlayer } from "@/lib/player/use-player";
 import { MidiTracks } from "@/lib/midi/midi";
 import { useAnimationFrame } from "@/hooks/use-animation-frame";
 import { RendererController } from "./renderer-controller";
-import { KeyboardShortcutsDialog } from "./keyboard-shortcuts-dialog";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface Props {
   rendererConfig: RendererConfig;
@@ -64,7 +64,6 @@ export function MidiVisualizer({
   const muteRevealTimeoutRef = useRef<number>(null);
   const [isHovering, setIsHovering] = useState(false);
   const [keepPanelVisible, setKeepPanelVisible] = useState(false);
-  const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
 
   const invalidate = useCallback(() => {
     rendererControllerRef.current?.render(
@@ -192,36 +191,34 @@ export function MidiVisualizer({
     [setExpandedAnimation],
   );
 
-  useEffect(() => {
-    const handleSpace = (e: KeyboardEvent) => {
+  // Space: Play/Pause (allow on body and slider elements)
+  useHotkeys(
+    "space",
+    (e) => {
+      if (e.repeat) return;
       const activeElement = document.activeElement;
-      if (
-        !(activeElement instanceof HTMLElement) ||
-        e.code !== "Space" ||
-        e.repeat
-      )
-        return;
+      if (!(activeElement instanceof HTMLElement)) return;
       if (activeElement === document.body || activeElement.role === "slider") {
         e.preventDefault();
         handleTogglePlay();
       }
-    };
+    },
+    [handleTogglePlay],
+  );
 
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.code !== "Escape" || !expanded) return;
-      e.preventDefault();
-      setExpandedAnimation(false);
-    };
+  // Escape: Exit expanded view
+  useHotkeys(
+    "escape",
+    () => setExpandedAnimation(false),
+    { enabled: expanded },
+    [expanded, setExpandedAnimation],
+  );
 
-    const handleMute = (e: KeyboardEvent) => {
-      if (e.code !== "KeyM" || e.repeat) return;
-      const activeElement = document.activeElement;
-      if (
-        activeElement instanceof HTMLInputElement ||
-        activeElement instanceof HTMLTextAreaElement
-      ) {
-        return;
-      }
+  // M: Mute/Unmute (disabled in form inputs)
+  useHotkeys(
+    "m",
+    (e) => {
+      if (e.repeat) return;
       e.preventDefault();
       toggleMute();
 
@@ -233,33 +230,10 @@ export function MidiVisualizer({
       muteRevealTimeoutRef.current = window.setTimeout(() => {
         setIsMuteRevealed(false);
       }, 3000);
-    };
-
-    const handleShortcutsKey = (e: KeyboardEvent) => {
-      // ? key (Shift + /)
-      if (e.key !== "?" || e.repeat) return;
-      const activeElement = document.activeElement;
-      if (
-        activeElement instanceof HTMLInputElement ||
-        activeElement instanceof HTMLTextAreaElement
-      ) {
-        return;
-      }
-      e.preventDefault();
-      setShortcutsDialogOpen(true);
-    };
-
-    window.addEventListener("keydown", handleSpace);
-    window.addEventListener("keydown", handleEsc);
-    window.addEventListener("keydown", handleMute);
-    window.addEventListener("keydown", handleShortcutsKey);
-    return () => {
-      window.removeEventListener("keydown", handleSpace);
-      window.removeEventListener("keydown", handleEsc);
-      window.removeEventListener("keydown", handleMute);
-      window.removeEventListener("keydown", handleShortcutsKey);
-    };
-  }, [expanded, setExpandedAnimation, handleTogglePlay, toggleMute]);
+    },
+    { enableOnFormTags: false },
+    [toggleMute],
+  );
   const closeExpanded = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
@@ -402,10 +376,6 @@ export function MidiVisualizer({
           </div>
         </div>
       </div>
-      <KeyboardShortcutsDialog
-        open={shortcutsDialogOpen}
-        onOpenChange={setShortcutsDialogOpen}
-      />
     </div>
   );
 }

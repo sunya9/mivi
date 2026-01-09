@@ -23,6 +23,7 @@ import {
   type MobileTabValue,
 } from "@/components/app/mobile-bottom-nav";
 import { cn } from "@/lib/utils";
+import { KeyboardShortcutsDialog } from "@/components/app/keyboard-shortcuts-dialog";
 
 export function App() {
   const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();
@@ -174,6 +175,7 @@ export function App() {
         value={mobileTab}
         onValueChange={setMobileTab}
       />
+      <KeyboardShortcutsDialog />
       <Toaster position="top-center" />
       {ConfirmDialog}
     </div>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useTheme } from "next-themes";
 import { Settings, Sun, Moon, Monitor, Keyboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
 } from "@/components/ui/dropdown-menu";
-import { KeyboardShortcutsDialog } from "./keyboard-shortcuts-dialog";
 import { cn } from "@/lib/utils";
 
 const themes = [
@@ -67,7 +66,16 @@ function setTransitionOrigin(options?: { x: number; y: number }) {
 
 export function SettingsMenu({ className }: Props) {
   const { theme, setTheme, systemTheme } = useTheme();
-  const [shortcutsDialogOpen, setShortcutsDialogOpen] = useState(false);
+  const openKeyboardShortcuts = useCallback(() => {
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "/",
+        code: "Slash",
+        shiftKey: true,
+        bubbles: true,
+      }),
+    );
+  }, []);
   const clickPositionRef = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -115,7 +123,7 @@ export function SettingsMenu({ className }: Props) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => setShortcutsDialogOpen(true)}>
+          <DropdownMenuItem onSelect={openKeyboardShortcuts}>
             <Keyboard className="mr-2 size-4" />
             Keyboard Shortcuts
             <DropdownMenuShortcut>?</DropdownMenuShortcut>
@@ -148,11 +156,6 @@ export function SettingsMenu({ className }: Props) {
           </DropdownMenuSub>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <KeyboardShortcutsDialog
-        open={shortcutsDialogOpen}
-        onOpenChange={setShortcutsDialogOpen}
-      />
     </>
   );
 }

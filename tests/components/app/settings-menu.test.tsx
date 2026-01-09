@@ -62,12 +62,21 @@ test("should change theme when option is selected", async () => {
   expect(mockSetTheme).toHaveBeenCalledWith("dark");
 });
 
-test("should open keyboard shortcuts dialog when option is selected", async () => {
+test("should dispatch keyboard event when keyboard shortcuts option is selected", async () => {
+  const dispatchEventSpy = vi.spyOn(document, "dispatchEvent");
   customRender(<SettingsMenu />);
 
   await userEvent.click(screen.getByRole("button", { name: /Settings/ }));
   await userEvent.click(screen.getByText(/Keyboard Shortcuts/));
 
-  expect(screen.getByRole("dialog")).toBeInTheDocument();
-  expect(screen.getByText("Space")).toBeInTheDocument();
+  expect(dispatchEventSpy).toHaveBeenCalledWith(
+    expect.objectContaining({
+      type: "keydown",
+      key: "/",
+      code: "Slash",
+      shiftKey: true,
+    }),
+  );
+
+  dispatchEventSpy.mockRestore();
 });

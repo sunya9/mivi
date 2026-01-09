@@ -329,21 +329,6 @@ test("should reveal control panel when 'm' key is pressed", async () => {
   expect(playerContainer).toHaveAttribute("data-is-mute-revealed", "true");
 });
 
-// --- Keyboard shortcuts dialog tests ---
-test("should open keyboard shortcuts dialog when '?' key is pressed", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
-
-  await userEvent.keyboard("?");
-
-  expect(screen.getByRole("dialog")).toBeInTheDocument();
-  expect(screen.getByText(/Keyboard Shortcuts/)).toBeInTheDocument();
-});
-
 // --- Keep panel visible tests ---
 test("should keep panel visible when paused while panel was showing via hover", async () => {
   vi.mocked(usePlayer).mockReturnValue({
