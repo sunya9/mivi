@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import path from "path";
+import { execFileSync } from "child_process";
 import { defineConfig, PluginOption } from "vite";
 import { configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react";
@@ -67,6 +68,7 @@ export default defineConfig(({ mode }) => ({
       bundleName: "mivi",
       uploadToken: process.env.CODECOV_TOKEN,
     }),
+    mode === "development" && devBranchTitlePlugin(),
   ],
   optimizeDeps: {
     include: ["mediabunny", "throttle-debounce"],
@@ -130,3 +132,25 @@ export default defineConfig(({ mode }) => ({
 
 const waitForDownload: BrowserCommand<[]> = (ctx) =>
   ctx.page.waitForEvent("download");
+
+function devBranchTitlePlugin(): PluginOption {
+  return {
+    name: "dev-branch-title",
+    transformIndexHtml(html) {
+      try {
+        const branch = execFileSync("git", ["branch", "--show-current"], {
+          encoding: "utf-8",
+        }).trim();
+        if (branch) {
+          return html.replace(
+            /<title>(.*?)<\/title>/,
+            `<title>$1 (${branch})</title>`,
+          );
+        }
+      } catch {
+        // ignore
+      }
+      return html;
+    },
+  };
+}
