@@ -456,6 +456,132 @@ export function PianoRollConfigPanel({
           )}
         </>
       )}
+      <Separator />
+      <FormRow
+        label={<span>Rough Edge</span>}
+        controller={
+          <Switch
+            checked={pianoRollConfig.showRoughEdge}
+            onCheckedChange={(checked) => {
+              setPianoRollConfig({ showRoughEdge: checked });
+            }}
+          />
+        }
+      />
+      {pianoRollConfig.showRoughEdge && (
+        <>
+          <FormRow
+            label={
+              <span>
+                Rough Edge Intensity: {pianoRollConfig.roughEdgeIntensity}px
+              </span>
+            }
+            controller={
+              <Slider
+                value={[pianoRollConfig.roughEdgeIntensity]}
+                className="w-full max-w-48 min-w-24"
+                min={0.1}
+                max={5}
+                step={0.1}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ roughEdgeIntensity: value });
+                }}
+              />
+            }
+          />
+          <FormRow
+            label={
+              <span>
+                Rough Edge Segment: {pianoRollConfig.roughEdgeSegmentLength}px
+              </span>
+            }
+            controller={
+              <Slider
+                value={[pianoRollConfig.roughEdgeSegmentLength]}
+                className="w-full max-w-48 min-w-24"
+                min={2}
+                max={16}
+                step={1}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ roughEdgeSegmentLength: value });
+                }}
+              />
+            }
+          />
+        </>
+      )}
+      <Separator />
+      <FormRow
+        label={<span>Noise Texture</span>}
+        controller={
+          <Switch
+            checked={pianoRollConfig.showNoiseTexture}
+            onCheckedChange={(checked) => {
+              setPianoRollConfig({ showNoiseTexture: checked });
+            }}
+          />
+        }
+      />
+      {pianoRollConfig.showNoiseTexture && (
+        <>
+          <FormRow
+            label={
+              <span>
+                Noise Intensity:{" "}
+                {Math.round(pianoRollConfig.noiseIntensity * 100)}%
+              </span>
+            }
+            controller={
+              <Slider
+                value={[pianoRollConfig.noiseIntensity]}
+                className="w-full max-w-48 min-w-24"
+                min={0.01}
+                max={0.5}
+                step={0.01}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ noiseIntensity: value });
+                }}
+              />
+            }
+          />
+          <FormRow
+            label={
+              <span>Noise Grain Size: {pianoRollConfig.noiseGrainSize}px</span>
+            }
+            controller={
+              <Slider
+                value={[pianoRollConfig.noiseGrainSize]}
+                className="w-full max-w-48 min-w-24"
+                min={1}
+                max={16}
+                step={1}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ noiseGrainSize: value });
+                }}
+              />
+            }
+          />
+          <FormRow
+            label={
+              <span>
+                Noise Color Variance: {pianoRollConfig.noiseColorVariance}
+              </span>
+            }
+            controller={
+              <Slider
+                value={[pianoRollConfig.noiseColorVariance]}
+                className="w-full max-w-48 min-w-24"
+                min={1}
+                max={100}
+                step={1}
+                onValueChange={([value]) => {
+                  setPianoRollConfig({ noiseColorVariance: value });
+                }}
+              />
+            }
+          />
+        </>
+      )}
     </>
   );
 }
