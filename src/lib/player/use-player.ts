@@ -41,21 +41,15 @@ export function usePlayer(audioBuffer: AudioBuffer | undefined) {
   // Derived state: reset to 0 if audioBuffer is removed
   const currentTimeSec = audioBuffer ? currentTimeSecInternal : 0;
 
-  // Track playingState in ref for cleanup without triggering re-renders
-  const playingStateRef = useRef(playingState);
-  useEffect(() => {
-    playingStateRef.current = playingState;
-  }, [playingState]);
-
   // Stop audio and reset currentTimeRef when audio is removed
   useEffect(() => {
     if (!audioBuffer) {
-      if (playingStateRef.current.type === "playing") {
-        playingStateRef.current.audioSource.stop();
+      if (playingState.type === "playing") {
+        playingState.audioSource.stop();
       }
       currentTimeRef.current = 0;
     }
-  }, [audioBuffer]);
+  }, [audioBuffer, playingState]);
 
   const pause = useCallback(() => {
     if (playingState.type === "playing") {
