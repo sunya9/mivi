@@ -13,7 +13,7 @@ interface ShortcutItem {
 
 const shortcuts: ShortcutItem[] = [
   { key: "Space", description: "Play / Pause" },
-  { key: "Esc", description: "Exit fullscreen" },
+  { key: "Esc", description: "Exit expanded view" },
   { key: "M", description: "Mute / Unmute" },
   { key: "?", description: "Show shortcuts" },
 ];

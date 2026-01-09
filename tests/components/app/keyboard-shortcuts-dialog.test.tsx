@@ -17,7 +17,7 @@ test("should render shortcut descriptions", () => {
   customRender(<KeyboardShortcutsDialog open={true} onOpenChange={() => {}} />);
 
   expect(screen.getByText("Play / Pause")).toBeInTheDocument();
-  expect(screen.getByText("Exit fullscreen")).toBeInTheDocument();
+  expect(screen.getByText("Exit expanded view")).toBeInTheDocument();
   expect(screen.getByText("Mute / Unmute")).toBeInTheDocument();
   expect(screen.getByText("Show shortcuts")).toBeInTheDocument();
 });
