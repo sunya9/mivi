@@ -24,6 +24,7 @@ test("should return context value when used within provider", () => {
     endResize: () => {},
     resizeByKeyboard: () => {},
     resizeToMin: () => {},
+    resizeToFit: () => {},
     getContainerRef: () => null,
   };
 

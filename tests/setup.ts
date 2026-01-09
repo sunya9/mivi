@@ -70,3 +70,4 @@ vi.stubGlobal("HTMLCanvasElement", HTMLCanvasElement);
 // https://github.com/radix-ui/primitives/issues/1822
 window.HTMLElement.prototype.hasPointerCapture = vi.fn();
 window.HTMLElement.prototype.setPointerCapture = vi.fn();
+window.HTMLElement.prototype.releasePointerCapture = vi.fn();

@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import {
   GridResizablePanelGroup,
   GridResizablePanel,
   GridResizableSeparator,
+  type PanelConfig,
 } from "@/components/grid-resizable";
 import { AppHeader } from "@/components/app/app-header";
 import { TrackListPane } from "@/components/app/track-list-pane";
@@ -49,6 +50,45 @@ export function App() {
 
   const [mobileTab, setMobileTab] = useState<MobileTabValue>("visualizer");
 
+  // Ref to the visualizer container for measuring dimensions
+  const visualizerContainerRef = useRef<HTMLDivElement>(null);
+
+  const getVisualizerOptimalHeight = useCallback((): number | null => {
+    const container = visualizerContainerRef.current;
+    if (!container) return null;
+
+    const rect = container.getBoundingClientRect();
+    const aspectRatio =
+      rendererConfig.resolution.height / rendererConfig.resolution.width;
+
+    return rect.width * aspectRatio;
+  }, [rendererConfig.resolution.height, rendererConfig.resolution.width]);
+
+  // Get the actual width of the canvas (for fitting center column to canvas)
+  const getCenterOptimalWidth = useCallback((): number | null => {
+    const container = visualizerContainerRef.current;
+    if (!container) return null;
+
+    return container.getBoundingClientRect().width;
+  }, []);
+
+  const panels = useMemo<PanelConfig[]>(
+    () => [
+      { id: "track-list", defaultSize: 1000, constraints: { minSize: 300 } },
+      { id: "center", defaultSize: 1000, constraints: { minSize: 320 } },
+      {
+        id: "visualizer",
+        defaultSize: 400,
+        sizeUnit: "px",
+        constraints: { minSize: 100 },
+        getOptimalSize: getVisualizerOptimalHeight,
+      },
+      { id: "config", defaultSize: 1500 },
+      { id: "style", defaultSize: 1000, constraints: { minSize: 300 } },
+    ],
+    [getVisualizerOptimalHeight],
+  );
+
   return (
     <div
       className="grid max-h-dvh min-h-dvh grid-rows-[auto_1fr_auto] overflow-hidden md:grid-rows-[auto_1fr]"
@@ -64,13 +104,7 @@ export function App() {
       />
       <GridResizablePanelGroup
         id="main-layout"
-        panels={[
-          { id: "track-list", defaultSize: 1, constraints: { minSize: 0.3 } },
-          { id: "center", defaultSize: 1 },
-          { id: "visualizer", defaultSize: 1 },
-          { id: "config", defaultSize: 1.5 },
-          { id: "style", defaultSize: 1, constraints: { minSize: 0.3 } },
-        ]}
+        panels={panels}
         className="grid-main-layout mx-auto min-h-0 max-w-384"
       >
         <GridResizablePanel
@@ -85,6 +119,7 @@ export function App() {
             audioBuffer={audioBuffer}
             midiTracks={midiTracks}
             backgroundImageBitmap={backgroundImageBitmap}
+            containerRef={visualizerContainerRef}
           />
         </GridResizablePanel>
         <GridResizablePanel
@@ -110,6 +145,8 @@ export function App() {
           orientation="horizontal"
           controls={["track-list", "center"]}
           className="area-[sep-h1]"
+          getOptimalSizeForFit={getCenterOptimalWidth}
+          fitTargetPanel="center"
         />
 
         <GridResizableSeparator
@@ -117,6 +154,8 @@ export function App() {
           orientation="vertical"
           controls={["visualizer", "config"]}
           className="area-[sep-v]"
+          getOptimalSizeForFit={getVisualizerOptimalHeight}
+          fitTargetPanel="visualizer"
         />
 
         <GridResizablePanel
@@ -143,6 +182,8 @@ export function App() {
           orientation="horizontal"
           controls={["center", "style"]}
           className="area-[sep-h2]"
+          getOptimalSizeForFit={getCenterOptimalWidth}
+          fitTargetPanel="center"
         />
 
         <GridResizablePanel

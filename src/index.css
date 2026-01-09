@@ -178,7 +178,7 @@
       "about about about about about";
     grid-template-columns:
       minmax(0, var(--panel-track-list)) 1px
-      minmax(0, var(--panel-center)) 1px
+      minmax(320px, var(--panel-center)) 1px
       minmax(0, var(--panel-style));
     grid-template-rows:
       minmax(0, var(--panel-visualizer))
