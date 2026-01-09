@@ -32,3 +32,50 @@ test("not called when not playing", () => {
   expect(onAnimate).not.toHaveBeenCalled();
   expect(rafStub.cancelAnimationFrame).toHaveBeenCalledTimes(0);
 });
+
+test("calls onAnimate when tab becomes visible", () => {
+  const onAnimate = vi.fn();
+  const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
+
+  renderHook(() => useAnimationFrame(true, onAnimate));
+
+  // Initial RAF call
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(1);
+
+  // Simulate tab becoming visible
+  document.dispatchEvent(new Event("visibilitychange"));
+
+  expect(onAnimate).toHaveBeenCalledTimes(2);
+  hiddenSpy.mockRestore();
+});
+
+test("does not call onAnimate when tab becomes hidden", () => {
+  const onAnimate = vi.fn();
+  const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
+
+  renderHook(() => useAnimationFrame(true, onAnimate));
+
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(1);
+
+  // Simulate tab becoming hidden
+  hiddenSpy.mockReturnValue(true);
+  document.dispatchEvent(new Event("visibilitychange"));
+
+  // Should not be called again
+  expect(onAnimate).toHaveBeenCalledTimes(1);
+  hiddenSpy.mockRestore();
+});
+
+test("does not respond to visibilitychange when not playing", () => {
+  const onAnimate = vi.fn();
+  const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
+
+  renderHook(() => useAnimationFrame(false, onAnimate));
+
+  document.dispatchEvent(new Event("visibilitychange"));
+
+  expect(onAnimate).not.toHaveBeenCalled();
+  hiddenSpy.mockRestore();
+});
