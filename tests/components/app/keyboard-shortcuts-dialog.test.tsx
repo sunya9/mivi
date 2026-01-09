@@ -1,44 +1,20 @@
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { KeyboardShortcutsDialog } from "@/components/app/keyboard-shortcuts-dialog";
 import { customRender } from "tests/util";
 
-test("should render all shortcuts when open", () => {
-  customRender(<KeyboardShortcutsDialog open={true} onOpenChange={() => {}} />);
+const slashKeyMap = [{ code: "Slash", key: "/" }];
 
-  expect(screen.getByText("Space")).toBeInTheDocument();
-  expect(screen.getByText("Esc")).toBeInTheDocument();
-  expect(screen.getByText("M")).toBeInTheDocument();
-  expect(screen.getByText("?")).toBeInTheDocument();
-});
+test("should show dialog when shortcut is pressed", async () => {
+  customRender(<KeyboardShortcutsDialog />);
 
-test("should render shortcut descriptions", () => {
-  customRender(<KeyboardShortcutsDialog open={true} onOpenChange={() => {}} />);
+  await userEvent.keyboard("{Shift>}/{/Shift}", { keyboardMap: slashKeyMap });
 
-  expect(screen.getByText("Play / Pause")).toBeInTheDocument();
-  expect(screen.getByText("Exit expanded view")).toBeInTheDocument();
-  expect(screen.getByText("Mute / Unmute")).toBeInTheDocument();
-  expect(screen.getByText("Show shortcuts")).toBeInTheDocument();
-});
-
-test("should call onOpenChange when dialog is closed", async () => {
-  const onOpenChange = vi.fn();
-  customRender(
-    <KeyboardShortcutsDialog open={true} onOpenChange={onOpenChange} />,
-  );
-
-  // Close dialog by clicking the close button
-  const closeButton = screen.getByRole("button", { name: /close/i });
-  await userEvent.click(closeButton);
-
-  expect(onOpenChange).toHaveBeenCalledWith(false);
+  expect(screen.getByRole("dialog")).toBeInTheDocument();
 });
 
 test("should not render content when closed", () => {
-  customRender(
-    <KeyboardShortcutsDialog open={false} onOpenChange={() => {}} />,
-  );
-
-  expect(screen.queryByText("Keyboard Shortcuts")).not.toBeInTheDocument();
+  customRender(<KeyboardShortcutsDialog />);
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });

@@ -5,6 +5,9 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Kbd } from "../ui/kbd";
+import { useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 interface ShortcutItem {
   key: string;
@@ -18,14 +21,11 @@ const shortcuts: ShortcutItem[] = [
   { key: "?", description: "Show shortcuts" },
 ];
 
-interface Props {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function KeyboardShortcutsDialog({ open, onOpenChange }: Props) {
+export function KeyboardShortcutsDialog() {
+  const [open, setOpen] = useState(false);
+  useHotkeys("shift+slash", () => setOpen(true));
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Keyboard Shortcuts</DialogTitle>
@@ -40,9 +40,7 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: Props) {
               className="flex items-center justify-between"
             >
               <span className="text-sm">{shortcut.description}</span>
-              <kbd className="bg-muted rounded px-2 py-1 font-mono text-sm">
-                {shortcut.key}
-              </kbd>
+              <Kbd>{shortcut.key}</Kbd>
             </div>
           ))}
         </div>
