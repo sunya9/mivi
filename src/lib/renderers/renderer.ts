@@ -141,7 +141,7 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
   backgroundImageOpacity: 1,
   resolution: resolutions[1],
   fps: 30,
-  format: "webm",
+  format: "mp4",
   pianoRollConfig: {
     noteMargin: 2,
     noteVerticalMargin: 1,

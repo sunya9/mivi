@@ -28,6 +28,12 @@ test("complete happy path", async () => {
     target: { value: "#ffffff" },
   });
 
+  // Change format to webm (mp4 is not supported in CI environment)
+  const formatTrigger = screen.getByRole("combobox", { name: "Format" });
+  await formatTrigger.click();
+  const webmOption = screen.getByRole("option", { name: "WebM (VP9)" });
+  await webmOption.click();
+
   const downloadPromise = commands.waitForDownload();
   await screen.getByRole("button", { name: "Start export" }).click();
   await expect.element(screen.getByText("Exporting…")).toBeInTheDocument();
