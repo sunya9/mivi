@@ -59,6 +59,8 @@ export function MidiVisualizer({
   const [isInteracting, setIsInteracting] = useState(false);
   const [isTouchRevealed, setIsTouchRevealed] = useState(false);
   const touchRevealTimeoutRef = useRef<number>(null);
+  const [isMuteRevealed, setIsMuteRevealed] = useState(false);
+  const muteRevealTimeoutRef = useRef<number>(null);
 
   const invalidate = useCallback(() => {
     rendererControllerRef.current?.render(
@@ -111,6 +113,9 @@ export function MidiVisualizer({
     return () => {
       if (touchRevealTimeoutRef.current) {
         clearTimeout(touchRevealTimeoutRef.current);
+      }
+      if (muteRevealTimeoutRef.current) {
+        clearTimeout(muteRevealTimeoutRef.current);
       }
     };
   }, []);
@@ -181,13 +186,37 @@ export function MidiVisualizer({
       setExpandedAnimation(false);
     };
 
+    const handleMute = (e: KeyboardEvent) => {
+      if (e.code !== "KeyM" || e.repeat) return;
+      const activeElement = document.activeElement;
+      if (
+        activeElement instanceof HTMLInputElement ||
+        activeElement instanceof HTMLTextAreaElement
+      ) {
+        return;
+      }
+      e.preventDefault();
+      toggleMute();
+
+      // Temporarily reveal control panel (3 seconds)
+      setIsMuteRevealed(true);
+      if (muteRevealTimeoutRef.current) {
+        clearTimeout(muteRevealTimeoutRef.current);
+      }
+      muteRevealTimeoutRef.current = window.setTimeout(() => {
+        setIsMuteRevealed(false);
+      }, 3000);
+    };
+
     window.addEventListener("keydown", handleSpace);
     window.addEventListener("keydown", handleEsc);
+    window.addEventListener("keydown", handleMute);
     return () => {
       window.removeEventListener("keydown", handleSpace);
       window.removeEventListener("keydown", handleEsc);
+      window.removeEventListener("keydown", handleMute);
     };
-  }, [expanded, isPlaying, setExpandedAnimation, togglePlay]);
+  }, [expanded, isPlaying, setExpandedAnimation, togglePlay, toggleMute]);
   const closeExpanded = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
@@ -222,6 +251,7 @@ export function MidiVisualizer({
         data-is-playing={isPlaying}
         data-is-interacting={isInteracting}
         data-is-touch-revealed={isTouchRevealed}
+        data-is-mute-revealed={isMuteRevealed}
         style={
           {
             "--aspect-ratio":
@@ -248,8 +278,8 @@ export function MidiVisualizer({
         <div
           className={cn(
             "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
-            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:translate-y-full group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:delay-3000",
-            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-hover:translate-y-0 group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-hover:delay-0",
+            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:translate-y-full group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:delay-3000",
+            "group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:group-hover:translate-y-0 group-data-[is-playing=true]:group-not-data-[is-interacting=true]:group-not-data-[is-touch-revealed=true]:group-not-data-[is-mute-revealed=true]:group-hover:delay-0",
             "light",
           )}
         >
