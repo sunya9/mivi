@@ -114,6 +114,13 @@ export function SettingsMenu({ className }: Props) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => setShortcutsDialogOpen(true)}>
+            <Keyboard className="mr-2 size-4" />
+            Keyboard Shortcuts
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <Sun className="mr-2 size-4" />
@@ -137,13 +144,6 @@ export function SettingsMenu({ className }: Props) {
               </DropdownMenuRadioGroup>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-
-          <DropdownMenuSeparator />
-
-          <DropdownMenuItem onSelect={() => setShortcutsDialogOpen(true)}>
-            <Keyboard className="mr-2 size-4" />
-            Keyboard Shortcuts
-          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
