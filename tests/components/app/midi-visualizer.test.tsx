@@ -295,3 +295,96 @@ test("should call render when backgroundImageBitmap changes", async () => {
   expect(mockRender.mock.calls.length).toBeGreaterThan(initialCallCount);
   expect(mockSetBackgroundImageBitmap).toHaveBeenCalledWith(mockImageBitmap);
 });
+
+// --- Mute shortcut tests ---
+test("should toggle mute when 'm' key is pressed", async () => {
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  await userEvent.keyboard("m");
+
+  expect(defaultPlayerMock.toggleMute).toHaveBeenCalled();
+});
+
+test("should reveal control panel when 'm' key is pressed", async () => {
+  vi.mocked(usePlayer).mockReturnValue({
+    ...defaultPlayerMock,
+    isPlaying: true,
+  });
+
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  await userEvent.keyboard("m");
+
+  const playerContainer = findPlayer().querySelector("[data-is-mute-revealed]");
+  expect(playerContainer).toHaveAttribute("data-is-mute-revealed", "true");
+});
+
+// --- Keyboard shortcuts dialog tests ---
+test("should open keyboard shortcuts dialog when '?' key is pressed", async () => {
+  customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  await userEvent.keyboard("?");
+
+  expect(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(screen.getByText(/Keyboard Shortcuts/)).toBeInTheDocument();
+});
+
+// --- Keep panel visible tests ---
+test("should keep panel visible when paused while panel was showing via hover", async () => {
+  vi.mocked(usePlayer).mockReturnValue({
+    ...defaultPlayerMock,
+    isPlaying: true,
+  });
+
+  const { rerender } = customRender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  const playerContainer = findPlayer().querySelector(
+    "[data-keep-panel-visible]",
+  );
+
+  // Simulate mouse enter to trigger hover state
+  await userEvent.hover(playerContainer!);
+
+  // Click play button to pause (isPlaying will change from true to false)
+  const playButton = screen.getByRole("button", { name: "Pause" });
+  await userEvent.click(playButton);
+
+  // Check that keepPanelVisible is true
+  expect(playerContainer).toHaveAttribute("data-keep-panel-visible", "true");
+
+  // Rerender with isPlaying: false to verify state persists
+  vi.mocked(usePlayer).mockReturnValue({
+    ...defaultPlayerMock,
+    isPlaying: false,
+  });
+
+  rerender(
+    <MidiVisualizer
+      rendererConfig={rendererConfig}
+      audioBuffer={mockAudioBuffer}
+    />,
+  );
+
+  // Panel should still have keepPanelVisible true
+  expect(playerContainer).toHaveAttribute("data-keep-panel-visible", "true");
+});
