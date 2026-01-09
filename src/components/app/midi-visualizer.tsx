@@ -31,6 +31,8 @@ interface Props {
   audioBuffer?: AudioBuffer;
   midiTracks?: MidiTracks;
   backgroundImageBitmap?: ImageBitmap;
+  /** Ref to the visualizer container for measuring dimensions */
+  containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export function MidiVisualizer({
@@ -38,6 +40,7 @@ export function MidiVisualizer({
   audioBuffer,
   midiTracks,
   backgroundImageBitmap,
+  containerRef,
 }: Props) {
   const rendererControllerRef = useRef<RendererController>(undefined);
 
@@ -202,7 +205,8 @@ export function MidiVisualizer({
     <div
       onClick={closeExpanded}
       className={cn("select-none", {
-        "relative h-full w-full": !expanded,
+        "relative flex h-full w-full items-center justify-center bg-gray-50 bg-[linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas)),linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas))] bg-size-[16px_16px] bg-position-[0_0,8px_8px] dark:bg-gray-600":
+          !expanded,
         "bg-background/50 fixed inset-0 z-30 flex items-center justify-center backdrop-blur-sm":
           expanded,
       })}
@@ -219,6 +223,7 @@ export function MidiVisualizer({
         </Button>
       )}
       <div
+        ref={containerRef}
         data-is-playing={isPlaying}
         data-is-interacting={isInteracting}
         data-is-touch-revealed={isTouchRevealed}
@@ -230,7 +235,7 @@ export function MidiVisualizer({
           } as React.CSSProperties
         }
         className={cn("group aspect-(--aspect-ratio) overflow-hidden", {
-          "h-full w-full": !expanded,
+          "max-h-full max-w-full": !expanded,
           "absolute inset-4 m-auto max-h-3/4 max-w-4xl shadow-lg": expanded,
         })}
         aria-modal={expanded}

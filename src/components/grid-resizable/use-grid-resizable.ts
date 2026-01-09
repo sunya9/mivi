@@ -7,7 +7,13 @@ import {
 } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import type { GridResizableContextValue } from "./grid-resizable-context";
-import type { PanelConfig, PanelSize, LayoutState, Orientation } from "./types";
+import type {
+  PanelConfig,
+  PanelSize,
+  PanelSizeUnit,
+  LayoutState,
+  Orientation,
+} from "./types";
 
 /** Resize state during drag (position-based) */
 interface ResizeState {
@@ -18,11 +24,17 @@ interface ResizeState {
   rangeStart: number;
   rangeEnd: number;
   controlledFrSum: number;
+  /** Unit type of before panel */
+  beforeUnit: PanelSizeUnit;
+  /** Unit type of after panel */
+  afterUnit: PanelSizeUnit;
 }
 
-const STORAGE_KEY_PREFIX = "grid-resizable:";
-const DEFAULT_KEYBOARD_STEP = 0.05;
-const LARGE_KEYBOARD_STEP = 0.1;
+const STORAGE_KEY_PREFIX = "grid-resizable:v2:";
+const DEFAULT_KEYBOARD_STEP = 50;
+const LARGE_KEYBOARD_STEP = 100;
+const DEFAULT_KEYBOARD_STEP_PX = 20;
+const LARGE_KEYBOARD_STEP_PX = 50;
 
 interface UseGridResizableOptions {
   id: string;
@@ -45,7 +57,11 @@ function applyConstraints(
     const size = result[id];
     if (size === undefined) continue;
 
-    const { minSize = 0.1, maxSize = Infinity } = config.constraints ?? {};
+    const unit = config.sizeUnit ?? "fr";
+    // Default min size depends on unit type (fr uses large integers like 1000)
+    const defaultMinSize = unit === "px" ? 100 : 100;
+    const { minSize = defaultMinSize, maxSize = Infinity } =
+      config.constraints ?? {};
     result[id] = Math.max(minSize, Math.min(maxSize, size));
   }
 
@@ -175,9 +191,14 @@ export function useGridResizable({
   }, [panels]);
 
   const [sizes, setSizesInternal] = useState<Record<string, PanelSize>>(() => {
-    return storedLayout
-      ? storedLayout.sizes
-      : Object.fromEntries(panels.map((p) => [p.id, p.defaultSize]));
+    const defaultSizes = Object.fromEntries(
+      panels.map((p) => [p.id, p.defaultSize]),
+    );
+    // Use stored sizes if available and non-empty, otherwise use defaults
+    if (storedLayout?.sizes && Object.keys(storedLayout.sizes).length > 0) {
+      return storedLayout.sizes;
+    }
+    return defaultSizes;
   });
 
   // Ref to track latest sizes synchronously for endResize callback
@@ -226,6 +247,12 @@ export function useGridResizable({
       const afterSize = sizes[afterId] ?? 0;
       const controlledFrSum = beforeSize + afterSize;
 
+      // Get unit types for both panels
+      const beforeConfig = panelConfigs.get(beforeId);
+      const afterConfig = panelConfigs.get(afterId);
+      const beforeUnit = beforeConfig?.sizeUnit ?? "fr";
+      const afterUnit = afterConfig?.sizeUnit ?? "fr";
+
       resizeStateRef.current = {
         active: true,
         separatorId,
@@ -234,9 +261,11 @@ export function useGridResizable({
         rangeStart: start,
         rangeEnd: end,
         controlledFrSum,
+        beforeUnit,
+        afterUnit,
       };
     },
-    [sizes],
+    [sizes, panelConfigs],
   );
 
   const updateResize = useCallback(
@@ -244,7 +273,14 @@ export function useGridResizable({
       const state = resizeStateRef.current;
       if (!state?.active) return;
 
-      const { controls, rangeStart, rangeEnd, controlledFrSum } = state;
+      const {
+        controls,
+        rangeStart,
+        rangeEnd,
+        controlledFrSum,
+        beforeUnit,
+        afterUnit,
+      } = state;
       const [beforeId, afterId] = controls;
 
       // Calculate ratio based on mouse position within the range
@@ -252,11 +288,37 @@ export function useGridResizable({
       if (rangeSize <= 0) return;
 
       const mouseOffset = currentPosition - rangeStart;
+
+      // Handle px + fr combination (e.g., visualizer[px] + config[fr])
+      if (beforeUnit === "px" && afterUnit === "fr") {
+        // Set before panel to exact pixel value, after panel auto-fills
+        const newBeforeSize = Math.max(100, mouseOffset);
+        setSizes({
+          ...sizes,
+          [beforeId]: newBeforeSize,
+          // afterId keeps its fr value - CSS grid auto-fills remaining space
+        });
+        return;
+      }
+
+      // Handle fr + px combination (reverse case)
+      if (beforeUnit === "fr" && afterUnit === "px") {
+        // Set after panel to exact pixel value
+        const newAfterSize = Math.max(100, rangeSize - mouseOffset);
+        setSizes({
+          ...sizes,
+          [afterId]: newAfterSize,
+          // beforeId keeps its fr value - CSS grid auto-fills remaining space
+        });
+        return;
+      }
+
+      // Standard fr + fr case
       const ratio = Math.max(0.05, Math.min(0.95, mouseOffset / rangeSize));
 
-      // Calculate new fr values based on ratio
-      const newBeforeSize = controlledFrSum * ratio;
-      const newAfterSize = controlledFrSum * (1 - ratio);
+      // Calculate new fr values based on ratio (round to integers to avoid floating point errors)
+      const newBeforeSize = Math.round(controlledFrSum * ratio);
+      const newAfterSize = controlledFrSum - newBeforeSize;
 
       setSizes({
         ...sizes,
@@ -287,6 +349,40 @@ export function useGridResizable({
 
       if (beforeSize === undefined || afterSize === undefined) return;
 
+      // Get unit types
+      const beforeConfig = panelConfigs.get(beforeId);
+      const afterConfig = panelConfigs.get(afterId);
+      const beforeUnit = beforeConfig?.sizeUnit ?? "fr";
+      const afterUnit = afterConfig?.sizeUnit ?? "fr";
+
+      // Handle px + fr combination
+      if (beforeUnit === "px" && afterUnit === "fr") {
+        const pxStep =
+          step === DEFAULT_KEYBOARD_STEP
+            ? DEFAULT_KEYBOARD_STEP_PX
+            : LARGE_KEYBOARD_STEP_PX;
+        const newBeforeSize = beforeSize + pxStep * direction;
+        if (newBeforeSize <= 100) return;
+        setSizes({ ...sizes, [beforeId]: newBeforeSize });
+        persistLayout(sizesRef.current);
+        return;
+      }
+
+      // Handle fr + px combination
+      if (beforeUnit === "fr" && afterUnit === "px") {
+        const pxStep =
+          step === DEFAULT_KEYBOARD_STEP
+            ? DEFAULT_KEYBOARD_STEP_PX
+            : LARGE_KEYBOARD_STEP_PX;
+        // Direction is reversed for after panel
+        const newAfterSize = afterSize - pxStep * direction;
+        if (newAfterSize <= 100) return;
+        setSizes({ ...sizes, [afterId]: newAfterSize });
+        persistLayout(sizesRef.current);
+        return;
+      }
+
+      // Standard fr + fr case
       const delta = step * direction;
       const newBeforeSize = beforeSize + delta;
       const newAfterSize = afterSize - delta;
@@ -302,7 +398,7 @@ export function useGridResizable({
       setSizes(newSizes);
       persistLayout(sizesRef.current);
     },
-    [sizes, setSizes, persistLayout],
+    [sizes, panelConfigs, setSizes, persistLayout],
   );
 
   const resizeToMin = useCallback(
@@ -314,9 +410,20 @@ export function useGridResizable({
       if (beforeSize === undefined || afterSize === undefined) return;
 
       const shrinkPanel = panelConfigs.get(shrinkPanelId);
-      const minSize = shrinkPanel?.constraints?.minSize ?? 0.1;
-      const totalSize = beforeSize + afterSize;
+      const shrinkUnit = shrinkPanel?.sizeUnit ?? "fr";
+      // Default min size (fr uses large integers like 1000)
+      const defaultMinSize = shrinkUnit === "px" ? 100 : 100;
+      const minSize = shrinkPanel?.constraints?.minSize ?? defaultMinSize;
 
+      // For px panels, just set to min - the fr panel auto-fills
+      if (shrinkUnit === "px") {
+        setSizes({ ...sizes, [shrinkPanelId]: minSize });
+        persistLayout(sizesRef.current);
+        return;
+      }
+
+      // For fr panels, redistribute the total
+      const totalSize = beforeSize + afterSize;
       let newSizes: Record<string, PanelSize>;
       if (shrinkPanelId === beforeId) {
         // Shrink before panel to minimum, expand after panel
@@ -344,13 +451,94 @@ export function useGridResizable({
     [sizes, panelConfigs, setSizes, persistLayout],
   );
 
+  const resizeToFit = useCallback(
+    (
+      separatorId: string,
+      orientation: Orientation,
+      controls: [string, string],
+      targetPanelId: string,
+      getOptimalSize: () => number | null,
+    ) => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const [beforeId, afterId] = controls;
+      const beforeSize = sizes[beforeId];
+      const afterSize = sizes[afterId];
+
+      if (beforeSize === undefined || afterSize === undefined) return;
+
+      // Get optimal size from callback
+      const optimalPixelSize = getOptimalSize();
+      if (optimalPixelSize === null) return;
+
+      // Check if target panel is px-based
+      const targetConfig = panelConfigs.get(targetPanelId);
+      const targetUnit = targetConfig?.sizeUnit ?? "fr";
+
+      // For px panels, directly set the pixel value
+      if (targetUnit === "px") {
+        setSizes({ ...sizes, [targetPanelId]: optimalPixelSize });
+        persistLayout(sizesRef.current);
+        return;
+      }
+
+      // For fr panels, use ratio calculation
+      // Use getResizableRange to get the total pixel range
+      // This handles virtual panels (panels without DOM elements)
+      const { start, end } = getResizableRange(
+        container,
+        separatorId,
+        orientation,
+        controls,
+      );
+      const totalPixels = end - start;
+
+      if (totalPixels <= 0) return;
+
+      // Calculate new fr values based on optimal size ratio
+      const totalFr = beforeSize + afterSize;
+      const isTargetBefore = targetPanelId === beforeId;
+
+      const optimalRatio = Math.max(
+        0.05,
+        Math.min(0.95, optimalPixelSize / totalPixels),
+      );
+
+      // Round to integers to avoid floating point errors
+      const targetFr = Math.round(totalFr * optimalRatio);
+      const otherFr = totalFr - targetFr;
+
+      let newSizes: Record<string, PanelSize>;
+      if (isTargetBefore) {
+        newSizes = {
+          ...sizes,
+          [beforeId]: targetFr,
+          [afterId]: otherFr,
+        };
+      } else {
+        newSizes = {
+          ...sizes,
+          [beforeId]: otherFr,
+          [afterId]: targetFr,
+        };
+      }
+
+      setSizes(newSizes);
+      persistLayout(sizesRef.current);
+    },
+    [sizes, panelConfigs, setSizes, persistLayout],
+  );
+
   const panelStyles = useMemo<CSSProperties>(() => {
     const vars: Record<string, string> = {};
     for (const [panelId, size] of Object.entries(sizes)) {
-      vars[`--panel-${panelId}`] = `${size}fr`;
+      const config = panelConfigs.get(panelId);
+      const unit = config?.sizeUnit ?? "fr";
+      vars[`--panel-${panelId}`] = `${size}${unit}`;
     }
     return vars;
-  }, [sizes]);
+  }, [sizes, panelConfigs]);
 
   const contextValue = useMemo<GridResizableContextValue>(
     () => ({
@@ -361,6 +549,7 @@ export function useGridResizable({
       endResize,
       resizeByKeyboard,
       resizeToMin,
+      resizeToFit,
       getContainerRef,
     }),
     [
@@ -371,6 +560,7 @@ export function useGridResizable({
       endResize,
       resizeByKeyboard,
       resizeToMin,
+      resizeToFit,
       getContainerRef,
     ],
   );

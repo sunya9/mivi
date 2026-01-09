@@ -19,6 +19,13 @@ export interface GridResizableContextValue {
     step?: number,
   ) => void;
   resizeToMin: (controls: [string, string], shrinkPanelId: string) => void;
+  resizeToFit: (
+    separatorId: string,
+    orientation: Orientation,
+    controls: [string, string],
+    targetPanelId: string,
+    getOptimalSize: () => number | null,
+  ) => void;
   getContainerRef: () => HTMLDivElement | null;
 }
 

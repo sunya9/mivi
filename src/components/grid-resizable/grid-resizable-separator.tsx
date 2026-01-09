@@ -9,6 +9,10 @@ interface GridResizableSeparatorProps {
   orientation: Orientation;
   controls: [string, string];
   className?: string;
+  /** Callback to get optimal size for the target panel on double-click */
+  getOptimalSizeForFit?: () => number | null;
+  /** Which panel to resize to fit on double-click (defaults to beforeId) */
+  fitTargetPanel?: string;
 }
 
 export function GridResizableSeparator({
@@ -16,6 +20,8 @@ export function GridResizableSeparator({
   orientation,
   controls,
   className,
+  getOptimalSizeForFit,
+  fitTargetPanel,
 }: GridResizableSeparatorProps) {
   const {
     sizes,
@@ -24,6 +30,7 @@ export function GridResizableSeparator({
     endResize,
     resizeByKeyboard,
     resizeToMin,
+    resizeToFit,
   } = useGridResizableContext();
 
   const [beforeId, afterId] = controls;
@@ -67,6 +74,21 @@ export function GridResizableSeparator({
     },
     [endResize],
   );
+
+  const handleDoubleClick = useCallback(() => {
+    if (!getOptimalSizeForFit) return;
+
+    const targetPanel = fitTargetPanel ?? beforeId;
+    resizeToFit(id, orientation, controls, targetPanel, getOptimalSizeForFit);
+  }, [
+    getOptimalSizeForFit,
+    fitTargetPanel,
+    beforeId,
+    id,
+    orientation,
+    controls,
+    resizeToFit,
+  ]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -141,6 +163,7 @@ export function GridResizableSeparator({
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerCancel}
+      onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
     >
       {/* Visual separator line - centered at 50% of wrapper */}
