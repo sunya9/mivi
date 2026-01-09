@@ -87,10 +87,10 @@ test("should call onUpdateRendererConfig when format is changed", async () => {
   renderCommonConfigPane();
   const formatTrigger = screen.getByRole("combobox", { name: "Format" });
   await userEvent.click(formatTrigger);
-  const formatOption = screen.getByRole("option", { name: "MP4 (H.264)" });
+  const formatOption = screen.getByRole("option", { name: "WebM (VP9)" });
   await userEvent.click(formatOption);
   expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    format: "mp4",
+    format: "webm",
   });
 });
 

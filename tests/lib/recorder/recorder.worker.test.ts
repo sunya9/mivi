@@ -11,29 +11,29 @@ vi.mock("@/lib/media-compositor/media-compositor");
 const mockOnProgress = vi.fn();
 const mockBlob = new Blob(["test"], { type: "video/webm" });
 
-test("should create MuxerImpl with webm format", async () => {
+test("should create MuxerImpl with mp4 format", async () => {
   await startRecording(resources, mockOnProgress);
 
   expect(MuxerImpl).toHaveBeenCalledExactlyOnceWith({
-    format: "webm",
+    format: "mp4",
     frameRate: resources.rendererConfig.fps,
   });
 });
 
-test("should create MuxerImpl with mp4 format", async () => {
-  const mp4Resources: RecorderResources = {
+test("should create MuxerImpl with webm format", async () => {
+  const webmResources: RecorderResources = {
     ...resources,
     rendererConfig: {
       ...resources.rendererConfig,
-      format: "mp4",
+      format: "webm",
     },
   };
 
-  await startRecording(mp4Resources, mockOnProgress);
+  await startRecording(webmResources, mockOnProgress);
 
   expect(MuxerImpl).toHaveBeenCalledWith({
-    format: "mp4",
-    frameRate: mp4Resources.rendererConfig.fps,
+    format: "webm",
+    frameRate: webmResources.rendererConfig.fps,
   });
 });
 
