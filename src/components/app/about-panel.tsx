@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ThemeSelect } from "@/components/app/theme-select";
+import { SettingsMenu } from "@/components/app/settings-menu";
 import { AboutDialog } from "@/components/app/about-dialog";
 import { cn } from "@/lib/utils";
 import { AboutContent } from "./about-content";
@@ -34,7 +34,7 @@ export const AboutPanel = memo(function AboutPanel({
             <AboutContent />
           </AboutDialog>
           <AboutContent className="md:hidden" />
-          <ThemeSelect className="md:ml-auto" />
+          <SettingsMenu className="md:ml-auto" />
         </CardContent>
       </Card>
     </footer>
