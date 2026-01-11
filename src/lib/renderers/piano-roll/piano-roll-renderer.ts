@@ -104,7 +104,8 @@ export class PianoRollRenderer extends Renderer {
       );
     };
 
-    tracks.forEach((track) => {
+    // Reverse iteration so first track in list appears on top (drawn last)
+    tracks.toReversed().forEach((track) => {
       if (!track.config.visible) return;
 
       track.notes.forEach((note) => {
