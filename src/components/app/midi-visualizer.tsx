@@ -199,13 +199,10 @@ export function MidiVisualizer({
     "space",
     (e) => {
       if (e.repeat) return;
-      const activeElement = document.activeElement;
-      if (!(activeElement instanceof HTMLElement)) return;
-      if (activeElement === document.body || activeElement.role === "slider") {
-        e.preventDefault();
-        handleTogglePlay();
-      }
+      e.preventDefault();
+      handleTogglePlay();
     },
+    { enableOnFormTags: ["slider"] },
     [handleTogglePlay],
   );
 
@@ -234,7 +231,7 @@ export function MidiVisualizer({
         setIsMuteRevealed(false);
       }, 3000);
     },
-    { enableOnFormTags: false },
+    { enableOnFormTags: ["slider"] },
     [toggleMute],
   );
   const closeExpanded = useCallback(
