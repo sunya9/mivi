@@ -266,6 +266,7 @@ const TrackList = React.memo(function TrackList({
       if (over && active.id !== over.id) {
         const oldIndex = midiTracks.tracks.findIndex((t) => t.id === active.id);
         const newIndex = midiTracks.tracks.findIndex((t) => t.id === over.id);
+        if (oldIndex === -1 || newIndex === -1) return;
         const newTracks = arrayMove(midiTracks.tracks, oldIndex, newIndex);
         onUpdateMidiTracks({
           ...midiTracks,
