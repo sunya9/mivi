@@ -1,16 +1,10 @@
 import { expect, test, vi } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import { Loading } from "@/components/providers/loading";
-import { resetConfig } from "@/lib/utils";
+import * as utils from "@/lib/utils";
 import userEvent from "@testing-library/user-event";
 
-vi.mock(import("@/lib/utils"), async (importOriginal) => {
-  const mod = await importOriginal();
-  return {
-    ...mod,
-    resetConfig: vi.fn(),
-  };
-});
+vi.spyOn(utils, "resetConfig");
 
 test("renders loading spinner and message", async () => {
   vi.useFakeTimers();
@@ -29,5 +23,5 @@ test("renders loading spinner and message", async () => {
   vi.useRealTimers();
 
   await userEvent.click(resetButton);
-  expect(resetConfig).toHaveBeenCalledTimes(1);
+  expect(utils.resetConfig).toHaveBeenCalledOnce();
 });
