@@ -4,7 +4,7 @@ import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
-import { usePlayer } from "@/lib/player/use-player";
+import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 import { RendererController } from "@/components/app/renderer-controller";
 import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
 
@@ -18,51 +18,28 @@ const mockSetBackgroundImageBitmap = vi.spyOn(
   "setBackgroundImageBitmap",
 );
 
-const defaultPlayerMock: ReturnType<typeof usePlayer> = {
+const defaultStoreMock: ReturnType<typeof useAudioPlaybackStore> = {
+  snapshot: {
+    audioBuffer: undefined,
+    isPlaying: false,
+    position: 0,
+    duration: 10,
+    volume: 1,
+    muted: false,
+  },
   seek: vi.fn(),
   togglePlay: vi.fn(),
-  volume: 1,
   setVolume: vi.fn(),
-  muted: false,
-  isPlaying: false,
-  getCurrentTime: () => 0,
-  updateCurrentTime: vi.fn(),
-  currentTimeSec: 0,
   toggleMute: vi.fn(),
-  makeSureToCommit: vi.fn(),
+  syncPosition: vi.fn(),
+  setAudioBuffer: vi.fn(),
+  getPosition: () => 0,
 };
 
-// Mock the usePlayer hook
-vi.mock("@/lib/player/use-player", () => ({
-  usePlayer: vi.fn(() => defaultPlayerMock),
+// Mock the useAudioPlaybackStore hook
+vi.mock("@/lib/player/use-audio-playback-store", () => ({
+  useAudioPlaybackStore: vi.fn(() => defaultStoreMock),
 }));
-
-class MockedAudioBuffer implements AudioBuffer {
-  copyFromChannel: AudioBuffer["copyFromChannel"];
-  copyToChannel: AudioBuffer["copyToChannel"];
-  getChannelData: AudioBuffer["getChannelData"];
-
-  constructor(
-    public readonly duration: number,
-    public readonly sampleRate: number = 44100,
-    public readonly numberOfChannels: number = 2,
-    methods: Partial<AudioBuffer> = {
-      copyFromChannel: vi.fn(),
-      copyToChannel: vi.fn(),
-      getChannelData: vi.fn(),
-    },
-  ) {
-    this.copyFromChannel = methods.copyFromChannel ?? vi.fn();
-    this.copyToChannel = methods.copyToChannel ?? vi.fn();
-    this.getChannelData = methods.getChannelData ?? vi.fn();
-  }
-
-  get length(): number {
-    return Math.floor(this.duration * this.sampleRate);
-  }
-}
-
-const mockAudioBuffer = new MockedAudioBuffer(10);
 
 afterEach(() => {
   Object.defineProperty(document, "startViewTransition", {
@@ -72,12 +49,7 @@ afterEach(() => {
 });
 
 test("renders basic controls", () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   expect(screen.getByRole("button", { name: "Play" })).toBeInTheDocument();
   expect(screen.getAllByRole("slider")).toHaveLength(2); // seek + volume
@@ -86,49 +58,36 @@ test("renders basic controls", () => {
 });
 
 test("handles volume control", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Volume slider is always visible (no longer in HoverCard)
   const volumeSlider = screen.getByRole("slider", { name: "Volume" });
   await userEvent.click(volumeSlider);
   await userEvent.keyboard("{arrowleft}");
 
-  expect(defaultPlayerMock.setVolume).toHaveBeenLastCalledWith(0.99);
+  expect(defaultStoreMock.setVolume).toHaveBeenLastCalledWith(0.99);
 });
 
 test("handles seek control", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // First slider is the seek bar, second is volume
   const seekSlider = screen.getAllByRole("slider")[0];
   await userEvent.click(seekSlider);
   await userEvent.keyboard("{arrowright}");
 
-  expect(defaultPlayerMock.seek).toHaveBeenNthCalledWith(1, 0.1, true);
-  expect(defaultPlayerMock.seek).toHaveBeenNthCalledWith(2, 0.1, false);
+  // 3rd param: seamless (false = mouse/standard seek, true = keyboard/seamless seek)
+  // In test environment, onLostPointerCapture may not fire, so isMouseSeekingRef stays true
+  expect(defaultStoreMock.seek).toHaveBeenNthCalledWith(1, 0.1, true, false);
+  expect(defaultStoreMock.seek).toHaveBeenNthCalledWith(2, 0.1, false, false);
 });
 
 test("toggle play state when space key is pressed", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{ }");
 
-  expect(defaultPlayerMock.togglePlay).toHaveBeenCalled();
+  expect(defaultStoreMock.togglePlay).toHaveBeenCalled();
 });
 
 test("toggle play state when space key is pressed while slider is focused", async () => {
@@ -183,23 +142,13 @@ function findPlayer() {
 
 // --- Expand UI tests ---
 test("should not be expanded initially", () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   expect(findPlayer()).toHaveAttribute("aria-expanded", "false");
 });
 
 test("should expand when expand button is clicked", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   expect(findPlayer()).toHaveAttribute("aria-expanded", "true");
@@ -207,24 +156,14 @@ test("should expand when expand button is clicked", async () => {
 
 test("should call View Transitions API when expanding", async () => {
   document.startViewTransition = vi.fn();
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   expect(document.startViewTransition).toHaveBeenCalled();
 });
 
 test("should collapse when ESC key is pressed", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   await userEvent.keyboard("{Escape}");
@@ -232,12 +171,7 @@ test("should collapse when ESC key is pressed", async () => {
 });
 
 test("should collapse when background is clicked", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   const container = findPlayer();
@@ -246,12 +180,7 @@ test("should collapse when background is clicked", async () => {
 });
 
 test("should work without View Transitions API support", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   expect(findPlayer()).toHaveAttribute("aria-expanded", "true");
@@ -262,7 +191,6 @@ test("should call render when midiTracks changes", () => {
   const { rerender } = customRender(
     <MidiVisualizer
       rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
       midiTracks={expectedMidiTracks}
     />,
   );
@@ -281,7 +209,6 @@ test("should call render when midiTracks changes", () => {
   rerender(
     <MidiVisualizer
       rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
       midiTracks={updatedMidiTracks}
     />,
   );
@@ -291,10 +218,7 @@ test("should call render when midiTracks changes", () => {
 
 test("should call render when rendererConfig changes", () => {
   const { rerender } = customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
+    <MidiVisualizer rendererConfig={rendererConfig} />,
   );
 
   const initialCallCount = mockRender.mock.calls.length;
@@ -305,12 +229,7 @@ test("should call render when rendererConfig changes", () => {
     resolution: resolutions[0],
   };
 
-  rerender(
-    <MidiVisualizer
-      rendererConfig={updatedRendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  rerender(<MidiVisualizer rendererConfig={updatedRendererConfig} />);
 
   expect(mockRender.mock.calls.length).toBeGreaterThan(initialCallCount);
   expect(mockSetRendererConfig).toHaveBeenCalledWith(updatedRendererConfig);
@@ -318,10 +237,7 @@ test("should call render when rendererConfig changes", () => {
 
 test("should call render when backgroundImageBitmap changes", async () => {
   const { rerender } = customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
+    <MidiVisualizer rendererConfig={rendererConfig} />,
   );
 
   const initialCallCount = mockRender.mock.calls.length;
@@ -333,7 +249,6 @@ test("should call render when backgroundImageBitmap changes", async () => {
   rerender(
     <MidiVisualizer
       rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
       backgroundImageBitmap={mockImageBitmap}
     />,
   );
@@ -344,30 +259,20 @@ test("should call render when backgroundImageBitmap changes", async () => {
 
 // --- Mute shortcut tests ---
 test("should toggle mute when 'm' key is pressed", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("m");
 
-  expect(defaultPlayerMock.toggleMute).toHaveBeenCalled();
+  expect(defaultStoreMock.toggleMute).toHaveBeenCalled();
 });
 
 test("should reveal control panel when 'm' key is pressed", async () => {
-  vi.mocked(usePlayer).mockReturnValue({
-    ...defaultPlayerMock,
-    isPlaying: true,
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true },
   });
 
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("m");
 
@@ -377,16 +282,13 @@ test("should reveal control panel when 'm' key is pressed", async () => {
 
 // --- Keep panel visible tests ---
 test("should keep panel visible when paused while panel was showing via hover", async () => {
-  vi.mocked(usePlayer).mockReturnValue({
-    ...defaultPlayerMock,
-    isPlaying: true,
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true },
   });
 
   const { rerender } = customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
+    <MidiVisualizer rendererConfig={rendererConfig} />,
   );
 
   const playerContainer = findPlayer().querySelector(
@@ -404,17 +306,12 @@ test("should keep panel visible when paused while panel was showing via hover", 
   expect(playerContainer).toHaveAttribute("data-keep-panel-visible", "true");
 
   // Rerender with isPlaying: false to verify state persists
-  vi.mocked(usePlayer).mockReturnValue({
-    ...defaultPlayerMock,
-    isPlaying: false,
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, isPlaying: false },
   });
 
-  rerender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  rerender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Panel should still have keepPanelVisible true
   expect(playerContainer).toHaveAttribute("data-keep-panel-visible", "true");

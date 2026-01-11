@@ -1,11 +1,11 @@
 import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
-import { ContextType, use, useCallback, useState } from "react";
-import { CacheContext } from "@/contexts/cache-context";
+import { useCallback, useState } from "react";
+import { CacheContextValue, useCacheContext } from "@/lib/cache/cache-context";
 
 const initialBackgroundImageCacheKey = "initial:background-image";
 export const backgroundImageDbKey = "db:background-image";
 function loadInitialBackgroundImage(
-  cacheContext: ContextType<typeof CacheContext>,
+  cacheContext: CacheContextValue,
   backgroundImageFile: File | undefined,
 ) {
   if (!backgroundImageFile) return;
@@ -26,7 +26,7 @@ function loadInitialBackgroundImage(
 export function useBackgroundImage() {
   const { file: backgroundImageFile, setFile } =
     useIndexedDb(backgroundImageDbKey);
-  const cacheContext = use(CacheContext);
+  const cacheContext = useCacheContext();
   const [backgroundImageBitmap, setBackgroundImageBitmapInternal] = useState(
     () => loadInitialBackgroundImage(cacheContext, backgroundImageFile),
   );
