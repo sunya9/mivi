@@ -4,7 +4,6 @@ import * as crypto from "node:crypto";
 import { MidiTracks } from "@/lib/midi/midi";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
-import { appContextValue } from "@/lib/globals";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 const midiFilename = "test.mid";
 const midiFilepath = path.resolve(__dirname, midiFilename);
@@ -125,7 +124,8 @@ const invalidFile = new File([invalidData], "test.mp3", {
   type: "audio/mpeg",
 });
 
-const { audioContext } = appContextValue;
+// Use mocked AudioContext to create test audioBuffer
+const audioContext = new AudioContext();
 const audioBuffer = audioContext.createBuffer(2, 22050, 44100);
 
 const rendererConfig: RendererConfig = getDefaultRendererConfig();

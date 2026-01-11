@@ -30,7 +30,7 @@ export function App() {
   const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();
   const { rendererConfig, onUpdateRendererConfig, VisualizerStyle } =
     useRendererConfig(midiTracks?.minNote, midiTracks?.maxNote);
-  const { audioFile, setAudioFile, serializedAudio, audioBuffer } = useAudio();
+  const { audioFile, setAudioFile, serializedAudio } = useAudio();
   const { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile } =
     useBackgroundImage();
   const recordResources = createRecorderResources({
@@ -116,7 +116,6 @@ export function App() {
         >
           <MidiVisualizer
             rendererConfig={rendererConfig}
-            audioBuffer={audioBuffer}
             midiTracks={midiTracks}
             backgroundImageBitmap={backgroundImageBitmap}
             containerRef={visualizerContainerRef}

@@ -1,9 +1,10 @@
-import { AppContext } from "@/contexts/app-context";
+import { useAppContext } from "@/contexts/app-context";
 import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { SerializedAudio } from "@/lib/audio/audio";
-import { ContextType, use, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { CacheContext } from "@/contexts/cache-context";
+import { CacheContextValue, useCacheContext } from "@/lib/cache/cache-context";
+import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 
 async function createAudioBufferFromFile(
   audioFile: File,
@@ -16,9 +17,10 @@ async function createAudioBufferFromFile(
 const initialAudioBufferCacheKey = "initial:audio-buffer";
 export const audioDbKey = "db:audio";
 function loadInitialAudioBuffer(
-  cacheContext: ContextType<typeof CacheContext>,
+  cacheContext: CacheContextValue,
   audioFile: File | undefined,
   audioContext: AudioContext,
+  setAudioBuffer: (buffer: AudioBuffer | undefined) => void,
 ) {
   if (!audioFile) return;
   if (cacheContext.caches.has(initialAudioBufferCacheKey))
@@ -31,17 +33,23 @@ function loadInitialAudioBuffer(
     })
     .then((res) => {
       cacheContext.setCache(initialAudioBufferCacheKey, res);
+      if (res) setAudioBuffer(res);
       return res;
     });
 }
 
 export function useAudio() {
-  const { audioContext } = use(AppContext);
-  const cacheContext = use(CacheContext);
+  const { audioContext } = useAppContext();
+  const {
+    snapshot: { audioBuffer },
+    setAudioBuffer,
+  } = useAudioPlaybackStore();
+  const cacheContext = useCacheContext();
   const { file: audioFile, setFile } = useIndexedDb(audioDbKey);
-  const [audioBuffer, setAudioBuffer] = useState<AudioBuffer | undefined>(() =>
-    loadInitialAudioBuffer(cacheContext, audioFile, audioContext),
-  );
+
+  // Load initial audioBuffer from cache/IndexedDB (Suspense pattern)
+  // setAudioBuffer is called in the Promise callback when resolved
+  loadInitialAudioBuffer(cacheContext, audioFile, audioContext, setAudioBuffer);
 
   const setAudioFile = useCallback(
     async (newAudioFile: File | undefined) => {
@@ -62,8 +70,9 @@ export function useAudio() {
         await setFile(undefined);
       }
     },
-    [audioContext, setFile],
+    [audioContext, setAudioBuffer, setFile],
   );
+
   const serializedAudio: SerializedAudio | undefined = useMemo(() => {
     if (!audioBuffer) return;
     return {
@@ -76,6 +85,7 @@ export function useAudio() {
       ),
     };
   }, [audioBuffer]);
+
   return {
     audioBuffer,
     setAudioFile,

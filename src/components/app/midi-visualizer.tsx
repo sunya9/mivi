@@ -15,13 +15,12 @@ import {
   useCallback,
   useEffect,
   useEffectEvent,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { cn } from "@/lib/utils";
 import { RendererConfig } from "@/lib/renderers/renderer";
-import { usePlayer } from "@/lib/player/use-player";
+import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 import { MidiTracks } from "@/lib/midi/midi";
 import { useAnimationFrame } from "@/hooks/use-animation-frame";
 import { RendererController } from "./renderer-controller";
@@ -29,7 +28,6 @@ import { useHotkeys } from "react-hotkeys-hook";
 
 interface Props {
   rendererConfig: RendererConfig;
-  audioBuffer?: AudioBuffer;
   midiTracks?: MidiTracks;
   backgroundImageBitmap?: ImageBitmap;
   /** Ref to the visualizer container for measuring dimensions */
@@ -38,29 +36,25 @@ interface Props {
 
 export function MidiVisualizer({
   rendererConfig,
-  audioBuffer,
   midiTracks,
   backgroundImageBitmap,
   containerRef,
 }: Props) {
   const rendererControllerRef = useRef<RendererController>(undefined);
 
-  const duration = useMemo(() => audioBuffer?.duration || 0, [audioBuffer]);
   const {
+    snapshot: { duration, volume, muted, isPlaying, position },
     seek,
     togglePlay,
-    volume,
     setVolume,
-    muted,
-    isPlaying,
-    getCurrentTime,
-    updateCurrentTime,
-    currentTimeSec,
     toggleMute,
-    makeSureToCommit,
-  } = usePlayer(audioBuffer);
+    getPosition,
+    syncPosition,
+  } = useAudioPlaybackStore();
   const [expanded, setExpanded] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
+  const isMouseSeekingRef = useRef(false);
+  const [wasPlayingBeforeSeek, setWasPlayingBeforeSeek] = useState(false);
   const [isTouchRevealed, setIsTouchRevealed] = useState(false);
   const touchRevealTimeoutRef = useRef<number>(null);
   const [isMuteRevealed, setIsMuteRevealed] = useState(false);
@@ -72,9 +66,9 @@ export function MidiVisualizer({
   const invalidate = useCallback(() => {
     rendererControllerRef.current?.render(
       tracks,
-      getCurrentTime() + midiOffset,
+      getPosition() + midiOffset,
     );
-  }, [getCurrentTime, midiOffset, tracks]);
+  }, [getPosition, midiOffset, tracks]);
 
   const invalidateEffect = useEffectEvent(invalidate);
 
@@ -100,8 +94,8 @@ export function MidiVisualizer({
   }, []);
 
   const invalidateSeek = useCallback(
-    (time: number, commit: boolean) => {
-      seek(time, commit);
+    (time: number, commit: boolean, seamless: boolean = false) => {
+      seek(time, commit, seamless);
       invalidate();
     },
     [seek, invalidate],
@@ -109,9 +103,9 @@ export function MidiVisualizer({
 
   const onAnimate = useCallback(() => {
     if (!isPlaying) return;
-    updateCurrentTime();
+    syncPosition();
     invalidate();
-  }, [isPlaying, updateCurrentTime, invalidate]);
+  }, [isPlaying, syncPosition, invalidate]);
 
   useAnimationFrame(isPlaying, onAnimate);
 
@@ -309,17 +303,32 @@ export function MidiVisualizer({
           <div className="flex flex-col gap-1 [view-transition-name:visualizer-controls]">
             <Slider
               max={duration}
-              value={[currentTimeSec]}
+              value={[position]}
               step={0.1}
-              onPointerDown={() => setIsInteracting(true)}
-              onValueChange={([e]) => invalidateSeek(e, false)}
+              onPointerDown={() => {
+                isMouseSeekingRef.current = true;
+                setIsInteracting(true);
+                setWasPlayingBeforeSeek(isPlaying);
+              }}
+              onValueChange={([e]) => {
+                // Only do preview seek for mouse drag, not for keyboard
+                // For keyboard, onValueCommit handles everything with seamless seek
+                if (isMouseSeekingRef.current) {
+                  invalidateSeek(e, false);
+                }
+              }}
               onValueCommit={([e]) => {
-                invalidateSeek(e, true);
+                // Keyboard seek: seamless (keep playing), Mouse seek: standard
+                const isKeyboardSeek = !isMouseSeekingRef.current;
+                invalidateSeek(e, true, isKeyboardSeek);
                 setIsInteracting(false);
               }}
               // https://github.com/radix-ui/primitives/issues/1760#issuecomment-2133137759
               onLostPointerCapture={() => {
-                makeSureToCommit();
+                isMouseSeekingRef.current = false;
+                if (wasPlayingBeforeSeek && !isPlaying) {
+                  togglePlay();
+                }
                 setIsInteracting(false);
               }}
               className="*:data-[slot=slider-track]:bg-muted/30"
@@ -361,7 +370,7 @@ export function MidiVisualizer({
                 className="w-24"
               />
               <span className="flex-1 text-white tabular-nums">
-                {formatTime(currentTimeSec)} / {formatTime(duration)}
+                {formatTime(position)} / {formatTime(duration)}
               </span>
               <Button
                 variant="ghost-secondary"
