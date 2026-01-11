@@ -20,7 +20,7 @@ export function useAudioPlaybackStore() {
     toggleMute: store.toggleMute,
     togglePlay: store.togglePlay,
     seek: store.seek,
-    syncPosition: store.syncPosition,
+    syncFromAudioContext: store.syncFromAudioContext,
     setAudioBuffer: store.setAudioBuffer,
     // Getters (non-reactive, for synchronous access)
     getPosition: store.getPosition,

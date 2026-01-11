@@ -335,9 +335,9 @@ test("should update currentTimeSec when updateCurrentTime is called during playb
     writable: true,
   });
 
-  // Call syncPosition (simulates animation frame callback)
+  // Call syncFromAudioContext (simulates animation frame callback)
   act(() => {
-    result.current.syncPosition();
+    result.current.syncFromAudioContext();
   });
 
   // position should be updated based on elapsed time

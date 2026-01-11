@@ -31,7 +31,7 @@ const defaultStoreMock: ReturnType<typeof useAudioPlaybackStore> = {
   togglePlay: vi.fn(),
   setVolume: vi.fn(),
   toggleMute: vi.fn(),
-  syncPosition: vi.fn(),
+  syncFromAudioContext: vi.fn(),
   setAudioBuffer: vi.fn(),
   getPosition: () => 0,
 };

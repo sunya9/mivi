@@ -10,14 +10,22 @@ export interface PlaybackSnapshot {
   readonly muted: boolean;
 }
 
+const STORAGE_KEY_VOLUME = "mivi:volume";
+const STORAGE_KEY_MUTED = "mivi:muted";
+
+/** Snap to start if seeking within this threshold from the beginning */
+const SEEK_SNAP_THRESHOLD_SEC = 1;
+
 /**
  * External store for audio playback state.
  * Encapsulates AudioContext, GainNode, AudioBuffer, and playback state management.
  * Uses the subscriber pattern for integration with useSyncExternalStore.
+ *
+ * ## Method binding convention
+ * - Arrow function properties: Methods that need stable references
+ *   (passed as callbacks to React or event listeners)
+ * - Regular methods: Internal operations or methods not typically passed as callbacks
  */
-
-const volumeKey = "mivi:volume";
-const mutedKey = "mivi:muted";
 export class AudioPlaybackStore {
   readonly #audioContext: AudioContext;
   readonly #gainNode: GainNode;
@@ -36,18 +44,15 @@ export class AudioPlaybackStore {
     this.#gainNode = audioContext.createGain();
     this.#gainNode.connect(audioContext.destination);
     this.#storage = storage;
-    // Load initial values from storage
-    this.#volume = storage.get(volumeKey, 1);
-    this.#muted = storage.get(mutedKey, false);
-    this.#snapshot = {
-      audioBuffer: undefined,
-      isPlaying: false,
-      position: 0,
-      duration: 0,
-      volume: this.#volume,
-      muted: this.#muted,
-    };
+    this.#volume = storage.get(STORAGE_KEY_VOLUME, 1);
+    this.#muted = storage.get(STORAGE_KEY_MUTED, false);
+    this.#applyGain();
+    this.#snapshot = this.#createSnapshot();
   }
+
+  // ============================================================
+  // Subscriber pattern (for useSyncExternalStore)
+  // ============================================================
 
   /** Subscribe to state changes */
   subscribe = (listener: () => void): (() => void) => {
@@ -55,13 +60,17 @@ export class AudioPlaybackStore {
     return () => this.#listeners.delete(listener);
   };
 
-  /** Get current snapshot (must return same reference if unchanged) */
+  /** Get current snapshot (returns same reference if unchanged) */
   getSnapshot = (): PlaybackSnapshot => {
     return this.#snapshot;
   };
 
-  #updateSnapshot(): void {
-    const newSnapshot: PlaybackSnapshot = {
+  // ============================================================
+  // Private snapshot helpers
+  // ============================================================
+
+  #createSnapshot(): PlaybackSnapshot {
+    return {
       audioBuffer: this.#audioBuffer,
       isPlaying: this.#source !== null,
       position: this.#position,
@@ -69,7 +78,10 @@ export class AudioPlaybackStore {
       volume: this.#volume,
       muted: this.#muted,
     };
-    // Only update if changed to maintain referential equality
+  }
+
+  #notifyIfChanged(): void {
+    const newSnapshot = this.#createSnapshot();
     if (
       newSnapshot.audioBuffer !== this.#snapshot.audioBuffer ||
       newSnapshot.isPlaying !== this.#snapshot.isPlaying ||
@@ -86,47 +98,66 @@ export class AudioPlaybackStore {
   #applyGain(): void {
     const now = this.#audioContext.currentTime;
     this.#gainNode.gain.cancelScheduledValues(now);
-    const calculatedVolume = this.#muted
+    const effectiveVolume = this.#muted
       ? 0
       : Math.max(0, Math.min(1, this.#volume));
-    this.#gainNode.gain.setTargetAtTime(calculatedVolume, now, 0);
+    this.#gainNode.gain.setTargetAtTime(effectiveVolume, now, 0);
   }
 
-  /** Get current position (synchronous access) */
+  /** Stops source without notifying (for internal use before other operations) */
+  #stopSource(): void {
+    if (this.#source) {
+      this.#source.stop();
+      this.#source.disconnect();
+      this.#source = null;
+    }
+  }
+
+  // ============================================================
+  // Volume / Mute controls
+  // ============================================================
+
+  /** Get current position (synchronous access for non-React consumers) */
   getPosition = (): number => this.#position;
 
   /** Sets the volume and persists to storage */
   setVolume = (volume: number): void => {
     this.#volume = volume;
-    this.#storage.set(volumeKey, volume);
+    this.#storage.set(STORAGE_KEY_VOLUME, volume);
     this.#applyGain();
-    this.#updateSnapshot();
+    this.#notifyIfChanged();
   };
 
   /** Toggles mute state and persists to storage */
   toggleMute = (): void => {
     this.#muted = !this.#muted;
-    this.#storage.set(mutedKey, this.#muted);
+    this.#storage.set(STORAGE_KEY_MUTED, this.#muted);
     this.#applyGain();
-    this.#updateSnapshot();
+    this.#notifyIfChanged();
   };
 
-  /** Sets the audio buffer (triggers snapshot update) */
+  // ============================================================
+  // Audio buffer management
+  // ============================================================
+
+  /** Sets the audio buffer and resets playback state */
   setAudioBuffer = (audioBuffer: AudioBuffer | undefined): void => {
-    // Reset playback state when audio changes
-    if (this.#audioBuffer !== audioBuffer) {
-      this.reset();
-      this.#audioBuffer = audioBuffer;
-      this.#updateSnapshot();
-    }
+    if (this.#audioBuffer === audioBuffer) return;
+    this.#stopSource();
+    this.#audioBuffer = audioBuffer;
+    this.#position = 0;
+    this.#notifyIfChanged();
   };
+
+  // ============================================================
+  // Playback controls
+  // ============================================================
 
   /** Starts playback with the stored audio buffer */
   play(): void {
     if (!this.#audioBuffer) return;
 
-    // Stop existing source to prevent double playback
-    this.stop();
+    this.#stopSource();
 
     const audioBuffer = this.#audioBuffer;
     const source = this.#audioContext.createBufferSource();
@@ -134,61 +165,28 @@ export class AudioPlaybackStore {
     this.#applyGain();
     source.connect(this.#gainNode);
 
-    // Handle natural playback end via ended event
     source.addEventListener("ended", () => {
-      // Only process if this source is still the active one (not manually stopped)
       if (this.#source === source) {
         this.#source = null;
         this.#position = audioBuffer.duration;
-        this.#updateSnapshot();
+        this.#notifyIfChanged();
       }
     });
 
     source.start(0, this.#position);
     this.#source = source;
     this.#startedAt = this.#audioContext.currentTime - this.#position;
-    this.#updateSnapshot();
+    this.#notifyIfChanged();
   }
 
   /** Stops the current source and cleans up */
   stop(): boolean {
     if (this.#source) {
-      this.#source.stop();
-      this.#source.disconnect();
-      this.#source = null;
-      this.#updateSnapshot();
+      this.#stopSource();
+      this.#notifyIfChanged();
       return true;
     }
     return false;
-  }
-
-  /** Sets the playback position */
-  setPosition(time: number): void {
-    this.#position = time;
-    this.#updateSnapshot();
-  }
-
-  /** Syncs position from audioContext (for animation frames) or sets from external value */
-  syncPosition = (sec?: number): void => {
-    if (this.#source) {
-      this.#position = this.#audioContext.currentTime - this.#startedAt;
-    } else if (sec !== undefined) {
-      this.#position = sec;
-    } else {
-      return;
-    }
-    this.#updateSnapshot();
-  };
-
-  /** Resets all state to initial values */
-  reset(): void {
-    if (this.#source) {
-      this.#source.stop();
-      this.#source.disconnect();
-      this.#source = null;
-    }
-    this.#position = 0;
-    this.#updateSnapshot();
   }
 
   /** Toggles play/pause state */
@@ -200,6 +198,23 @@ export class AudioPlaybackStore {
     }
   };
 
+  // ============================================================
+  // Position management
+  // ============================================================
+
+  /** Sets the playback position (when not playing) */
+  setPosition(time: number): void {
+    this.#position = time;
+    this.#notifyIfChanged();
+  }
+
+  /** Syncs position from audioContext during playback (for animation frames) */
+  syncFromAudioContext = (): void => {
+    if (!this.#source) return;
+    this.#position = this.#audioContext.currentTime - this.#startedAt;
+    this.#notifyIfChanged();
+  };
+
   /**
    * Seeks to the specified time.
    * @param time - Target time in seconds
@@ -208,25 +223,24 @@ export class AudioPlaybackStore {
    */
   seek = (time: number, commit: boolean, seamless: boolean = false): void => {
     const wasPlaying = this.#source !== null;
-    const adjustedSeekTime = time < 1 ? 0 : time;
+    const adjustedSeekTime = time < SEEK_SNAP_THRESHOLD_SEC ? 0 : time;
 
-    // Seamless seek: maintain playback without UI state change (for keyboard)
     if (seamless && wasPlaying) {
-      this.stop();
-      this.setPosition(adjustedSeekTime);
+      this.#stopSource();
+      this.#position = adjustedSeekTime;
       this.play();
       return;
     }
 
-    // Standard seek: pause during seek, resume on commit (for mouse drag)
     if (wasPlaying) {
-      this.stop();
+      this.#stopSource();
+      this.#notifyIfChanged();
     }
 
-    this.syncPosition(adjustedSeekTime);
+    this.#position = adjustedSeekTime;
+    this.#notifyIfChanged();
 
-    if (!commit) return;
-    if (wasPlaying) {
+    if (commit && wasPlaying) {
       this.play();
     }
   };
