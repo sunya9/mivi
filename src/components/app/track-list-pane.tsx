@@ -28,6 +28,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Minus, Plus } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
 
 interface Props {
   midiTracks?: MidiTracks;
@@ -221,6 +236,13 @@ const TrackList = React.memo(function TrackList({
   midiTracks: MidiTracks;
   onUpdateMidiTracks: (midiTracks: MidiTracks) => void;
 }) {
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
   const onTrackConfigUpdate = useCallback(
     (trackIndex: number, config: Partial<MidiTrack["config"]>) => {
       const newTracks = midiTracks.tracks.with(trackIndex, {
@@ -237,14 +259,44 @@ const TrackList = React.memo(function TrackList({
     },
     [midiTracks, onUpdateMidiTracks],
   );
-  return midiTracks.tracks.map((track, i) => (
-    <TrackItem
-      key={track.id}
-      track={track}
-      index={i}
-      onUpdateTrackConfig={onTrackConfigUpdate}
-    />
-  ));
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (over && active.id !== over.id) {
+        const oldIndex = midiTracks.tracks.findIndex((t) => t.id === active.id);
+        const newIndex = midiTracks.tracks.findIndex((t) => t.id === over.id);
+        const newTracks = arrayMove(midiTracks.tracks, oldIndex, newIndex);
+        onUpdateMidiTracks({
+          ...midiTracks,
+          tracks: newTracks,
+        });
+      }
+    },
+    [midiTracks, onUpdateMidiTracks],
+  );
+
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={midiTracks.tracks.map((t) => t.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        {midiTracks.tracks.map((track, i) => (
+          <TrackItem
+            key={track.id}
+            track={track}
+            index={i}
+            onUpdateTrackConfig={onTrackConfigUpdate}
+          />
+        ))}
+      </SortableContext>
+    </DndContext>
+  );
 });
 
 function setAllColorsWhite(midiTracks: MidiTracks["tracks"]) {
