@@ -1,13 +1,28 @@
-import { expect, vi, test } from "vitest";
+import { expect, vi, test, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TrackItem } from "@/components/app/track-item";
 import { MidiTrack } from "@/lib/midi/midi";
 import { expectedMidiTracks } from "tests/fixtures";
 import userEvent from "@testing-library/user-event";
+import { DndContext } from "@dnd-kit/core";
+import { SortableContext } from "@dnd-kit/sortable";
 
 const mockTrack: MidiTrack = expectedMidiTracks.tracks[0];
 
 const mockOnUpdateTrackConfig = vi.fn();
+
+// Wrapper component for dnd-kit context
+function renderWithDndContext(ui: React.ReactElement) {
+  return render(
+    <DndContext>
+      <SortableContext items={[mockTrack.id]}>{ui}</SortableContext>
+    </DndContext>,
+  );
+}
+
+beforeEach(() => {
+  mockOnUpdateTrackConfig.mockClear();
+});
 
 test("should render track name and visibility switch", () => {
   render(
@@ -182,4 +197,30 @@ test("should not render controls when track is not visible", () => {
   expect(screen.queryByText("Staccato")).not.toBeInTheDocument();
   expect(screen.queryByText("Scale: 100%")).not.toBeInTheDocument();
   expect(screen.getByRole("switch")).toBeVisible();
+});
+
+test("should render drag handle button", () => {
+  renderWithDndContext(
+    <TrackItem
+      track={mockTrack}
+      index={0}
+      onUpdateTrackConfig={mockOnUpdateTrackConfig}
+    />,
+  );
+
+  const dragHandle = screen.getByRole("button", { name: "Drag to reorder" });
+  expect(dragHandle).toBeInTheDocument();
+});
+
+test("should have correct cursor style on drag handle", () => {
+  renderWithDndContext(
+    <TrackItem
+      track={mockTrack}
+      index={0}
+      onUpdateTrackConfig={mockOnUpdateTrackConfig}
+    />,
+  );
+
+  const dragHandle = screen.getByRole("button", { name: "Drag to reorder" });
+  expect(dragHandle).toHaveClass("cursor-grab");
 });

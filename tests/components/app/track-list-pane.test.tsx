@@ -204,3 +204,60 @@ test("should not render MIDI offset input when no tracks are provided", () => {
 
   expect(screen.queryByText("MIDI Offset (s)")).not.toBeInTheDocument();
 });
+
+test("should render drag handles for each track", () => {
+  const multiTrackMidi: MidiTracks = {
+    ...expectedMidiTracks,
+    tracks: [
+      {
+        ...expectedMidiTracks.tracks[0],
+        id: "track-1",
+        config: { ...expectedMidiTracks.tracks[0].config, name: "Track 1" },
+      },
+      {
+        ...expectedMidiTracks.tracks[0],
+        id: "track-2",
+        config: { ...expectedMidiTracks.tracks[0].config, name: "Track 2" },
+      },
+      {
+        ...expectedMidiTracks.tracks[0],
+        id: "track-3",
+        config: { ...expectedMidiTracks.tracks[0].config, name: "Track 3" },
+      },
+    ],
+  };
+
+  renderTrackListPane({ midiTracks: multiTrackMidi });
+
+  const dragHandles = screen.getAllByRole("button", {
+    name: "Drag to reorder",
+  });
+  expect(dragHandles).toHaveLength(3);
+});
+
+test("should render tracks in correct order", () => {
+  const multiTrackMidi: MidiTracks = {
+    ...expectedMidiTracks,
+    tracks: [
+      {
+        ...expectedMidiTracks.tracks[0],
+        id: "track-1",
+        config: { ...expectedMidiTracks.tracks[0].config, name: "First Track" },
+      },
+      {
+        ...expectedMidiTracks.tracks[0],
+        id: "track-2",
+        config: {
+          ...expectedMidiTracks.tracks[0].config,
+          name: "Second Track",
+        },
+      },
+    ],
+  };
+
+  renderTrackListPane({ midiTracks: multiTrackMidi });
+
+  const trackNames = screen.getAllByText(/Track$/);
+  expect(trackNames[0]).toHaveTextContent("First Track");
+  expect(trackNames[1]).toHaveTextContent("Second Track");
+});

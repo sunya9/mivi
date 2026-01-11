@@ -4,6 +4,9 @@ import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { GripVertical } from "lucide-react";
 
 interface Props {
   track: MidiTrack;
@@ -19,12 +22,42 @@ export const TrackItem = React.memo(function TrackItem({
   onUpdateTrackConfig,
   index,
 }: Props) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: track.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   const id = `${track.id}-visible`;
   return (
-    <div className={cn("grid grid-cols-1 gap-2 py-4 @[300px]:grid-cols-2")}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "grid grid-cols-[auto_1fr_auto] items-center gap-x-2 gap-y-2 py-4",
+      )}
+    >
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        className="text-muted-foreground hover:text-foreground cursor-grab touch-none active:cursor-grabbing"
+        aria-label="Drag to reorder"
+      >
+        <GripVertical className="size-4" />
+      </button>
       <label
         htmlFor={id}
-        className={cn({
+        className={cn("col-span-2", {
           "text-muted-foreground": !track.config.visible,
         })}
       >
@@ -36,28 +69,28 @@ export const TrackItem = React.memo(function TrackItem({
         onCheckedChange={(checked) =>
           onUpdateTrackConfig(index, { visible: checked })
         }
-        className="justify-self-end"
+        className="col-start-4 justify-self-end"
       />
 
       {track.config.visible && (
         <>
-          <div className="flex flex-row items-center gap-2">
-            <span className="text-muted-foreground text-xs">
+          <div className="col-span-2 col-start-2 flex flex-row items-center gap-2">
+            <span className="text-muted-foreground inline-flex gap-2 text-xs">
               Opacity: {Math.round(track.config.opacity * 100)}%
+              <Slider
+                value={[track.config.opacity]}
+                min={0}
+                max={1}
+                step={0.05}
+                defaultValue={[1]}
+                onValueChange={([value]) =>
+                  onUpdateTrackConfig(index, { opacity: value })
+                }
+                className="w-16"
+                key={`${track.id}-opacity`}
+                aria-label="Opacity"
+              />
             </span>
-            <Slider
-              value={[track.config.opacity]}
-              min={0}
-              max={1}
-              step={0.05}
-              defaultValue={[1]}
-              onValueChange={([value]) =>
-                onUpdateTrackConfig(index, { opacity: value })
-              }
-              className="w-16"
-              key={`${track.id}-opacity`}
-              aria-label="Opacity"
-            />
           </div>
           <input
             type="color"
@@ -65,11 +98,11 @@ export const TrackItem = React.memo(function TrackItem({
             onChange={(e) =>
               onUpdateTrackConfig(index, { color: e.target.value })
             }
-            className="cursor-pointer justify-self-end bg-transparent"
+            className="col-start-4 cursor-pointer justify-self-end bg-transparent"
             aria-label="Note color"
           />
 
-          <label className="text-muted-foreground flex items-center gap-1 text-xs">
+          <label className="text-muted-foreground col-start-2 flex items-center gap-1 text-xs">
             <Checkbox
               checked={track.config.staccato}
               onCheckedChange={(checked) =>
@@ -78,24 +111,23 @@ export const TrackItem = React.memo(function TrackItem({
             />
             Staccato
           </label>
-
-          <div className="flex flex-row items-center gap-2 justify-self-end">
-            <span className="text-muted-foreground text-xs">
+          <div className="col-span-2 col-start-3 flex flex-row items-center gap-2 justify-self-end">
+            <span className="text-muted-foreground inline-flex gap-2 text-xs">
               Scale: {Math.round(track.config.scale * 100)}%
+              <Slider
+                value={[track.config.scale]}
+                min={0.5}
+                max={1}
+                step={0.05}
+                defaultValue={[1]}
+                onValueChange={([value]) =>
+                  onUpdateTrackConfig(index, { scale: value })
+                }
+                aria-label="Scale"
+                key={`${track.id}-scale`}
+                className="w-16"
+              />
             </span>
-            <Slider
-              value={[track.config.scale]}
-              min={0.5}
-              max={1}
-              step={0.05}
-              defaultValue={[1]}
-              onValueChange={([value]) =>
-                onUpdateTrackConfig(index, { scale: value })
-              }
-              aria-label="Scale"
-              key={`${track.id}-scale`}
-              className="w-16"
-            />
           </div>
         </>
       )}
