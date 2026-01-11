@@ -6,7 +6,7 @@ import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
 import * as nodeCrypto from "node:crypto";
 import { RafStub } from "./raf-stub";
-
+import { AudioContext } from "standardized-audio-context-mock";
 export const rafStub = new RafStub();
 
 vi.stubGlobal("requestAnimationFrame", rafStub.requestAnimationFrame);
@@ -22,54 +22,7 @@ afterEach(() => {
 });
 
 vi.stubGlobal("indexedDB", new IDBFactory());
-
-vi.stubGlobal(
-  "AudioContext",
-  class {
-    decodeAudioData = vi.fn(() => ({}));
-    currentTime = 0;
-    createBuffer = vi.fn(
-      (
-        numberOfChannels: number,
-        numberOfFrames: number,
-        sampleRate: number,
-      ) => ({
-        duration: numberOfFrames / sampleRate,
-        length: numberOfFrames,
-        numberOfChannels,
-        sampleRate,
-        getChannelData: vi.fn(() => new Float32Array(numberOfFrames)),
-        copyFromChannel: vi.fn(),
-        copyToChannel: vi.fn(),
-      }),
-    );
-    createBufferSource = vi.fn(() => {
-      const listeners: Record<string, Array<() => void>> = {};
-      return {
-        connect: vi.fn(),
-        start: vi.fn(),
-        stop: vi.fn(),
-        disconnect: vi.fn(),
-        buffer: null as AudioBuffer | null,
-        addEventListener: vi.fn((event: string, handler: () => void) => {
-          if (!listeners[event]) listeners[event] = [];
-          listeners[event].push(handler);
-        }),
-        // Helper for tests to trigger events
-        _triggerEvent: (event: string) => {
-          listeners[event]?.forEach((handler) => handler());
-        },
-      };
-    });
-    createGain = vi.fn(() => ({
-      connect: vi.fn(),
-      gain: {
-        cancelScheduledValues: vi.fn(),
-        setTargetAtTime: vi.fn(),
-      },
-    }));
-  },
-);
+vi.stubGlobal("AudioContext", AudioContext);
 
 let idCounter = 0;
 

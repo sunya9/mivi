@@ -23,6 +23,6 @@ export function useAudioPlaybackStore() {
     syncPosition: store.syncPosition,
     setAudioBuffer: store.setAudioBuffer,
     // Getters (non-reactive, for synchronous access)
-    getPosition: () => store.position,
+    getPosition: store.getPosition,
   };
 }

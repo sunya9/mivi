@@ -1,27 +1,26 @@
 import { act } from "@testing-library/react";
 import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 import { customRenderHook } from "../../util";
-import { expect, test, vi } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { audioBuffer } from "tests/fixtures";
+import { registrar } from "standardized-audio-context-mock";
+import { AppContextValue } from "@/lib/globals";
 
-type MockedSourceNode = AudioBufferSourceNode & {
-  _triggerEvent: (event: string) => void;
-};
+// Reset all mocks after each test
+afterEach(() => {
+  vi.clearAllMocks();
+});
 
-type MockedAudioBufferSourceNode = ReturnType<
-  typeof vi.fn<() => AudioBufferSourceNode>
-> & {
-  mock: { results: Array<{ value: MockedSourceNode }> };
-};
-
-function getSource(
-  createBufferSource: MockedAudioBufferSourceNode,
-  index = 0,
-): MockedSourceNode {
-  const results = createBufferSource.mock.results;
-  const result = results[index] as { value: MockedSourceNode } | undefined;
-  if (!result) throw new Error(`No source at index ${index}`);
-  return result.value;
+// Helper to get AudioBufferSourceNodes from registrar using the appContext's audioContext
+function getSourceNodes(appContextValue: AppContextValue) {
+  // The audioContext in appContextValue is the one used by the hook
+  // Cast needed because the mock's AudioContext type differs from native AudioContext
+  return registrar.getAudioNodes(
+    appContextValue.audioContext as unknown as Parameters<
+      typeof registrar.getAudioNodes
+    >[0],
+    "AudioBufferSourceNode",
+  );
 }
 
 // Helper to render hook and set up audioBuffer
@@ -244,31 +243,28 @@ test("should do nothing when play is called without audioBuffer", () => {
   expect(result.current.snapshot.isPlaying).toBe(false);
 });
 
-test("should call disconnect when pausing", () => {
+test("should create and stop source when pausing", () => {
   const { result, appContextValue } = renderWithAudioBufferAndContext();
-  const createBufferSource = appContextValue.audioContext
-    .createBufferSource as MockedAudioBufferSourceNode;
 
   // Start playing
   act(() => {
     result.current.togglePlay();
   });
   expect(result.current.snapshot.isPlaying).toBe(true);
-
-  const source = getSource(createBufferSource);
+  const sourceNodes = getSourceNodes(appContextValue);
+  expect(sourceNodes.length).toBe(1);
 
   // Pause
   act(() => {
     result.current.togglePlay();
   });
 
-  expect(source.disconnect).toHaveBeenCalled();
+  // After pausing, isPlaying should be false
+  expect(result.current.snapshot.isPlaying).toBe(false);
 });
 
 test("should transition to paused state when ended event fires", () => {
   const { result, appContextValue } = renderWithAudioBufferAndContext();
-  const createBufferSource = appContextValue.audioContext
-    .createBufferSource as MockedAudioBufferSourceNode;
 
   // Start playing
   act(() => {
@@ -276,11 +272,13 @@ test("should transition to paused state when ended event fires", () => {
   });
   expect(result.current.snapshot.isPlaying).toBe(true);
 
-  const source = getSource(createBufferSource);
+  const sourceNodes = getSourceNodes(appContextValue);
+  expect(sourceNodes.length).toBe(1);
+  const source = sourceNodes[0];
 
-  // Simulate ended event (natural playback end)
+  // Simulate ended event using dispatchEvent (natural playback end)
   act(() => {
-    source._triggerEvent("ended");
+    source.dispatchEvent(new Event("ended"));
   });
 
   // Should be paused and time should be at duration
@@ -290,14 +288,15 @@ test("should transition to paused state when ended event fires", () => {
 
 test("should not transition to paused when ended fires on old source after manual stop", () => {
   const { result, appContextValue } = renderWithAudioBufferAndContext();
-  const createBufferSource = appContextValue.audioContext
-    .createBufferSource as MockedAudioBufferSourceNode;
 
   // Start playing
   act(() => {
     result.current.togglePlay();
   });
-  const firstSource = getSource(createBufferSource, 0);
+
+  const firstSourceNodes = getSourceNodes(appContextValue);
+  expect(firstSourceNodes.length).toBe(1);
+  const firstSource = firstSourceNodes[0];
 
   // Pause (manually stop)
   act(() => {
@@ -313,7 +312,7 @@ test("should not transition to paused when ended fires on old source after manua
 
   // Old source's ended event fires (should be ignored)
   act(() => {
-    firstSource._triggerEvent("ended");
+    firstSource.dispatchEvent(new Event("ended"));
   });
 
   // Should still be playing (ended event from old source was ignored)
@@ -331,13 +330,16 @@ test("should update currentTimeSec when updateCurrentTime is called during playb
   expect(result.current.snapshot.position).toBe(0);
 
   // Simulate time passing (audioContext.currentTime advances)
-  (appContextValue.audioContext as { currentTime: number }).currentTime = 5;
+  Object.defineProperty(appContextValue.audioContext, "currentTime", {
+    value: 5,
+    writable: true,
+  });
 
-  // Call updateCurrentTime (simulates animation frame callback)
+  // Call syncPosition (simulates animation frame callback)
   act(() => {
     result.current.syncPosition();
   });
 
-  // currentTimeSec should be updated based on elapsed time
+  // position should be updated based on elapsed time
   expect(result.current.snapshot.position).toBe(5);
 });

@@ -1,4 +1,4 @@
-import type { StorageRepository } from "@/lib/storage/storage-repository";
+import { type StorageRepository } from "@/lib/storage/storage-repository";
 
 /** Immutable snapshot of playback state */
 export interface PlaybackSnapshot {
@@ -15,6 +15,9 @@ export interface PlaybackSnapshot {
  * Encapsulates AudioContext, GainNode, AudioBuffer, and playback state management.
  * Uses the subscriber pattern for integration with useSyncExternalStore.
  */
+
+const volumeKey = "mivi:volume";
+const mutedKey = "mivi:muted";
 export class AudioPlaybackStore {
   readonly #audioContext: AudioContext;
   readonly #gainNode: GainNode;
@@ -34,8 +37,8 @@ export class AudioPlaybackStore {
     this.#gainNode.connect(audioContext.destination);
     this.#storage = storage;
     // Load initial values from storage
-    this.#volume = storage.get("mivi:volume", 1);
-    this.#muted = storage.get("mivi:muted", false);
+    this.#volume = storage.get(volumeKey, 1);
+    this.#muted = storage.get(mutedKey, false);
     this.#snapshot = {
       audioBuffer: undefined,
       isPlaying: false,
@@ -89,20 +92,13 @@ export class AudioPlaybackStore {
     this.#gainNode.gain.setTargetAtTime(calculatedVolume, now, 0);
   }
 
-  /** Check if currently playing (synchronous access without triggering re-render) */
-  get isPlaying(): boolean {
-    return this.#source !== null;
-  }
-
   /** Get current position (synchronous access) */
-  get position(): number {
-    return this.#position;
-  }
+  getPosition = (): number => this.#position;
 
   /** Sets the volume and persists to storage */
   setVolume = (volume: number): void => {
     this.#volume = volume;
-    this.#storage.set("mivi:volume", volume);
+    this.#storage.set(volumeKey, volume);
     this.#applyGain();
     this.#updateSnapshot();
   };
@@ -110,7 +106,7 @@ export class AudioPlaybackStore {
   /** Toggles mute state and persists to storage */
   toggleMute = (): void => {
     this.#muted = !this.#muted;
-    this.#storage.set("mivi:muted", this.#muted);
+    this.#storage.set(mutedKey, this.#muted);
     this.#applyGain();
     this.#updateSnapshot();
   };

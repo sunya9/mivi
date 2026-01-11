@@ -17,7 +17,7 @@ vi.mock("sonner", { spy: true });
 // Simple test wrapper without ErrorBoundary
 function TestWrapper({
   children,
-  audioContext,
+  audioContext = new AudioContext(),
 }: {
   children: React.ReactNode;
   audioContext?: AudioContext;
