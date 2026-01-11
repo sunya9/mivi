@@ -43,7 +43,7 @@ export const TrackItem = React.memo(function TrackItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "grid grid-cols-[auto_1fr_auto] items-center gap-x-2 gap-y-2 py-4",
+        "grid grid-cols-[auto_1fr_auto_auto] items-center gap-x-2 gap-y-2 py-4",
       )}
     >
       <button
