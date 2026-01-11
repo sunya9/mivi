@@ -121,7 +121,7 @@ export default defineConfig(({ mode }) => ({
             provider: playwright(),
             // https://vitest.dev/guide/browser/playwright
             instances: [{ browser: "chromium" }],
-            headless: process.env.CI === "true",
+            headless: true,
           },
           include: ["**/*.browser.?(c|m)[jt]s?(x)"],
         },
