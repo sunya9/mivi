@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 import { useTheme } from "next-themes";
-import { Settings, Sun, Moon, Monitor, Keyboard } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,9 +18,9 @@ import {
 import { cn } from "@/lib/utils";
 
 const themes = [
-  { value: "light", label: "Light", icon: Sun },
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: Monitor },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+  { value: "system", label: "System" },
 ] as const;
 
 interface Props {
@@ -124,7 +124,6 @@ export function SettingsMenu({ className }: Props) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={openKeyboardShortcuts}>
-            <Keyboard className="mr-2 size-4" />
             Keyboard Shortcuts
             <DropdownMenuShortcut>?</DropdownMenuShortcut>
           </DropdownMenuItem>
@@ -132,22 +131,18 @@ export function SettingsMenu({ className }: Props) {
           <DropdownMenuSeparator />
 
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger>
-              <Sun className="mr-2 size-4" />
-              Theme
-            </DropdownMenuSubTrigger>
+            <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuRadioGroup
                 value={theme}
                 onValueChange={handleThemeChange}
               >
-                {themes.map(({ value, label, icon: Icon }) => (
+                {themes.map(({ value, label }) => (
                   <DropdownMenuRadioItem
                     key={value}
                     value={value}
                     onPointerDown={handlePointerDown}
                   >
-                    <Icon className="mr-2 size-4" />
                     {label}
                   </DropdownMenuRadioItem>
                 ))}
