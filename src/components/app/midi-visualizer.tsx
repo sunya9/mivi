@@ -67,13 +67,14 @@ export function MidiVisualizer({
   const muteRevealTimeoutRef = useRef<number>(null);
   const [isHovering, setIsHovering] = useState(false);
   const [keepPanelVisible, setKeepPanelVisible] = useState(false);
-
+  const tracks = useMemo(() => midiTracks?.tracks || [], [midiTracks]);
+  const midiOffset = useMemo(() => midiTracks?.midiOffset ?? 0, [midiTracks]);
   const invalidate = useCallback(() => {
     rendererControllerRef.current?.render(
-      midiTracks?.tracks || [],
-      getCurrentTime() + (midiTracks?.midiOffset ?? 0),
+      tracks,
+      getCurrentTime() + midiOffset,
     );
-  }, [getCurrentTime, midiTracks?.midiOffset, midiTracks?.tracks]);
+  }, [getCurrentTime, midiOffset, tracks]);
 
   const invalidateEffect = useEffectEvent(invalidate);
 
