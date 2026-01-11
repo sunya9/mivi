@@ -26,7 +26,7 @@ export function Canvas({
 }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
 
-  const fixCanvasSize = useCallback(() => {
+  const resizeCanvas = useCallback(() => {
     if (!ref.current) return;
     const width = ref.current.clientWidth;
     const calculatedHeight = width * aspectRatio;
@@ -35,11 +35,12 @@ export function Canvas({
     ref.current.width = canvasWidth;
     ref.current.height = canvasHeight;
   }, [aspectRatio]);
+  const resizeCanvasEffect = useEffectEvent(resizeCanvas);
 
   const onResize = useCallback(() => {
-    fixCanvasSize();
+    resizeCanvas();
     invalidate();
-  }, [fixCanvasSize, invalidate]);
+  }, [resizeCanvas, invalidate]);
   useResizeDetector({
     onResize,
     targetRef: ref,
@@ -54,8 +55,8 @@ export function Canvas({
   }, []);
 
   useLayoutEffect(() => {
-    fixCanvasSize();
-  }, [fixCanvasSize]);
+    resizeCanvasEffect();
+  }, []);
   return (
     <div
       className={cn(
