@@ -7,7 +7,8 @@ import {
 import { TestProviders } from "./test-providers";
 
 export function customRender(children: React.ReactNode) {
-  const appContextValue = createAppContext();
+  const audioContext = new AudioContext();
+  const appContextValue = createAppContext(audioContext);
   return renderOriginal(
     <TestProviders appContextValue={appContextValue}>{children}</TestProviders>,
   );
@@ -21,7 +22,8 @@ export function customRenderHook<T, P>(
   hook: (props: P) => T,
   options?: RenderHookOptions<P>,
 ) {
-  const appContextValue = createAppContext();
+  const audioContext = new AudioContext();
+  const appContextValue = createAppContext(audioContext);
   const result = renderHook((props: P) => hook(props), {
     wrapper: ({ children }) => (
       <TestProviders appContextValue={appContextValue}>

@@ -4,13 +4,11 @@ import "./index.css";
 import { App } from "./app";
 import { Providers } from "./components/providers/providers";
 import { registerSW } from "virtual:pwa-register";
-import { createAppContext } from "./lib/globals";
 
-const appContextValue = createAppContext();
-
+const audioContext = new AudioContext();
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <Providers appContextValue={appContextValue}>
+    <Providers audioContext={audioContext}>
       <App />
     </Providers>
   </StrictMode>,
