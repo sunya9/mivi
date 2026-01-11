@@ -29,6 +29,8 @@ export function Canvas({
   const resizeCanvas = useCallback(() => {
     if (!ref.current) return;
     const width = ref.current.clientWidth;
+    // if width is 0, the canvas is not visible
+    if (!width) return;
     const calculatedHeight = width * aspectRatio;
     const canvasWidth = width * window.devicePixelRatio;
     const canvasHeight = calculatedHeight * window.devicePixelRatio;
@@ -57,6 +59,7 @@ export function Canvas({
   useLayoutEffect(() => {
     resizeCanvasEffect();
   }, []);
+
   return (
     <div
       className={cn(
