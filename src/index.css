@@ -105,7 +105,6 @@
   --sidebar-border: oklch(0.3 0 0);
   --sidebar-ring: oklch(0.439 0 0);
   --canvas: oklch(0.7 0 0);
-  --theme-blur-amount: 4px;
 }
 @theme inline {
   --color-background: var(--background);
@@ -186,56 +185,41 @@
   }
 }
 
-::view-transition-group(root) {
-  animation-duration: 1s;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+/* Allow animating the mask size custom property */
+@property --mask-size {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
 }
 
-::view-transition-new(root) {
-  clip-path: circle(
-    0% at var(--theme-transition-x, 50vw) var(--theme-transition-y, 50vh)
-  );
-  animation:
-    theme-clip-expand 1s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-    theme-blur-in 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-@keyframes theme-blur-in {
-  from {
-    filter: blur(var(--theme-blur-amount));
+/* Theme change transition - only apply to theme-change type */
+html:active-view-transition-type(theme-change) {
+  &::view-transition-old(root) {
+    animation: none;
   }
-  to {
-    filter: blur(0);
-  }
-}
 
-::view-transition-old(root) {
-  animation: theme-blur-out 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  z-index: -1;
-}
-
-@keyframes theme-blur-out {
-  from {
-    filter: blur(0);
-  }
-  to {
-    filter: blur(var(--theme-blur-amount));
-  }
-}
-
-@keyframes theme-clip-expand {
-  to {
-    clip-path: circle(
-      150% at var(--theme-transition-x, 50vw) var(--theme-transition-y, 50vh)
+  &::view-transition-new(root) {
+    --mask-size: 0px;
+    mask-image: radial-gradient(
+      circle at var(--theme-transition-x, 50vw) var(--theme-transition-y, 50vh),
+      black var(--mask-size),
+      transparent var(--mask-size)
     );
+    animation: theme-mask-expand 0.8s ease-out forwards;
+  }
+}
+
+@keyframes theme-mask-expand {
+  to {
+    --mask-size: hypot(100vw, 100vh);
   }
 }
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(root),
-  ::view-transition-new(root),
-  ::view-transition-old(root) {
-    animation: none !important;
+  html:active-view-transition-type(theme-change) {
+    &::view-transition-new(root) {
+      animation: none !important;
+    }
   }
 }

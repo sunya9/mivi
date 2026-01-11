@@ -88,8 +88,11 @@ export function SettingsMenu({ className }: Props) {
           y: clickPositionRef.current.y,
         });
       }
-      const transition = document.startViewTransition(() => {
-        setTheme(newTheme);
+      const transition = document.startViewTransition({
+        update: () => {
+          setTheme(newTheme);
+        },
+        types: ["theme-change"],
       });
       await transition.finished;
       setTransitionOrigin();
