@@ -4,7 +4,6 @@ import "vitest-canvas-mock";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
-import { HTMLCanvasElement } from "@playcanvas/canvas-mock";
 import * as nodeCrypto from "node:crypto";
 import { RafStub } from "./raf-stub";
 
@@ -64,8 +63,6 @@ vi.stubGlobal("crypto", {
     },
   },
 });
-
-vi.stubGlobal("HTMLCanvasElement", HTMLCanvasElement);
 
 // https://github.com/radix-ui/primitives/issues/1822
 window.HTMLElement.prototype.hasPointerCapture = vi.fn();

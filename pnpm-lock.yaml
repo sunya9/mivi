@@ -114,9 +114,6 @@ importers:
       '@eslint/js':
         specifier: ^9.39.2
         version: 9.39.2
-      '@playcanvas/canvas-mock':
-        specifier: ^1.1.0
-        version: 1.1.0
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -1242,9 +1239,6 @@ packages:
 
   '@open-draft/until@2.1.0':
     resolution: {integrity: sha512-U69T3ItWHvLwGg5eJ0n3I62nWuE6ilHlmz7zM0npLBRvPRd7e6NYmg54vvRtP5mZG7kZqZCFVdsTWo7BPtBujg==}
-
-  '@playcanvas/canvas-mock@1.1.0':
-    resolution: {integrity: sha512-/HQ03e/LtMVMT/1Gtq6j1LUY2/Vx7DzWx5TMpJs9A7Ms+IvZowunp6Z9AGjHD5SAybdbTRDdMfLtcCrd37+UXg==}
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
@@ -6172,8 +6166,6 @@ snapshots:
       outvariant: 1.4.3
 
   '@open-draft/until@2.1.0': {}
-
-  '@playcanvas/canvas-mock@1.1.0': {}
 
   '@polka/url@1.0.0-next.29': {}
 
