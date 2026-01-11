@@ -12,10 +12,13 @@ const mockTrack: MidiTrack = expectedMidiTracks.tracks[0];
 const mockOnUpdateTrackConfig = vi.fn();
 
 // Wrapper component for dnd-kit context
-function renderWithDndContext(ui: React.ReactElement) {
+function renderWithDndContext(
+  ui: React.ReactElement,
+  trackId: string = mockTrack.id,
+) {
   return render(
     <DndContext>
-      <SortableContext items={[mockTrack.id]}>{ui}</SortableContext>
+      <SortableContext items={[trackId]}>{ui}</SortableContext>
     </DndContext>,
   );
 }
@@ -25,7 +28,7 @@ beforeEach(() => {
 });
 
 test("should render track name and visibility switch", () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -38,7 +41,7 @@ test("should render track name and visibility switch", () => {
 });
 
 test("should call onUpdateTrackConfig when visibility is toggled", async () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -55,7 +58,7 @@ test("should call onUpdateTrackConfig when visibility is toggled", async () => {
 });
 
 test("should render opacity slider when track is visible", () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -68,7 +71,7 @@ test("should render opacity slider when track is visible", () => {
 });
 
 test("should call onUpdateTrackConfig when opacity is changed", async () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -86,7 +89,7 @@ test("should call onUpdateTrackConfig when opacity is changed", async () => {
 });
 
 test("should render color picker when track is visible", () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -98,7 +101,7 @@ test("should render color picker when track is visible", () => {
 });
 
 test("should call onUpdateTrackConfig when color is changed", () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -115,7 +118,7 @@ test("should call onUpdateTrackConfig when color is changed", () => {
 });
 
 test("should render staccato checkbox when track is visible", () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -128,7 +131,7 @@ test("should render staccato checkbox when track is visible", () => {
 });
 
 test("should call onUpdateTrackConfig when staccato is toggled", async () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -145,7 +148,7 @@ test("should call onUpdateTrackConfig when staccato is toggled", async () => {
 });
 
 test("should render scale slider when track is visible", () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -158,7 +161,7 @@ test("should render scale slider when track is visible", () => {
 });
 
 test("should call onUpdateTrackConfig when scale is changed", async () => {
-  render(
+  renderWithDndContext(
     <TrackItem
       track={mockTrack}
       index={0}
@@ -184,12 +187,13 @@ test("should not render controls when track is not visible", () => {
     },
   };
 
-  render(
+  renderWithDndContext(
     <TrackItem
       track={invisibleTrack}
       index={0}
       onUpdateTrackConfig={mockOnUpdateTrackConfig}
     />,
+    invisibleTrack.id,
   );
 
   expect(screen.queryByText("Opacity: 100%")).not.toBeInTheDocument();
