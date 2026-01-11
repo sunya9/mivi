@@ -49,7 +49,7 @@ export function MidiVisualizer({
     setVolume,
     toggleMute,
     getPosition,
-    syncPosition,
+    syncFromAudioContext,
   } = useAudioPlaybackStore();
   const [expanded, setExpanded] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
@@ -103,9 +103,9 @@ export function MidiVisualizer({
 
   const onAnimate = useCallback(() => {
     if (!isPlaying) return;
-    syncPosition();
+    syncFromAudioContext();
     invalidate();
-  }, [isPlaying, syncPosition, invalidate]);
+  }, [isPlaying, syncFromAudioContext, invalidate]);
 
   useAnimationFrame(isPlaying, onAnimate);
 
