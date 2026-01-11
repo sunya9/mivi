@@ -15,6 +15,7 @@ import {
   useCallback,
   useEffect,
   useEffectEvent,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -64,10 +65,7 @@ export function MidiVisualizer({
   const tracks = useMemo(() => midiTracks?.tracks || [], [midiTracks]);
   const midiOffset = useMemo(() => midiTracks?.midiOffset ?? 0, [midiTracks]);
   const invalidate = useCallback(() => {
-    rendererControllerRef.current?.render(
-      tracks,
-      getPosition() + midiOffset,
-    );
+    rendererControllerRef.current?.render(tracks, getPosition() + midiOffset);
   }, [getPosition, midiOffset, tracks]);
 
   const invalidateEffect = useEffectEvent(invalidate);
@@ -326,9 +324,12 @@ export function MidiVisualizer({
               // https://github.com/radix-ui/primitives/issues/1760#issuecomment-2133137759
               onLostPointerCapture={() => {
                 isMouseSeekingRef.current = false;
-                if (wasPlayingBeforeSeek && !isPlaying) {
+                // Resume playback if it was playing before seek started
+                // Note: Don't check isPlaying here as it may be stale (React hasn't re-rendered yet)
+                if (wasPlayingBeforeSeek) {
                   togglePlay();
                 }
+                setWasPlayingBeforeSeek(false);
                 setIsInteracting(false);
               }}
               className="*:data-[slot=slider-track]:bg-muted/30"

@@ -91,12 +91,7 @@ test("toggle play state when space key is pressed", async () => {
 });
 
 test("toggle play state when space key is pressed while slider is focused", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Focus the seek slider
   const seekSlider = screen.getAllByRole("slider")[0];
@@ -107,33 +102,28 @@ test("toggle play state when space key is pressed while slider is focused", asyn
   expect(seekSlider.getAttribute("role")).toBe("slider");
 
   // Clear previous calls
-  vi.mocked(defaultPlayerMock.togglePlay).mockClear();
+  vi.mocked(defaultStoreMock.togglePlay).mockClear();
 
   // Press space while slider is focused
   await userEvent.keyboard("{ }");
 
-  expect(defaultPlayerMock.togglePlay).toHaveBeenCalled();
+  expect(defaultStoreMock.togglePlay).toHaveBeenCalled();
 });
 
 test("toggle play state when space key is pressed while volume slider is focused", async () => {
-  customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      audioBuffer={mockAudioBuffer}
-    />,
-  );
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Focus the volume slider
   const volumeSlider = screen.getByRole("slider", { name: "Volume" });
   await userEvent.click(volumeSlider);
 
   // Clear previous calls
-  vi.mocked(defaultPlayerMock.togglePlay).mockClear();
+  vi.mocked(defaultStoreMock.togglePlay).mockClear();
 
   // Press space while slider is focused
   await userEvent.keyboard("{ }");
 
-  expect(defaultPlayerMock.togglePlay).toHaveBeenCalled();
+  expect(defaultStoreMock.togglePlay).toHaveBeenCalled();
 });
 
 function findPlayer() {
