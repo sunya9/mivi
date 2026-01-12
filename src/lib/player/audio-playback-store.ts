@@ -202,12 +202,6 @@ export class AudioPlaybackStore {
   // Position management
   // ============================================================
 
-  /** Sets the playback position (when not playing) */
-  setPosition(time: number): void {
-    this.#position = time;
-    this.#notifyIfChanged();
-  }
-
   /** Syncs position from audioContext during playback (for animation frames) */
   syncFromAudioContext = (): void => {
     if (!this.#source) return;

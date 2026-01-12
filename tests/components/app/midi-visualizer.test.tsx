@@ -68,18 +68,18 @@ test("handles volume control", async () => {
   expect(defaultStoreMock.setVolume).toHaveBeenLastCalledWith(0.99);
 });
 
-test("handles seek control", async () => {
+test("handles seek control with keyboard", async () => {
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
-  // First slider is the seek bar, second is volume
   const seekSlider = screen.getAllByRole("slider")[0];
-  await userEvent.click(seekSlider);
+  // Focus slider via tab (no pointer interaction)
+  await userEvent.tab();
+  expect(seekSlider).toHaveFocus();
+
   await userEvent.keyboard("{arrowright}");
 
-  // 3rd param: seamless (false = mouse/standard seek, true = keyboard/seamless seek)
-  // In test environment, onLostPointerCapture may not fire, so isMouseSeekingRef stays true
-  expect(defaultStoreMock.seek).toHaveBeenNthCalledWith(1, 0.1, true, false);
-  expect(defaultStoreMock.seek).toHaveBeenNthCalledWith(2, 0.1, false, false);
+  // Keyboard triggers onValueCommit with commit=true, seamless=true
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(0.1, true, true);
 });
 
 test("toggle play state when space key is pressed", async () => {

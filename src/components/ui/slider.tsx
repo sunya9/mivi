@@ -3,6 +3,30 @@ import * as SliderPrimitive from "@radix-ui/react-slider";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Reason for value change, similar to Base UI's eventDetails.reason
+ * @see https://base-ui.com/react/components/slider
+ */
+type SliderChangeReason = "keyboard" | "pointer-down" | "drag";
+
+interface SliderProps extends Omit<
+  React.ComponentProps<typeof SliderPrimitive.Root>,
+  "onValueChange" | "onValueCommit"
+> {
+  /**
+   * Called when the slider value changes.
+   * @param value - The new value(s)
+   * @param reason - What triggered the change: "keyboard", "pointer-down", or "drag"
+   */
+  onValueChange?: (value: number[], reason: SliderChangeReason) => void;
+  /**
+   * Called when the value is committed (pointer up or keyboard navigation complete).
+   * @param value - The committed value(s)
+   * @param reason - What triggered the commit: "keyboard", "pointer-down", or "drag"
+   */
+  onValueCommit?: (value: number[], reason: SliderChangeReason) => void;
+}
+
 function Slider({
   className,
   defaultValue,
@@ -11,8 +35,10 @@ function Slider({
   max = 100,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledby,
+  onValueChange,
+  onValueCommit,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: SliderProps) {
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -22,6 +48,24 @@ function Slider({
           : [min, max],
     [value, defaultValue, min, max],
   );
+
+  // Track interaction state to determine reason
+  const isPointerDownRef = React.useRef(false);
+  const valueChangeCountRef = React.useRef(0);
+  const committedRef = React.useRef(false);
+  const lastValueRef = React.useRef<number[]>([]);
+
+  // For onValueChange: first change is "pointer-down", subsequent are "drag"
+  const getChangeReason = (): SliderChangeReason => {
+    if (!isPointerDownRef.current) return "keyboard";
+    return valueChangeCountRef.current > 0 ? "drag" : "pointer-down";
+  };
+
+  // For onValueCommit: single change means click ("pointer-down"), multiple means drag
+  const getCommitReason = (): SliderChangeReason => {
+    if (!isPointerDownRef.current) return "keyboard";
+    return valueChangeCountRef.current > 1 ? "drag" : "pointer-down";
+  };
 
   return (
     <SliderPrimitive.Root
@@ -34,7 +78,36 @@ function Slider({
         "relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
         className,
       )}
+      // Spread props first so internal handlers are not overridden
       {...props}
+      onPointerDown={() => {
+        isPointerDownRef.current = true;
+        valueChangeCountRef.current = 0;
+        committedRef.current = false;
+      }}
+      onValueChange={(newValue) => {
+        const reason = getChangeReason();
+        valueChangeCountRef.current++;
+        lastValueRef.current = newValue;
+        onValueChange?.(newValue, reason);
+      }}
+      onValueCommit={(newValue) => {
+        committedRef.current = true;
+        onValueCommit?.(newValue, getCommitReason());
+      }}
+      // Fallback commit on pointer capture loss
+      // onValueCommit may not fire reliably in Radix, but onLostPointerCapture does
+      // https://github.com/radix-ui/primitives/issues/1760#issuecomment-2133137759
+      onLostPointerCapture={() => {
+        if (
+          isPointerDownRef.current &&
+          !committedRef.current &&
+          lastValueRef.current.length > 0
+        ) {
+          onValueCommit?.(lastValueRef.current, getCommitReason());
+        }
+        isPointerDownRef.current = false;
+      }}
     >
       <SliderPrimitive.Track
         data-slot="slider-track"
@@ -63,3 +136,4 @@ function Slider({
 }
 
 export { Slider };
+export type { SliderProps, SliderChangeReason };
