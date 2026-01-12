@@ -1,3 +1,4 @@
+import { ColorPickerButton } from "@/components/common/color-picker-button";
 import { FormRow } from "@/components/common/form-row";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -183,11 +184,10 @@ export function PianoRollConfigPanel({
           <FormRow
             label={<span>Playhead Border Color</span>}
             controller={
-              <input
-                type="color"
+              <ColorPickerButton
                 value={pianoRollConfig.playheadColor}
-                onChange={(e) =>
-                  setPianoRollConfig({ playheadColor: e.target.value })
+                onChange={(value) =>
+                  setPianoRollConfig({ playheadColor: value })
                 }
               />
             }
@@ -262,11 +262,10 @@ export function PianoRollConfigPanel({
             <FormRow
               label={<span>Ripple Color</span>}
               controller={
-                <input
-                  type="color"
+                <ColorPickerButton
                   value={pianoRollConfig.rippleColor}
-                  onChange={(e) => {
-                    setPianoRollConfig({ rippleColor: e.target.value });
+                  onChange={(value) => {
+                    setPianoRollConfig({ rippleColor: value });
                   }}
                 />
               }

@@ -3,6 +3,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ColorPickerButton } from "@/components/common/color-picker-button";
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -92,13 +93,10 @@ export const TrackItem = React.memo(function TrackItem({
               />
             </span>
           </div>
-          <input
-            type="color"
+          <ColorPickerButton
             value={track.config.color}
-            onChange={(e) =>
-              onUpdateTrackConfig(index, { color: e.target.value })
-            }
-            className="col-start-4 cursor-pointer justify-self-end bg-transparent"
+            onChange={(value) => onUpdateTrackConfig(index, { color: value })}
+            className="col-start-4 justify-self-end"
             aria-label="Note color"
           />
 
