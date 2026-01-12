@@ -53,8 +53,14 @@ export function MidiVisualizer({
     syncFromAudioContext,
   } = useAudioPlaybackStore();
   const [expanded, setExpanded] = useState(false);
+  // Keeps control panel visible during any slider interaction
   const [isInteracting, setIsInteracting] = useState(false);
-  const wasPlayingBeforeSeekRef = useRef(false);
+  // Blocks animation updates during seek (separate from isInteracting for panel visibility)
+  const [isSeeking, setIsSeeking] = useState(false);
+  // Tracks playing state before seek interaction (for resuming after seek)
+  const [wasPlayingBeforeSeek, setWasPlayingBeforeSeek] = useState(false);
+  // Show pre-interaction state during seek to avoid button flickering
+  const displayedIsPlaying = isSeeking ? wasPlayingBeforeSeek : isPlaying;
   const [isTouchRevealed, setIsTouchRevealed] = useState(false);
   const touchRevealTimeoutRef = useRef<number>(null);
   const [isMuteRevealed, setIsMuteRevealed] = useState(false);
@@ -99,10 +105,10 @@ export function MidiVisualizer({
   );
 
   const onAnimate = useCallback(() => {
-    if (!isPlaying || isInteracting) return;
+    if (!isPlaying || isSeeking) return;
     syncFromAudioContext();
     invalidate();
-  }, [isPlaying, isInteracting, syncFromAudioContext, invalidate]);
+  }, [isPlaying, isSeeking, syncFromAudioContext, invalidate]);
 
   useAnimationFrame(isPlaying, onAnimate);
 
@@ -288,7 +294,7 @@ export function MidiVisualizer({
           onClickCanvas={handleCanvasClick}
           className="[view-transition-name:visualizer-canvas]"
         />
-        <PlayIcon isPlaying={isPlaying} />
+        <PlayIcon isPlaying={displayedIsPlaying} />
         <div
           className={cn(
             "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
@@ -302,37 +308,41 @@ export function MidiVisualizer({
               max={duration}
               value={[position]}
               step={0.1}
+              onPointerDown={() => {
+                // Capture playing state and stop playback immediately at pointer-down
+                setWasPlayingBeforeSeek(isPlaying);
+                setIsInteracting(true);
+                setIsSeeking(true);
+                // Stop playback at current position (don't commit so we can resume later)
+                invalidateSeek(position, false);
+              }}
               onValueChange={([value], reason) => {
-                if (reason === "pointer-down") {
-                  // Capture playing state at start of interaction to avoid race condition
-                  // (audio might end naturally between pointer-down and drag)
-                  if (isPlaying) {
-                    wasPlayingBeforeSeekRef.current = true;
-                  }
-                  // Click: block animation updates but don't pause playback
-                  setIsInteracting(true);
-                } else if (reason === "drag") {
-                  // Drag: pause playback and show preview
-                  setIsInteracting(true);
+                if (reason === "pointer-down" || reason === "drag") {
+                  // Seek to new position (playback already stopped at pointer-down)
                   invalidateSeek(value, false);
                 }
                 // keyboard: handled only in onValueCommit (seamless)
               }}
               onValueCommit={([value], reason) => {
-                // pointer-down and keyboard use seamless mode (keep playing)
-                invalidateSeek(value, true, reason !== "drag");
-                // Resume playback only after drag if it was playing before
-                if (reason === "drag" && wasPlayingBeforeSeekRef.current) {
-                  togglePlay();
+                if (reason === "keyboard") {
+                  // Keyboard: seamless seek
+                  invalidateSeek(value, true, true);
+                } else {
+                  // pointer-down or drag: commit seek and resume if was playing
+                  invalidateSeek(value, true, false);
+                  if (wasPlayingBeforeSeek) {
+                    togglePlay();
+                  }
                 }
-                wasPlayingBeforeSeekRef.current = false;
+                setWasPlayingBeforeSeek(false);
                 setIsInteracting(false);
+                setIsSeeking(false);
               }}
               className="*:data-[slot=slider-track]:bg-muted/30"
             />
             <div className="flex items-center gap-2">
               <Button onClick={handleTogglePlay} variant="ghost-secondary">
-                {isPlaying ? (
+                {displayedIsPlaying ? (
                   <Pause aria-label="Pause" />
                 ) : (
                   <Play aria-label="Play" />
@@ -354,12 +364,8 @@ export function MidiVisualizer({
                 min={0}
                 max={1}
                 step={0.01}
-                onValueChange={([value], reason) => {
-                  if (reason !== "keyboard") {
-                    setIsInteracting(true);
-                  }
-                  setVolume(value);
-                }}
+                onPointerDown={() => setIsInteracting(true)}
+                onValueChange={([value]) => setVolume(value)}
                 onValueCommit={([value]) => {
                   setVolume(value);
                   setIsInteracting(false);

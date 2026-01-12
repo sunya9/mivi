@@ -11,8 +11,13 @@ type SliderChangeReason = "keyboard" | "pointer-down" | "drag";
 
 interface SliderProps extends Omit<
   React.ComponentProps<typeof SliderPrimitive.Root>,
-  "onValueChange" | "onValueCommit"
+  "onValueChange" | "onValueCommit" | "onPointerDown"
 > {
+  /**
+   * Called when a pointer down occurs on the slider.
+   * Useful for preparing state before value changes.
+   */
+  onPointerDown?: () => void;
   /**
    * Called when the slider value changes.
    * @param value - The new value(s)
@@ -35,6 +40,7 @@ function Slider({
   max = 100,
   "aria-label": ariaLabel,
   "aria-labelledby": ariaLabelledby,
+  onPointerDown,
   onValueChange,
   onValueCommit,
   ...props
@@ -84,6 +90,10 @@ function Slider({
         isPointerDownRef.current = true;
         valueChangeCountRef.current = 0;
         committedRef.current = false;
+        // Initialize lastValueRef with current value so onLostPointerCapture
+        // can call onValueCommit even if no value change occurred
+        lastValueRef.current = _values;
+        onPointerDown?.();
       }}
       onValueChange={(newValue) => {
         const reason = getChangeReason();
