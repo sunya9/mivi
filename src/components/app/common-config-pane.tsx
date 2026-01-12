@@ -21,6 +21,7 @@ import {
   BackgroundImageFit,
   backgroundImageFitOptions,
 } from "@/lib/renderers/renderer";
+import { ColorPickerButton } from "@/components/common/color-picker-button";
 import { FormRow } from "@/components/common/form-row";
 import { InfoTooltip } from "@/components/common/info-tooltip";
 import { DeepPartial } from "@/lib/type-utils";
@@ -71,12 +72,10 @@ export const CommonConfigPane = memo(function CommonConfigPane({
         <FormRow
           label={<span>Background Color</span>}
           controller={
-            <input
-              type="color"
+            <ColorPickerButton
               value={rendererConfig.backgroundColor}
-              className="cursor-pointer bg-transparent"
-              onChange={(e) =>
-                onUpdateRendererConfig({ backgroundColor: e.target.value })
+              onChange={(value) =>
+                onUpdateRendererConfig({ backgroundColor: value })
               }
             />
           }
