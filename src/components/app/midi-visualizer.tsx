@@ -54,8 +54,7 @@ export function MidiVisualizer({
   } = useAudioPlaybackStore();
   const [expanded, setExpanded] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
-  const isMouseSeekingRef = useRef(false);
-  const [wasPlayingBeforeSeek, setWasPlayingBeforeSeek] = useState(false);
+  const wasPlayingBeforeSeekRef = useRef(false);
   const [isTouchRevealed, setIsTouchRevealed] = useState(false);
   const touchRevealTimeoutRef = useRef<number>(null);
   const [isMuteRevealed, setIsMuteRevealed] = useState(false);
@@ -100,10 +99,10 @@ export function MidiVisualizer({
   );
 
   const onAnimate = useCallback(() => {
-    if (!isPlaying) return;
+    if (!isPlaying || isInteracting) return;
     syncFromAudioContext();
     invalidate();
-  }, [isPlaying, syncFromAudioContext, invalidate]);
+  }, [isPlaying, isInteracting, syncFromAudioContext, invalidate]);
 
   useAnimationFrame(isPlaying, onAnimate);
 
@@ -303,33 +302,30 @@ export function MidiVisualizer({
               max={duration}
               value={[position]}
               step={0.1}
-              onPointerDown={() => {
-                isMouseSeekingRef.current = true;
-                setIsInteracting(true);
-                setWasPlayingBeforeSeek(isPlaying);
-              }}
-              onValueChange={([e]) => {
-                // Only do preview seek for mouse drag, not for keyboard
-                // For keyboard, onValueCommit handles everything with seamless seek
-                if (isMouseSeekingRef.current) {
-                  invalidateSeek(e, false);
+              onValueChange={([value], reason) => {
+                if (reason === "pointer-down") {
+                  // Capture playing state at start of interaction to avoid race condition
+                  // (audio might end naturally between pointer-down and drag)
+                  if (isPlaying) {
+                    wasPlayingBeforeSeekRef.current = true;
+                  }
+                  // Click: block animation updates but don't pause playback
+                  setIsInteracting(true);
+                } else if (reason === "drag") {
+                  // Drag: pause playback and show preview
+                  setIsInteracting(true);
+                  invalidateSeek(value, false);
                 }
+                // keyboard: handled only in onValueCommit (seamless)
               }}
-              onValueCommit={([e]) => {
-                // Keyboard seek: seamless (keep playing), Mouse seek: standard
-                const isKeyboardSeek = !isMouseSeekingRef.current;
-                invalidateSeek(e, true, isKeyboardSeek);
-                setIsInteracting(false);
-              }}
-              // https://github.com/radix-ui/primitives/issues/1760#issuecomment-2133137759
-              onLostPointerCapture={() => {
-                isMouseSeekingRef.current = false;
-                // Resume playback if it was playing before seek started
-                // Note: Don't check isPlaying here as it may be stale (React hasn't re-rendered yet)
-                if (wasPlayingBeforeSeek) {
+              onValueCommit={([value], reason) => {
+                // pointer-down and keyboard use seamless mode (keep playing)
+                invalidateSeek(value, true, reason !== "drag");
+                // Resume playback only after drag if it was playing before
+                if (reason === "drag" && wasPlayingBeforeSeekRef.current) {
                   togglePlay();
                 }
-                setWasPlayingBeforeSeek(false);
+                wasPlayingBeforeSeekRef.current = false;
                 setIsInteracting(false);
               }}
               className="*:data-[slot=slider-track]:bg-muted/30"
@@ -358,15 +354,16 @@ export function MidiVisualizer({
                 min={0}
                 max={1}
                 step={0.01}
-                onPointerDown={() => setIsInteracting(true)}
-                onValueChange={([value]) => {
+                onValueChange={([value], reason) => {
+                  if (reason !== "keyboard") {
+                    setIsInteracting(true);
+                  }
                   setVolume(value);
                 }}
                 onValueCommit={([value]) => {
                   setVolume(value);
                   setIsInteracting(false);
                 }}
-                onLostPointerCapture={() => setIsInteracting(false)}
                 aria-label="Volume"
                 className="w-24"
               />
