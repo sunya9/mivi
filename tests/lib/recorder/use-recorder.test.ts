@@ -122,3 +122,33 @@ test("should handle errors during recording", async () => {
     expect(console.error).toBeCalledWith("Failed during recording", error);
   });
 });
+
+test("should show 'Exporting...' toast when starting export", async () => {
+  vi.mocked(runWorker).mockImplementationOnce(
+    () =>
+      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+  );
+  const { result } = renderHook(() => useRecorder(mockProps));
+
+  await act(async () => {
+    await result.current.toggleRecording();
+  });
+
+  expect(toast).toHaveBeenCalledWith("Exporting...");
+});
+
+test("should show success toast when export completes", async () => {
+  vi.mocked(runWorker).mockImplementationOnce(
+    () =>
+      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+  );
+  const { result } = renderHook(() => useRecorder(mockProps));
+
+  await act(async () => {
+    await result.current.toggleRecording();
+  });
+
+  await waitFor(() => {
+    expect(toast.success).toHaveBeenCalledWith("Export completed");
+  });
+});

@@ -223,3 +223,21 @@ html:active-view-transition-type(theme-change) {
     }
   }
 }
+
+html:active-view-transition-type(export-button-change) {
+  &::view-transition-old(export-button),
+  &::view-transition-new(export-button) {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Respect reduced motion preference for export button */
+@media (prefers-reduced-motion: reduce) {
+  html:active-view-transition-type(export-button-change) {
+    &::view-transition-old(export-button),
+    &::view-transition-new(export-button) {
+      animation: none !important;
+    }
+  }
+}
