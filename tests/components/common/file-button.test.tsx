@@ -57,3 +57,18 @@ test("should call setFile with undefined when cancel button is clicked", async (
   await userEvent.click(cancelButton);
   expect(mockSetFile).toHaveBeenCalledExactlyOnceWith(undefined);
 });
+
+test("should show loading state when loading is true", () => {
+  renderFileButton({ loading: true });
+  expect(screen.getByDisplayValue("Loading...")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
+  expect(screen.queryByText("Open")).not.toBeInTheDocument();
+});
+
+test("should call onCancel when cancel button is clicked during loading", async () => {
+  const mockOnCancel = vi.fn();
+  renderFileButton({ loading: true, onCancel: mockOnCancel });
+  const cancelButton = screen.getByRole("button", { name: "Cancel" });
+  await userEvent.click(cancelButton);
+  expect(mockOnCancel).toHaveBeenCalledOnce();
+});

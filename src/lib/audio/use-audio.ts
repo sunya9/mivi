@@ -1,7 +1,7 @@
 import { useAppContext } from "@/contexts/app-context";
 import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { SerializedAudio } from "@/lib/audio/audio";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useCacheContext } from "@/lib/cache/cache-context";
 import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
@@ -25,6 +25,9 @@ export function useAudio() {
   } = useAudioPlaybackStore();
   const cacheContext = useCacheContext();
   const { file: audioFile, setFile } = useIndexedDb(audioDbKey);
+  const [isDecoding, setIsDecoding] = useState(false);
+  // Track current decode operation to handle cancellation
+  const decodeIdRef = useRef(0);
 
   // Load initial audioBuffer from IndexedDB (Suspense pattern)
   // Only runs on initial load - subsequent file changes use setAudioFile
@@ -45,18 +48,29 @@ export function useAudio() {
   const setAudioFile = useCallback(
     async (newAudioFile: File | undefined) => {
       if (newAudioFile) {
+        const currentDecodeId = ++decodeIdRef.current;
+        setIsDecoding(true);
         try {
           const audioBuffer = await createAudioBufferFromFile(
             newAudioFile,
             audioContext,
           );
+          // Ignore result if cancelled (decodeId changed)
+          if (decodeIdRef.current !== currentDecodeId) return;
           // Also update cache to prevent double decode if component re-renders
           cacheContext.setCache(initialAudioBufferCacheKey, audioBuffer);
           setAudioBuffer(audioBuffer);
           await setFile(newAudioFile);
         } catch (error) {
+          // Ignore error if cancelled
+          if (decodeIdRef.current !== currentDecodeId) return;
           console.error("Failed to set audio file", error);
           toast.error("Failed to set audio file");
+        } finally {
+          // Only update state if this is still the current decode operation
+          if (decodeIdRef.current === currentDecodeId) {
+            setIsDecoding(false);
+          }
         }
       } else {
         cacheContext.setCache(initialAudioBufferCacheKey, undefined);
@@ -66,6 +80,11 @@ export function useAudio() {
     },
     [audioContext, cacheContext, setAudioBuffer, setFile],
   );
+
+  const cancelDecode = useCallback(() => {
+    decodeIdRef.current++;
+    setIsDecoding(false);
+  }, []);
 
   const serializedAudio: SerializedAudio | undefined = useMemo(() => {
     if (!audioBuffer) return;
@@ -85,5 +104,7 @@ export function useAudio() {
     setAudioFile,
     serializedAudio,
     audioFile,
+    isDecoding,
+    cancelDecode,
   };
 }
