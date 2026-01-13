@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 const loadValue = <T>(key: string): T | undefined => {
   try {
@@ -14,22 +14,16 @@ const loadValue = <T>(key: string): T | undefined => {
 
 export function useLocalStorage<T>(
   key: string,
-): [T | undefined, (value: T) => void] {
-  const [value, setValueInternal] = useState<T | undefined>(() =>
-    loadValue<T>(key),
-  );
-  const setValue = useCallback(
-    (value?: T) => {
-      if (!value) {
-        localStorage.removeItem(key);
-      } else {
-        const json = JSON.stringify(value);
-        localStorage.setItem(key, json);
-      }
-      setValueInternal(value);
-    },
-    [key],
-  );
+): [T | undefined, Dispatch<SetStateAction<T | undefined>>] {
+  const [value, setValue] = useState<T | undefined>(() => loadValue<T>(key));
+  useEffect(() => {
+    if (!value) {
+      localStorage.removeItem(key);
+    } else {
+      const json = JSON.stringify(value);
+      localStorage.setItem(key, json);
+    }
+  }, [key, value]);
 
   return [value, setValue];
 }

@@ -1,4 +1,5 @@
 import { tailwindDefaultColors } from "@/lib/colors/tailwind-default-colors";
+import { srgbToHex } from "@/lib/colors/srgb";
 import Color from "colorjs.io";
 
 const colorKeys = [
@@ -35,20 +36,12 @@ type Brightness =
   | 900
   | 950;
 
-function toHex(value: number) {
-  const percent = Math.min(Math.max(value, 0), 1);
-  return Math.round(percent * 255)
-    .toString(16)
-    .padStart(2, "0");
-}
-
 function getTailwindColors() {
   const getPropertyValue = (colorKey: ColorKey, brightness: Brightness) => {
     const key = `--color-${colorKey}-${brightness}` as const;
     const oklch = tailwindDefaultColors[key];
     const [r, g, b] = new Color(oklch).srgb;
-    const hex = `#${toHex(r ?? 0)}${toHex(g ?? 0)}${toHex(b ?? 0)}` as const;
-    return hex;
+    return srgbToHex(r ?? 0, g ?? 0, b ?? 0);
   };
   return colorKeys.map((color) => ({
     50: getPropertyValue(color, 50),

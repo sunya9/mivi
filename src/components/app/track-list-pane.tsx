@@ -1,4 +1,5 @@
 import { TrackItem } from "./track-item";
+import { HueRandomizeDialog } from "./hue-randomize-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,11 +11,12 @@ import {
 import { FileButton } from "@/components/common/file-button";
 import { FormRow } from "@/components/common/form-row";
 import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
-import React, { useCallback, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useState } from "react";
 import {
   getRandomTailwindColor,
   getRandomTailwindColorPalette,
 } from "@/lib/colors/tailwind-colors";
+import { hslToHex, generateGoldenAngleHues } from "@/lib/colors/hsl";
 import {
   InputGroup,
   InputGroupAddon,
@@ -46,10 +48,36 @@ import {
 
 interface Props {
   midiTracks?: MidiTracks;
-  setMidiTracks: (midiTracks: MidiTracks) => void;
+  setMidiTracks: Dispatch<SetStateAction<MidiTracks | undefined>>;
   midiFilename?: string;
   onChangeMidiFile: (file: File | undefined) => void;
 }
+
+function useRandomizeColorsHue(
+  setMidiTracks: Dispatch<SetStateAction<MidiTracks | undefined>>,
+) {
+  return useCallback(
+    (saturation: number, lightness: number) => {
+      setMidiTracks((midiTracks) => {
+        if (!midiTracks) return;
+        const hues = generateGoldenAngleHues(midiTracks.tracks.length);
+        const newTracks = midiTracks.tracks.map((track, index) => ({
+          ...track,
+          config: {
+            ...track.config,
+            color: hslToHex(hues[index], saturation, lightness),
+          },
+        }));
+        return {
+          ...midiTracks,
+          tracks: newTracks,
+        };
+      });
+    },
+    [setMidiTracks],
+  );
+}
+
 export const TrackListPane = React.memo(function TrackListPane({
   midiTracks,
   setMidiTracks,
@@ -59,6 +87,9 @@ export const TrackListPane = React.memo(function TrackListPane({
   const [offsetInputValue, setOffsetInputValue] = useState(
     () => `${midiTracks?.midiOffset || 0}`,
   );
+  const [hslDialogOpen, setHslDialogOpen] = useState(false);
+
+  const randomizeColorsHue = useRandomizeColorsHue(setMidiTracks);
 
   const onMidiOffsetChange = useCallback(
     (offset: number) => {
@@ -220,8 +251,16 @@ export const TrackListPane = React.memo(function TrackListPane({
                 >
                   Randomize (gradient)
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setHslDialogOpen(true)}>
+                  Randomize (Hue)
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <HueRandomizeDialog
+              open={hslDialogOpen}
+              onOpenChange={setHslDialogOpen}
+              onConfirm={randomizeColorsHue}
+            />
           </CardFooter>
         </>
       )}
