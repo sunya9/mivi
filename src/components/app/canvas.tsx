@@ -6,7 +6,7 @@ import {
   useLayoutEffect,
   useRef,
 } from "react";
-import { useResizeDetector } from "react-resize-detector";
+import { OnResizeCallback, useResizeDetector } from "react-resize-detector";
 
 interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   aspectRatio: number;
@@ -24,44 +24,35 @@ export function Canvas({
   invalidate,
   ...props
 }: Props) {
-  const ref = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const resizeCanvas = useCallback(() => {
-    if (!ref.current) return;
-    const width = ref.current.clientWidth;
-    // if width is 0, the canvas is not visible
-    if (!width) return;
-    const calculatedHeight = width * aspectRatio;
-    const canvasWidth = width * window.devicePixelRatio;
-    const canvasHeight = calculatedHeight * window.devicePixelRatio;
-    ref.current.width = canvasWidth;
-    ref.current.height = canvasHeight;
-  }, [aspectRatio]);
-  const resizeCanvasEffect = useEffectEvent(resizeCanvas);
+  const onResize: OnResizeCallback = useCallback(
+    ({ width }) => {
+      if (!canvasRef.current) return;
+      if (!width) return;
+      canvasRef.current.width = width * window.devicePixelRatio;
+      canvasRef.current.height = width * aspectRatio * window.devicePixelRatio;
+      invalidate();
+    },
+    [aspectRatio, invalidate],
+  );
 
-  const onResize = useCallback(() => {
-    resizeCanvas();
-    invalidate();
-  }, [resizeCanvas, invalidate]);
-  useResizeDetector({
+  const { ref: containerRef } = useResizeDetector<HTMLDivElement>({
     onResize,
-    targetRef: ref,
   });
 
-  const onInitEffectEvent = useEffectEvent(onInit);
-  useLayoutEffect(() => {
-    if (!ref.current) return;
-    const ctx = ref.current.getContext("2d");
-    if (!ctx) throw new Error("Failed to get canvas context");
-    onInitEffectEvent(ctx);
-  }, []);
+  const onInitEffect = useEffectEvent(onInit);
 
   useLayoutEffect(() => {
-    resizeCanvasEffect();
+    if (!canvasRef.current) return;
+    const ctx = canvasRef.current.getContext("2d");
+    if (!ctx) throw new Error("Failed to get canvas context");
+    onInitEffect(ctx);
   }, []);
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "h-full w-full",
         "flex items-center justify-center",
@@ -73,7 +64,7 @@ export function Canvas({
       )}
     >
       <canvas
-        ref={ref}
+        ref={canvasRef}
         className={cn("h-auto max-h-full w-full object-contain", className)}
         aria-label="Visualized Midi"
         style={{
