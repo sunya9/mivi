@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import { CometConfigPanel } from "@/lib/renderers/comet/comet-config-panel";
 import { customRender } from "../../../util";
-import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
+import { testMidiTracks, rendererConfig } from "tests/fixtures";
 import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
 type Props = ComponentProps<typeof CometConfigPanel>;
@@ -13,8 +13,8 @@ function renderPane(overrideProps?: Props) {
     <CometConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
       cometConfig={cometConfig}
-      minNote={expectedMidiTracks.minNote}
-      maxNote={expectedMidiTracks.maxNote}
+      minNote={testMidiTracks.minNote}
+      maxNote={testMidiTracks.maxNote}
       {...overrideProps}
     />,
   );

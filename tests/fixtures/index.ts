@@ -14,7 +14,7 @@ const midiFile = new File([midiBuffer], midiFilename, {
   type: "audio/midi",
 });
 
-const expectedMidiTracks: MidiTracks = {
+const testMidiTracks: MidiTracks = {
   hash: midiHash,
   instanceKey: "test-instance-key",
   duration: 4,
@@ -131,7 +131,7 @@ const audioBuffer = audioContext.createBuffer(2, 22050, 44100);
 const rendererConfig: RendererConfig = getDefaultRendererConfig();
 
 const resources: RecorderResources = {
-  midiTracks: expectedMidiTracks,
+  midiTracks: testMidiTracks,
   serializedAudio: {
     channels: [new Float32Array(1), new Float32Array(1)],
     duration: 1,
@@ -144,7 +144,7 @@ const resources: RecorderResources = {
 
 export {
   midiFile,
-  expectedMidiTracks,
+  testMidiTracks,
   audioFile,
   invalidFile,
   rendererConfig,

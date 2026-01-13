@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import { describe, expect, test, vi } from "vitest";
 import { PianoRollConfigPanel } from "@/lib/renderers/piano-roll/piano-roll-config-panel";
 import { customRender } from "tests/util";
-import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
+import { testMidiTracks, rendererConfig } from "tests/fixtures";
 import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
 
@@ -15,8 +15,8 @@ function renderPane(overrideProps?: Partial<Props>) {
     <PianoRollConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
       pianoRollConfig={pianoRollConfig}
-      minNote={expectedMidiTracks.minNote}
-      maxNote={expectedMidiTracks.maxNote}
+      minNote={testMidiTracks.minNote}
+      maxNote={testMidiTracks.maxNote}
       {...overrideProps}
     />,
   );

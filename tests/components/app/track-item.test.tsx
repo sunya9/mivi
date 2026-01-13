@@ -2,12 +2,12 @@ import { expect, vi, test, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TrackItem } from "@/components/app/track-item";
 import { MidiTrack } from "@/lib/midi/midi";
-import { expectedMidiTracks } from "tests/fixtures";
+import { testMidiTracks } from "tests/fixtures";
 import userEvent from "@testing-library/user-event";
 import { DndContext } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
 
-const mockTrack: MidiTrack = expectedMidiTracks.tracks[0];
+const mockTrack: MidiTrack = testMidiTracks.tracks[0];
 
 const mockOnUpdateTrackConfig = vi.fn();
 

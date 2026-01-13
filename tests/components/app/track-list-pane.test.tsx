@@ -1,7 +1,7 @@
 import { expect, test, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { TrackListPane } from "@/components/app/track-list-pane";
-import { expectedMidiTracks } from "tests/fixtures";
+import { testMidiTracks } from "tests/fixtures";
 import { MidiTracks } from "@/lib/midi/midi";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
@@ -29,20 +29,20 @@ test("should render MIDI file selection form when no tracks are provided", () =>
 });
 
 test("should render track list when tracks are provided", () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   expect(screen.getByText("Tracks")).toBeInTheDocument();
   expect(screen.getByText("Acoustic Piano - Full")).toBeInTheDocument();
 });
 
 test("should render color presets dropdown when tracks are provided", () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   expect(screen.getByText("Color presets")).toBeInTheDocument();
 });
 
 test("should call setMidiTracks with all white colors when All white is selected", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const dropdownButton = screen.getByText("Color presets");
   await userEvent.click(dropdownButton);
@@ -57,7 +57,7 @@ test("should call setMidiTracks with all white colors when All white is selected
 });
 
 test("should call setMidiTracks with all black colors when All black is selected", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const dropdownButton = screen.getByText("Color presets");
   await userEvent.click(dropdownButton);
@@ -72,7 +72,7 @@ test("should call setMidiTracks with all black colors when All black is selected
 });
 
 test("should call setMidiTracks with new colors when Randomize (colorful) is selected", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const dropdownButton = screen.getByText("Color presets");
   await userEvent.click(dropdownButton);
@@ -85,7 +85,7 @@ test("should call setMidiTracks with new colors when Randomize (colorful) is sel
 });
 
 test("should call setMidiTracks with new colors when Randomize (gradient) is selected", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const dropdownButton = screen.getByText("Color presets");
   await userEvent.click(dropdownButton);
@@ -98,7 +98,7 @@ test("should call setMidiTracks with new colors when Randomize (gradient) is sel
 });
 
 test("should update track config when TrackItem triggers update", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   // TrackItemのvisibilityスイッチをクリック
   const switchElement = screen.getByRole("switch");
@@ -111,7 +111,7 @@ test("should update track config when TrackItem triggers update", async () => {
 });
 
 test("should render MIDI offset input when tracks are provided", () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   expect(screen.getByText("MIDI Offset (s)")).toBeInTheDocument();
   const offsetInput = screen.getByRole("spinbutton", {
@@ -125,7 +125,7 @@ test("should render MIDI offset input when tracks are provided", () => {
 });
 
 test("should increment MIDI offset when plus button is clicked", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const incrementButton = screen.getByLabelText("Increase offset");
   await userEvent.click(incrementButton);
@@ -139,7 +139,7 @@ test("should increment MIDI offset when plus button is clicked", async () => {
 });
 
 test("should decrement MIDI offset when minus button is clicked", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const decrementButton = screen.getByLabelText("Decrease offset");
   await userEvent.click(decrementButton);
@@ -153,7 +153,7 @@ test("should decrement MIDI offset when minus button is clicked", async () => {
 });
 
 test("should update MIDI offset when value is directly entered", () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const offsetInput = screen.getByRole("spinbutton", {
     name: "MIDI Offset (s)",
@@ -167,7 +167,7 @@ test("should update MIDI offset when value is directly entered", () => {
 });
 
 test("should allow negative MIDI offset values", () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const offsetInput = screen.getByRole("spinbutton", {
     name: "MIDI Offset (s)",
@@ -182,7 +182,7 @@ test("should allow negative MIDI offset values", () => {
 
 test("should reset MIDI offset to 0 when input is cleared and blurred", async () => {
   const midiTracksWithOffset: MidiTracks = {
-    ...expectedMidiTracks,
+    ...testMidiTracks,
     midiOffset: 1.5,
   };
   renderTrackListPane({ midiTracks: midiTracksWithOffset });
@@ -207,22 +207,22 @@ test("should not render MIDI offset input when no tracks are provided", () => {
 
 test("should render drag handles for each track", () => {
   const multiTrackMidi: MidiTracks = {
-    ...expectedMidiTracks,
+    ...testMidiTracks,
     tracks: [
       {
-        ...expectedMidiTracks.tracks[0],
+        ...testMidiTracks.tracks[0],
         id: "track-1",
-        config: { ...expectedMidiTracks.tracks[0].config, name: "Track 1" },
+        config: { ...testMidiTracks.tracks[0].config, name: "Track 1" },
       },
       {
-        ...expectedMidiTracks.tracks[0],
+        ...testMidiTracks.tracks[0],
         id: "track-2",
-        config: { ...expectedMidiTracks.tracks[0].config, name: "Track 2" },
+        config: { ...testMidiTracks.tracks[0].config, name: "Track 2" },
       },
       {
-        ...expectedMidiTracks.tracks[0],
+        ...testMidiTracks.tracks[0],
         id: "track-3",
-        config: { ...expectedMidiTracks.tracks[0].config, name: "Track 3" },
+        config: { ...testMidiTracks.tracks[0].config, name: "Track 3" },
       },
     ],
   };
@@ -237,18 +237,18 @@ test("should render drag handles for each track", () => {
 
 test("should render tracks in correct order", () => {
   const multiTrackMidi: MidiTracks = {
-    ...expectedMidiTracks,
+    ...testMidiTracks,
     tracks: [
       {
-        ...expectedMidiTracks.tracks[0],
+        ...testMidiTracks.tracks[0],
         id: "track-1",
-        config: { ...expectedMidiTracks.tracks[0].config, name: "First Track" },
+        config: { ...testMidiTracks.tracks[0].config, name: "First Track" },
       },
       {
-        ...expectedMidiTracks.tracks[0],
+        ...testMidiTracks.tracks[0],
         id: "track-2",
         config: {
-          ...expectedMidiTracks.tracks[0].config,
+          ...testMidiTracks.tracks[0].config,
           name: "Second Track",
         },
       },
@@ -263,7 +263,7 @@ test("should render tracks in correct order", () => {
 });
 
 test("should show Randomize (Hue) option in color presets dropdown", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const dropdownButton = screen.getByText("Color presets");
   await userEvent.click(dropdownButton);
@@ -272,7 +272,7 @@ test("should show Randomize (Hue) option in color presets dropdown", async () =>
 });
 
 test("should open HueRandomizeDialog when Randomize (Hue) is selected", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   const dropdownButton = screen.getByText("Color presets");
   await userEvent.click(dropdownButton);
@@ -289,7 +289,7 @@ test("should call setMidiTracks with hue-randomized colors when Apply is clicked
     JSON.stringify({ s: 100, l: 50 }),
   );
   // h = 0, s = 100, l = 50 -> #ff0000
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   // Open dialog
   const dropdownButton = screen.getByText("Color presets");
@@ -307,17 +307,17 @@ test("should call setMidiTracks with hue-randomized colors when Apply is clicked
   ) => MidiTracks;
 
   // Call the function with current midiTracks to get the result
-  const newMidiTracks = setStateArg(expectedMidiTracks);
+  const newMidiTracks = setStateArg(testMidiTracks);
 
   // Verify all tracks have valid hex colors
-  expect(newMidiTracks.tracks.length).toBe(expectedMidiTracks.tracks.length);
+  expect(newMidiTracks.tracks.length).toBe(testMidiTracks.tracks.length);
   for (const track of newMidiTracks.tracks) {
     expect(track.config.color).toBe("#ff0000");
   }
 });
 
 test("should reset dialog values when cancelled and reopened", async () => {
-  renderTrackListPane({ midiTracks: expectedMidiTracks });
+  renderTrackListPane({ midiTracks: testMidiTracks });
 
   // Open dialog
   const dropdownButton = screen.getByText("Color presets");

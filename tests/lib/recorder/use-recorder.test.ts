@@ -3,7 +3,7 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
 import { SerializedAudio } from "@/lib/audio/audio";
-import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
+import { testMidiTracks, rendererConfig } from "tests/fixtures";
 import { runWorker } from "@/lib/media-compositor/run-worker";
 
 vi.mock("@/lib/media-compositor/run-worker", { spy: true });
@@ -19,7 +19,7 @@ const mockSerializedAudio: SerializedAudio = {
 
 const mockProps: Parameters<typeof useRecorder>[0] = {
   serializedAudio: mockSerializedAudio,
-  midiTracks: expectedMidiTracks,
+  midiTracks: testMidiTracks,
   rendererConfig: rendererConfig,
 };
 

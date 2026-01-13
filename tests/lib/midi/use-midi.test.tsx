@@ -2,7 +2,7 @@ import { test, expect, vi } from "vitest";
 import { renderHook, act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useMidi } from "@/lib/midi/use-midi";
-import { expectedMidiTracks, midiFile } from "tests/fixtures";
+import { testMidiTracks, midiFile } from "tests/fixtures";
 import { MidiTracks } from "@/lib/midi/midi";
 
 function TestComponent() {
@@ -36,10 +36,10 @@ test("returns initial state", () => {
 });
 
 test("loads midiTracks from local storage", () => {
-  localStorage.setItem("mivi:midi-tracks", JSON.stringify(expectedMidiTracks));
+  localStorage.setItem("mivi:midi-tracks", JSON.stringify(testMidiTracks));
   const { result } = renderHook(() => useMidi());
 
-  expect(result.current.midiTracks).toEqual(expectedMidiTracks);
+  expect(result.current.midiTracks).toEqual(testMidiTracks);
 });
 
 test("loads and processes MIDI file", async () => {
@@ -50,7 +50,7 @@ test("loads and processes MIDI file", async () => {
   });
 
   const { instanceKey, ...rest } = result.current.midiTracks!;
-  const { instanceKey: _, ...expectedRest } = expectedMidiTracks;
+  const { instanceKey: _, ...expectedRest } = testMidiTracks;
   expect(rest).toEqual(expectedRest);
   expect(typeof instanceKey).toBe("string");
   expect(instanceKey.length).toBeGreaterThan(0);
@@ -82,12 +82,12 @@ test("setMidiTracks updates midiTracks", () => {
   const { result } = renderHook(() => useMidi());
 
   act(() => {
-    result.current.setMidiTracks(expectedMidiTracks);
+    result.current.setMidiTracks(testMidiTracks);
   });
 
   const newMidiTracks: MidiTracks = {
-    ...expectedMidiTracks,
-    tracks: expectedMidiTracks.tracks.map((track) => ({
+    ...testMidiTracks,
+    tracks: testMidiTracks.tracks.map((track) => ({
       ...track,
       config: {
         ...track.config,

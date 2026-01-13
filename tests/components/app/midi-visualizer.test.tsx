@@ -3,7 +3,7 @@ import { screen } from "@testing-library/react";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
-import { expectedMidiTracks, rendererConfig } from "tests/fixtures";
+import { testMidiTracks, rendererConfig } from "tests/fixtures";
 import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 import { RendererController } from "@/components/app/renderer-controller";
 import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
@@ -181,7 +181,7 @@ test("should call render when midiTracks changes", () => {
   const { rerender } = customRender(
     <MidiVisualizer
       rendererConfig={rendererConfig}
-      midiTracks={expectedMidiTracks}
+      midiTracks={testMidiTracks}
     />,
   );
 
@@ -189,8 +189,8 @@ test("should call render when midiTracks changes", () => {
 
   // Update midiTracks with different color
   const updatedMidiTracks = {
-    ...expectedMidiTracks,
-    tracks: expectedMidiTracks.tracks.map((track) => ({
+    ...testMidiTracks,
+    tracks: testMidiTracks.tracks.map((track) => ({
       ...track,
       config: { ...track.config, color: "#000000" },
     })),
