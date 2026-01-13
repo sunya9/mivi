@@ -42,15 +42,15 @@ test("should call onRedraw when canvas is resized", async () => {
         this.callback(
           [
             {
-              borderBoxSize: [{ blockSize: 0, inlineSize: 0 }],
-              contentBoxSize: [{ blockSize: 0, inlineSize: 0 }],
+              borderBoxSize: [{ blockSize: 100, inlineSize: 100 }],
+              contentBoxSize: [{ blockSize: 100, inlineSize: 100 }],
               contentRect: DOMRectReadOnly.fromRect({
                 x: 0,
                 y: 0,
-                width: 0,
-                height: 0,
+                width: 100,
+                height: 100,
               }),
-              devicePixelContentBoxSize: [{ blockSize: 0, inlineSize: 0 }],
+              devicePixelContentBoxSize: [{ blockSize: 100, inlineSize: 100 }],
               target: element,
             },
           ],
@@ -68,8 +68,10 @@ test("should call onRedraw when canvas is resized", async () => {
 
   const canvas = findCanvas();
   expect(canvas).toBeInTheDocument();
+  // Get the container div (parent of canvas) which is now observed by useResizeDetector
+  const container = canvas.parentElement!;
   await waitFor(() => {
-    resizeCallback?.(canvas);
+    resizeCallback?.(container);
     expect(mockInvalidate).toHaveBeenCalledExactlyOnceWith();
   });
 });
