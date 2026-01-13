@@ -1,20 +1,8 @@
-import { expect, test, vi, beforeEach } from "vitest";
+import { expect, test, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HueRandomizeDialog } from "@/components/app/hue-randomize-dialog";
 import { customRender } from "tests/util";
-
-let mockStorageValue: { s: number; l: number } | undefined = undefined;
-const mockSetStorageValue = vi.fn();
-
-vi.mock("@/hooks/use-local-storage", () => ({
-  useLocalStorage: () => [mockStorageValue, mockSetStorageValue],
-}));
-
-beforeEach(() => {
-  mockStorageValue = undefined;
-  mockSetStorageValue.mockClear();
-});
 
 test("renders dialog when open is true", () => {
   customRender(
@@ -55,8 +43,10 @@ test("displays default saturation and lightness values when no localStorage valu
 });
 
 test("displays localStorage values when available", () => {
-  mockStorageValue = { s: 80, l: 70 };
-
+  localStorage.setItem(
+    "mivi:hue-randomize-sl",
+    JSON.stringify({ s: 80, l: 70 }),
+  );
   customRender(
     <HueRandomizeDialog
       open={true}
@@ -178,7 +168,9 @@ test("Apply button calls onConfirm with current values and saves to localStorage
   await userEvent.click(screen.getByRole("button", { name: /apply/i }));
 
   expect(onConfirm).toHaveBeenCalledWith(100, 60);
-  expect(mockSetStorageValue).toHaveBeenCalledWith({ s: 100, l: 60 });
+  expect(localStorage.getItem("mivi:hue-randomize-sl")).toBe(
+    JSON.stringify({ s: 100, l: 60 }),
+  );
   expect(onOpenChange).toHaveBeenCalledWith(false);
 });
 
@@ -197,8 +189,10 @@ test("Cancel button closes dialog without calling onConfirm or saving", async ()
   await userEvent.click(screen.getByRole("button", { name: /cancel/i }));
 
   expect(onConfirm).not.toHaveBeenCalled();
-  expect(mockSetStorageValue).not.toHaveBeenCalled();
-  // DialogClose triggers onOpenChange(false) via the Dialog's onOpenChange
+  expect(localStorage.getItem("mivi:hue-randomize-sl")).not.toBe(
+    JSON.stringify({ s: 100, l: 60 }),
+  );
+  expect(onOpenChange).toHaveBeenCalledWith(false);
 });
 
 test("renders saturation and lightness sliders with correct labels", () => {
