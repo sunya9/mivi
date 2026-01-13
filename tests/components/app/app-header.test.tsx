@@ -31,8 +31,9 @@ test("shows recording state UI when recording", () => {
 
   const progressbar = screen.getByRole("progressbar");
   expect(
-    screen.getByRole("button", { name: "Stop export" }),
+    screen.getByRole("button", { name: /Stop export/ }),
   ).toBeInTheDocument();
+  expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
   expect(progressbar).toHaveValue(50);
 });
 

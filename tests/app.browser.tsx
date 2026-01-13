@@ -36,7 +36,10 @@ test("complete happy path", async () => {
 
   const downloadPromise = commands.waitForDownload();
   await screen.getByRole("button", { name: "Start export" }).click();
-  await expect.element(screen.getByText("Exporting…")).toBeInTheDocument();
+  // During export, the button shows "Stop export" with a spinner
+  await expect
+    .element(screen.getByRole("button", { name: /Stop export/ }))
+    .toBeInTheDocument();
   const download = await downloadPromise;
   // @ts-expect-error: ???
   expect(download._suggestedFilename).toBe("mivi-test.mid.webm");

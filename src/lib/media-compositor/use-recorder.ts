@@ -30,6 +30,8 @@ export function useRecorder(resources: PartialRecorderResources) {
           progress < 1 ? new RecordingState(progress) : new ReadyState(),
         );
       };
+      toast("Exporting...");
+
       return runWorker(
         {
           ...resources,
@@ -47,6 +49,7 @@ export function useRecorder(resources: PartialRecorderResources) {
           a.download = `mivi-${midiTracks.name}.${resources.rendererConfig.format}`;
           a.click();
           URL.revokeObjectURL(url);
+          toast.success("Export completed");
         })
         .catch((error) => {
           const message =
