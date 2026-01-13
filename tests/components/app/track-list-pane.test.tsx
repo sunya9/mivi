@@ -281,3 +281,69 @@ test("should open HueRandomizeDialog when Randomize (Hue) is selected", async ()
   expect(screen.getByRole("dialog")).toBeInTheDocument();
   expect(screen.getByText("Randomize Hue")).toBeInTheDocument();
 });
+
+test("should call setMidiTracks with hue-randomized colors when Apply is clicked in HueRandomizeDialog", async () => {
+  vi.spyOn(Math, "random").mockReturnValue(0);
+  localStorage.setItem(
+    "mivi:hue-randomize-sl",
+    JSON.stringify({ s: 100, l: 50 }),
+  );
+  // h = 0, s = 100, l = 50 -> #ff0000
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
+
+  // Open dialog
+  const dropdownButton = screen.getByText("Color presets");
+  await userEvent.click(dropdownButton);
+  await userEvent.click(screen.getByText("Randomize (Hue)"));
+
+  // Click Apply button
+  await userEvent.click(screen.getByRole("button", { name: /apply/i }));
+
+  // setMidiTracks is called with a function (functional setState pattern)
+  expect(mockSetMidiTracks).toHaveBeenCalled();
+  const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
+  const setStateArg = mockSetMidiTracks.mock.calls[lastCallIndex][0] as (
+    prev: MidiTracks,
+  ) => MidiTracks;
+
+  // Call the function with current midiTracks to get the result
+  const newMidiTracks = setStateArg(expectedMidiTracks);
+
+  // Verify all tracks have valid hex colors
+  expect(newMidiTracks.tracks.length).toBe(expectedMidiTracks.tracks.length);
+  for (const track of newMidiTracks.tracks) {
+    expect(track.config.color).toBe("#ff0000");
+  }
+});
+
+test("should reset dialog values when cancelled and reopened", async () => {
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
+
+  // Open dialog
+  const dropdownButton = screen.getByText("Color presets");
+  await userEvent.click(dropdownButton);
+  await userEvent.click(screen.getByText("Randomize (Hue)"));
+
+  // Default values should be 100% saturation and 50% lightness
+  expect(screen.getByText("100%")).toBeInTheDocument();
+  expect(screen.getByText("50%")).toBeInTheDocument();
+
+  // Change values by clicking dark preset (s=80, l=30)
+  await userEvent.click(screen.getByRole("button", { name: /dark/i }));
+  expect(screen.getByText("80%")).toBeInTheDocument();
+  expect(screen.getByText("30%")).toBeInTheDocument();
+
+  // Cancel the dialog
+  await userEvent.click(screen.getByRole("button", { name: /cancel/i }));
+
+  // Dialog should be closed
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+  // Reopen dialog
+  await userEvent.click(dropdownButton);
+  await userEvent.click(screen.getByText("Randomize (Hue)"));
+
+  // Values should be reset to defaults (100% and 50%)
+  expect(screen.getByText("100%")).toBeInTheDocument();
+  expect(screen.getByText("50%")).toBeInTheDocument();
+});
