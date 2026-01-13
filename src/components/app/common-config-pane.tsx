@@ -34,6 +34,8 @@ interface Props {
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
   audioFilename?: string;
   onChangeAudioFile: (file: File | undefined) => void;
+  isAudioDecoding?: boolean;
+  onCancelAudioDecode?: () => void;
   backgroundImageFilename?: string;
   onChangeBackgroundImage: (file: File | undefined) => void;
 }
@@ -43,6 +45,8 @@ export const CommonConfigPane = memo(function CommonConfigPane({
   onUpdateRendererConfig,
   audioFilename,
   onChangeAudioFile,
+  isAudioDecoding,
+  onCancelAudioDecode,
   backgroundImageFilename,
   onChangeBackgroundImage,
 }: Props) {
@@ -54,13 +58,17 @@ export const CommonConfigPane = memo(function CommonConfigPane({
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-2">
-        <FileButton
-          filename={audioFilename}
-          setFile={onChangeAudioFile}
-          accept="audio/*"
-          placeholder="Choose Audio file"
-          cancelLabel="Cancel audio file"
-        />
+        <div className="relative">
+          <FileButton
+            filename={audioFilename}
+            setFile={onChangeAudioFile}
+            accept="audio/*"
+            placeholder="Choose Audio file"
+            cancelLabel="Cancel audio file"
+            loading={isAudioDecoding}
+            onCancel={onCancelAudioDecode}
+          />
+        </div>
       </CardContent>
 
       <CardHeader>

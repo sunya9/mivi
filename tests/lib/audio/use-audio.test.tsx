@@ -144,3 +144,78 @@ test("handles audio file loading errors", async () => {
   expect(result.current.serializedAudio).toBeUndefined();
   expect(result.current.audioFile).toBeUndefined();
 });
+
+test("isDecoding is false initially", async () => {
+  const { result } = customRenderHook(() => useAudio());
+  await waitFor(() => expect(result.current).not.toBeNull());
+  expect(result.current.isDecoding).toBe(false);
+});
+
+test("isDecoding is true while decoding and false after completion", async () => {
+  const audioContext = new AudioContext();
+  let resolveDecodeAudioData: (value: AudioBuffer) => void;
+  const decodePromise = new Promise<AudioBuffer>((resolve) => {
+    resolveDecodeAudioData = resolve;
+  });
+  audioContext.decodeAudioData = vi.fn().mockReturnValue(decodePromise);
+
+  const { result } = renderHook(() => useAudio(), {
+    wrapper: ({ children }) => (
+      <TestWrapper audioContext={audioContext}>{children}</TestWrapper>
+    ),
+  });
+
+  await waitFor(() => expect(result.current).not.toBeNull());
+  expect(result.current.isDecoding).toBe(false);
+
+  // Start decoding (don't await)
+  const setAudioFilePromise = result.current.setAudioFile(audioFile);
+
+  // isDecoding should be true while decoding
+  await waitFor(() => expect(result.current.isDecoding).toBe(true));
+
+  // Resolve the decode
+  resolveDecodeAudioData!(audioContext.createBuffer(2, 44100, 44100));
+  await setAudioFilePromise;
+
+  // isDecoding should be false after completion
+  await waitFor(() => expect(result.current.isDecoding).toBe(false));
+});
+
+test("cancelDecode stops decoding and ignores the result", async () => {
+  const audioContext = new AudioContext();
+  let resolveDecodeAudioData: (value: AudioBuffer) => void;
+  const decodePromise = new Promise<AudioBuffer>((resolve) => {
+    resolveDecodeAudioData = resolve;
+  });
+  audioContext.decodeAudioData = vi.fn().mockReturnValue(decodePromise);
+
+  const { result } = renderHook(() => useAudio(), {
+    wrapper: ({ children }) => (
+      <TestWrapper audioContext={audioContext}>{children}</TestWrapper>
+    ),
+  });
+
+  await waitFor(() => expect(result.current).not.toBeNull());
+
+  // Start decoding (don't await)
+  void result.current.setAudioFile(audioFile);
+
+  // Wait for isDecoding to become true
+  await waitFor(() => expect(result.current.isDecoding).toBe(true));
+
+  // Cancel the decode
+  result.current.cancelDecode();
+
+  // isDecoding should be false after cancel
+  await waitFor(() => expect(result.current.isDecoding).toBe(false));
+
+  // Resolve the decode after cancel
+  resolveDecodeAudioData!(audioContext.createBuffer(2, 44100, 44100));
+
+  // Wait a bit to ensure the result is ignored
+  await new Promise((resolve) => setTimeout(resolve, 50));
+
+  // audioBuffer should still be undefined because the result was ignored
+  expect(result.current.audioBuffer).toBeUndefined();
+});

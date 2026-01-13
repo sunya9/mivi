@@ -6,6 +6,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { CircleXIcon } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface Props {
   filename: string | undefined;
@@ -13,6 +14,8 @@ interface Props {
   accept: string;
   placeholder: string;
   cancelLabel: string;
+  loading?: boolean;
+  onCancel?: () => void;
 }
 
 export function FileButton({
@@ -21,6 +24,8 @@ export function FileButton({
   accept,
   placeholder,
   cancelLabel,
+  loading,
+  onCancel,
 }: Props) {
   const onChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,29 +41,43 @@ export function FileButton({
   const handleClick = useCallback(() => {
     fileRef.current?.click();
   }, []);
-  return (
-    <InputGroup>
-      <input
-        aria-label={placeholder}
-        ref={fileRef}
-        type="file"
-        accept={accept}
-        onChange={onChangeFile}
-        className="hidden"
-      />
-      <InputGroupInput readOnly value={filename || placeholder} />
-      <InputGroupAddon align="inline-end">
-        {filename && (
-          <InputGroupButton
-            onClick={() => setFile(undefined)}
-            size="icon-xs"
-            aria-label={cancelLabel}
-          >
-            <CircleXIcon />
-          </InputGroupButton>
-        )}
-        <InputGroupButton onClick={handleClick}>Open</InputGroupButton>
-      </InputGroupAddon>
-    </InputGroup>
-  );
+  if (loading) {
+    return (
+      <InputGroup>
+        <InputGroupInput readOnly value="Loading..." disabled />
+        <InputGroupAddon>
+          <Spinner />
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton onClick={onCancel}>Cancel</InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+    );
+  } else {
+    return (
+      <InputGroup>
+        <input
+          aria-label={placeholder}
+          ref={fileRef}
+          type="file"
+          accept={accept}
+          onChange={onChangeFile}
+          className="hidden"
+        />
+        <InputGroupInput readOnly value={filename || placeholder} />
+        <InputGroupAddon align="inline-end">
+          {filename && (
+            <InputGroupButton
+              onClick={() => setFile(undefined)}
+              size="icon-xs"
+              aria-label={cancelLabel}
+            >
+              <CircleXIcon />
+            </InputGroupButton>
+          )}
+          <InputGroupButton onClick={handleClick}>Open</InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+    );
+  }
 }
