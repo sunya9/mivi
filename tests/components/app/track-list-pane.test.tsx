@@ -261,3 +261,23 @@ test("should render tracks in correct order", () => {
   expect(trackNames[0]).toHaveTextContent("First Track");
   expect(trackNames[1]).toHaveTextContent("Second Track");
 });
+
+test("should show Randomize (Hue) option in color presets dropdown", async () => {
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
+
+  const dropdownButton = screen.getByText("Color presets");
+  await userEvent.click(dropdownButton);
+
+  expect(screen.getByText("Randomize (Hue)")).toBeInTheDocument();
+});
+
+test("should open HueRandomizeDialog when Randomize (Hue) is selected", async () => {
+  renderTrackListPane({ midiTracks: expectedMidiTracks });
+
+  const dropdownButton = screen.getByText("Color presets");
+  await userEvent.click(dropdownButton);
+  await userEvent.click(screen.getByText("Randomize (Hue)"));
+
+  expect(screen.getByRole("dialog")).toBeInTheDocument();
+  expect(screen.getByText("Randomize Hue")).toBeInTheDocument();
+});
