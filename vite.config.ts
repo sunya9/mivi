@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     VitePWA({
-      registerType: "prompt",
+      registerType: "autoUpdate",
       manifest: {
         name: "MiVi",
         short_name: "MiVi",
