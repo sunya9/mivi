@@ -169,16 +169,20 @@
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr;
   grid-template-areas: "visualizer" "content";
+  --side-margin: calc((100dvw - min(100dvw, --spacing(384))) / 2);
   @media (min-width: theme(--breakpoint-md)) {
     grid-template-areas:
-      "track-list sep-h1 visualizer sep-h2 style"
-      "track-list sep-h1 sep-v sep-h2 style"
-      "track-list sep-h1 config sep-h2 style"
-      "about about about about about";
+      ". track-list sep-h1 visualizer sep-h2 style ."
+      ". track-list sep-h1 sep-v sep-h2 style ."
+      ". track-list sep-h1 config sep-h2 style ."
+      "about about about about about about about";
     grid-template-columns:
+      var(--side-margin)
       minmax(0, var(--panel-track-list)) 1px
       minmax(320px, var(--panel-center)) 1px
-      minmax(0, var(--panel-style));
+      minmax(0, var(--panel-style))
+      var(--side-margin);
+
     grid-template-rows:
       minmax(0, var(--panel-visualizer))
       1px minmax(0, var(--panel-config)) auto;

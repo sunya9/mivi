@@ -106,7 +106,7 @@ export function App() {
       <GridResizablePanelGroup
         id="main-layout"
         panels={panels}
-        className="grid-main-layout mx-auto min-h-0 max-w-384"
+        className="grid-main-layout mx-auto min-h-0"
       >
         <GridResizablePanel
           panelId="visualizer"
@@ -205,7 +205,7 @@ export function App() {
           className={cn(
             "area-[content] md:area-[about] md:block",
             mobileTab === "about" ? "block" : "hidden",
-            "md:-mx-[calc((100dvw-min(100dvw,--spacing(384)))/2)] md:border-t",
+            "md:border-t",
           )}
           asChild
         >
