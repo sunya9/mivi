@@ -6,6 +6,8 @@ import { Fallback } from "./fallback";
 import { Loading } from "./loading";
 import { ThemeProvider } from "next-themes";
 import { CacheProvider } from "@/lib/cache/cache-provider";
+import { usePwaState } from "@/pwa/use-pwa-state";
+import { PwaContext } from "@/pwa/pwa-update-context";
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -14,6 +16,7 @@ interface ProvidersProps {
 
 export function Providers({ children, audioContext }: ProvidersProps) {
   const [appContextValue] = useState(() => createAppContext(audioContext));
+  const pwaUpdateState = usePwaState();
 
   return (
     <ThemeProvider
@@ -23,9 +26,11 @@ export function Providers({ children, audioContext }: ProvidersProps) {
     >
       <CacheProvider>
         <AppContext value={appContextValue}>
-          <ErrorBoundary fallbackRender={Fallback}>
-            <Suspense fallback={<Loading />}>{children}</Suspense>
-          </ErrorBoundary>
+          <PwaContext value={pwaUpdateState}>
+            <ErrorBoundary fallbackRender={Fallback}>
+              <Suspense fallback={<Loading />}>{children}</Suspense>
+            </ErrorBoundary>
+          </PwaContext>
         </AppContext>
       </CacheProvider>
     </ThemeProvider>

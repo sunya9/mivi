@@ -9,6 +9,16 @@ import { RafStub } from "./raf-stub";
 import { AudioContext } from "standardized-audio-context-mock";
 export const rafStub = new RafStub();
 
+// Mock virtual:pwa-register/react
+// useRegisterSW は vitest では実際の Service Worker を使用できないためモックする
+vi.mock("virtual:pwa-register/react", () => ({
+  useRegisterSW: vi.fn(() => ({
+    needRefresh: [false, vi.fn()],
+    offlineReady: [false, vi.fn()],
+    updateServiceWorker: vi.fn(),
+  })),
+}));
+
 vi.stubGlobal("requestAnimationFrame", rafStub.requestAnimationFrame);
 vi.stubGlobal("cancelAnimationFrame", rafStub.cancelAnimationFrame);
 
