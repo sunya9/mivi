@@ -113,7 +113,7 @@ test("usePwaState sets canInstall to false when user accepts install", async () 
   });
 });
 
-test("usePwaState keeps canInstall true when user dismisses install", async () => {
+test("usePwaState returns false and keeps canInstall true when user dismisses install", async () => {
   const { result } = renderHook(() => usePwaState());
 
   const beforeInstallPromptEvent = new Event(
@@ -132,7 +132,12 @@ test("usePwaState keeps canInstall true when user dismisses install", async () =
   });
 
   const installResult = await result.current.installPwa();
+
+  // prompt() should still be called even when dismissed
+  expect(beforeInstallPromptEvent.prompt).toHaveBeenCalled();
+  // installPwa returns false when not accepted
   expect(installResult).toBe(false);
+  // canInstall remains true so user can try again
   expect(result.current.canInstall).toBe(true);
 });
 
