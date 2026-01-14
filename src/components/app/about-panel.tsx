@@ -16,7 +16,6 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
-import { Separator } from "@/components/ui/separator";
 
 interface AboutPanelProps {
   className?: string;
@@ -53,10 +52,6 @@ export const AboutPanel = memo(function AboutPanel({
             <AboutContent />
           </AboutDialog>
           <AboutContent className="md:hidden" />
-          <Separator
-            orientation="vertical"
-            className="hidden h-auto! md:block md:self-stretch"
-          />
 
           {needRefresh && (
             <>
