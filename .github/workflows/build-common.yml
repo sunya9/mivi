@@ -62,10 +62,18 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Set build version
+        id: version
+        run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+
       - name: Build
         run: pnpm run build
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          VITE_APP_VERSION: ${{ steps.version.outputs.short_sha }}
+          VITE_BUILD_DATETIME: ${{ github.event.head_commit.timestamp }}
 
       - name: Test
         run: pnpm test --coverage

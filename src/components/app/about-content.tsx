@@ -9,6 +9,9 @@ interface Props {
   className?: string;
 }
 
+const buildDatetime = import.meta.env.VITE_BUILD_DATETIME || "unknown";
+const appVersion = import.meta.env.VITE_APP_VERSION || "unknown";
+
 export function AboutContent({ className }: Props) {
   const apiStatuses = useMemo(() => checkBrowserApis(), []);
 
@@ -50,6 +53,14 @@ export function AboutContent({ className }: Props) {
         </Button>
         .
       </p>
+
+      <dl className="text-muted-foreground grid grid-cols-[auto_1fr] gap-x-2 text-xs">
+        <dt>build datetime:</dt>
+        <dd>{buildDatetime}</dd>
+        <dt>App version:</dt>
+        <dd>{appVersion}</dd>
+      </dl>
+
       <p>
         <Button variant="link" size="link" asChild>
           <a href="https://github.com/sunya9/mivi">GitHub Repository</a>
