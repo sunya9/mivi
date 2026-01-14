@@ -55,7 +55,7 @@ export function AboutContent({ className }: Props) {
       </p>
 
       <dl className="text-muted-foreground grid grid-cols-[auto_1fr] gap-x-2 text-xs">
-        <dt>build datetime:</dt>
+        <dt>Built at:</dt>
         <dd>{buildDatetime}</dd>
         <dt>App version:</dt>
         <dd>{appVersion}</dd>
