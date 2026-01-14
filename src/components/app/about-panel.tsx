@@ -1,9 +1,22 @@
 import { memo } from "react";
+import { Download, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettingsMenu } from "@/components/app/settings-menu";
 import { AboutDialog } from "@/components/app/about-dialog";
 import { cn } from "@/lib/utils";
 import { AboutContent } from "./about-content";
+import { usePwaContext } from "@/pwa/use-pwa-context";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@/components/ui/item";
+import { Separator } from "@/components/ui/separator";
 
 interface AboutPanelProps {
   className?: string;
@@ -12,6 +25,12 @@ interface AboutPanelProps {
 export const AboutPanel = memo(function AboutPanel({
   ...props
 }: AboutPanelProps) {
+  const {
+    needRefresh: [needRefresh],
+    updateServiceWorker,
+    canInstall,
+    installPwa,
+  } = usePwaContext();
   return (
     <footer {...props}>
       <Card
@@ -34,6 +53,74 @@ export const AboutPanel = memo(function AboutPanel({
             <AboutContent />
           </AboutDialog>
           <AboutContent className="md:hidden" />
+          <Separator
+            orientation="vertical"
+            className="hidden h-auto! md:block md:self-stretch"
+          />
+
+          {needRefresh && (
+            <>
+              <Badge
+                variant="default"
+                asChild
+                className="group hidden md:inline-flex"
+              >
+                <button onClick={() => updateServiceWorker()}>
+                  <RefreshCw className="group-hover:animate-spin" />
+                  Update available
+                </button>
+              </Badge>
+              <Item variant="outline" className="md:hidden">
+                <ItemMedia variant="icon">
+                  <RefreshCw className="group-hover:animate-spin" />
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle>Update available</ItemTitle>
+                  <ItemDescription>
+                    Update the app to the latest version
+                  </ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => updateServiceWorker()}
+                  >
+                    Update
+                  </Button>
+                </ItemActions>
+              </Item>
+            </>
+          )}
+          {canInstall && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={installPwa}
+                className="hidden md:inline-flex"
+              >
+                <Download />
+                Install app
+              </Button>
+              <Item variant="default" className="md:hidden">
+                <ItemMedia variant="icon">
+                  <Download />
+                </ItemMedia>
+                <ItemContent>
+                  <ItemTitle>Install app</ItemTitle>
+                  <ItemDescription>
+                    You can install this app as a PWA.
+                  </ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <Button variant="outline" size="sm" onClick={installPwa}>
+                    Install
+                  </Button>
+                </ItemActions>
+              </Item>
+            </>
+          )}
           <SettingsMenu className="md:ml-auto" />
         </CardContent>
       </Card>

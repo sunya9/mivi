@@ -2,25 +2,53 @@ import { ListMusic, Settings, Palette, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
+import { usePwaContext } from "@/pwa/use-pwa-context";
 
 export type MobileTabValue = "tracks" | "visualizer" | "style" | "about";
 
 interface TabConfig {
   value: MobileTabValue;
   label: string;
-  icon: ReactNode;
+  icon: () => ReactNode;
 }
 
 const tabs: TabConfig[] = [
-  { value: "tracks", label: "Tracks", icon: <ListMusic className="size-5" /> },
+  {
+    value: "tracks",
+    label: "Tracks",
+    icon: () => <ListMusic className="size-5" />,
+  },
   {
     value: "visualizer",
     label: "Settings",
-    icon: <Settings className="size-5" />,
+    icon: () => <Settings className="size-5" />,
   },
-  { value: "style", label: "Style", icon: <Palette className="size-5" /> },
-  { value: "about", label: "About", icon: <Info className="size-5" /> },
+  {
+    value: "style",
+    label: "Style",
+    icon: () => <Palette className="size-5" />,
+  },
+  { value: "about", label: "About", icon: AboutIcon },
 ] as const;
+
+function AboutIcon() {
+  const {
+    needRefresh: [needRefresh],
+  } = usePwaContext();
+
+  const showAboutIndicator = needRefresh;
+  return (
+    <>
+      <Info className="size-5" />
+      {showAboutIndicator && (
+        <span className="absolute -top-1 -right-1 flex size-2.5">
+          <span className="bg-primary absolute inline-flex size-full animate-ping rounded-full opacity-75" />
+          <span className="bg-primary relative inline-flex size-2.5 rounded-full" />
+        </span>
+      )}
+    </>
+  );
+}
 
 interface MobileBottomNavProps {
   value: MobileTabValue;
@@ -65,7 +93,9 @@ export function MobileBottomNav({
               "not-supports-position-anchor:before:rounded-md",
             )}
           >
-            {tab.icon}
+            <span className="relative">
+              <tab.icon />
+            </span>
             <span>{tab.label}</span>
           </TabsPrimitive.Trigger>
         ))}
