@@ -2,20 +2,15 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import type { PwaState } from "@/pwa/pwa-update-context";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
-
 export function usePwaState(): PwaState {
   const registerSW = useRegisterSW();
   const [canInstall, setCanInstall] = useState(false);
   const installPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
-      installPromptRef.current = e as BeforeInstallPromptEvent;
+      installPromptRef.current = e;
       setCanInstall(true);
     };
 
@@ -35,16 +30,21 @@ export function usePwaState(): PwaState {
     };
   }, []);
 
-  const installPwa = useCallback(async () => {
+  const installPwa = useCallback(async (): Promise<boolean> => {
     const promptEvent = installPromptRef.current;
-    if (!promptEvent) return;
+    if (!promptEvent) return false;
+    try {
+      await promptEvent.prompt();
+      const { outcome } = await promptEvent.userChoice;
 
-    await promptEvent.prompt();
-    const { outcome } = await promptEvent.userChoice;
-
-    if (outcome === "accepted") {
-      installPromptRef.current = null;
-      setCanInstall(false);
+      if (outcome === "accepted") {
+        installPromptRef.current = null;
+        setCanInstall(false);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
     }
   }, []);
 
