@@ -209,7 +209,9 @@ export function App() {
           )}
           asChild
         >
-          <AboutPanel />
+          <ScrollArea className="h-full w-full" type="auto">
+            <AboutPanel />
+          </ScrollArea>
         </GridResizablePanel>
       </GridResizablePanelGroup>
 

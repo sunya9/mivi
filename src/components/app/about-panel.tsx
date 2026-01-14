@@ -1,8 +1,7 @@
 import { memo } from "react";
-import { Download, RefreshCw } from "lucide-react";
+import { Download, InfoIcon, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettingsMenu } from "@/components/app/settings-menu";
-import { AboutDialog } from "@/components/app/about-dialog";
 import { cn } from "@/lib/utils";
 import { AboutContent } from "./about-content";
 import { usePwaContext } from "@/pwa/use-pwa-context";
@@ -16,6 +15,14 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@/components/ui/item";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface AboutPanelProps {
   className?: string;
@@ -48,9 +55,25 @@ export const AboutPanel = memo(function AboutPanel({
             "md:mx-auto md:flex md:flex-row md:items-center md:justify-center md:gap-4 md:space-y-0 md:px-0 md:py-1 md:text-sm",
           )}
         >
-          <AboutDialog className="hidden md:inline-flex">
-            <AboutContent />
-          </AboutDialog>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hidden md:inline-flex"
+              >
+                <InfoIcon />
+                About this app
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>About MiVi</DialogTitle>
+                <DialogDescription>MIDI Visualizer</DialogDescription>
+              </DialogHeader>
+              <AboutContent />
+            </DialogContent>
+          </Dialog>
           <AboutContent className="md:hidden" />
 
           {needRefresh && (
