@@ -5,8 +5,7 @@ import {
   RendererType,
 } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
-import defaultsDeep from "lodash.defaultsdeep";
-import merge from "lodash.merge";
+import { defaultsDeep, merge } from "lodash-es";
 import { useMemo, useCallback } from "react";
 import { PianoRollConfigPanel } from "@/lib/renderers/piano-roll/piano-roll-config-panel";
 import { CometConfigPanel } from "@/lib/renderers/comet/comet-config-panel";

@@ -7,7 +7,7 @@ import {
 } from "@/lib/midi/midi";
 import { hashArrayBuffer } from "@/lib/hash";
 import { Midi } from "@tonejs/midi";
-import defaultsDeep from "lodash.defaultsdeep";
+import { defaultsDeep } from "lodash-es";
 import { useMemo, useCallback } from "react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 
