@@ -71,12 +71,9 @@ importers:
       comlink:
         specifier: ^4.4.2
         version: 4.4.2
-      lodash.defaultsdeep:
-        specifier: ^4.6.1
-        version: 4.6.1
-      lodash.merge:
-        specifier: ^4.6.2
-        version: 4.6.2
+      lodash-es:
+        specifier: ^4.17.22
+        version: 4.17.22
       lucide-react:
         specifier: ^0.562.0
         version: 0.562.0(react@19.2.3)
@@ -135,12 +132,9 @@ importers:
       '@testing-library/user-event':
         specifier: ^14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
-      '@types/lodash.defaultsdeep':
-        specifier: ^4.6.9
-        version: 4.6.9
-      '@types/lodash.merge':
-        specifier: ^4.6.9
-        version: 4.6.9
+      '@types/lodash-es':
+        specifier: ^4.17.12
+        version: 4.17.12
       '@types/node':
         specifier: ^25.0.8
         version: 25.0.8
@@ -2219,11 +2213,8 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/lodash.defaultsdeep@4.6.9':
-    resolution: {integrity: sha512-pLtCFK0YkHfGtGLYLNMTbFB5/G5+RsmQCIbbHH8GOAXjv+gDkVilY98kILfe8JH2Kev0OCReYxp1AjxEjP8ixA==}
-
-  '@types/lodash.merge@4.6.9':
-    resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
+  '@types/lodash-es@4.17.12':
+    resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
 
   '@types/lodash@4.17.23':
     resolution: {integrity: sha512-RDvF6wTulMPjrNdCoYRC8gNR880JNGT8uB+REUpC2Ns4pRqQJhGz90wh7rgdXDPpCczF3VGktDuFGVnz8zP7HA==}
@@ -3819,11 +3810,11 @@ packages:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
 
+  lodash-es@4.17.22:
+    resolution: {integrity: sha512-XEawp1t0gxSi9x01glktRZ5HDy0HXqrM0x5pXQM98EaI0NxO6jVM7omDOxsuEo5UIASAnm2bRp1Jt/e0a2XU8Q==}
+
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
-
-  lodash.defaultsdeep@4.6.1:
-    resolution: {integrity: sha512-3j8wdDzYuWO3lM3Reg03MuQR957t287Rpcxp1njpEa8oDrikb+FwGdW3n+FELh/A6qib6yPit0j/pv9G/yeAqA==}
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -7347,11 +7338,7 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/lodash.defaultsdeep@4.6.9':
-    dependencies:
-      '@types/lodash': 4.17.23
-
-  '@types/lodash.merge@4.6.9':
+  '@types/lodash-es@4.17.12':
     dependencies:
       '@types/lodash': 4.17.23
 
@@ -9039,9 +9026,9 @@ snapshots:
     dependencies:
       p-locate: 5.0.0
 
-  lodash.debounce@4.0.8: {}
+  lodash-es@4.17.22: {}
 
-  lodash.defaultsdeep@4.6.1: {}
+  lodash.debounce@4.0.8: {}
 
   lodash.merge@4.6.2: {}
 
