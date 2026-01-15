@@ -1,5 +1,25 @@
-import Color from "colorjs.io";
-import { srgbToHex } from "./srgb";
+import { ColorSpace, HSL, OKLCH, parse, sRGB, to } from "colorjs.io/fn";
+
+ColorSpace.register(sRGB);
+ColorSpace.register(HSL);
+ColorSpace.register(OKLCH);
+
+/**
+ * Convert sRGB channel value (0-1) to hex string (00-ff)
+ */
+function channelToHex(value: number): string {
+  const clamped = Math.min(Math.max(value, 0), 1);
+  return Math.round(clamped * 255)
+    .toString(16)
+    .padStart(2, "0");
+}
+
+/**
+ * Convert sRGB values (0-1 range) to hex color string
+ */
+export function srgbToHex(r: number, g: number, b: number): string {
+  return `#${channelToHex(r)}${channelToHex(g)}${channelToHex(b)}`;
+}
 
 export interface HSLPresetBase {
   name: string;
@@ -24,16 +44,19 @@ export const HSL_PRESETS = [
  * @param l Lightness (0-100)
  */
 export function hslToHex(h: number, s: number, l: number): string {
-  const color = new Color("hsl", [h, s, l]);
-  const [r, g, b] = color.srgb;
+  const [r, g, b] = to({ space: "hsl", coords: [h, s, l] }, "srgb").coords;
   return srgbToHex(r ?? 0, g ?? 0, b ?? 0);
 }
 
 /**
- * Generate a random hue value (0-360)
+ * Convert OKLCH color string to sRGB values (0-1 range)
+ * @param oklchString OKLCH color string (e.g., "oklch(0.5 0.1 180)")
+ * @returns Array of [r, g, b] values in 0-1 range
  */
-export function randomHue(): number {
-  return Math.random() * 360;
+export function oklchToSrgb(oklchString: string): [number, number, number] {
+  const color = parse(oklchString);
+  const [r, g, b] = to(color, "srgb").coords;
+  return [r ?? 0, g ?? 0, b ?? 0];
 }
 
 /**

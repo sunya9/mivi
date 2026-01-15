@@ -16,7 +16,7 @@ import {
   getRandomTailwindColor,
   getRandomTailwindColorPalette,
 } from "@/lib/colors/tailwind-colors";
-import { hslToHex, generateGoldenAngleHues } from "@/lib/colors/hsl";
+import { hslToHex, generateGoldenAngleHues } from "@/lib/colors/color";
 import {
   InputGroup,
   InputGroupAddon,

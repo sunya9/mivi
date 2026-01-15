@@ -1,6 +1,5 @@
 import { tailwindDefaultColors } from "@/lib/colors/tailwind-default-colors";
-import { srgbToHex } from "@/lib/colors/srgb";
-import Color from "colorjs.io";
+import { oklchToSrgb, srgbToHex } from "@/lib/colors/color";
 
 const colorKeys = [
   "red",
@@ -40,8 +39,8 @@ function getTailwindColors() {
   const getPropertyValue = (colorKey: ColorKey, brightness: Brightness) => {
     const key = `--color-${colorKey}-${brightness}` as const;
     const oklch = tailwindDefaultColors[key];
-    const [r, g, b] = new Color(oklch).srgb;
-    return srgbToHex(r ?? 0, g ?? 0, b ?? 0);
+    const [r, g, b] = oklchToSrgb(oklch);
+    return srgbToHex(r, g, b);
   };
   return colorKeys.map((color) => ({
     50: getPropertyValue(color, 50),

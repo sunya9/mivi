@@ -1,10 +1,108 @@
 import { expect, test, vi } from "vitest";
 import {
   hslToHex,
-  randomHue,
+  oklchToSrgb,
+  srgbToHex,
   HSL_PRESETS,
   generateGoldenAngleHues,
-} from "@/lib/colors/hsl";
+} from "@/lib/colors/color";
+
+// srgbToHex tests
+
+test("srgbToHex converts black (0, 0, 0) to #000000", () => {
+  expect(srgbToHex(0, 0, 0)).toBe("#000000");
+});
+
+test("srgbToHex converts white (1, 1, 1) to #ffffff", () => {
+  expect(srgbToHex(1, 1, 1)).toBe("#ffffff");
+});
+
+test("srgbToHex converts pure red (1, 0, 0) to #ff0000", () => {
+  expect(srgbToHex(1, 0, 0)).toBe("#ff0000");
+});
+
+test("srgbToHex converts pure green (0, 1, 0) to #00ff00", () => {
+  expect(srgbToHex(0, 1, 0)).toBe("#00ff00");
+});
+
+test("srgbToHex converts pure blue (0, 0, 1) to #0000ff", () => {
+  expect(srgbToHex(0, 0, 1)).toBe("#0000ff");
+});
+
+test("srgbToHex converts mid gray (0.5, 0.5, 0.5) to #808080", () => {
+  expect(srgbToHex(0.5, 0.5, 0.5)).toBe("#808080");
+});
+
+test("srgbToHex clamps values above 1 to ff", () => {
+  expect(srgbToHex(1.5, 2, 10)).toBe("#ffffff");
+});
+
+test("srgbToHex clamps negative values to 00", () => {
+  expect(srgbToHex(-0.5, -1, -10)).toBe("#000000");
+});
+
+test("srgbToHex handles mixed clamping correctly", () => {
+  expect(srgbToHex(-1, 0.5, 2)).toBe("#0080ff");
+});
+
+test("srgbToHex pads single digit hex values with zero", () => {
+  // 1/255 ≈ 0.00392, rounds to 1 -> "01"
+  expect(srgbToHex(1 / 255, 0, 0)).toBe("#010000");
+});
+
+// oklchToSrgb tests
+
+test("oklchToSrgb converts black oklch(0 0 0) to sRGB [0, 0, 0]", () => {
+  const [r, g, b] = oklchToSrgb("oklch(0 0 0)");
+  expect(r).toBeCloseTo(0, 2);
+  expect(g).toBeCloseTo(0, 2);
+  expect(b).toBeCloseTo(0, 2);
+});
+
+test("oklchToSrgb converts white oklch(1 0 0) to sRGB [1, 1, 1]", () => {
+  const [r, g, b] = oklchToSrgb("oklch(1 0 0)");
+  expect(r).toBeCloseTo(1, 2);
+  expect(g).toBeCloseTo(1, 2);
+  expect(b).toBeCloseTo(1, 2);
+});
+
+test("oklchToSrgb converts Tailwind red-500 correctly", () => {
+  // Tailwind red-500: oklch(0.637 0.237 25.331)
+  const [r, g, b] = oklchToSrgb("oklch(0.637 0.237 25.331)");
+  const hex = srgbToHex(r, g, b);
+  expect(hex).toBe("#fb2c36");
+});
+
+test("oklchToSrgb converts Tailwind blue-500 correctly", () => {
+  // Tailwind blue-500: oklch(0.608 0.148 264.052)
+  const [r, g, b] = oklchToSrgb("oklch(0.608 0.148 264.052)");
+  const hex = srgbToHex(r, g, b);
+  expect(hex).toBe("#547edb");
+});
+
+test("oklchToSrgb converts Tailwind green-500 correctly", () => {
+  // Tailwind green-500: oklch(0.648 0.177 156.743)
+  const [r, g, b] = oklchToSrgb("oklch(0.648 0.177 156.743)");
+  const hex = srgbToHex(r, g, b);
+  expect(hex).toBe("#00ad60");
+});
+
+test("oklchToSrgb returns valid sRGB values (0-1 range)", () => {
+  const testColors = [
+    "oklch(0.5 0.1 0)",
+    "oklch(0.7 0.15 120)",
+    "oklch(0.3 0.05 240)",
+  ];
+  for (const color of testColors) {
+    const [r, g, b] = oklchToSrgb(color);
+    expect(r).toBeGreaterThanOrEqual(0);
+    expect(r).toBeLessThanOrEqual(1);
+    expect(g).toBeGreaterThanOrEqual(0);
+    expect(g).toBeLessThanOrEqual(1);
+    expect(b).toBeGreaterThanOrEqual(0);
+    expect(b).toBeLessThanOrEqual(1);
+  }
+});
 
 // hslToHex tests
 
@@ -49,30 +147,6 @@ test("hslToHex handles dark colors correctly", () => {
   expect(r).toBeGreaterThan(50);
   expect(r).toBeLessThan(150);
   expect(g).toBeLessThan(50);
-});
-
-// randomHue tests
-
-test("randomHue returns a value between 0 and 360", () => {
-  for (let i = 0; i < 100; i++) {
-    const hue = randomHue();
-    expect(hue).toBeGreaterThanOrEqual(0);
-    expect(hue).toBeLessThan(360);
-  }
-});
-
-test("randomHue returns different values on subsequent calls", () => {
-  const values = new Set<number>();
-  for (let i = 0; i < 10; i++) {
-    values.add(randomHue());
-  }
-  expect(values.size).toBeGreaterThan(1);
-});
-
-test("randomHue uses Math.random internally", () => {
-  const mockRandom = vi.spyOn(Math, "random").mockReturnValue(0.5);
-  expect(randomHue()).toBe(180);
-  mockRandom.mockRestore();
 });
 
 test("HSL_PRESETS produce valid hex colors for all presets and hues", () => {
