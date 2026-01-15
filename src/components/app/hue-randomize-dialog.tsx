@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { HSL_PRESETS, HSLPresetBase, hslToHex } from "@/lib/colors/hsl";
+import { HSL_PRESETS, HSLPresetBase, hslToHex } from "@/lib/colors/color";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 interface Props {
