@@ -35,7 +35,7 @@
     "@tonejs/midi": "^2.0.28",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "colorjs.io": "^0.6.0",
+    "colorjs.io": "^0.6.1",
     "comlink": "^4.4.2",
     "lodash-es": "^4.17.22",
     "lucide-react": "^0.562.0",
