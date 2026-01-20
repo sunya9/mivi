@@ -1,10 +1,7 @@
 name: Deploy static content to Pages
 
 on:
-  push:
-    branches: ["main"]
-
-  # Trigger after Build Test completes (for github-actions[bot] merges)
+  # Trigger after Build Test completes
   workflow_run:
     workflows: ["Build Test"]
     types: [completed]
