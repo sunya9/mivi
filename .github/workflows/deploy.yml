@@ -4,6 +4,12 @@ on:
   push:
     branches: ["main"]
 
+  # Trigger after Build Test completes (for github-actions[bot] merges)
+  workflow_run:
+    workflows: ["Build Test"]
+    types: [completed]
+    branches: [main]
+
   workflow_dispatch:
 
 permissions:
@@ -18,6 +24,8 @@ concurrency:
 
 jobs:
   build:
+    # Skip if triggered by workflow_run and it failed
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     uses: ./.github/workflows/build-common.yml
     with:
       upload_artifact: true
