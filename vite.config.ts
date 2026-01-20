@@ -11,6 +11,9 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { codecovVitePlugin } from "@codecov/vite-plugin";
 import { BrowserCommand } from "vitest/node";
 import { playwright } from "@vitest/browser-playwright";
+import * as pkg from "./package.json";
+
+const deps = Object.keys(pkg.dependencies);
 
 export default defineConfig(({ mode }) => ({
   plugins: [
@@ -76,6 +79,39 @@ export default defineConfig(({ mode }) => ({
       devOptions: {
         enabled: mode === "generateSW",
       },
+      workbox: {
+        runtimeCaching: [
+          // https://vite-pwa-org.netlify.app/workbox/generate-sw.html#cache-external-resources
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts-cache",
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "gstatic-fonts-cache",
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
+      },
     }),
     mode === "analyze" &&
       (visualizer({
@@ -99,7 +135,12 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          react: ["react", "react-dom/client"],
+          react: [
+            ...deps.filter(
+              (dep) => dep.includes("react") || dep.includes("@radix-ui"),
+            ),
+            "react-dom/client",
+          ],
         },
       },
     },
