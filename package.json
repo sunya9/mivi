@@ -103,7 +103,8 @@
       "@tailwindcss/oxide",
       "esbuild",
       "lefthook",
-      "msw"
+      "msw",
+      "sharp"
     ]
   }
 }
