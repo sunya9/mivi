@@ -62,9 +62,11 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Set build version
-        id: version
-        run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+      - name: Set build metadata
+        id: build-meta
+        run: |
+          echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          echo "timestamp=$(git show -s --format=%cI HEAD)" >> $GITHUB_OUTPUT
         env:
           GITHUB_SHA: ${{ github.sha }}
 
@@ -72,8 +74,8 @@ jobs:
         run: pnpm run build
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          VITE_APP_VERSION: ${{ steps.version.outputs.short_sha }}
-          VITE_BUILD_DATETIME: ${{ github.event.head_commit.timestamp }}
+          VITE_APP_VERSION: ${{ steps.build-meta.outputs.short_sha }}
+          VITE_BUILD_DATETIME: ${{ steps.build-meta.outputs.timestamp }}
 
       - name: Test
         run: pnpm test --coverage
