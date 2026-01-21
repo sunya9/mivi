@@ -177,6 +177,8 @@ export const TrackListPane = React.memo(function TrackListPane({
                   onChange={handleOffsetInputChange}
                   onBlur={handleOffsetInputBlur}
                   step={0.1}
+                  aria-valuenow={midiTracks.midiOffset}
+                  aria-valuetext={`${midiTracks.midiOffset} seconds`}
                 />
                 <InputGroupAddon align="inline-end">
                   <InputGroupButton

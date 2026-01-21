@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useId, useRef } from "react";
 import {
   Dialog,
   DialogClose,
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { HSL_PRESETS, HSLPresetBase, hslToHex } from "@/lib/colors/color";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { cn } from "@/lib/utils";
 
 interface Props {
   open: boolean;
@@ -85,37 +86,24 @@ function Content({
         </div>
 
         {/* Saturation slider */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <label id="saturation-label">Saturation</label>
-            <span className="text-muted-foreground">{saturation}%</span>
-          </div>
-          <Slider
-            value={[saturation]}
-            min={0}
-            max={100}
-            step={1}
-            onValueChange={([value]) => setSaturation(value)}
-            aria-labelledby="saturation-label"
-          />
-        </div>
+        <ParamSlider
+          value={saturation}
+          min={0}
+          max={100}
+          step={1}
+          onValueChange={setSaturation}
+          label="Saturation"
+        />
 
         {/* Lightness slider */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <label id="lightness-label">Lightness</label>
-            <span className="text-muted-foreground">{lightness}%</span>
-          </div>
-          <Slider
-            value={[lightness]}
-            min={0}
-            max={100}
-            step={1}
-            onValueChange={([value]) => setLightness(value)}
-            aria-labelledby="lightness-label"
-          />
-        </div>
-
+        <ParamSlider
+          value={lightness}
+          min={0}
+          max={100}
+          step={1}
+          onValueChange={setLightness}
+          label="Lightness"
+        />
         {/* Preset buttons */}
         <div className="space-y-2">
           <div className="text-sm">Presets</div>
@@ -148,5 +136,49 @@ function Content({
         <Button onClick={handleConfirm}>Apply</Button>
       </DialogFooter>
     </>
+  );
+}
+
+function ParamSlider({
+  value,
+  min,
+  max,
+  step,
+  onValueChange,
+  label,
+  className,
+}: {
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onValueChange: (value: number) => void;
+  label: string;
+  className?: string;
+}) {
+  const labelId = useId();
+  const ref = useRef<HTMLElement>(null);
+  const handleClick = useCallback(() => {
+    ref.current?.focus();
+  }, []);
+
+  return (
+    <div className={cn("space-y-2", className)}>
+      <div className="flex justify-between text-sm">
+        <div id={labelId} onClick={handleClick} tabIndex={-1}>
+          {label}
+        </div>
+        <span className="text-muted-foreground">{value}%</span>
+      </div>
+      <Slider
+        ref={ref}
+        value={[value]}
+        min={min}
+        max={max}
+        step={step}
+        onValueChange={([value]) => onValueChange(value)}
+        aria-labelledby={labelId}
+      />
+    </div>
   );
 }

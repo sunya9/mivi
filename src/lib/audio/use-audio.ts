@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useCacheContext } from "@/lib/cache/cache-context";
 import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
+import { errorLogWithToast } from "../utils";
 
 async function createAudioBufferFromFile(
   audioFile: File,
@@ -64,14 +65,14 @@ export function useAudio() {
         } catch (error) {
           // Ignore error if cancelled
           if (decodeIdRef.current !== currentDecodeId) return;
-          console.error("Failed to set audio file", error);
-          toast.error("Failed to set audio file");
+          errorLogWithToast("Failed to set audio file", error);
         } finally {
           // Only update state if this is still the current decode operation
           if (decodeIdRef.current === currentDecodeId) {
             setIsDecoding(false);
           }
         }
+        toast.success("Audio file loaded");
       } else {
         cacheContext.setCache(initialAudioBufferCacheKey, undefined);
         setAudioBuffer(undefined);

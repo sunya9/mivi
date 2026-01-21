@@ -34,8 +34,8 @@
 
 :root,
 .light {
-  --app-color: oklch(58.23% 0.1411 327.2);
-  --app-color-foreground: oklch(0.985 0 0);
+  --app-color: oklch(0.5823 0.1411 327.2);
+  --app-color-foreground: oklch(1 0 0);
   --background: var(--color-gray-50);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -83,7 +83,7 @@
   --secondary: oklch(0.3 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.3 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  --muted-foreground: oklch(0.75 0 0);
   --accent: oklch(0.3 0 0);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.396 0.141 25.723);

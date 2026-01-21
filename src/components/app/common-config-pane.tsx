@@ -79,14 +79,15 @@ export const CommonConfigPane = memo(function CommonConfigPane({
       <CardContent className="space-y-4">
         <FormRow
           label={<span>Background Color</span>}
-          controller={
+          controller={({ id }) => (
             <ColorPickerButton
+              id={id}
               value={rendererConfig.backgroundColor}
               onChange={(value) =>
                 onUpdateRendererConfig({ backgroundColor: value })
               }
             />
-          }
+          )}
         />
         <FileButton
           filename={backgroundImageFilename}
@@ -111,14 +112,14 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             />
             <FormRow
               label={<span>Image Fit</span>}
-              controller={
+              controller={({ id }) => (
                 <Select
                   value={rendererConfig.backgroundImageFit}
                   onValueChange={(value: BackgroundImageFit) =>
                     onUpdateRendererConfig({ backgroundImageFit: value })
                   }
                 >
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger id={id} className="w-48">
                     <SelectValue placeholder="Select image fit" />
                   </SelectTrigger>
                   <SelectContent>
@@ -129,18 +130,18 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                     ))}
                   </SelectContent>
                 </Select>
-              }
+              )}
             />
             <FormRow
               label={<span>Image Position</span>}
-              controller={
+              controller={({ id }) => (
                 <Select
                   value={rendererConfig.backgroundImagePosition}
                   onValueChange={(
                     backgroundImagePosition: BackgroundImagePosition,
                   ) => onUpdateRendererConfig({ backgroundImagePosition })}
                 >
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger id={id} className="w-48">
                     <SelectValue placeholder="Select image position" />
                   </SelectTrigger>
                   <SelectContent>
@@ -151,18 +152,18 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                     ))}
                   </SelectContent>
                 </Select>
-              }
+              )}
             />
             <FormRow
               label={<span>Image Repeat</span>}
-              controller={
+              controller={({ id }) => (
                 <Select
                   value={rendererConfig.backgroundImageRepeat}
                   onValueChange={(value: BackgroundImageRepeat) =>
                     onUpdateRendererConfig({ backgroundImageRepeat: value })
                   }
                 >
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger id={id} className="w-48">
                     <SelectValue placeholder="Select image repeat" />
                   </SelectTrigger>
                   <SelectContent>
@@ -173,7 +174,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                     ))}
                   </SelectContent>
                 </Select>
-              }
+              )}
             />
             <FormRow
               label={
@@ -181,13 +182,15 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                   Image Opacity: {rendererConfig.backgroundImageOpacity}
                 </span>
               }
-              controller={({ id }) => (
+              customControl
+              controller={({ labelId, ref }) => (
                 <Slider
+                  ref={ref}
                   className="w-full min-w-24"
                   min={0}
                   max={1}
                   step={0.01}
-                  aria-labelledby={id}
+                  aria-labelledby={labelId}
                   value={[rendererConfig.backgroundImageOpacity]}
                   onValueChange={([value]) =>
                     onUpdateRendererConfig({
@@ -208,7 +211,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               </InfoTooltip>
             </span>
           }
-          controller={
+          controller={({ id }) => (
             <Select
               value={rendererConfig.resolution.label}
               onValueChange={(value) => {
@@ -216,7 +219,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 onUpdateRendererConfig({ resolution });
               }}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger id={id} className="w-48">
                 <SelectValue placeholder="Select resolution" />
               </SelectTrigger>
               <SelectContent>
@@ -227,7 +230,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 ))}
               </SelectContent>
             </Select>
-          }
+          )}
         />
         <FormRow
           label={
@@ -238,7 +241,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               </InfoTooltip>
             </span>
           }
-          controller={
+          controller={({ id }) => (
             <Select
               value={rendererConfig.fps.toString()}
               onValueChange={(value) => {
@@ -246,7 +249,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 onUpdateRendererConfig({ fps });
               }}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger id={id} className="w-48">
                 <SelectValue placeholder="Select frame rate" />
               </SelectTrigger>
               <SelectContent>
@@ -260,18 +263,18 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 ))}
               </SelectContent>
             </Select>
-          }
+          )}
         />
         <FormRow
           label={<span>Format</span>}
-          controller={
+          controller={({ id }) => (
             <Select
               value={rendererConfig.format}
               onValueChange={(value: VideoFormat) =>
                 onUpdateRendererConfig({ format: value })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger id={id}>
                 <SelectValue placeholder="Select video format" />
               </SelectTrigger>
               <SelectContent align="end">
@@ -282,7 +285,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 ))}
               </SelectContent>
             </Select>
-          }
+          )}
         />
       </CardContent>
     </Card>

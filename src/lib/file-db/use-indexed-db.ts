@@ -1,7 +1,7 @@
 import { fetchFile, saveFile } from "@/lib/file-db/file-db";
 import { useCallback, useState } from "react";
-import { toast } from "sonner";
 import { CacheContextValue, useCacheContext } from "../cache/cache-context";
+import { errorLogWithToast } from "../utils";
 
 function loadInitialFile(cacheContext: CacheContextValue, key: string) {
   if (cacheContext.caches.has(key)) {
@@ -26,8 +26,7 @@ export function useIndexedDb(key: string) {
         // optimistic update
         await saveFile(key, newFile);
       } catch (error) {
-        console.error("Failed to save file", error);
-        toast.error("Failed to save file");
+        errorLogWithToast("Failed to save file", error);
       }
     },
     [key],

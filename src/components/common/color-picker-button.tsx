@@ -6,6 +6,7 @@ interface ColorPickerButtonProps {
   onChange: (value: string) => void;
   "aria-label"?: string;
   className?: string;
+  id?: string;
 }
 
 export function ColorPickerButton({
@@ -13,6 +14,7 @@ export function ColorPickerButton({
   onChange,
   "aria-label": ariaLabel,
   className,
+  id,
 }: ColorPickerButtonProps) {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +34,7 @@ export function ColorPickerButton({
       style={{ backgroundColor: value }}
     >
       <input
+        id={id}
         type="color"
         value={value}
         onChange={handleChange}

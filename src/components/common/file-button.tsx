@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useId, useRef } from "react";
 import {
   InputGroup,
   InputGroupAddon,
@@ -38,6 +38,8 @@ export function FileButton({
     [setFile],
   );
   const fileRef = useRef<HTMLInputElement>(null);
+  const id = useId();
+  const inputId = useId();
   const handleClick = useCallback(() => {
     fileRef.current?.click();
   }, []);
@@ -63,8 +65,13 @@ export function FileButton({
           accept={accept}
           onChange={onChangeFile}
           className="hidden"
+          id={id}
         />
-        <InputGroupInput readOnly value={filename || placeholder} />
+        <InputGroupInput
+          readOnly
+          value={filename || placeholder}
+          id={inputId}
+        />
         <InputGroupAddon align="inline-end">
           {filename && (
             <InputGroupButton

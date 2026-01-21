@@ -4,14 +4,24 @@ import { FormRow } from "@/components/common/form-row";
 
 describe("FormRow", () => {
   it("should render label and controller", () => {
-    render(<FormRow label="Test Label" controller={<input type="text" />} />);
+    render(
+      <FormRow
+        label="Test Label"
+        controller={({ id }) => <input type="text" id={id} />}
+      />,
+    );
 
     expect(screen.getByText("Test Label")).toBeInTheDocument();
     expect(screen.getByRole("textbox")).toBeInTheDocument();
   });
 
   it("should render with ReactNode as controller", () => {
-    render(<FormRow label="Label" controller={<button>Click me</button>} />);
+    render(
+      <FormRow
+        label="Label"
+        controller={({ id }) => <button id={id}>Click me</button>}
+      />,
+    );
 
     expect(screen.getByText("Click me")).toBeInTheDocument();
   });
@@ -55,7 +65,7 @@ describe("FormRow", () => {
             Complex <strong>Label</strong>
           </span>
         }
-        controller={<input type="checkbox" />}
+        controller={({ id }) => <input type="checkbox" id={id} />}
       />,
     );
 

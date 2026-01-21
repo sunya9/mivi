@@ -1,6 +1,8 @@
 import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { useCallback, useState } from "react";
 import { CacheContextValue, useCacheContext } from "@/lib/cache/cache-context";
+import { toast } from "sonner";
+import { errorLogWithToast } from "../utils";
 
 const initialBackgroundImageCacheKey = "initial:background-image";
 export const backgroundImageDbKey = "db:background-image";
@@ -44,8 +46,9 @@ export function useBackgroundImage() {
           const imageBitmap = await createImageBitmap(newFile);
           setBackgroundImageBitmap(imageBitmap);
           await setFile(newFile);
+          toast.success("Image file loaded");
         } catch (error) {
-          console.error("failed to load background image", error);
+          errorLogWithToast("Failed to load background image", error);
         }
       } else {
         setBackgroundImageBitmap(undefined);
