@@ -1,20 +1,18 @@
-abstract class BaseRecordingState {
-  abstract readonly type: string;
-  abstract readonly isRecording: boolean;
+interface BaseRecordingState {
+  readonly type: string;
+  readonly isRecording: boolean;
 }
 
-export class ReadyState extends BaseRecordingState {
+export class ReadyState implements BaseRecordingState {
   readonly type = "ready";
   readonly isRecording = false;
 }
 
-export class RecordingState extends BaseRecordingState {
+export class RecordingState implements BaseRecordingState {
   readonly type = "recording";
   readonly isRecording = true;
   constructor(
     readonly progress: number, // 0 ~ 1
-  ) {
-    super();
-  }
+  ) {}
 }
 export type RecordingStatus = ReadyState | RecordingState;
