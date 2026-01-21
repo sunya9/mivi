@@ -1,7 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { cn, errorLogWithToast } from "@/lib/utils";
 import { useState, useCallback, useMemo } from "react";
-import { toast } from "sonner";
 
 interface Props {
   onDropMidi(file: File): Promise<void>;
@@ -22,14 +21,11 @@ export function useDnd({ onDropMidi, onDropAudio, onDropImage }: Props) {
 
         try {
           if (fileType === "audio/midi" || fileType === "audio/x-midi") {
-            await onDropMidi?.(file);
-            toast.success("MIDI file loaded");
+            await onDropMidi(file);
           } else if (fileType.startsWith("audio/")) {
-            await onDropAudio?.(file);
-            toast.success("Audio file loaded");
+            await onDropAudio(file);
           } else if (fileType.startsWith("image/")) {
-            await onDropImage?.(file);
-            toast.success("Image file loaded");
+            await onDropImage(file);
           } else {
             errorLogWithToast(`Unsupported file type: ${fileType}`);
           }

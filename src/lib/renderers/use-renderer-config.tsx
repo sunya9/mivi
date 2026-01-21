@@ -106,14 +106,14 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
       <CardContent className="space-y-4">
         <FormRow
           label={<span>Style</span>}
-          controller={
+          controller={({ id }) => (
             <Select
               value={rendererConfig.type}
               onValueChange={(value: RendererType) =>
                 onUpdateRendererConfig({ type: value })
               }
             >
-              <SelectTrigger>
+              <SelectTrigger id={id}>
                 <SelectValue
                   className="display w-auto"
                   placeholder="Select visualization style"
@@ -127,7 +127,7 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
                 ))}
               </SelectContent>
             </Select>
-          }
+          )}
         />
         {selectedRenderer?.renderConfig(
           rendererConfig,

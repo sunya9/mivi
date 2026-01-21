@@ -10,6 +10,7 @@ import { Midi } from "@tonejs/midi";
 import { defaultsDeep } from "lodash-es";
 import { useMemo, useCallback } from "react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
+import { toast } from "sonner";
 
 const defaultTrackConfig = getDefaultTrackConfig("");
 
@@ -108,6 +109,7 @@ export function useMidi() {
         // Load and set the new MIDI file (pass hash and arrayBuffer to avoid recomputing)
         const newMidiTracks = await loadMidi(midiFile, arrayBuffer, newHash);
         setMidiTracks(newMidiTracks);
+        toast.success("MIDI file loaded");
       }
     },
     [confirm, midiTracks, setMidiTracks],

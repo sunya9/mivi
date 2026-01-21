@@ -34,8 +34,11 @@ export function PianoRollConfigPanel({
     <>
       <FormRow
         label={<span>Time Window: {pianoRollConfig.timeWindow}s</span>}
-        controller={
+        customControl
+        controller={({ labelId, ref }) => (
           <Slider
+            ref={ref}
+            aria-labelledby={labelId}
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.timeWindow]}
             min={0.1}
@@ -45,12 +48,15 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ timeWindow: value })
             }
           />
-        }
+        )}
       />
       <FormRow
         label={<span>Note Height: {pianoRollConfig.noteHeight}px</span>}
-        controller={
+        customControl
+        controller={({ labelId, ref }) => (
           <Slider
+            ref={ref}
+            aria-labelledby={labelId}
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.noteHeight]}
             min={1}
@@ -60,14 +66,17 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ noteHeight: value })
             }
           />
-        }
+        )}
       />
       <FormRow
         label={
           <span>Note Corner Radius: {pianoRollConfig.noteCornerRadius}px</span>
         }
-        controller={
+        customControl
+        controller={({ labelId, ref }) => (
           <Slider
+            ref={ref}
+            aria-labelledby={labelId}
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.noteCornerRadius]}
             min={0}
@@ -77,12 +86,15 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ noteCornerRadius: value })
             }
           />
-        }
+        )}
       />
       <FormRow
         label={<span>Note Margin: {pianoRollConfig.noteMargin}px</span>}
-        controller={
+        customControl
+        controller={({ labelId, ref }) => (
           <Slider
+            ref={ref}
+            aria-labelledby={labelId}
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.noteMargin]}
             min={0}
@@ -92,7 +104,7 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ noteMargin: +value })
             }
           />
-        }
+        )}
       />
       <FormRow
         label={
@@ -100,8 +112,11 @@ export function PianoRollConfigPanel({
             Note Vertical Margin: {pianoRollConfig.noteVerticalMargin}px
           </span>
         }
-        controller={
+        customControl
+        controller={({ labelId, ref }) => (
           <Slider
+            ref={ref}
+            aria-labelledby={labelId}
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.noteVerticalMargin]}
             min={0}
@@ -111,7 +126,7 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ noteVerticalMargin: value })
             }
           />
-        }
+        )}
       />
       <FormRow
         label={
@@ -127,8 +142,11 @@ export function PianoRollConfigPanel({
             )}
           </span>
         }
-        controller={
+        customControl
+        controller={({ labelId, ref }) => (
           <Slider
+            ref={ref}
+            aria-labelledby={labelId}
             className="w-full max-w-48 min-w-24"
             value={[
               pianoRollConfig.viewRangeBottom,
@@ -148,15 +166,18 @@ export function PianoRollConfigPanel({
               })
             }
           />
-        }
+        )}
       />
       <Separator />
       <FormRow
         label={
           <span>Playhead Position: {pianoRollConfig.playheadPosition}%</span>
         }
-        controller={
+        customControl
+        controller={({ labelId, ref }) => (
           <Slider
+            ref={ref}
+            aria-labelledby={labelId}
             className="w-full max-w-48 min-w-24"
             value={[pianoRollConfig.playheadPosition]}
             min={0}
@@ -166,31 +187,33 @@ export function PianoRollConfigPanel({
               setPianoRollConfig({ playheadPosition: value })
             }
           />
-        }
+        )}
       />
       <FormRow
         label={<span>Playhead Border</span>}
-        controller={
+        controller={({ id }) => (
           <Switch
+            id={id}
             checked={pianoRollConfig.showPlayhead}
             onCheckedChange={(checked) =>
               setPianoRollConfig({ showPlayhead: checked })
             }
           />
-        }
+        )}
       />
       {pianoRollConfig.showPlayhead && (
         <>
           <FormRow
             label={<span>Playhead Border Color</span>}
-            controller={
+            controller={({ id }) => (
               <ColorPickerButton
+                id={id}
                 value={pianoRollConfig.playheadColor}
                 onChange={(value) =>
                   setPianoRollConfig({ playheadColor: value })
                 }
               />
-            }
+            )}
           />
           <FormRow
             label={
@@ -198,8 +221,11 @@ export function PianoRollConfigPanel({
                 Playhead Border Width: {pianoRollConfig.playheadWidth}px
               </span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 className="w-full max-w-48 min-w-24"
                 value={[pianoRollConfig.playheadWidth]}
                 min={1}
@@ -209,7 +235,7 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ playheadWidth: value })
                 }
               />
-            }
+            )}
           />
           <FormRow
             label={
@@ -218,8 +244,11 @@ export function PianoRollConfigPanel({
                 {Math.round(pianoRollConfig.playheadOpacity * 100)}%
               </span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 className="w-full max-w-48 min-w-24"
                 value={[pianoRollConfig.playheadOpacity]}
                 min={0}
@@ -229,54 +258,60 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ playheadOpacity: value })
                 }
               />
-            }
+            )}
           />
         </>
       )}
       <Separator />
       <FormRow
         label={<span>Ripple Effect</span>}
-        controller={
+        controller={({ id }) => (
           <Switch
+            id={id}
             checked={pianoRollConfig.showRippleEffect}
             onCheckedChange={(checked) => {
               setPianoRollConfig({ showRippleEffect: checked });
             }}
           />
-        }
+        )}
       />
       {pianoRollConfig.showRippleEffect && (
         <>
           <FormRow
             label={<span>Use Custom Ripple Color</span>}
-            controller={
+            controller={({ id }) => (
               <Switch
+                id={id}
                 checked={pianoRollConfig.useCustomRippleColor}
                 onCheckedChange={(checked) => {
                   setPianoRollConfig({ useCustomRippleColor: checked });
                 }}
               />
-            }
+            )}
           />
           {pianoRollConfig.useCustomRippleColor && (
             <FormRow
               label={<span>Ripple Color</span>}
-              controller={
+              controller={({ id }) => (
                 <ColorPickerButton
+                  id={id}
                   value={pianoRollConfig.rippleColor}
                   onChange={(value) => {
                     setPianoRollConfig({ rippleColor: value });
                   }}
                 />
-              }
+              )}
             />
           )}
           <FormRow
             label={
               <span>Ripple Duration: {pianoRollConfig.rippleDuration}sec</span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.rippleDuration]}
                 className="w-full max-w-48 min-w-24"
                 min={0.1}
@@ -286,12 +321,15 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ rippleDuration: value });
                 }}
               />
-            }
+            )}
           />
           <FormRow
             label={<span>Ripple Radius: {pianoRollConfig.rippleRadius}px</span>}
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.rippleRadius]}
                 className="w-full max-w-48 min-w-24"
                 min={10}
@@ -301,30 +339,32 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ rippleRadius: value });
                 }}
               />
-            }
+            )}
           />
         </>
       )}
       <Separator />
       <FormRow
         label={<span>Note Press Effect</span>}
-        controller={
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={pianoRollConfig.showNotePressEffect}
-              onCheckedChange={(checked) => {
-                setPianoRollConfig({ showNotePressEffect: checked });
-              }}
-            />
-          </div>
-        }
+        controller={({ id }) => (
+          <Switch
+            id={id}
+            checked={pianoRollConfig.showNotePressEffect}
+            onCheckedChange={(checked) => {
+              setPianoRollConfig({ showNotePressEffect: checked });
+            }}
+          />
+        )}
       />
       {pianoRollConfig.showNotePressEffect && (
         <>
           <FormRow
             label={<span>Press Depth: {pianoRollConfig.notePressDepth}px</span>}
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.notePressDepth]}
                 className="w-full max-w-48 min-w-24"
                 min={1}
@@ -334,7 +374,7 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ notePressDepth: value });
                 }}
               />
-            }
+            )}
           />
           <FormRow
             label={
@@ -343,8 +383,11 @@ export function PianoRollConfigPanel({
                 {pianoRollConfig.pressAnimationDuration}sec
               </span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.pressAnimationDuration]}
                 className="w-full max-w-48 min-w-24"
                 min={0.05}
@@ -354,23 +397,22 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ pressAnimationDuration: value });
                 }}
               />
-            }
+            )}
           />
         </>
       )}
       <Separator />
       <FormRow
         label={<span>Note Flash Effect</span>}
-        controller={
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={pianoRollConfig.showNoteFlash}
-              onCheckedChange={(checked) => {
-                setPianoRollConfig({ showNoteFlash: checked });
-              }}
-            />
-          </div>
-        }
+        controller={({ id }) => (
+          <Switch
+            id={id}
+            checked={pianoRollConfig.showNoteFlash}
+            onCheckedChange={(checked) => {
+              setPianoRollConfig({ showNoteFlash: checked });
+            }}
+          />
+        )}
       />
       {pianoRollConfig.showNoteFlash && (
         <>
@@ -378,8 +420,11 @@ export function PianoRollConfigPanel({
             label={
               <span>Flash Intensity: {pianoRollConfig.noteFlashIntensity}</span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.noteFlashIntensity]}
                 className="w-full max-w-48 min-w-24"
                 min={0}
@@ -389,7 +434,7 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ noteFlashIntensity: value });
                 }}
               />
-            }
+            )}
           />
 
           <FormRow
@@ -398,8 +443,11 @@ export function PianoRollConfigPanel({
                 Fade Out Duration: {pianoRollConfig.noteFlashFadeOutDuration}sec
               </span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.noteFlashFadeOutDuration]}
                 className="w-full max-w-48 min-w-24"
                 min={0.1}
@@ -409,11 +457,11 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ noteFlashFadeOutDuration: value });
                 }}
               />
-            }
+            )}
           />
           <FormRow
             label={<span>Flash Mode</span>}
-            controller={
+            controller={({ id, labelId }) => (
               <Select
                 value={pianoRollConfig.noteFlashMode}
                 onValueChange={(value) => {
@@ -422,7 +470,7 @@ export function PianoRollConfigPanel({
                   });
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger id={id} aria-labelledby={labelId}>
                   <SelectValue placeholder="Select flash mode" />
                 </SelectTrigger>
                 <SelectContent align="end">
@@ -430,7 +478,7 @@ export function PianoRollConfigPanel({
                   <SelectItem value="duration">Duration</SelectItem>
                 </SelectContent>
               </Select>
-            }
+            )}
           />
           {pianoRollConfig.noteFlashMode === "duration" && (
             <FormRow
@@ -439,8 +487,12 @@ export function PianoRollConfigPanel({
                   Flash Duration: {pianoRollConfig.noteFlashDuration}sec
                 </span>
               }
-              controller={
+              customControl
+              controller={({ id, labelId, ref }) => (
                 <Slider
+                  ref={ref}
+                  id={id}
+                  aria-labelledby={labelId}
                   value={[pianoRollConfig.noteFlashDuration]}
                   className="w-full max-w-48 min-w-24"
                   min={0.1}
@@ -450,7 +502,7 @@ export function PianoRollConfigPanel({
                     setPianoRollConfig({ noteFlashDuration: value });
                   }}
                 />
-              }
+              )}
             />
           )}
         </>
@@ -458,14 +510,15 @@ export function PianoRollConfigPanel({
       <Separator />
       <FormRow
         label={<span>Rough Edge</span>}
-        controller={
+        controller={({ id }) => (
           <Switch
+            id={id}
             checked={pianoRollConfig.showRoughEdge}
             onCheckedChange={(checked) => {
               setPianoRollConfig({ showRoughEdge: checked });
             }}
           />
-        }
+        )}
       />
       {pianoRollConfig.showRoughEdge && (
         <>
@@ -475,8 +528,11 @@ export function PianoRollConfigPanel({
                 Rough Edge Intensity: {pianoRollConfig.roughEdgeIntensity}px
               </span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.roughEdgeIntensity]}
                 className="w-full max-w-48 min-w-24"
                 min={0.1}
@@ -486,7 +542,7 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ roughEdgeIntensity: value });
                 }}
               />
-            }
+            )}
           />
           <FormRow
             label={
@@ -494,8 +550,11 @@ export function PianoRollConfigPanel({
                 Rough Edge Segment: {pianoRollConfig.roughEdgeSegmentLength}px
               </span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.roughEdgeSegmentLength]}
                 className="w-full max-w-48 min-w-24"
                 min={2}
@@ -505,21 +564,22 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ roughEdgeSegmentLength: value });
                 }}
               />
-            }
+            )}
           />
         </>
       )}
       <Separator />
       <FormRow
         label={<span>Noise Texture</span>}
-        controller={
+        controller={({ id }) => (
           <Switch
+            id={id}
             checked={pianoRollConfig.showNoiseTexture}
             onCheckedChange={(checked) => {
               setPianoRollConfig({ showNoiseTexture: checked });
             }}
           />
-        }
+        )}
       />
       {pianoRollConfig.showNoiseTexture && (
         <>
@@ -530,8 +590,11 @@ export function PianoRollConfigPanel({
                 {Math.round(pianoRollConfig.noiseIntensity * 100)}%
               </span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.noiseIntensity]}
                 className="w-full max-w-48 min-w-24"
                 min={0.01}
@@ -541,14 +604,17 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ noiseIntensity: value });
                 }}
               />
-            }
+            )}
           />
           <FormRow
             label={
               <span>Noise Grain Size: {pianoRollConfig.noiseGrainSize}px</span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.noiseGrainSize]}
                 className="w-full max-w-48 min-w-24"
                 min={1}
@@ -558,7 +624,7 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ noiseGrainSize: value });
                 }}
               />
-            }
+            )}
           />
           <FormRow
             label={
@@ -566,8 +632,11 @@ export function PianoRollConfigPanel({
                 Noise Color Variance: {pianoRollConfig.noiseColorVariance}
               </span>
             }
-            controller={
+            customControl
+            controller={({ labelId, ref }) => (
               <Slider
+                ref={ref}
+                aria-labelledby={labelId}
                 value={[pianoRollConfig.noiseColorVariance]}
                 className="w-full max-w-48 min-w-24"
                 min={1}
@@ -577,7 +646,7 @@ export function PianoRollConfigPanel({
                   setPianoRollConfig({ noiseColorVariance: value });
                 }}
               />
-            }
+            )}
           />
         </>
       )}

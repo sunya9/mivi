@@ -33,10 +33,9 @@ const tabs: TabConfig[] = [
 
 function AboutIcon() {
   const {
-    needRefresh: [needRefresh],
+    needRefresh: [showAboutIndicator],
   } = usePwaContext();
 
-  const showAboutIndicator = needRefresh;
   return (
     <>
       <Info className="size-5" />

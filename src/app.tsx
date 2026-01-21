@@ -93,7 +93,6 @@ export function App() {
   return (
     <div
       className="grid max-h-dvh min-h-dvh grid-rows-[auto_1fr_auto] overflow-hidden md:grid-rows-[auto_1fr]"
-      role="application"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}

@@ -196,11 +196,17 @@ export function MidiVisualizer({
   useHotkeys(
     "space",
     (e) => {
-      if (e.repeat) return;
+      const target = e.target;
+      if (e.repeat || !(target instanceof HTMLElement)) return;
+      const isBody = target instanceof HTMLBodyElement;
+      const isSlider = target.role === "slider";
+      if (!isBody && !isSlider) return;
       e.preventDefault();
       handleTogglePlay();
     },
-    { enableOnFormTags: ["slider"] },
+    {
+      enableOnFormTags: ["slider"],
+    },
     [handleTogglePlay],
   );
 
@@ -253,6 +259,8 @@ export function MidiVisualizer({
       })}
       aria-expanded={expanded}
       aria-label="Midi Visualizer Player"
+      role={expanded ? "dialog" : "region"}
+      aria-modal={expanded}
     >
       {expanded && (
         <Button
@@ -305,6 +313,7 @@ export function MidiVisualizer({
         >
           <div className="flex flex-col gap-1 [view-transition-name:visualizer-controls]">
             <Slider
+              aria-label="Seek position"
               max={duration}
               value={[position]}
               step={0.1}
@@ -341,22 +350,23 @@ export function MidiVisualizer({
               className="*:data-[slot=slider-track]:bg-muted/30"
             />
             <div className="flex items-center gap-2">
-              <Button onClick={handleTogglePlay} variant="ghost-secondary">
-                {displayedIsPlaying ? (
-                  <Pause aria-label="Pause" />
-                ) : (
-                  <Play aria-label="Play" />
-                )}
+              <Button
+                onClick={handleTogglePlay}
+                variant="ghost-secondary"
+                aria-label={displayedIsPlaying ? "Pause" : "Play"}
+              >
+                {displayedIsPlaying ? <Pause /> : <Play />}
               </Button>
               <Button
                 variant="ghost-secondary"
                 onClick={toggleMute}
                 aria-pressed={muted}
+                aria-label={muted ? "Unmute" : "Mute"}
               >
                 {muted ? (
-                  <VolumeX className="size-4" aria-label="Unmute" />
+                  <VolumeX className="size-4" />
                 ) : (
-                  <Volume2 className="size-4" aria-label="Mute" />
+                  <Volume2 className="size-4" />
                 )}
               </Button>
               <Slider
@@ -381,11 +391,12 @@ export function MidiVisualizer({
                 onClick={toggleExpanded}
                 className="hidden md:block"
                 aria-haspopup="dialog"
+                aria-label={expanded ? "Minimize" : "Maximize"}
               >
                 {expanded ? (
-                  <Minimize className="size-4" aria-label="Minimize" />
+                  <Minimize className="size-4" />
                 ) : (
-                  <Maximize className="size-4" aria-label="Maximize" />
+                  <Maximize className="size-4" />
                 )}
               </Button>
             </div>

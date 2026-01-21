@@ -7,6 +7,7 @@ import {
 import { toast } from "sonner";
 import { runWorker } from "./run-worker";
 import { PartialRecorderResources } from "./recorder-resources";
+import { errorLogWithToast } from "../utils";
 
 export function useRecorder(resources: PartialRecorderResources) {
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
@@ -18,7 +19,7 @@ export function useRecorder(resources: PartialRecorderResources) {
       const midiTracks = resources.midiTracks;
       const serializedAudio = resources.serializedAudio;
       if (!midiTracks || !serializedAudio) {
-        toast.error("Please select a MIDI file and audio file.");
+        errorLogWithToast("Please select a MIDI file and audio file.");
         return;
       }
       const abortController = new AbortController();
@@ -52,10 +53,7 @@ export function useRecorder(resources: PartialRecorderResources) {
           toast.success("Export completed");
         })
         .catch((error) => {
-          const message =
-            error instanceof Error ? error.message : String(error);
-          toast.error(message);
-          console.error("Failed during recording", error);
+          errorLogWithToast("Failed during recording", error);
         })
         .finally(() => {
           abortControllerRef.current = null;

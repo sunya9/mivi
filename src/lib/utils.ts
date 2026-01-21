@@ -37,5 +37,9 @@ export async function resetConfig() {
 
 export function errorLogWithToast(message: string, error?: unknown) {
   console.error(...[message, error].filter(Boolean));
-  toast.error(message);
+  const description =
+    error instanceof Error ? error.message : "Unexpected error";
+  toast.error(message, {
+    description,
+  });
 }
