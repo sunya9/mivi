@@ -6,6 +6,9 @@ import {
   useBackgroundImage,
 } from "@/lib/background-image/use-background-image";
 import { customRenderHook } from "tests/util";
+import { toast } from "sonner";
+
+vi.mock("sonner", { spy: true });
 
 test("should initialize with empty background image", async () => {
   const { result } = customRenderHook(() => useBackgroundImage());
@@ -45,6 +48,7 @@ test("should manipulate background image", async () => {
   await act(() => result.current.setBackgroundImageFile(undefined));
   expect(result.current.backgroundImageFile).toBeUndefined();
   expect(result.current.backgroundImageBitmap).toBeUndefined();
+  expect(toast.success).toHaveBeenCalledExactlyOnceWith("Image file loaded");
 });
 
 test("should handle errors when loading background image", async () => {
@@ -58,7 +62,7 @@ test("should handle errors when loading background image", async () => {
 
   await waitFor(() => {
     expect(console.error).toHaveBeenCalledExactlyOnceWith(
-      "failed to load background image",
+      "Failed to load background image",
       error,
     );
     expect(result.current.backgroundImageFile).toBeDefined();
@@ -76,7 +80,7 @@ test("should handle errors when setting background image", async () => {
 
   await waitFor(() => result.current.setBackgroundImageFile(mockImage));
   expect(console.error).toHaveBeenCalledExactlyOnceWith(
-    "failed to load background image",
+    "Failed to load background image",
     error,
   );
   expect(result.current.backgroundImageFile).toBeUndefined();

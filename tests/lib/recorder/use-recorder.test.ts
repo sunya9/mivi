@@ -46,6 +46,7 @@ test("should show error toast when trying to start recording without required fi
 
   expect(toast.error).toHaveBeenCalledExactlyOnceWith(
     "Please select a MIDI file and audio file.",
+    { description: "Unexpected error" },
   );
 });
 

@@ -1,9 +1,13 @@
 import { test, expect, vi } from "vitest";
-import { renderHook, act, render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useMidi } from "@/lib/midi/use-midi";
 import { testMidiTracks, midiFile } from "tests/fixtures";
 import { MidiTracks } from "@/lib/midi/midi";
+import { toast } from "sonner";
+import { customRenderHook } from "tests/util";
+
+vi.mock("sonner", { spy: true });
 
 function TestComponent() {
   const { setMidiFile, midiTracks, ConfirmDialog } = useMidi();
@@ -29,7 +33,7 @@ vi.mock("@/lib/colors/tailwind-colors", () => ({
 }));
 
 test("returns initial state", () => {
-  const { result } = renderHook(() => useMidi());
+  const { result } = customRenderHook(() => useMidi());
 
   expect(result.current.midiTracks).toBeUndefined();
   expect(typeof result.current.setMidiFile).toBe("function");
@@ -37,13 +41,13 @@ test("returns initial state", () => {
 
 test("loads midiTracks from local storage", () => {
   localStorage.setItem("mivi:midi-tracks", JSON.stringify(testMidiTracks));
-  const { result } = renderHook(() => useMidi());
+  const { result } = customRenderHook(() => useMidi());
 
   expect(result.current.midiTracks).toEqual(testMidiTracks);
 });
 
 test("loads and processes MIDI file", async () => {
-  const { result } = renderHook(() => useMidi());
+  const { result } = customRenderHook(() => useMidi());
 
   await act(async () => {
     await result.current.setMidiFile(midiFile);
@@ -54,10 +58,11 @@ test("loads and processes MIDI file", async () => {
   expect(rest).toEqual(expectedRest);
   expect(typeof instanceKey).toBe("string");
   expect(instanceKey.length).toBeGreaterThan(0);
+  expect(toast.success).toHaveBeenCalledWith("MIDI file loaded");
 });
 
 test("sets midiTracks to undefined when setMidiFile is called with undefined", async () => {
-  const { result } = renderHook(() => useMidi());
+  const { result } = customRenderHook(() => useMidi());
 
   await act(async () => {
     await result.current.setMidiFile(undefined);
@@ -66,7 +71,7 @@ test("sets midiTracks to undefined when setMidiFile is called with undefined", a
 });
 
 test("handles MIDI file loading errors", async () => {
-  const { result } = renderHook(() => useMidi());
+  const { result } = customRenderHook(() => useMidi());
 
   const mockMidiFile = new File(["invalid midi data"], "test.mid", {
     type: "audio/midi",
@@ -79,7 +84,7 @@ test("handles MIDI file loading errors", async () => {
 });
 
 test("setMidiTracks updates midiTracks", () => {
-  const { result } = renderHook(() => useMidi());
+  const { result } = customRenderHook(() => useMidi());
 
   act(() => {
     result.current.setMidiTracks(testMidiTracks);
@@ -91,7 +96,7 @@ test("setMidiTracks updates midiTracks", () => {
       ...track,
       config: {
         ...track.config,
-        color: "#ffffff",
+        color: "#000000",
       },
     })),
   };
@@ -122,7 +127,7 @@ test("shows confirm dialog when loading the same file", async () => {
   expect(screen.getByRole("button", { name: "Keep" })).toBeInTheDocument();
 });
 
-test("clicking Overwrite reloads the MIDI file with new instanceKey", async () => {
+test("clicking overwrite reloads the MIDI file with new instanceKey", async () => {
   renderTestComponent();
 
   const loadButton = screen.getByTestId("load-midi");

@@ -1,12 +1,10 @@
 import { test, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useDnd } from "@/hooks/use-dnd";
-import { toast } from "sonner";
 import type { DragEvent } from "react";
 import { errorLogWithToast } from "@/lib/utils";
 import { render } from "@testing-library/react";
 
-vi.mock("sonner", { spy: true });
 vi.mock("@/lib/utils", { spy: true });
 
 beforeEach(() => {
@@ -87,7 +85,6 @@ test("handles MIDI file drop", async () => {
   await act(async () => {
     await result.current.handleDrop(event);
     expect(onDropMidi).toHaveBeenCalledExactlyOnceWith(file);
-    expect(toast.success).toHaveBeenCalledExactlyOnceWith("MIDI file loaded");
   });
 });
 
@@ -104,7 +101,6 @@ test("handles audio file drop", async () => {
   });
 
   expect(onDropAudio).toHaveBeenCalledExactlyOnceWith(file);
-  expect(toast.success).toHaveBeenCalledExactlyOnceWith("Audio file loaded");
 });
 
 test("handles image file drop", async () => {
@@ -120,7 +116,6 @@ test("handles image file drop", async () => {
   });
 
   expect(onDropImage).toHaveBeenCalledExactlyOnceWith(file);
-  expect(toast.success).toHaveBeenCalledExactlyOnceWith("Image file loaded");
 });
 
 test("handles unsupported file type", async () => {
@@ -196,7 +191,6 @@ test("handles multiple files drop", async () => {
   expect(onDropMidi).toHaveBeenCalledExactlyOnceWith(midiFile);
   expect(onDropAudio).toHaveBeenCalledExactlyOnceWith(audioFile);
   expect(onDropImage).toHaveBeenCalledExactlyOnceWith(imageFile);
-  expect(toast.success).toHaveBeenCalledTimes(3);
 });
 
 test("handles MIDI file drop error", async () => {

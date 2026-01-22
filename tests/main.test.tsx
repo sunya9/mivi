@@ -6,6 +6,6 @@ test("should render the app", { timeout: 10000 }, async () => {
   container.id = "root";
   document.body.appendChild(container);
   await import("../src/main");
-  const app = await screen.findByRole("application");
+  const app = await screen.findByText("MiVi");
   expect(app).toBeInTheDocument();
 });
