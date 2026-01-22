@@ -125,6 +125,7 @@ export default defineConfig(({ mode }) => ({
       enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
       bundleName: "mivi",
       uploadToken: process.env.CODECOV_TOKEN,
+      debug: true,
     }),
     mode === "development" && devBranchTitlePlugin(),
   ],
