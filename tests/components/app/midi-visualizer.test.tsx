@@ -247,8 +247,41 @@ test("should call render when backgroundImageBitmap changes", async () => {
   expect(mockSetBackgroundImageBitmap).toHaveBeenCalledWith(mockImageBitmap);
 });
 
-// --- Mute shortcut tests ---
-test("should toggle mute when 'm' key is pressed", async () => {
+// --- Mute tests ---
+test("clicking mute button calls toggleMute", async () => {
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  const muteButton = screen.getByRole("button", { name: "Mute" });
+  await userEvent.click(muteButton);
+
+  expect(defaultStoreMock.toggleMute).toHaveBeenCalled();
+});
+
+test("mute button shows correct state when unmuted", () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, muted: false },
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  const muteButton = screen.getByRole("button", { name: "Mute" });
+  expect(muteButton).toHaveAttribute("aria-pressed", "false");
+});
+
+test("mute button shows correct state when muted", () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, muted: true },
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  const muteButton = screen.getByRole("button", { name: "Unmute" });
+  expect(muteButton).toHaveAttribute("aria-pressed", "true");
+});
+
+test("toggle mute when 'm' key is pressed", async () => {
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("m");
@@ -256,7 +289,7 @@ test("should toggle mute when 'm' key is pressed", async () => {
   expect(defaultStoreMock.toggleMute).toHaveBeenCalled();
 });
 
-test("should reveal control panel when 'm' key is pressed", async () => {
+test("reveal control panel when 'm' key is pressed", async () => {
   vi.mocked(useAudioPlaybackStore).mockReturnValue({
     ...defaultStoreMock,
     snapshot: { ...defaultStoreMock.snapshot, isPlaying: true },
