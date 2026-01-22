@@ -1,4 +1,4 @@
-import { PwaState } from "@/pwa/pwa-update-context";
+import { PwaState } from "@/pwa/pwa-context";
 import { vi } from "vitest";
 
 /**
