@@ -1,4 +1,4 @@
-import { createAppContext } from "@/lib/globals";
+import { createAppContext } from "@/contexts/app-context";
 import {
   renderHook,
   RenderHookOptions,

@@ -1,5 +1,23 @@
 import { createContext, use } from "react";
-import type { AppContextValue } from "../lib/globals";
+import { AudioPlaybackStore } from "@/lib/player/audio-playback-store";
+import { LocalStorageRepository } from "@/lib/storage/storage-repository";
+
+export interface AppContextValue {
+  audioContext: AudioContext;
+  audioPlaybackStore: AudioPlaybackStore;
+}
+
+export function createAppContext(audioContext: AudioContext): AppContextValue {
+  const audioPlaybackStore = new AudioPlaybackStore(
+    audioContext,
+    new LocalStorageRepository(),
+  );
+
+  return {
+    audioContext,
+    audioPlaybackStore,
+  };
+}
 
 export const AppContext = createContext<AppContextValue | null>(null);
 

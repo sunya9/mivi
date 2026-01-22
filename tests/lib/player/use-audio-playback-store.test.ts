@@ -4,7 +4,7 @@ import { customRenderHook } from "../../util";
 import { afterEach, expect, test, vi } from "vitest";
 import { audioBuffer } from "tests/fixtures";
 import { registrar } from "standardized-audio-context-mock";
-import { AppContextValue } from "@/lib/globals";
+import { AppContextValue } from "@/contexts/app-context";
 
 // Reset all mocks after each test
 afterEach(() => {

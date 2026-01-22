@@ -1,7 +1,6 @@
 import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { AppContext } from "../../contexts/app-context";
-import { createAppContext } from "../../lib/globals";
+import { AppContext, createAppContext } from "../../contexts/app-context";
 import { Fallback } from "./fallback";
 import { Loading } from "./loading";
 import { ThemeProvider } from "next-themes";
