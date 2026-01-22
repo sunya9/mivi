@@ -7,7 +7,7 @@ import { Loading } from "./loading";
 import { ThemeProvider } from "next-themes";
 import { CacheProvider } from "@/lib/cache/cache-provider";
 import { usePwaState } from "@/pwa/use-pwa-state";
-import { PwaContext } from "@/pwa/pwa-update-context";
+import { PwaContext } from "@/pwa/pwa-context";
 
 interface ProvidersProps {
   children: React.ReactNode;

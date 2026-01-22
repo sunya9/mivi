@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import type { PwaState } from "@/pwa/pwa-update-context";
+import type { PwaState } from "@/pwa/pwa-context";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 export function usePwaState(): PwaState {
