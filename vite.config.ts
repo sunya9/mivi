@@ -122,10 +122,11 @@ export default defineConfig(({ mode }) => ({
       }) as PluginOption),
     // Put the Codecov vite plugin after all other plugins
     codecovVitePlugin({
-      enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
+      enableBundleAnalysis: !!process.env.CI,
       bundleName: "mivi",
-      uploadToken: process.env.CODECOV_TOKEN,
-      debug: true,
+      oidc: {
+        useGitHubOIDC: true,
+      },
     }),
     mode === "development" && devBranchTitlePlugin(),
   ],
