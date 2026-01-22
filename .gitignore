@@ -26,3 +26,4 @@ dist-ssr
 # vite-plugin-pwa
 dev-dist
 coverage
+test-report.junit.xml

@@ -155,6 +155,10 @@ export default defineConfig(({ mode }) => ({
   test: {
     watch: false,
     silent: "passed-only",
+    reporters: ["default", "junit"],
+    outputFile: {
+      junit: "test-report.junit.xml",
+    },
     coverage: {
       include: ["src/**/*.ts", "src/**/*.tsx"],
       exclude: [
