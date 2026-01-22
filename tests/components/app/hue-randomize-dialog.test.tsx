@@ -208,3 +208,25 @@ test("renders saturation and lightness sliders with correct labels", () => {
   expect(screen.getByText("Lightness")).toBeInTheDocument();
   expect(screen.getAllByRole("slider").length).toBe(2);
 });
+
+test("clicking label focuses the corresponding slider", async () => {
+  customRender(
+    <HueRandomizeDialog
+      open={true}
+      onOpenChange={vi.fn()}
+      onConfirm={vi.fn()}
+    />,
+  );
+
+  const saturationLabel = screen.getByText("Saturation");
+  const saturationSlider = screen.getByRole("slider", { name: "Saturation" });
+
+  await userEvent.click(saturationLabel);
+  expect(saturationSlider).toHaveFocus();
+
+  const lightnessLabel = screen.getByText("Lightness");
+  const lightnessSlider = screen.getByRole("slider", { name: "Lightness" });
+
+  await userEvent.click(lightnessLabel);
+  expect(lightnessSlider).toHaveFocus();
+});
