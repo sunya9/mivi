@@ -88,9 +88,12 @@ jobs:
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          slug: sunya9/mivi
+          report-type: test_results
+          files: test-report.junit.xml
 
       - name: Upload build artifact
         if: inputs.upload_artifact
