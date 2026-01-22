@@ -5,7 +5,7 @@ import { createAppContext } from "../../lib/globals";
 import { Fallback } from "./fallback";
 import { Loading } from "./loading";
 import { ThemeProvider } from "next-themes";
-import { CacheProvider } from "@/contexts/cache-provider";
+import { CacheProvider } from "./cache-provider";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 import { PwaContext } from "@/contexts/pwa-context";
 

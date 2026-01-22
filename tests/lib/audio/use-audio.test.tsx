@@ -6,7 +6,7 @@ import { customRenderHook } from "tests/util";
 import { saveFile } from "@/lib/file-db/file-db";
 import { AppContext } from "@/contexts/app-context";
 import { createAppContext } from "@/lib/globals";
-import { CacheProvider } from "@/contexts/cache-provider";
+import { CacheProvider } from "@/components/providers/cache-provider";
 import { toast } from "sonner";
 import { audioDbKey } from "@/lib/audio/use-audio";
 import { Suspense } from "react";
