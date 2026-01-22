@@ -1,4 +1,4 @@
-import { CacheContext } from "./cache-context";
+import { CacheContext } from "@/contexts/cache-context";
 import { useCallback, useState } from "react";
 
 export function CacheProvider({ children }: { children: React.ReactNode }) {

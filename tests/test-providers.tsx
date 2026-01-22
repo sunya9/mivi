@@ -1,5 +1,5 @@
 import { AppContext } from "@/contexts/app-context";
-import { CacheProvider } from "@/contexts/cache-provider";
+import { CacheProvider } from "@/components/providers/cache-provider";
 import { AppContextValue } from "@/lib/globals";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { ThemeProvider } from "next-themes";
