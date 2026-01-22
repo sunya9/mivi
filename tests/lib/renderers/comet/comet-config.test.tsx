@@ -1,6 +1,6 @@
 import { screen } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
-import { CometConfigPanel } from "@/lib/renderers/comet/comet-config-panel";
+import { CometConfigPanel } from "@/components/app/comet-config-panel";
 import { customRender } from "tests/util";
 import { testMidiTracks, rendererConfig } from "tests/fixtures";
 import { ComponentProps } from "react";

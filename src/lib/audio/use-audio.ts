@@ -3,7 +3,7 @@ import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { SerializedAudio } from "@/lib/audio/audio";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useCacheContext } from "@/lib/cache/cache-context";
+import { useCacheContext } from "@/contexts/cache-context";
 import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 import { errorLogWithToast } from "../utils";
 

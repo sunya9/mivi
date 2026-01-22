@@ -2,7 +2,7 @@ import { ListMusic, Settings, Palette, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
-import { usePwaContext } from "@/pwa/use-pwa-context";
+import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 
 export type MobileTabValue = "tracks" | "visualizer" | "style" | "about";
 
