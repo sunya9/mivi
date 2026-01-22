@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 import { renderHook, waitFor, fireEvent } from "@testing-library/react";
-import { usePwaState } from "@/pwa/use-pwa-state";
+import { usePwaState } from "@/lib/pwa/use-pwa-state";
 
 test("usePwaState initializes with canInstall as false", () => {
   const { result } = renderHook(() => usePwaState());

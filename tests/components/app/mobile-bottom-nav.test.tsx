@@ -2,7 +2,7 @@ import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MobileBottomNav } from "@/components/app/mobile-bottom-nav";
-import { PwaContext, PwaState } from "@/pwa/pwa-context";
+import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { createMockPwaState } from "../../pwa-mock";
 
 /**

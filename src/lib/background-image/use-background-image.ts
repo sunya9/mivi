@@ -1,6 +1,6 @@
 import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
 import { useCallback, useState } from "react";
-import { CacheContextValue, useCacheContext } from "@/lib/cache/cache-context";
+import { CacheContextValue, useCacheContext } from "@/contexts/cache-context";
 import { toast } from "sonner";
 import { errorLogWithToast } from "../utils";
 

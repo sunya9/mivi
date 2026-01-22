@@ -5,9 +5,9 @@ import { createAppContext } from "../../lib/globals";
 import { Fallback } from "./fallback";
 import { Loading } from "./loading";
 import { ThemeProvider } from "next-themes";
-import { CacheProvider } from "@/lib/cache/cache-provider";
-import { usePwaState } from "@/pwa/use-pwa-state";
-import { PwaContext } from "@/pwa/pwa-context";
+import { CacheProvider } from "@/contexts/cache-provider";
+import { usePwaState } from "@/lib/pwa/use-pwa-state";
+import { PwaContext } from "@/contexts/pwa-context";
 
 interface ProvidersProps {
   children: React.ReactNode;

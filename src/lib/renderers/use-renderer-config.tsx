@@ -7,8 +7,8 @@ import {
 import { DeepPartial } from "@/lib/type-utils";
 import { defaultsDeep, merge } from "lodash-es";
 import { useMemo, useCallback } from "react";
-import { PianoRollConfigPanel } from "@/lib/renderers/piano-roll/piano-roll-config-panel";
-import { CometConfigPanel } from "@/lib/renderers/comet/comet-config-panel";
+import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
+import { CometConfigPanel } from "@/components/app/comet-config-panel";
 import { FormRow } from "@/components/common/form-row";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {

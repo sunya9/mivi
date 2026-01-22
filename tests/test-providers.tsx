@@ -1,7 +1,7 @@
 import { AppContext } from "@/contexts/app-context";
-import { CacheProvider } from "@/lib/cache/cache-provider";
+import { CacheProvider } from "@/contexts/cache-provider";
 import { AppContextValue } from "@/lib/globals";
-import { PwaContext, PwaState } from "@/pwa/pwa-context";
+import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import { createMockPwaState } from "./pwa-mock";

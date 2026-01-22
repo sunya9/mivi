@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SettingsMenu } from "@/components/app/settings-menu";
 import { cn } from "@/lib/utils";
 import { AboutContent } from "./about-content";
-import { usePwaContext } from "@/pwa/use-pwa-context";
+import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
