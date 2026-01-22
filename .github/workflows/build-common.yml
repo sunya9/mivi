@@ -85,6 +85,8 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: sunya9/mivi
+          files: ./coverage/clover.xml
+          fail_ci_if_error: true
 
       - name: Upload build artifact
         if: inputs.upload_artifact
