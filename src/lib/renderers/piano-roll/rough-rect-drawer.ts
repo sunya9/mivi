@@ -1,5 +1,5 @@
 import { RendererContext } from "../renderer";
-import { seededRandom } from "./seeded-random";
+import { seededRandom } from "@/lib/seeded-random";
 
 export class RoughRectDrawer {
   constructor(private ctx: RendererContext) {}

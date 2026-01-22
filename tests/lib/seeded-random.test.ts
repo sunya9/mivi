@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { seededRandom } from "@/lib/renderers/piano-roll/seeded-random";
+import { seededRandom } from "@/lib/seeded-random";
 
 describe("seededRandom", () => {
   it("returns the same value for the same seed", () => {
