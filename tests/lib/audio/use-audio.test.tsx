@@ -66,6 +66,7 @@ test("audioBuffer is defined after call setAudioFile", async () => {
     expect(result.current.audioBuffer).toBeDefined();
     expect(result.current.serializedAudio).toBeDefined();
     expect(result.current.audioFile).toBeDefined();
+    expect(toast.success).toHaveBeenCalledExactlyOnceWith("Audio file loaded");
   });
 });
 
@@ -135,6 +136,7 @@ test("handles audio file loading errors", async () => {
   // Verify error handling
   expect(toast.error).toHaveBeenCalledExactlyOnceWith(
     "Failed to set audio file",
+    { description: error.message },
   );
   expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith(
     "Failed to set audio file",

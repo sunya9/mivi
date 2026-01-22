@@ -184,7 +184,11 @@ export default defineConfig(({ mode }) => ({
             provider: playwright(),
             // https://vitest.dev/guide/browser/playwright
             instances: [{ browser: "chromium" }],
-            headless: true,
+            headless: false,
+            viewport: {
+              width: 1024,
+              height: 768,
+            },
           },
           include: ["**/*.browser.?(c|m)[jt]s?(x)"],
         },

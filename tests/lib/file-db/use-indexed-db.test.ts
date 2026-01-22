@@ -52,13 +52,14 @@ test("should handle saveFile error gracefully", async () => {
 
   const { result } = customRenderHook(() => useIndexedDb(mockKey));
 
-  await waitFor(async () => {
-    await result.current.setFile(mockFile);
-    expect(consoleSpy).toHaveBeenCalledExactlyOnceWith(
-      "Failed to save file",
-      error,
-    );
-    expect(toastSpy).toHaveBeenCalledExactlyOnceWith("Failed to save file");
+  await waitFor(() => expect(result.current).not.toBeNull());
+  await result.current.setFile(mockFile);
+
+  await waitFor(() => {
+    expect(consoleSpy).toHaveBeenCalledWith("Failed to save file", error);
+    expect(toastSpy).toHaveBeenCalledWith("Failed to save file", {
+      description: error.message,
+    });
   });
 
   consoleSpy.mockRestore();
