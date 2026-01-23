@@ -1,70 +1,52 @@
-![MIDI Visualizer](./public/og.png)
+![MiVi Logo](./public/og.png)
 
 # MiVi: MIDI Visualizer
 
+Transform your MIDI files into stunning visual experiences.
+
 [![codecov](https://codecov.io/github/sunya9/mivi/graph/badge.svg?token=ESHmAWDwDG)](https://codecov.io/github/sunya9/mivi)
 
-## Overview
+![MiVi Screenshot](./assets/screenshot.png)
 
-MiVi is a powerful MIDI visualization tool that transforms MIDI files into beautiful visual representations. It allows users to visualize music in real-time, customize the visual style, and export the visualizations as videos.
+[**Try MiVi →**](https://sunya9.github.io/mivi/)
 
-### Key Features
+---
 
-- **MIDI File Visualization**: Upload and visualize MIDI files with customizable visual styles
-- **Track Management**: Enable/disable specific MIDI tracks for visualization
-- **Real-time Playback**: Play, pause, and seek through MIDI files with synchronized visuals
-- **Customizable Visuals**: Adjust colors, shapes, animations, and other visual parameters
-- **Responsive Design**: Works on both desktop and mobile devices
-- **Video Export**: Export visualizations as video files
-- **PWA Support**: Install as a standalone application on supported devices
+## Features
 
-## Getting Started
+- **Visualizer Styles** - Piano Roll and Comet modes
+- **Deep Customization** - 30+ adjustable parameters, colors, and effects
+- **Playback Control** - Play, pause, seek, and track management
+- **Video Export** - Export visualizations as video files
+- **PWA Support** - Install as standalone app, works offline
 
-### Prerequisites
-
-- Node.js (v18 or later)
-- pnpm (v10 or later)
-
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/sunya9/mivi.git
-   cd mivi
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   pnpm install
-   ```
-
-3. Start the development server:
-
-   ```bash
-   pnpm dev
-   ```
-
-4. Open your browser and navigate to `http://localhost:5173`
+---
 
 ## Development
 
-### Build
+### Prerequisites
 
-To build the application for production:
+- Node.js (v22 or later)
+- pnpm (v10 or later)
 
-```bash
-pnpm build
-```
-
-The build output will be in the `dist` directory.
-
-### Preview Production Build
+### Setup
 
 ```bash
-pnpm preview
+git clone https://github.com/sunya9/mivi.git
+cd mivi
+pnpm install
+pnpm dev
 ```
+
+Then open `http://localhost:5173` in your browser.
+
+---
+
+## Contributing
+
+Contributions are welcome! Bug fixes and small improvements can be submitted as a PR directly. For new features or large changes, please open an issue first to discuss.
+
+---
 
 ## License
 
