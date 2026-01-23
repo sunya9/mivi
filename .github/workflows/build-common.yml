@@ -83,16 +83,16 @@ jobs:
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
+          report_type: coverage
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: sunya9/mivi
 
       - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: sunya9/mivi
-          report-type: test_results
+          report_type: test_results
           files: test-report.junit.xml
 
       - name: Upload build artifact
