@@ -72,9 +72,14 @@ export function MobileBottomNav({
       <TabsPrimitive.List
         className={cn(
           "relative grid grid-cols-4",
-          "before:absolute before:inset-[anchor(--tab_top)_anchor(--tab_right)_anchor(--tab_bottom)_anchor(--tab_left)] before:-z-10 before:[position-anchor:--tab]",
-          "before:bg-secondary before:m-1 before:rounded-md before:transition-all before:duration-1000",
+          // Indicator element using CSS custom property for position-anchor
+          "before:bg-secondary before:absolute before:m-1 before:rounded-md before:transition-all",
+          "before:inset-[anchor(top)_anchor(right)_anchor(bottom)_anchor(left)] before:-z-10",
+          "before:[position-anchor:var(--active-tab-anchor)]",
         )}
+        style={
+          { "--active-tab-anchor": `--tab-${value}` } as React.CSSProperties
+        }
       >
         {tabs.map((tab) => (
           <TabsPrimitive.Trigger
@@ -83,7 +88,7 @@ export function MobileBottomNav({
             className={cn(
               "text-muted-foreground relative flex flex-1 flex-col items-center gap-1 border-transparent bg-clip-padding py-2 text-xs font-normal",
               "not-data-[state=active]:hover:text-primary data-[state=active]:text-primary",
-              "[:active,[data-state=active]]:[anchor-name:--tab]",
+              // Fallback for browsers without anchor positioning
               "not-supports-position-anchor:data-[state=active]:before:bg-secondary",
               "not-supports-position-anchor:before:absolute",
               "not-supports-position-anchor:before:inset-0",
@@ -91,6 +96,7 @@ export function MobileBottomNav({
               "not-supports-position-anchor:before:m-1",
               "not-supports-position-anchor:before:rounded-md",
             )}
+            style={{ anchorName: `--tab-${tab.value}` }}
           >
             <span className="relative">
               <tab.icon />
