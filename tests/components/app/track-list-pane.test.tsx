@@ -35,16 +35,16 @@ test("should render track list when tracks are provided", () => {
   expect(screen.getByText("Acoustic Piano - Full")).toBeInTheDocument();
 });
 
-test("should render color presets dropdown when tracks are provided", () => {
+test("should render color preset menu when tracks are provided", () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  expect(screen.getByText("Color presets")).toBeInTheDocument();
+  expect(screen.getByText("Color preset")).toBeInTheDocument();
 });
 
 test("should call setMidiTracks with all white colors when All white is selected", async () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  const dropdownButton = screen.getByText("Color presets");
+  const dropdownButton = screen.getByText("Color preset");
   await userEvent.click(dropdownButton);
   const menuItem = screen.getByText("All white");
   await userEvent.click(menuItem);
@@ -59,7 +59,7 @@ test("should call setMidiTracks with all white colors when All white is selected
 test("should call setMidiTracks with all black colors when All black is selected", async () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  const dropdownButton = screen.getByText("Color presets");
+  const dropdownButton = screen.getByText("Color preset");
   await userEvent.click(dropdownButton);
   const menuItem = screen.getByText("All black");
   await userEvent.click(menuItem);
@@ -74,7 +74,7 @@ test("should call setMidiTracks with all black colors when All black is selected
 test("should call setMidiTracks with new colors when Randomize (colorful) is selected", async () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  const dropdownButton = screen.getByText("Color presets");
+  const dropdownButton = screen.getByText("Color preset");
   await userEvent.click(dropdownButton);
   const menuItem = screen.getByText("Randomize (colorful)");
   await userEvent.click(menuItem);
@@ -87,7 +87,7 @@ test("should call setMidiTracks with new colors when Randomize (colorful) is sel
 test("should call setMidiTracks with new colors when Randomize (gradient) is selected", async () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  const dropdownButton = screen.getByText("Color presets");
+  const dropdownButton = screen.getByText("Color preset");
   await userEvent.click(dropdownButton);
   const menuItem = screen.getByText("Randomize (gradient)");
   await userEvent.click(menuItem);
@@ -262,21 +262,21 @@ test("should render tracks in correct order", () => {
   expect(trackNames[1]).toHaveTextContent("Second Track");
 });
 
-test("should show Randomize (Hue) option in color presets dropdown", async () => {
+test("should show Randomize (Hue)... option in color presets dropdown", async () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  const dropdownButton = screen.getByText("Color presets");
+  const dropdownButton = screen.getByText("Color preset");
   await userEvent.click(dropdownButton);
 
-  expect(screen.getByText("Randomize (Hue)")).toBeInTheDocument();
+  expect(screen.getByText("Randomize (Hue)...")).toBeInTheDocument();
 });
 
-test("should open HueRandomizeDialog when Randomize (Hue) is selected", async () => {
+test("should open HueRandomizeDialog when Randomize (Hue)... is selected", async () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  const dropdownButton = screen.getByText("Color presets");
+  const dropdownButton = screen.getByText("Color preset");
   await userEvent.click(dropdownButton);
-  await userEvent.click(screen.getByText("Randomize (Hue)"));
+  await userEvent.click(screen.getByText("Randomize (Hue)..."));
 
   expect(screen.getByRole("dialog")).toBeInTheDocument();
   expect(screen.getByText("Randomize Hue")).toBeInTheDocument();
@@ -292,9 +292,9 @@ test("should call setMidiTracks with hue-randomized colors when Apply is clicked
   renderTrackListPane({ midiTracks: testMidiTracks });
 
   // Open dialog
-  const dropdownButton = screen.getByText("Color presets");
+  const dropdownButton = screen.getByText("Color preset");
   await userEvent.click(dropdownButton);
-  await userEvent.click(screen.getByText("Randomize (Hue)"));
+  await userEvent.click(screen.getByText("Randomize (Hue)..."));
 
   // Click Apply button
   await userEvent.click(screen.getByRole("button", { name: /apply/i }));
@@ -320,9 +320,9 @@ test("should reset dialog values when cancelled and reopened", async () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
   // Open dialog
-  const dropdownButton = screen.getByText("Color presets");
+  const dropdownButton = screen.getByText("Color preset");
   await userEvent.click(dropdownButton);
-  await userEvent.click(screen.getByText("Randomize (Hue)"));
+  await userEvent.click(screen.getByText("Randomize (Hue)..."));
 
   // Default values should be 100% saturation and 50% lightness
   expect(screen.getByText("100%")).toBeInTheDocument();
@@ -341,7 +341,7 @@ test("should reset dialog values when cancelled and reopened", async () => {
 
   // Reopen dialog
   await userEvent.click(dropdownButton);
-  await userEvent.click(screen.getByText("Randomize (Hue)"));
+  await userEvent.click(screen.getByText("Randomize (Hue)..."));
 
   // Values should be reset to defaults (100% and 50%)
   expect(screen.getByText("100%")).toBeInTheDocument();
