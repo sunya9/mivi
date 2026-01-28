@@ -1,13 +1,6 @@
 import { TrackItem } from "./track-item";
 import { HueRandomizeDialog } from "./hue-randomize-dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileButton } from "@/components/common/file-button";
 import { FormRow } from "@/components/common/form-row";
 import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
@@ -24,12 +17,14 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Minus, Plus } from "lucide-react";
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { Minus, Plus } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -195,25 +190,12 @@ export const TrackListPane = React.memo(function TrackListPane({
         </CardContent>
       )}
       {midiTracks && (
-        <>
-          <CardContent>
-            <div className="divide-y">
-              <TrackList
-                midiTracks={midiTracks}
-                onUpdateMidiTracks={setMidiTracks}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex-col items-start gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="secondary" size="sm">
-                  Color presets
-                  <ChevronDown className="ml-1 size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem
+        <CardContent>
+          <Menubar>
+            <MenubarMenu>
+              <MenubarTrigger>Color preset</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem
                   onClick={() =>
                     setMidiTracks({
                       ...midiTracks,
@@ -222,8 +204,8 @@ export const TrackListPane = React.memo(function TrackListPane({
                   }
                 >
                   All white
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                </MenubarItem>
+                <MenubarItem
                   onClick={() =>
                     setMidiTracks({
                       ...midiTracks,
@@ -232,8 +214,9 @@ export const TrackListPane = React.memo(function TrackListPane({
                   }
                 >
                   All black
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                </MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem
                   onClick={() =>
                     setMidiTracks({
                       ...midiTracks,
@@ -242,8 +225,8 @@ export const TrackListPane = React.memo(function TrackListPane({
                   }
                 >
                   Randomize (colorful)
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                </MenubarItem>
+                <MenubarItem
                   onClick={() =>
                     setMidiTracks({
                       ...midiTracks,
@@ -252,19 +235,31 @@ export const TrackListPane = React.memo(function TrackListPane({
                   }
                 >
                   Randomize (gradient)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setHslDialogOpen(true)}>
-                  Randomize (Hue)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <HueRandomizeDialog
-              open={hslDialogOpen}
-              onOpenChange={setHslDialogOpen}
-              onConfirm={randomizeColorsHue}
+                </MenubarItem>
+                <MenubarItem onClick={() => setHslDialogOpen(true)}>
+                  Randomize (Hue)...
+                </MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
+          </Menubar>
+        </CardContent>
+      )}
+      {midiTracks && (
+        <CardContent>
+          <div className="divide-y">
+            <TrackList
+              midiTracks={midiTracks}
+              onUpdateMidiTracks={setMidiTracks}
             />
-          </CardFooter>
-        </>
+          </div>
+        </CardContent>
+      )}
+      {midiTracks && (
+        <HueRandomizeDialog
+          open={hslDialogOpen}
+          onOpenChange={setHslDialogOpen}
+          onConfirm={randomizeColorsHue}
+        />
       )}
     </Card>
   );
