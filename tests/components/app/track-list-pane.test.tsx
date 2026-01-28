@@ -257,7 +257,7 @@ test("should render tracks in correct order", () => {
 
   renderTrackListPane({ midiTracks: multiTrackMidi });
 
-  const trackNames = screen.getAllByText(/Track$/);
+  const trackNames = screen.getAllByText(/(First|Second) Track$/);
   expect(trackNames[0]).toHaveTextContent("First Track");
   expect(trackNames[1]).toHaveTextContent("Second Track");
 });
@@ -346,4 +346,129 @@ test("should reset dialog values when cancelled and reopened", async () => {
   // Values should be reset to defaults (100% and 50%)
   expect(screen.getByText("100%")).toBeInTheDocument();
   expect(screen.getByText("50%")).toBeInTheDocument();
+});
+
+test("should render Track menu when tracks are provided", () => {
+  renderTrackListPane({ midiTracks: testMidiTracks });
+
+  expect(screen.getByText("Track")).toBeInTheDocument();
+});
+
+test("should call setMidiTracks with all tracks disabled when Disable all is selected", async () => {
+  const multiTrackMidi: MidiTracks = {
+    ...testMidiTracks,
+    tracks: [
+      {
+        ...testMidiTracks.tracks[0],
+        id: "track-1",
+        config: { ...testMidiTracks.tracks[0].config, visible: true },
+      },
+      {
+        ...testMidiTracks.tracks[0],
+        id: "track-2",
+        config: { ...testMidiTracks.tracks[0].config, visible: true },
+      },
+    ],
+  };
+  renderTrackListPane({ midiTracks: multiTrackMidi });
+
+  const trackMenuButton = screen.getByText("Track");
+  await userEvent.click(trackMenuButton);
+  const menuItem = screen.getByText("Disable all");
+  await userEvent.click(menuItem);
+
+  expect(mockSetMidiTracks).toHaveBeenCalled();
+  const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
+  const newMidiTracks = mockSetMidiTracks.mock.calls[
+    lastCallIndex
+  ][0] as MidiTracks;
+  expect(newMidiTracks.tracks.every((t) => t.config.visible === false)).toBe(
+    true,
+  );
+});
+
+test("should call setMidiTracks with all tracks enabled when Enable all is selected", async () => {
+  const multiTrackMidi: MidiTracks = {
+    ...testMidiTracks,
+    tracks: [
+      {
+        ...testMidiTracks.tracks[0],
+        id: "track-1",
+        config: { ...testMidiTracks.tracks[0].config, visible: false },
+      },
+      {
+        ...testMidiTracks.tracks[0],
+        id: "track-2",
+        config: { ...testMidiTracks.tracks[0].config, visible: false },
+      },
+    ],
+  };
+  renderTrackListPane({ midiTracks: multiTrackMidi });
+
+  const trackMenuButton = screen.getByText("Track");
+  await userEvent.click(trackMenuButton);
+  const menuItem = screen.getByText("Enable all");
+  await userEvent.click(menuItem);
+
+  expect(mockSetMidiTracks).toHaveBeenCalled();
+  const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
+  const newMidiTracks = mockSetMidiTracks.mock.calls[
+    lastCallIndex
+  ][0] as MidiTracks;
+  expect(newMidiTracks.tracks.every((t) => t.config.visible === true)).toBe(
+    true,
+  );
+});
+
+test("should sort disabled tracks to bottom when Sort disabled to bottom is selected", async () => {
+  const multiTrackMidi: MidiTracks = {
+    ...testMidiTracks,
+    tracks: [
+      {
+        ...testMidiTracks.tracks[0],
+        id: "track-1",
+        config: {
+          ...testMidiTracks.tracks[0].config,
+          name: "Disabled Track",
+          visible: false,
+        },
+      },
+      {
+        ...testMidiTracks.tracks[0],
+        id: "track-2",
+        config: {
+          ...testMidiTracks.tracks[0].config,
+          name: "Enabled Track",
+          visible: true,
+        },
+      },
+      {
+        ...testMidiTracks.tracks[0],
+        id: "track-3",
+        config: {
+          ...testMidiTracks.tracks[0].config,
+          name: "Another Disabled",
+          visible: false,
+        },
+      },
+    ],
+  };
+  renderTrackListPane({ midiTracks: multiTrackMidi });
+
+  const trackMenuButton = screen.getByText("Track");
+  await userEvent.click(trackMenuButton);
+  const menuItem = screen.getByText("Sort disabled to bottom");
+  await userEvent.click(menuItem);
+
+  expect(mockSetMidiTracks).toHaveBeenCalled();
+  const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
+  const newMidiTracks = mockSetMidiTracks.mock.calls[
+    lastCallIndex
+  ][0] as MidiTracks;
+
+  // Enabled tracks should come first, disabled tracks at the end
+  expect(newMidiTracks.tracks[0].config.visible).toBe(true);
+  expect(newMidiTracks.tracks[0].config.name).toBe("Enabled Track");
+  expect(newMidiTracks.tracks[1].config.visible).toBe(false);
+  expect(newMidiTracks.tracks[2].config.visible).toBe(false);
 });

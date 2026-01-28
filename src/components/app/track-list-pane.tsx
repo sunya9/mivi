@@ -241,6 +241,42 @@ export const TrackListPane = React.memo(function TrackListPane({
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
+            <MenubarMenu>
+              <MenubarTrigger>Track</MenubarTrigger>
+              <MenubarContent>
+                <MenubarItem
+                  onClick={() =>
+                    setMidiTracks({
+                      ...midiTracks,
+                      tracks: setAllTracksDisabled(midiTracks.tracks),
+                    })
+                  }
+                >
+                  Disable all
+                </MenubarItem>
+                <MenubarItem
+                  onClick={() =>
+                    setMidiTracks({
+                      ...midiTracks,
+                      tracks: setAllTracksEnabled(midiTracks.tracks),
+                    })
+                  }
+                >
+                  Enable all
+                </MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem
+                  onClick={() =>
+                    setMidiTracks({
+                      ...midiTracks,
+                      tracks: sortDisabledToBottom(midiTracks.tracks),
+                    })
+                  }
+                >
+                  Sort disabled to bottom
+                </MenubarItem>
+              </MenubarContent>
+            </MenubarMenu>
           </Menubar>
         </CardContent>
       )}
@@ -375,4 +411,24 @@ function randomizeColorsColorful(midiTracks: MidiTracks["tracks"]) {
       color: getRandomTailwindColor(),
     },
   }));
+}
+
+function setAllTracksDisabled(tracks: MidiTracks["tracks"]) {
+  return tracks.map((track) => ({
+    ...track,
+    config: { ...track.config, visible: false },
+  }));
+}
+
+function setAllTracksEnabled(tracks: MidiTracks["tracks"]) {
+  return tracks.map((track) => ({
+    ...track,
+    config: { ...track.config, visible: true },
+  }));
+}
+
+function sortDisabledToBottom(tracks: MidiTracks["tracks"]) {
+  const enabled = tracks.filter((t) => t.config.visible);
+  const disabled = tracks.filter((t) => !t.config.visible);
+  return [...enabled, ...disabled];
 }
