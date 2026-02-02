@@ -197,6 +197,37 @@ export default defineConfig(({ mode }) => ({
           include: ["**/*.browser.?(c|m)[jt]s?(x)"],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: "vrt",
+          browser: {
+            enabled: true,
+            provider: playwright(),
+            instances: [{ browser: "chromium" }],
+            headless: true,
+            viewport: {
+              width: 800,
+              height: 600,
+            },
+            expect: {
+              toMatchScreenshot: {
+                // Exclude browser/platform from screenshot path to allow cross-platform baseline sharing
+                resolveScreenshotPath: ({
+                  root,
+                  testFileDirectory,
+                  testFileName,
+                  arg,
+                  ext,
+                }) =>
+                  `${root}/${testFileDirectory}/__screenshots__/${testFileName}/${arg}${ext}`,
+              },
+            },
+          },
+          include: ["tests/vrt/**/*.vrt.ts"],
+          testTimeout: 30000,
+        },
+      },
     ],
   },
 }));

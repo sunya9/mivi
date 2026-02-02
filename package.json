@@ -13,7 +13,8 @@
     "format:check": "prettier --check .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
-    "test": "vitest"
+    "test": "vitest",
+    "test:vrt": "vitest --project vrt"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
