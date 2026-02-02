@@ -12,7 +12,7 @@ export function createRecorderResources(resources: {
 }
 
 export interface RecorderResources {
-  readonly midiTracks: MidiTracks;
+  readonly midiTracks?: MidiTracks;
   readonly serializedAudio: SerializedAudio;
   readonly rendererConfig: RendererConfig;
   readonly backgroundImageBitmap?: ImageBitmap;
