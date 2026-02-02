@@ -278,32 +278,74 @@ export class MediaCompositor {
   }
 
   /**
-   * Simple DFT-based frequency magnitude computation.
-   * Not as efficient as FFT but sufficient for visualization purposes.
+   * Cooley-Tukey FFT algorithm for fast frequency magnitude computation.
+   * O(n log n) complexity - much faster than DFT for large sizes.
    */
   private computeFFTMagnitude(samples: Float32Array): Uint8Array<ArrayBuffer> {
     const n = samples.length;
     const frequencyBinCount = n / 2;
     const magnitudes = new Uint8Array(frequencyBinCount);
 
-    // Simple DFT for visualization (compute only positive frequencies)
-    for (let k = 0; k < frequencyBinCount; k++) {
-      let real = 0;
-      let imag = 0;
-      for (let t = 0; t < n; t++) {
-        const angle = (2 * Math.PI * k * t) / n;
-        real += samples[t] * Math.cos(angle);
-        imag -= samples[t] * Math.sin(angle);
-      }
+    // Initialize real and imaginary arrays
+    const real = new Float32Array(n);
+    const imag = new Float32Array(n);
+    real.set(samples);
 
-      // Compute magnitude and normalize to 0-255 range
-      const magnitude = Math.sqrt(real * real + imag * imag) / n;
-      // Scale magnitude (adjust multiplier for visual appearance)
+    // Bit-reversal permutation
+    const bits = Math.log2(n);
+    for (let i = 0; i < n; i++) {
+      const j = this.reverseBits(i, bits);
+      if (j > i) {
+        [real[i], real[j]] = [real[j], real[i]];
+        [imag[i], imag[j]] = [imag[j], imag[i]];
+      }
+    }
+
+    // Cooley-Tukey iterative FFT
+    for (let size = 2; size <= n; size *= 2) {
+      const halfSize = size / 2;
+      const angleStep = (-2 * Math.PI) / size;
+
+      for (let i = 0; i < n; i += size) {
+        for (let j = 0; j < halfSize; j++) {
+          const angle = angleStep * j;
+          const cos = Math.cos(angle);
+          const sin = Math.sin(angle);
+
+          const evenIdx = i + j;
+          const oddIdx = i + j + halfSize;
+
+          const tReal = real[oddIdx] * cos - imag[oddIdx] * sin;
+          const tImag = real[oddIdx] * sin + imag[oddIdx] * cos;
+
+          real[oddIdx] = real[evenIdx] - tReal;
+          imag[oddIdx] = imag[evenIdx] - tImag;
+          real[evenIdx] = real[evenIdx] + tReal;
+          imag[evenIdx] = imag[evenIdx] + tImag;
+        }
+      }
+    }
+
+    // Compute magnitudes for positive frequencies
+    for (let k = 0; k < frequencyBinCount; k++) {
+      const magnitude = Math.sqrt(real[k] * real[k] + imag[k] * imag[k]) / n;
       const scaled = Math.min(255, Math.floor(magnitude * 512));
       magnitudes[k] = scaled;
     }
 
     return magnitudes;
+  }
+
+  /**
+   * Reverse bits of an integer for FFT bit-reversal permutation.
+   */
+  private reverseBits(x: number, bits: number): number {
+    let result = 0;
+    for (let i = 0; i < bits; i++) {
+      result = (result << 1) | (x & 1);
+      x >>= 1;
+    }
+    return result;
   }
 
   private get progressTotal() {
