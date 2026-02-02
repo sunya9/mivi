@@ -13,6 +13,7 @@ function createTestContext() {
 function createFrequencyData(): FrequencyData {
   return {
     frequencyData: new Uint8Array(1024).fill(128),
+    timeDomainData: new Uint8Array(1024).fill(128),
     frequencyBinCount: 1024,
     nyquistFrequency: 22050,
   };
