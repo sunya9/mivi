@@ -4,7 +4,11 @@ import { Muxer } from "@/lib/muxer/muxer";
 import { RecorderResources } from "./recorder-resources";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
-import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
+import {
+  precomputeFFTData,
+  getFrameAtTime,
+  type PrecomputedFFTData,
+} from "@/lib/audio/fft-precompute";
 
 const frameSize = 20;
 
@@ -184,6 +188,9 @@ export class MediaCompositor {
     const totalVideoFrames = this.totalVideoFrames;
     const layer = this.rendererConfig.audioVisualizerLayer;
 
+    // Pre-compute FFT data with temporal smoothing for smooth visualization
+    const precomputedFFT = this.precomputeAudioVisualizerData();
+
     for (let i = 0; i < totalVideoFrames; i++) {
       const progress = i / totalVideoFrames;
       const currentTime = progress * this.duration;
@@ -191,8 +198,10 @@ export class MediaCompositor {
       // 1. Render background
       backgroundRenderer.render();
 
-      // 2. Get frequency data for audio visualizer
-      const frequencyData = this.getFrequencyDataAtTime(currentTime);
+      // 2. Get frequency data for audio visualizer (from pre-computed data)
+      const frequencyData = precomputedFFT
+        ? getFrameAtTime(precomputedFFT, currentTime)
+        : null;
 
       // 3. Render audio visualizer in back layer (under MIDI)
       if (layer === "back") {
@@ -223,18 +232,26 @@ export class MediaCompositor {
   }
 
   /**
-   * Get frequency data from audio samples at a specific time using existing FFT utility.
+   * Pre-compute FFT data for all frames with temporal smoothing.
+   * This eliminates flickering by applying smoothing across frames.
    */
-  private getFrequencyDataAtTime(timeInSeconds: number) {
+  private precomputeAudioVisualizerData(): PrecomputedFFTData | null {
     const { audioVisualizerConfig } = this.rendererConfig;
     if (audioVisualizerConfig.style === "none") {
       return null;
     }
 
-    return computeFFTAtTime(this.serializedAudio, timeInSeconds, {
+    console.log(
+      "[MediaCompositor] Pre-computing FFT data for audio visualizer...",
+    );
+    const data = precomputeFFTData(this.serializedAudio, this.fps, {
       fftSize: audioVisualizerConfig.fftSize,
       smoothingTimeConstant: audioVisualizerConfig.smoothingTimeConstant,
     });
+    console.log(
+      `[MediaCompositor] Pre-computed ${data.frames.length} FFT frames`,
+    );
+    return data;
   }
 
   private get progressTotal() {
