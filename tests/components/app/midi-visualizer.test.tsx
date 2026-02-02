@@ -34,6 +34,7 @@ const defaultStoreMock: ReturnType<typeof useAudioPlaybackStore> = {
   syncFromAudioContext: vi.fn(),
   setAudioBuffer: vi.fn(),
   getPosition: () => 0,
+  getFrequencyData: () => null,
 };
 
 // Mock the useAudioPlaybackStore hook

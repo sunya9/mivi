@@ -74,7 +74,7 @@ export class PianoRollRenderer extends Renderer {
     }
     this.lastCurrentTime = currentTime;
 
-    this.renderCommonVisual();
+    // Background is now rendered by RendererController
     this.updateNoiseTexture();
     const {
       canvas: { width, height },

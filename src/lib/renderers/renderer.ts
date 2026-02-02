@@ -73,6 +73,61 @@ export const resolutions: Resolution[] = [
 
 export type RendererType = "pianoRoll" | "comet";
 
+// Audio Visualizer Types
+export type AudioVisualizerFFTSize = 512 | 1024 | 2048 | 4096;
+export type AudioVisualizerPosition = "bottom" | "top" | "center";
+export type AudioVisualizerBarStyle = "rounded" | "sharp";
+export type AudioVisualizerStyle =
+  | "none"
+  | "bars"
+  | "lineSpectrum"
+  | "circular";
+export type GradientDirection =
+  | "to-right"
+  | "to-bottom-right"
+  | "to-bottom"
+  | "to-bottom-left"
+  | "to-left"
+  | "to-top-left"
+  | "to-top"
+  | "to-top-right";
+
+export interface LineSpectrumConfig {
+  lineWidth: number;
+  tension: number;
+  stroke: boolean;
+  strokeColor: string;
+  strokeOpacity: number;
+  fill: boolean;
+  fillOpacity: number;
+}
+
+export interface AudioVisualizerConfig {
+  style: AudioVisualizerStyle;
+  fftSize: AudioVisualizerFFTSize;
+  smoothingTimeConstant: number;
+  minFrequency: number;
+  maxFrequency: number;
+  barCount: number;
+  barGap: number;
+  barPadding: number;
+  barMinHeight: number;
+  barStyle: AudioVisualizerBarStyle;
+  useGradient: boolean;
+  gradientDirection: GradientDirection;
+  gradientStartColor: string;
+  gradientEndColor: string;
+  singleColor: string;
+  barOpacity: number;
+  position: AudioVisualizerPosition;
+  height: number;
+  mirror: boolean;
+  mirrorOpacity: number;
+  lineSpectrumConfig: LineSpectrumConfig;
+}
+
+export type AudioVisualizerLayer = "front" | "back";
+
 export const fpsOptions = [
   { value: 24, label: "24 fps" },
   { value: 30, label: "30 fps" },
@@ -131,6 +186,8 @@ export interface RendererConfig {
   format: VideoFormat;
   pianoRollConfig: PianoRollConfigValues;
   cometConfig: CometConfigValues;
+  audioVisualizerConfig: AudioVisualizerConfig;
+  audioVisualizerLayer: AudioVisualizerLayer;
 }
 
 export type RendererContext =
@@ -202,6 +259,38 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     angleRandomness: 15,
     reverseStacking: false,
   },
+  audioVisualizerConfig: {
+    style: "none",
+    fftSize: 2048,
+    smoothingTimeConstant: 0.5,
+    minFrequency: 20,
+    maxFrequency: 20000,
+    barCount: 64,
+    barGap: 20,
+    barPadding: 5,
+    barMinHeight: 2,
+    barStyle: "rounded",
+    useGradient: true,
+    gradientDirection: "to-top",
+    gradientStartColor: "#3b82f6",
+    gradientEndColor: "#8b5cf6",
+    singleColor: "#3b82f6",
+    barOpacity: 0.8,
+    position: "bottom",
+    height: 30,
+    mirror: false,
+    mirrorOpacity: 0.5,
+    lineSpectrumConfig: {
+      lineWidth: 2,
+      tension: 0.4,
+      stroke: true,
+      strokeColor: "#ffffff",
+      strokeOpacity: 1,
+      fill: false,
+      fillOpacity: 0.3,
+    },
+  },
+  audioVisualizerLayer: "back",
 });
 
 export abstract class Renderer {

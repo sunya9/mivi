@@ -118,6 +118,7 @@ export function App() {
             rendererConfig={rendererConfig}
             midiTracks={midiTracks}
             backgroundImageBitmap={backgroundImageBitmap}
+            serializedAudio={serializedAudio}
             containerRef={visualizerContainerRef}
           />
         </GridResizablePanel>

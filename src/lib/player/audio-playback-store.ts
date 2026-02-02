@@ -1,4 +1,5 @@
 import { type StorageRepository } from "@/lib/storage/storage-repository";
+import { AudioAnalyzer, type FrequencyData } from "@/lib/audio/audio-analyzer";
 
 /** Immutable snapshot of playback state */
 export interface PlaybackSnapshot {
@@ -29,6 +30,7 @@ const SEEK_SNAP_THRESHOLD_SEC = 1;
 export class AudioPlaybackStore {
   readonly #audioContext: AudioContext;
   readonly #gainNode: GainNode;
+  readonly #analyser: AudioAnalyzer;
   readonly #storage: StorageRepository;
   #audioBuffer: AudioBuffer | undefined = undefined;
   #source: AudioBufferSourceNode | null = null;
@@ -42,6 +44,9 @@ export class AudioPlaybackStore {
   constructor(audioContext: AudioContext, storage: StorageRepository) {
     this.#audioContext = audioContext;
     this.#gainNode = audioContext.createGain();
+    this.#analyser = new AudioAnalyzer(audioContext);
+    // Connect analyser -> gainNode -> destination
+    this.#analyser.node.connect(this.#gainNode);
     this.#gainNode.connect(audioContext.destination);
     this.#storage = storage;
     this.#volume = storage.get(STORAGE_KEY_VOLUME, 1);
@@ -163,7 +168,8 @@ export class AudioPlaybackStore {
     const source = this.#audioContext.createBufferSource();
     source.buffer = audioBuffer;
     this.#applyGain();
-    source.connect(this.#gainNode);
+    // Connect source -> analyser (which is already connected to gainNode -> destination)
+    source.connect(this.#analyser.node);
 
     source.addEventListener("ended", () => {
       if (this.#source === source) {
@@ -237,5 +243,18 @@ export class AudioPlaybackStore {
     if (commit && wasPlaying) {
       this.play();
     }
+  };
+
+  // ============================================================
+  // Audio analysis
+  // ============================================================
+
+  /**
+   * Get current frequency data from the audio analyser.
+   * Returns meaningful data only during playback.
+   */
+  getFrequencyData = (): FrequencyData | null => {
+    if (!this.#source) return null;
+    return this.#analyser.getFrequencyData();
   };
 }
