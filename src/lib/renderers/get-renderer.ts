@@ -4,6 +4,7 @@ import {
   Renderer,
   RendererType,
 } from "./renderer";
+import { NoneRenderer } from "./none-renderer";
 import { PianoRollRenderer } from "./piano-roll/piano-roll-renderer";
 import { CometRenderer } from "./comet/comet-renderer";
 
@@ -14,6 +15,7 @@ type RendererConstructor = new (
 ) => Renderer;
 
 const rendererClasses: Record<RendererType, RendererConstructor> = {
+  none: NoneRenderer,
   pianoRoll: PianoRollRenderer,
   comet: CometRenderer,
 };

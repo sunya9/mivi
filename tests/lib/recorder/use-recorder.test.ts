@@ -32,7 +32,7 @@ test("should initialize with ReadyState", () => {
   expect(result.current.recordingState.isRecording).toBe(false);
 });
 
-test("should show error toast when trying to start recording without required files", async () => {
+test("should show error toast when trying to start recording without audio file", async () => {
   const { result } = renderHook((props) => useRecorder(props), {
     initialProps: {
       ...mockProps,
@@ -45,7 +45,85 @@ test("should show error toast when trying to start recording without required fi
   });
 
   expect(toast.error).toHaveBeenCalledExactlyOnceWith(
-    "Please select a MIDI file and audio file.",
+    "Please select an audio file.",
+    { description: "Unexpected error" },
+  );
+});
+
+test("should show error toast when trying to start recording without MIDI file", async () => {
+  const { result } = renderHook((props) => useRecorder(props), {
+    initialProps: {
+      ...mockProps,
+      midiTracks: undefined,
+    },
+  });
+
+  await act(async () => {
+    await result.current.toggleRecording();
+  });
+
+  expect(toast.error).toHaveBeenCalledExactlyOnceWith(
+    "Please select a MIDI file.",
+    { description: "Unexpected error" },
+  );
+});
+
+test("should allow recording without MIDI when renderer type is none and audio visualizer is enabled", async () => {
+  const { result } = renderHook((props) => useRecorder(props), {
+    initialProps: {
+      ...mockProps,
+      midiTracks: undefined,
+      rendererConfig: {
+        ...rendererConfig,
+        type: "none" as const,
+        audioVisualizerConfig: {
+          ...rendererConfig.audioVisualizerConfig,
+          style: "bars" as const,
+        },
+      },
+    },
+  });
+  vi.mocked(runWorker).mockImplementationOnce(
+    () =>
+      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+  );
+
+  await act(async () => {
+    await result.current.toggleRecording();
+  });
+
+  expect(runWorker).toHaveBeenCalledExactlyOnceWith(
+    expect.objectContaining({
+      serializedAudio: mockProps.serializedAudio,
+      midiTracks: undefined,
+    }),
+    expect.any(Function),
+    expect.any(AbortSignal),
+  );
+});
+
+test("should show error when renderer type is none and audio visualizer is also none", async () => {
+  const { result } = renderHook((props) => useRecorder(props), {
+    initialProps: {
+      ...mockProps,
+      midiTracks: undefined,
+      rendererConfig: {
+        ...rendererConfig,
+        type: "none" as const,
+        audioVisualizerConfig: {
+          ...rendererConfig.audioVisualizerConfig,
+          style: "none" as const,
+        },
+      },
+    },
+  });
+
+  await act(async () => {
+    await result.current.toggleRecording();
+  });
+
+  expect(toast.error).toHaveBeenCalledExactlyOnceWith(
+    "Please enable audio visualizer or select a MIDI visualization style.",
     { description: "Unexpected error" },
   );
 });

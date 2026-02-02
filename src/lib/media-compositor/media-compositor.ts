@@ -167,14 +167,12 @@ export class MediaCompositor {
       this.rendererConfig,
       this.backgroundImageBitmap,
     );
-    const midiOffset = this.midiTracks.midiOffset ?? 0;
+    const midiOffset = this.midiTracks?.midiOffset ?? 0;
+    const tracks = this.midiTracks?.tracks ?? [];
     const totalVideoFrames = this.totalVideoFrames;
     for (let i = 0; i < totalVideoFrames; i++) {
       const progress = i / totalVideoFrames;
-      renderer.render(
-        this.midiTracks.tracks,
-        progress * this.duration + midiOffset,
-      );
+      renderer.render(tracks, progress * this.duration + midiOffset);
 
       this.updateProgress("video", "render");
 

@@ -71,7 +71,7 @@ export const resolutions: Resolution[] = [
   { width: 720, height: 720, label: "720×720 (1:1)" },
 ];
 
-export type RendererType = "pianoRoll" | "comet";
+export type RendererType = "none" | "pianoRoll" | "comet";
 
 // Audio Visualizer Types
 export type AudioVisualizerFFTSize = 512 | 1024 | 2048 | 4096;

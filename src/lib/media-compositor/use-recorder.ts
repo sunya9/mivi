@@ -18,8 +18,27 @@ export function useRecorder(resources: PartialRecorderResources) {
     if (!recordingState.isRecording) {
       const midiTracks = resources.midiTracks;
       const serializedAudio = resources.serializedAudio;
-      if (!midiTracks || !serializedAudio) {
-        errorLogWithToast("Please select a MIDI file and audio file.");
+      const rendererType = resources.rendererConfig.type;
+      const audioVisualizerStyle =
+        resources.rendererConfig.audioVisualizerConfig.style;
+
+      // Audio is always required
+      if (!serializedAudio) {
+        errorLogWithToast("Please select an audio file.");
+        return;
+      }
+
+      // MIDI is required unless renderer type is "none" AND audio visualizer is enabled
+      const needsMidi = rendererType !== "none";
+      const hasAudioVisualizer = audioVisualizerStyle !== "none";
+      if (needsMidi && !midiTracks) {
+        errorLogWithToast("Please select a MIDI file.");
+        return;
+      }
+      if (!needsMidi && !hasAudioVisualizer) {
+        errorLogWithToast(
+          "Please enable audio visualizer or select a MIDI visualization style.",
+        );
         return;
       }
       const abortController = new AbortController();
@@ -47,7 +66,8 @@ export function useRecorder(resources: PartialRecorderResources) {
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `mivi-${midiTracks.name}.${resources.rendererConfig.format}`;
+          const exportName = midiTracks?.name ?? "audio";
+          a.download = `mivi-${exportName}.${resources.rendererConfig.format}`;
           a.click();
           URL.revokeObjectURL(url);
           toast.success("Export completed");

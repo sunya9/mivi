@@ -37,6 +37,11 @@ interface RendererOption {
 
 const RENDERER_OPTIONS: RendererOption[] = [
   {
+    value: "none",
+    label: "None",
+    renderConfig: () => null,
+  },
+  {
     value: "pianoRoll",
     label: "Piano Roll",
     renderConfig: (
