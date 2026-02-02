@@ -4,7 +4,7 @@ import { Muxer } from "@/lib/muxer/muxer";
 import { RecorderResources } from "./recorder-resources";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
-import type { FrequencyData } from "@/lib/audio/audio-analyzer";
+import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
 
 const frameSize = 20;
 
@@ -223,129 +223,18 @@ export class MediaCompositor {
   }
 
   /**
-   * Compute frequency data from audio samples at a specific time.
-   * Uses a simple FFT implementation to generate visualization data.
+   * Get frequency data from audio samples at a specific time using existing FFT utility.
    */
-  private getFrequencyDataAtTime(timeInSeconds: number): FrequencyData | null {
+  private getFrequencyDataAtTime(timeInSeconds: number) {
     const { audioVisualizerConfig } = this.rendererConfig;
     if (audioVisualizerConfig.style === "none") {
       return null;
     }
 
-    const fftSize = audioVisualizerConfig.fftSize;
-    const frequencyBinCount = fftSize / 2;
-    const sampleRate = this.serializedAudio.sampleRate;
-    const nyquistFrequency = sampleRate / 2;
-
-    // Get the starting sample index for this time
-    const startSample = Math.floor(timeInSeconds * sampleRate);
-
-    // Use first channel for analysis (or mix channels if stereo)
-    const audioData = this.serializedAudio.channels[0];
-    if (!audioData || startSample >= audioData.length) {
-      return null;
-    }
-
-    // Extract samples for FFT (apply Hann window)
-    const samples = new Float32Array(fftSize);
-    for (let i = 0; i < fftSize; i++) {
-      const sampleIndex = startSample + i;
-      const sample =
-        sampleIndex < audioData.length ? audioData[sampleIndex] : 0;
-      // Apply Hann window
-      const window = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftSize - 1)));
-      samples[i] = sample * window;
-    }
-
-    // Compute FFT magnitude
-    const frequencyData = this.computeFFTMagnitude(samples);
-    const timeDomainData = new Uint8Array(frequencyBinCount);
-
-    // Convert time domain to 0-255 range (centered at 128)
-    for (let i = 0; i < frequencyBinCount && i < fftSize; i++) {
-      const sampleIndex = startSample + i;
-      const sample =
-        sampleIndex < audioData.length ? audioData[sampleIndex] : 0;
-      timeDomainData[i] = Math.round((sample + 1) * 127.5);
-    }
-
-    return {
-      frequencyBinCount,
-      frequencyData,
-      timeDomainData,
-      nyquistFrequency,
-    };
-  }
-
-  /**
-   * Cooley-Tukey FFT algorithm for fast frequency magnitude computation.
-   * O(n log n) complexity - much faster than DFT for large sizes.
-   */
-  private computeFFTMagnitude(samples: Float32Array): Uint8Array<ArrayBuffer> {
-    const n = samples.length;
-    const frequencyBinCount = n / 2;
-    const magnitudes = new Uint8Array(frequencyBinCount);
-
-    // Initialize real and imaginary arrays
-    const real = new Float32Array(n);
-    const imag = new Float32Array(n);
-    real.set(samples);
-
-    // Bit-reversal permutation
-    const bits = Math.log2(n);
-    for (let i = 0; i < n; i++) {
-      const j = this.reverseBits(i, bits);
-      if (j > i) {
-        [real[i], real[j]] = [real[j], real[i]];
-        [imag[i], imag[j]] = [imag[j], imag[i]];
-      }
-    }
-
-    // Cooley-Tukey iterative FFT
-    for (let size = 2; size <= n; size *= 2) {
-      const halfSize = size / 2;
-      const angleStep = (-2 * Math.PI) / size;
-
-      for (let i = 0; i < n; i += size) {
-        for (let j = 0; j < halfSize; j++) {
-          const angle = angleStep * j;
-          const cos = Math.cos(angle);
-          const sin = Math.sin(angle);
-
-          const evenIdx = i + j;
-          const oddIdx = i + j + halfSize;
-
-          const tReal = real[oddIdx] * cos - imag[oddIdx] * sin;
-          const tImag = real[oddIdx] * sin + imag[oddIdx] * cos;
-
-          real[oddIdx] = real[evenIdx] - tReal;
-          imag[oddIdx] = imag[evenIdx] - tImag;
-          real[evenIdx] = real[evenIdx] + tReal;
-          imag[evenIdx] = imag[evenIdx] + tImag;
-        }
-      }
-    }
-
-    // Compute magnitudes for positive frequencies
-    for (let k = 0; k < frequencyBinCount; k++) {
-      const magnitude = Math.sqrt(real[k] * real[k] + imag[k] * imag[k]) / n;
-      const scaled = Math.min(255, Math.floor(magnitude * 512));
-      magnitudes[k] = scaled;
-    }
-
-    return magnitudes;
-  }
-
-  /**
-   * Reverse bits of an integer for FFT bit-reversal permutation.
-   */
-  private reverseBits(x: number, bits: number): number {
-    let result = 0;
-    for (let i = 0; i < bits; i++) {
-      result = (result << 1) | (x & 1);
-      x >>= 1;
-    }
-    return result;
+    return computeFFTAtTime(this.serializedAudio, timeInSeconds, {
+      fftSize: audioVisualizerConfig.fftSize,
+      smoothingTimeConstant: audioVisualizerConfig.smoothingTimeConstant,
+    });
   }
 
   private get progressTotal() {
