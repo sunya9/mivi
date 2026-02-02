@@ -39,7 +39,7 @@ export class CometRenderer extends Renderer {
     }
     this.lastCurrentTime = currentTime;
 
-    this.renderCommonVisual();
+    // Background is now rendered by RendererController
 
     const {
       canvas: { width, height },

@@ -20,6 +20,7 @@ import {
   backgroundImageRepeats,
   BackgroundImageFit,
   backgroundImageFitOptions,
+  AudioVisualizerLayer,
 } from "@/lib/renderers/renderer";
 import { ColorPickerButton } from "@/components/common/color-picker-button";
 import { FormRow } from "@/components/common/form-row";
@@ -283,6 +284,25 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                     {option.label}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <FormRow
+          label={<span>Audio Visualizer Layer</span>}
+          controller={({ id }) => (
+            <Select
+              value={rendererConfig.audioVisualizerLayer}
+              onValueChange={(value: AudioVisualizerLayer) =>
+                onUpdateRendererConfig({ audioVisualizerLayer: value })
+              }
+            >
+              <SelectTrigger id={id}>
+                <SelectValue placeholder="Select layer" />
+              </SelectTrigger>
+              <SelectContent align="end">
+                <SelectItem value="front">Front (over MIDI)</SelectItem>
+                <SelectItem value="back">Back (under MIDI)</SelectItem>
               </SelectContent>
             </Select>
           )}

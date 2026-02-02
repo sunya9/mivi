@@ -24,5 +24,6 @@ export function useAudioPlaybackStore() {
     setAudioBuffer: store.setAudioBuffer,
     // Getters (non-reactive, for synchronous access)
     getPosition: store.getPosition,
+    getFrequencyData: store.getFrequencyData,
   };
 }

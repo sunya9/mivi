@@ -9,6 +9,7 @@ import { defaultsDeep, merge } from "lodash-es";
 import { useMemo, useCallback } from "react";
 import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
+import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
 import { FormRow } from "@/components/common/form-row";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -18,6 +19,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import React from "react";
 
 const defaultConfig = getDefaultRendererConfig();
@@ -104,37 +106,51 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <FormRow
-          label={<span>Style</span>}
-          controller={({ id }) => (
-            <Select
-              value={rendererConfig.type}
-              onValueChange={(value: RendererType) =>
-                onUpdateRendererConfig({ type: value })
-              }
-            >
-              <SelectTrigger id={id}>
-                <SelectValue
-                  className="display w-auto"
-                  placeholder="Select visualization style"
-                />
-              </SelectTrigger>
-              <SelectContent align="end">
-                {renderers.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        />
-        {selectedRenderer?.renderConfig(
-          rendererConfig,
-          onUpdateRendererConfig,
-          minNote,
-          maxNote,
-        )}
+        <Tabs defaultValue="visualizer">
+          <TabsList variant="line">
+            <TabsTrigger value="visualizer">MIDI</TabsTrigger>
+            <TabsTrigger value="audio">Audio</TabsTrigger>
+          </TabsList>
+          <TabsContent value="visualizer" className="space-y-4">
+            <FormRow
+              label={<span>Style</span>}
+              controller={({ id }) => (
+                <Select
+                  value={rendererConfig.type}
+                  onValueChange={(value: RendererType) =>
+                    onUpdateRendererConfig({ type: value })
+                  }
+                >
+                  <SelectTrigger id={id}>
+                    <SelectValue
+                      className="display w-auto"
+                      placeholder="Select visualization style"
+                    />
+                  </SelectTrigger>
+                  <SelectContent align="end">
+                    {renderers.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {selectedRenderer?.renderConfig(
+              rendererConfig,
+              onUpdateRendererConfig,
+              minNote,
+              maxNote,
+            )}
+          </TabsContent>
+          <TabsContent value="audio" className="space-y-4">
+            <AudioVisualizerConfigPanel
+              audioVisualizerConfig={rendererConfig.audioVisualizerConfig}
+              onUpdateRendererConfig={onUpdateRendererConfig}
+            />
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

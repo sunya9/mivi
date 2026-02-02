@@ -26,11 +26,14 @@ import { MidiTracks } from "@/lib/midi/midi";
 import { useAnimationFrame } from "@/hooks/use-animation-frame";
 import { RendererController } from "./renderer-controller";
 import { useHotkeys } from "react-hotkeys-hook";
+import { SerializedAudio } from "@/lib/audio/audio";
+import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
 
 interface Props {
   rendererConfig: RendererConfig;
   midiTracks?: MidiTracks;
   backgroundImageBitmap?: ImageBitmap;
+  serializedAudio?: SerializedAudio;
   /** Ref to the visualizer container for measuring dimensions */
   containerRef?: React.RefObject<HTMLDivElement | null>;
 }
@@ -39,6 +42,7 @@ export function MidiVisualizer({
   rendererConfig,
   midiTracks,
   backgroundImageBitmap,
+  serializedAudio,
   containerRef,
 }: Props) {
   const rendererControllerRef = useRef<RendererController>(undefined);
@@ -51,6 +55,7 @@ export function MidiVisualizer({
     toggleMute,
     getPosition,
     syncFromAudioContext,
+    getFrequencyData,
   } = useAudioPlaybackStore();
   const [expanded, setExpanded] = useState(false);
   // Keeps control panel visible during any slider interaction
@@ -69,27 +74,55 @@ export function MidiVisualizer({
   const [keepPanelVisible, setKeepPanelVisible] = useState(false);
   const tracks = useMemo(() => midiTracks?.tracks || [], [midiTracks]);
   const midiOffset = useMemo(() => midiTracks?.midiOffset ?? 0, [midiTracks]);
-  const invalidate = useCallback(() => {
-    rendererControllerRef.current?.render(tracks, getPosition() + midiOffset);
-  }, [getPosition, midiOffset, tracks]);
+  const invalidate = useCallback(
+    (usePrecomputed: boolean = false) => {
+      const currentPosition = getPosition();
+      // Get frequency data: from real-time analyser during playback, or pre-computed during seek
+      let frequencyData = getFrequencyData();
+      if (!frequencyData && usePrecomputed && serializedAudio) {
+        frequencyData = computeFFTAtTime(serializedAudio, currentPosition, {
+          fftSize: rendererConfig.audioVisualizerConfig.fftSize,
+          smoothingTimeConstant:
+            rendererConfig.audioVisualizerConfig.smoothingTimeConstant,
+        });
+      }
+      rendererControllerRef.current?.render(
+        tracks,
+        currentPosition + midiOffset,
+        frequencyData,
+      );
+    },
+    [
+      getPosition,
+      getFrequencyData,
+      midiOffset,
+      tracks,
+      serializedAudio,
+      rendererConfig.audioVisualizerConfig.fftSize,
+      rendererConfig.audioVisualizerConfig.smoothingTimeConstant,
+    ],
+  );
 
   const invalidateEffect = useEffectEvent(invalidate);
 
   useEffect(() => {
     rendererControllerRef.current?.setRendererConfig(rendererConfig);
-    invalidateEffect();
+    // Use pre-computed FFT data for immediate preview when not playing
+    invalidateEffect(true);
   }, [rendererConfig]);
 
   useEffect(() => {
     rendererControllerRef.current?.setBackgroundImageBitmap(
       backgroundImageBitmap,
     );
-    invalidateEffect();
+    // Use pre-computed FFT data for immediate preview when not playing
+    invalidateEffect(true);
   }, [backgroundImageBitmap]);
 
   // Re-render when midiTracks changes (e.g., color presets)
   useEffect(() => {
-    invalidateEffect();
+    // Use pre-computed FFT data for immediate preview when not playing
+    invalidateEffect(true);
   }, [midiTracks?.tracks]);
 
   const handleInit = useCallback((ctx: CanvasRenderingContext2D) => {
@@ -99,7 +132,8 @@ export function MidiVisualizer({
   const invalidateSeek = useCallback(
     (time: number, commit: boolean, seamless: boolean = false) => {
       seek(time, commit, seamless);
-      invalidate();
+      // Use pre-computed FFT for seek visualization
+      invalidate(true);
     },
     [seek, invalidate],
   );
