@@ -46,7 +46,7 @@ test("should show error toast when trying to start recording without audio file"
 
   expect(toast.error).toHaveBeenCalledExactlyOnceWith(
     "Please select an audio file.",
-    { description: "Unexpected error" },
+    { description: undefined },
   );
 });
 
@@ -64,7 +64,7 @@ test("should show error toast when trying to start recording without MIDI file",
 
   expect(toast.error).toHaveBeenCalledExactlyOnceWith(
     "Please select a MIDI file.",
-    { description: "Unexpected error" },
+    { description: undefined },
   );
 });
 
@@ -124,7 +124,7 @@ test("should show error when renderer type is none and audio visualizer is also 
 
   expect(toast.error).toHaveBeenCalledExactlyOnceWith(
     "Please enable audio visualizer or select a MIDI visualization style.",
-    { description: "Unexpected error" },
+    { description: undefined },
   );
 });
 
