@@ -2,6 +2,9 @@ import { throttle } from "throttle-debounce";
 import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
 import { Muxer } from "@/lib/muxer/muxer";
 import { RecorderResources } from "./recorder-resources";
+import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
+import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
+import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 
 const frameSize = 20;
 
@@ -162,6 +165,15 @@ export class MediaCompositor {
     const ctx = this.canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get context");
 
+    const backgroundRenderer = new BackgroundRenderer(
+      ctx,
+      this.rendererConfig,
+      this.backgroundImageBitmap,
+    );
+    const audioVisualizerOverlay = new AudioVisualizerOverlay(
+      ctx,
+      this.rendererConfig.audioVisualizerConfig,
+    );
     const renderer = getRendererFromConfig(
       ctx,
       this.rendererConfig,
@@ -170,14 +182,35 @@ export class MediaCompositor {
     const midiOffset = this.midiTracks?.midiOffset ?? 0;
     const tracks = this.midiTracks?.tracks ?? [];
     const totalVideoFrames = this.totalVideoFrames;
+    const layer = this.rendererConfig.audioVisualizerLayer;
+
     for (let i = 0; i < totalVideoFrames; i++) {
       const progress = i / totalVideoFrames;
-      renderer.render(tracks, progress * this.duration + midiOffset);
+      const currentTime = progress * this.duration;
+
+      // 1. Render background
+      backgroundRenderer.render();
+
+      // 2. Get frequency data for audio visualizer
+      const frequencyData = this.getFrequencyDataAtTime(currentTime);
+
+      // 3. Render audio visualizer in back layer (under MIDI)
+      if (layer === "back") {
+        audioVisualizerOverlay.render(frequencyData);
+      }
+
+      // 4. Render MIDI visualizer
+      renderer.render(tracks, currentTime + midiOffset);
+
+      // 5. Render audio visualizer in front layer (over MIDI)
+      if (layer === "front") {
+        audioVisualizerOverlay.render(frequencyData);
+      }
 
       this.updateProgress("video", "render");
 
       const frame = new VideoFrame(this.canvas, {
-        timestamp: progress * this.duration * 1000000,
+        timestamp: currentTime * 1000000,
         duration: (1 / this.fps) * 1000000,
       });
 
@@ -187,6 +220,90 @@ export class MediaCompositor {
       frame.close();
       this.updateProgress("video", "encode");
     }
+  }
+
+  /**
+   * Compute frequency data from audio samples at a specific time.
+   * Uses a simple FFT implementation to generate visualization data.
+   */
+  private getFrequencyDataAtTime(timeInSeconds: number): FrequencyData | null {
+    const { audioVisualizerConfig } = this.rendererConfig;
+    if (audioVisualizerConfig.style === "none") {
+      return null;
+    }
+
+    const fftSize = audioVisualizerConfig.fftSize;
+    const frequencyBinCount = fftSize / 2;
+    const sampleRate = this.serializedAudio.sampleRate;
+    const nyquistFrequency = sampleRate / 2;
+
+    // Get the starting sample index for this time
+    const startSample = Math.floor(timeInSeconds * sampleRate);
+
+    // Use first channel for analysis (or mix channels if stereo)
+    const audioData = this.serializedAudio.channels[0];
+    if (!audioData || startSample >= audioData.length) {
+      return null;
+    }
+
+    // Extract samples for FFT (apply Hann window)
+    const samples = new Float32Array(fftSize);
+    for (let i = 0; i < fftSize; i++) {
+      const sampleIndex = startSample + i;
+      const sample =
+        sampleIndex < audioData.length ? audioData[sampleIndex] : 0;
+      // Apply Hann window
+      const window = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftSize - 1)));
+      samples[i] = sample * window;
+    }
+
+    // Compute FFT magnitude
+    const frequencyData = this.computeFFTMagnitude(samples);
+    const timeDomainData = new Uint8Array(frequencyBinCount);
+
+    // Convert time domain to 0-255 range (centered at 128)
+    for (let i = 0; i < frequencyBinCount && i < fftSize; i++) {
+      const sampleIndex = startSample + i;
+      const sample =
+        sampleIndex < audioData.length ? audioData[sampleIndex] : 0;
+      timeDomainData[i] = Math.round((sample + 1) * 127.5);
+    }
+
+    return {
+      frequencyBinCount,
+      frequencyData,
+      timeDomainData,
+      nyquistFrequency,
+    };
+  }
+
+  /**
+   * Simple DFT-based frequency magnitude computation.
+   * Not as efficient as FFT but sufficient for visualization purposes.
+   */
+  private computeFFTMagnitude(samples: Float32Array): Uint8Array<ArrayBuffer> {
+    const n = samples.length;
+    const frequencyBinCount = n / 2;
+    const magnitudes = new Uint8Array(frequencyBinCount);
+
+    // Simple DFT for visualization (compute only positive frequencies)
+    for (let k = 0; k < frequencyBinCount; k++) {
+      let real = 0;
+      let imag = 0;
+      for (let t = 0; t < n; t++) {
+        const angle = (2 * Math.PI * k * t) / n;
+        real += samples[t] * Math.cos(angle);
+        imag -= samples[t] * Math.sin(angle);
+      }
+
+      // Compute magnitude and normalize to 0-255 range
+      const magnitude = Math.sqrt(real * real + imag * imag) / n;
+      // Scale magnitude (adjust multiplier for visual appearance)
+      const scaled = Math.min(255, Math.floor(magnitude * 512));
+      magnitudes[k] = scaled;
+    }
+
+    return magnitudes;
   }
 
   private get progressTotal() {
