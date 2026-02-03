@@ -221,6 +221,8 @@ export default defineConfig(({ mode }) => ({
                   ext,
                 }) =>
                   `${root}/${testFileDirectory}/__screenshots__/${testFileName}/${arg}${ext}`,
+                // Increase timeout for CI environments where browser initialization takes longer
+                timeout: 10000,
               },
             },
           },
