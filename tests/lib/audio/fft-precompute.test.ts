@@ -291,4 +291,55 @@ describe("precomputeFFTData", () => {
     const maxFrequencyValue = Math.max(...firstFrame.frequencyData);
     expect(maxFrequencyValue).toBeGreaterThan(0);
   });
+
+  it("calls onProgress callback for each frame", () => {
+    const audio = createMockSerializedAudio({ duration: 0.1 });
+    const progressCalls: { current: number; total: number }[] = [];
+
+    precomputeFFTData(audio, 10, {
+      onProgress: (current, total) => {
+        progressCalls.push({ current, total });
+      },
+    });
+
+    // Should be called once per frame
+    expect(progressCalls.length).toBe(1); // ceil(0.1 * 10) = 1 frame
+    expect(progressCalls[0]).toEqual({ current: 1, total: 1 });
+  });
+
+  it("onProgress reports correct progress for multiple frames", () => {
+    const audio = createMockSerializedAudio({ duration: 1 });
+    const progressCalls: { current: number; total: number }[] = [];
+
+    precomputeFFTData(audio, 30, {
+      onProgress: (current, total) => {
+        progressCalls.push({ current, total });
+      },
+    });
+
+    // Should be called 30 times (one per frame)
+    expect(progressCalls.length).toBe(30);
+
+    // First call should report 1/30
+    expect(progressCalls[0]).toEqual({ current: 1, total: 30 });
+
+    // Last call should report 30/30
+    expect(progressCalls[29]).toEqual({ current: 30, total: 30 });
+
+    // All calls should have the same total
+    for (const call of progressCalls) {
+      expect(call.total).toBe(30);
+    }
+
+    // Current should increment by 1 each time
+    for (let i = 0; i < progressCalls.length; i++) {
+      expect(progressCalls[i].current).toBe(i + 1);
+    }
+  });
+
+  it("works without onProgress callback", () => {
+    const audio = createMockSerializedAudio({ duration: 0.1 });
+    // Should not throw when onProgress is not provided
+    expect(() => precomputeFFTData(audio, 10)).not.toThrow();
+  });
 });
