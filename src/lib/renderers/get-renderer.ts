@@ -11,7 +11,6 @@ import { CometRenderer } from "./comet/comet-renderer";
 type RendererConstructor = new (
   ctx: RendererContext,
   config: RendererConfig,
-  backgroundImageBitmap?: ImageBitmap,
 ) => Renderer;
 
 const rendererClasses: Record<RendererType, RendererConstructor> = {
@@ -23,7 +22,6 @@ const rendererClasses: Record<RendererType, RendererConstructor> = {
 export function getRendererFromConfig(
   ctx: RendererContext,
   config: RendererConfig,
-  backgroundImageBitmap?: ImageBitmap,
 ): Renderer {
-  return new rendererClasses[config.type](ctx, config, backgroundImageBitmap);
+  return new rendererClasses[config.type](ctx, config);
 }

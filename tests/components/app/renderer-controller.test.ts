@@ -7,13 +7,11 @@ import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { test, expect, vi, beforeEach, Mock } from "vitest";
 
 const mockSetConfig = vi.fn();
-const mockSetBackgroundImageBitmap = vi.fn();
 
 vi.mock("@/lib/renderers/get-renderer", () => ({
   getRendererFromConfig: vi.fn(() => ({
     render: vi.fn(),
     setConfig: mockSetConfig,
-    setBackgroundImageBitmap: mockSetBackgroundImageBitmap,
   })),
 }));
 
@@ -67,10 +65,8 @@ beforeEach(() => {
   mockGetRendererFromConfig.mockReturnValue({
     render: vi.fn(),
     setConfig: mockSetConfig,
-    setBackgroundImageBitmap: mockSetBackgroundImageBitmap,
   });
   mockSetConfig.mockClear();
-  mockSetBackgroundImageBitmap.mockClear();
   mockBackgroundRendererRender.mockClear();
   mockBackgroundRendererSetConfig.mockClear();
   mockBackgroundRendererSetBackgroundImageBitmap.mockClear();
@@ -95,11 +91,7 @@ test("should create renderer when config is set", () => {
   const config = getDefaultRendererConfig();
   controller.setRendererConfig(config);
 
-  expect(mockGetRendererFromConfig).toHaveBeenCalledWith(
-    ctx,
-    config,
-    undefined,
-  );
+  expect(mockGetRendererFromConfig).toHaveBeenCalledWith(ctx, config);
 });
 
 test("should recreate renderer when renderer type changes", () => {
@@ -111,11 +103,7 @@ test("should recreate renderer when renderer type changes", () => {
   controller.setRendererConfig(config2);
 
   expect(mockGetRendererFromConfig).toHaveBeenCalledTimes(2);
-  expect(mockGetRendererFromConfig).toHaveBeenLastCalledWith(
-    ctx,
-    config2,
-    undefined,
-  );
+  expect(mockGetRendererFromConfig).toHaveBeenLastCalledWith(ctx, config2);
 });
 
 test("should call setConfig instead of recreating when renderer type is same", () => {
@@ -141,34 +129,6 @@ test("should not create renderer when setting bitmap without config", () => {
   controller.setBackgroundImageBitmap(mockBitmap);
 
   expect(mockGetRendererFromConfig).not.toHaveBeenCalled();
-});
-
-test("should call renderer.setBackgroundImageBitmap instead of recreating", () => {
-  const controller = new RendererController(ctx);
-  const config = getDefaultRendererConfig();
-  const mockBitmap = {} as ImageBitmap;
-
-  controller.setRendererConfig(config);
-  mockGetRendererFromConfig.mockClear();
-  controller.setBackgroundImageBitmap(mockBitmap);
-
-  expect(mockGetRendererFromConfig).not.toHaveBeenCalled();
-  expect(mockSetBackgroundImageBitmap).toHaveBeenCalledWith(mockBitmap);
-});
-
-test("should pass bitmap to new renderer when config is set after bitmap", () => {
-  const controller = new RendererController(ctx);
-  const config = getDefaultRendererConfig();
-  const mockBitmap = {} as ImageBitmap;
-
-  controller.setBackgroundImageBitmap(mockBitmap);
-  controller.setRendererConfig(config);
-
-  expect(mockGetRendererFromConfig).toHaveBeenCalledWith(
-    ctx,
-    config,
-    mockBitmap,
-  );
 });
 
 test("should call renderer.render when renderer exists", () => {
