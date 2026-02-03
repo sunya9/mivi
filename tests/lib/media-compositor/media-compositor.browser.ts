@@ -71,7 +71,7 @@ test("progress completes when audio visualizer is enabled", async () => {
     rendererConfig: {
       ...config,
       resolution: { width: 320, height: 240, label: "320×240 (4:3)" },
-      fps: 24,
+      fps: 24 as const,
       format: "webm" as const,
       audioVisualizerConfig: {
         ...config.audioVisualizerConfig,
