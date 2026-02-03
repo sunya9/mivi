@@ -27,9 +27,8 @@ export class CometRenderer extends Renderer {
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     config: RendererConfig,
-    backgroundImageBitmap?: ImageBitmap,
   ) {
-    super(ctx, config, backgroundImageBitmap);
+    super(ctx, config);
   }
 
   render(tracks: MidiTrack[], currentTime: number) {

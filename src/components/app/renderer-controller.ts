@@ -60,9 +60,6 @@ export class RendererController {
   setBackgroundImageBitmap(backgroundImageBitmap?: ImageBitmap) {
     this.backgroundImageBitmap = backgroundImageBitmap;
 
-    if (this.renderer) {
-      this.renderer.setBackgroundImageBitmap(backgroundImageBitmap);
-    }
     if (this.backgroundRenderer) {
       this.backgroundRenderer.setBackgroundImageBitmap(backgroundImageBitmap);
     }
@@ -71,11 +68,7 @@ export class RendererController {
   private buildRenderer() {
     if (!this.rendererConfig) return;
     this.currentRendererType = this.rendererConfig.type;
-    this.renderer = getRendererFromConfig(
-      this.context,
-      this.rendererConfig,
-      this.backgroundImageBitmap,
-    );
+    this.renderer = getRendererFromConfig(this.context, this.rendererConfig);
   }
 
   render(

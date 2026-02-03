@@ -44,9 +44,8 @@ export class PianoRollRenderer extends Renderer {
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     config: RendererConfig,
-    backgroundImageBitmap?: ImageBitmap,
   ) {
-    super(ctx, config, backgroundImageBitmap);
+    super(ctx, config);
     this.noiseTextureRenderer = new NoiseTextureRenderer(ctx);
     this.roughRectDrawer = new RoughRectDrawer(ctx);
   }

@@ -178,11 +178,7 @@ export class MediaCompositor {
       ctx,
       this.rendererConfig.audioVisualizerConfig,
     );
-    const renderer = getRendererFromConfig(
-      ctx,
-      this.rendererConfig,
-      this.backgroundImageBitmap,
-    );
+    const renderer = getRendererFromConfig(ctx, this.rendererConfig);
     const midiOffset = this.midiTracks?.midiOffset ?? 0;
     const tracks = this.midiTracks?.tracks ?? [];
     const totalVideoFrames = this.totalVideoFrames;
