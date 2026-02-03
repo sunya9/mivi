@@ -15,6 +15,7 @@ export interface FFTPrecomputeOptions {
   smoothingTimeConstant?: number;
   minDecibels?: number;
   maxDecibels?: number;
+  onProgress?: (current: number, total: number) => void;
 }
 
 const DEFAULT_FFT_SIZE: FFTSize = 2048;
@@ -123,6 +124,9 @@ export function precomputeFFTData(
         `[precomputeFFTData] Progress: ${frameIndex}/${totalFrames} frames`,
       );
     }
+
+    // Report progress to callback
+    options.onProgress?.(frameIndex + 1, totalFrames);
   }
 
   console.log("[precomputeFFTData] Complete:", {

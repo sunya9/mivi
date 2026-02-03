@@ -16,6 +16,7 @@ export class MediaCompositor {
   private readonly videoEncoder: VideoEncoder;
   private readonly audioEncoder: AudioEncoder;
   private progress = {
+    fft: 0,
     audio: { render: 0, encode: 0 },
     video: { render: 0, encode: 0 },
   };
@@ -234,6 +235,9 @@ export class MediaCompositor {
   private precomputeAudioVisualizerData(): PrecomputedFFTData | null {
     const { audioVisualizerConfig } = this.rendererConfig;
     if (audioVisualizerConfig.style === "none") {
+      // Skip FFT precomputation, immediately report full progress
+      this.progress.fft = this.totalVideoFrames;
+      this.onProgressInternal();
       return null;
     }
 
@@ -243,6 +247,10 @@ export class MediaCompositor {
     const data = precomputeFFTData(this.serializedAudio, this.fps, {
       fftSize: audioVisualizerConfig.fftSize,
       smoothingTimeConstant: audioVisualizerConfig.smoothingTimeConstant,
+      onProgress: (current) => {
+        this.progress.fft = current;
+        this.onProgressInternal();
+      },
     });
     console.log(
       `[MediaCompositor] Pre-computed ${data.frames.length} FFT frames`,
@@ -251,7 +259,11 @@ export class MediaCompositor {
   }
 
   private get progressTotal() {
-    return (this.totalAudioFrames + this.totalVideoFrames) * 2;
+    // 5 stages: FFT + audio render + audio encode + video render + video encode
+    return (
+      this.totalVideoFrames +
+      (this.totalAudioFrames + this.totalVideoFrames) * 2
+    );
   }
 
   private onProgressInternal = () => {
@@ -259,6 +271,7 @@ export class MediaCompositor {
     const videoQueueSize = this.videoEncoder.encodeQueueSize;
 
     const totalProgress =
+      this.progress.fft +
       this.progress.audio.render +
       this.progress.audio.encode +
       this.progress.video.render +
@@ -273,6 +286,7 @@ export class MediaCompositor {
     console.log(
       `Progress: ${progress.toFixed(2)}`,
       `Total: ${this.progressTotal}`,
+      `FFT: ${this.progress.fft}`,
       `Audio Render: ${this.progress.audio.render}`,
       `Audio Encode: ${this.progress.audio.encode}`,
       `Video Render: ${this.progress.video.render}`,
