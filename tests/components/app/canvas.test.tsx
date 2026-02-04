@@ -1,17 +1,14 @@
-import { screen, render, waitFor, fireEvent } from "@testing-library/react";
+import { screen, render, waitFor } from "@testing-library/react";
 import { Canvas } from "@/components/app/canvas";
 import { expect, test, vi } from "vitest";
 import { ComponentProps } from "react";
-import userEvent from "@testing-library/user-event";
 
 const mockOnInit = vi.fn();
 const mockInvalidate = vi.fn();
-const mockOnClickCanvas = vi.fn();
 const defaultProps: ComponentProps<typeof Canvas> = {
   aspectRatio: 1,
   onInit: mockOnInit,
   invalidate: mockInvalidate,
-  onClickCanvas: mockOnClickCanvas,
 };
 
 function findCanvas() {
@@ -74,33 +71,6 @@ test("should call onRedraw when canvas is resized", async () => {
     resizeCallback?.(container);
     expect(mockInvalidate).toHaveBeenCalledExactlyOnceWith();
   });
-});
-
-test("should call onClickCanvas when canvas is left-clicked", async () => {
-  render(<Canvas {...defaultProps} />);
-
-  const canvas = findCanvas();
-  await userEvent.click(canvas);
-
-  expect(mockOnClickCanvas).toHaveBeenCalled();
-});
-
-test("should not call onClickCanvas when canvas is right-clicked", () => {
-  render(<Canvas {...defaultProps} />);
-
-  const canvas = findCanvas();
-  fireEvent.pointerUp(canvas, { button: 2 });
-
-  expect(mockOnClickCanvas).not.toHaveBeenCalled();
-});
-
-test("should not call onClickCanvas when canvas is middle-clicked", () => {
-  render(<Canvas {...defaultProps} />);
-
-  const canvas = findCanvas();
-  fireEvent.pointerUp(canvas, { button: 1 });
-
-  expect(mockOnClickCanvas).not.toHaveBeenCalled();
 });
 
 test("should apply custom className", () => {
