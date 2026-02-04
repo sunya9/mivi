@@ -127,7 +127,7 @@ function SettingsDialogContent({
           <ScrollArea className="relative h-107.5 max-h-107.5" type="auto">
             <div className="p-4">
               <Activity mode={modeForTab("general")}>
-                <ThemeSettings animateTransition={false} />
+                <ThemeSettings />
               </Activity>
               <Activity mode={modeForTab("about")}>
                 <AboutContent />
@@ -160,7 +160,7 @@ export function SettingsContent({
       </TabsList>
       <div>
         <TabsContent value="general" className="py-4">
-          <ThemeSettings animateTransition={false} />
+          <ThemeSettings />
         </TabsContent>
         <TabsContent value="about" className="py-4">
           <AboutContent />
