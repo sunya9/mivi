@@ -83,8 +83,14 @@ export function usePanelVisibility({
   }, [clearHideTimer]);
 
   const endInteraction = useCallback(() => {
-    setState("idle");
-  }, []);
+    if (isPlaying) {
+      // Keep panel visible briefly after interaction ends
+      setState("hovering");
+      startHideTimer();
+    } else {
+      setState("idle");
+    }
+  }, [isPlaying, startHideTimer]);
 
   const showPanel = useCallback(() => {
     setState("revealed");
