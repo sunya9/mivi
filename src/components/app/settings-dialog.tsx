@@ -44,17 +44,17 @@ const navItems = [
 
 export type SettingsTabValue = (typeof navItems)[number]["value"];
 
-interface UnifiedSettingsDialogProps {
+interface SettingsDialogProps {
   tab?: SettingsTabValue;
   onTabChange: (tab: SettingsTabValue | undefined) => void;
   open?: boolean;
 }
 
-export function UnifiedSettingsDialog({
+export function SettingsDialog({
   tab,
   onTabChange,
   open,
-}: UnifiedSettingsDialogProps) {
+}: SettingsDialogProps) {
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
       onTabChange(newOpen ? "general" : undefined);

@@ -2,9 +2,9 @@ import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
-  UnifiedSettingsDialog,
+  SettingsDialog,
   SettingsContent,
-} from "@/components/app/unified-settings-dialog";
+} from "@/components/app/settings-dialog";
 
 // Mock next-themes
 vi.mock("next-themes", () => ({
@@ -15,59 +15,45 @@ vi.mock("next-themes", () => ({
   }),
 }));
 
-test("UnifiedSettingsDialog renders when open is true", () => {
-  render(
-    <UnifiedSettingsDialog open={true} tab="general" onTabChange={vi.fn()} />,
-  );
+test("SettingsDialog renders when open is true", () => {
+  render(<SettingsDialog open={true} tab="general" onTabChange={vi.fn()} />);
 
   expect(screen.getByRole("dialog")).toBeInTheDocument();
 });
 
-test("UnifiedSettingsDialog does not render content when open is false", () => {
-  render(
-    <UnifiedSettingsDialog open={false} tab="general" onTabChange={vi.fn()} />,
-  );
+test("SettingsDialog does not render content when open is false", () => {
+  render(<SettingsDialog open={false} tab="general" onTabChange={vi.fn()} />);
 
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
 
-test("UnifiedSettingsDialog shows General content when tab is general", () => {
-  render(
-    <UnifiedSettingsDialog open={true} tab="general" onTabChange={vi.fn()} />,
-  );
+test("SettingsDialog shows General content when tab is general", () => {
+  render(<SettingsDialog open={true} tab="general" onTabChange={vi.fn()} />);
 
   // Theme heading should be visible in General tab
   expect(screen.getByText("Theme")).toBeInTheDocument();
 });
 
-test("UnifiedSettingsDialog shows About content when tab is about", () => {
-  render(
-    <UnifiedSettingsDialog open={true} tab="about" onTabChange={vi.fn()} />,
-  );
+test("SettingsDialog shows About content when tab is about", () => {
+  render(<SettingsDialog open={true} tab="about" onTabChange={vi.fn()} />);
 
   // About content should be visible
   expect(screen.getByText(/MiVi is a web application/)).toBeInTheDocument();
 });
 
-test("UnifiedSettingsDialog shows Shortcuts content when tab is shortcuts", () => {
-  render(
-    <UnifiedSettingsDialog open={true} tab="shortcuts" onTabChange={vi.fn()} />,
-  );
+test("SettingsDialog shows Shortcuts content when tab is shortcuts", () => {
+  render(<SettingsDialog open={true} tab="shortcuts" onTabChange={vi.fn()} />);
 
   expect(screen.getByText("Keyboard Shortcuts")).toBeInTheDocument();
   expect(screen.getByText("Play / Pause")).toBeInTheDocument();
 });
 
-test("UnifiedSettingsDialog calls onTabChange with undefined when dialog closes", async () => {
+test("SettingsDialog calls onTabChange with undefined when dialog closes", async () => {
   const user = userEvent.setup();
   const onTabChange = vi.fn();
 
   render(
-    <UnifiedSettingsDialog
-      open={true}
-      tab="general"
-      onTabChange={onTabChange}
-    />,
+    <SettingsDialog open={true} tab="general" onTabChange={onTabChange} />,
   );
 
   const closeButton = screen.getByRole("button", { name: /close/i });
@@ -76,10 +62,8 @@ test("UnifiedSettingsDialog calls onTabChange with undefined when dialog closes"
   expect(onTabChange).toHaveBeenCalledWith(undefined);
 });
 
-test("UnifiedSettingsDialog renders sidebar navigation items", () => {
-  render(
-    <UnifiedSettingsDialog open={true} tab="general" onTabChange={vi.fn()} />,
-  );
+test("SettingsDialog renders sidebar navigation items", () => {
+  render(<SettingsDialog open={true} tab="general" onTabChange={vi.fn()} />);
 
   // Sidebar should have navigation buttons
   const sidebar = document.querySelector('[data-slot="sidebar"]');
@@ -89,10 +73,8 @@ test("UnifiedSettingsDialog renders sidebar navigation items", () => {
   expect(screen.getByRole("button", { name: /general/i })).toBeInTheDocument();
 });
 
-test("UnifiedSettingsDialog has accessible title and description", () => {
-  render(
-    <UnifiedSettingsDialog open={true} tab="general" onTabChange={vi.fn()} />,
-  );
+test("SettingsDialog has accessible title and description", () => {
+  render(<SettingsDialog open={true} tab="general" onTabChange={vi.fn()} />);
 
   expect(screen.getByText("Settings")).toBeInTheDocument();
   expect(

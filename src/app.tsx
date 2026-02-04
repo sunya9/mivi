@@ -26,10 +26,10 @@ import {
 } from "@/components/app/mobile-bottom-nav";
 import { cn } from "@/lib/utils";
 import {
-  UnifiedSettingsDialog,
+  SettingsDialog,
   SettingsContent,
   type SettingsTabValue,
-} from "@/components/app/unified-settings-dialog";
+} from "@/components/app/settings-dialog";
 
 export function App() {
   const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();
@@ -241,7 +241,7 @@ export function App() {
         value={mobileTab}
         onValueChange={setMobileTab}
       />
-      <UnifiedSettingsDialog
+      <SettingsDialog
         open={settingsTab !== undefined}
         tab={settingsTab}
         onTabChange={setSettingsTab}
