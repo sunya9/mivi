@@ -6,6 +6,7 @@ import {
   ForwardRefExoticComponent,
   Activity,
 } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { Palette, Info, Keyboard } from "lucide-react";
 import {
   Dialog,
@@ -55,6 +56,11 @@ export function SettingsDialog({
   onTabChange,
   open,
 }: SettingsDialogProps) {
+  // Open settings dialog with shortcuts tab on "?" key
+  useHotkeys("shift+slash", () => {
+    onTabChange("shortcuts");
+  });
+
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
       onTabChange(newOpen ? "general" : undefined);
