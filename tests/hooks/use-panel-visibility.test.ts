@@ -202,8 +202,10 @@ test("startInteraction cancels hide timer", () => {
   expect(result.current.panelVisible).toBe(true);
 });
 
-test("panelVisible respects other conditions after endInteraction", () => {
-  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true }));
+test("endInteraction keeps panel visible briefly when playing", () => {
+  const { result } = renderHook(() =>
+    usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }),
+  );
 
   act(() => {
     result.current.startInteraction();
@@ -213,7 +215,29 @@ test("panelVisible respects other conditions after endInteraction", () => {
   act(() => {
     result.current.endInteraction();
   });
+  // Panel should still be visible after endInteraction (transitions to hovering)
+  expect(result.current.panelVisible).toBe(true);
+
+  // Panel should hide after autoHideDelay
+  act(() => {
+    vi.advanceTimersByTime(2000);
+  });
   expect(result.current.panelVisible).toBe(false);
+});
+
+test("endInteraction goes to idle when not playing", () => {
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: false }));
+
+  act(() => {
+    result.current.startInteraction();
+  });
+  expect(result.current.panelVisible).toBe(true);
+
+  act(() => {
+    result.current.endInteraction();
+  });
+  // Panel should still be visible because not playing (panelVisible = !isPlaying || ...)
+  expect(result.current.panelVisible).toBe(true);
 });
 
 // showPanel (keyboard shortcut like M key)
