@@ -189,45 +189,6 @@
   }
 }
 
-/* Allow animating the mask size custom property */
-@property --mask-size {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 0px;
-}
-
-/* Theme change transition - only apply to theme-change type */
-html:active-view-transition-type(theme-change) {
-  &::view-transition-old(root) {
-    animation: none;
-  }
-
-  &::view-transition-new(root) {
-    --mask-size: 0px;
-    mask-image: radial-gradient(
-      circle at var(--theme-transition-x, 50vw) var(--theme-transition-y, 50vh),
-      black var(--mask-size),
-      transparent var(--mask-size)
-    );
-    animation: theme-mask-expand 0.8s ease-out forwards;
-  }
-}
-
-@keyframes theme-mask-expand {
-  to {
-    --mask-size: hypot(100vw, 100vh);
-  }
-}
-
-/* Respect reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  html:active-view-transition-type(theme-change) {
-    &::view-transition-new(root) {
-      animation: none !important;
-    }
-  }
-}
-
 html:active-view-transition-type(export-button-change) {
   &::view-transition-old(export-button),
   &::view-transition-new(export-button) {
