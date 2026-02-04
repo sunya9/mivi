@@ -97,10 +97,12 @@ test("should render color picker when track is visible", () => {
     />,
   );
 
-  expect(screen.getByDisplayValue("#ffffff")).toBeInTheDocument();
+  expect(
+    screen.getByRole("textbox", { name: "Note color" }),
+  ).toBeInTheDocument();
 });
 
-test("should call onUpdateTrackConfig when color is changed", () => {
+test("should call onUpdateTrackConfig when color is changed via native picker", () => {
   renderWithDndContext(
     <TrackItem
       track={mockTrack}
@@ -109,8 +111,8 @@ test("should call onUpdateTrackConfig when color is changed", () => {
     />,
   );
 
-  const colorPicker = screen.getByDisplayValue("#ffffff");
-  fireEvent.change(colorPicker, { target: { value: "#00ff00" } });
+  const colorPicker = screen.getByLabelText("Note color picker");
+  fireEvent.input(colorPicker, { target: { value: "#00ff00" } });
 
   expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {
     color: "#00ff00",

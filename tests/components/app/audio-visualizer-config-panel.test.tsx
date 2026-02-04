@@ -140,7 +140,7 @@ test("should show single color picker when use gradient is disabled", () => {
       useGradient: false,
     },
   });
-  expect(screen.getByLabelText("Color")).toBeInTheDocument();
+  expect(screen.getByRole("textbox", { name: "Color" })).toBeInTheDocument();
 });
 
 // Line Spectrum specific tests
@@ -164,7 +164,9 @@ test("should show stroke color picker when stroke is enabled for lineSpectrum", 
       },
     },
   });
-  expect(screen.getByLabelText("Stroke Color")).toBeInTheDocument();
+  expect(
+    screen.getByRole("textbox", { name: "Stroke Color" }),
+  ).toBeInTheDocument();
 });
 
 test("should not show stroke color picker when stroke is disabled", () => {
@@ -178,7 +180,9 @@ test("should not show stroke color picker when stroke is disabled", () => {
       },
     },
   });
-  expect(screen.queryByLabelText("Stroke Color")).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("textbox", { name: "Stroke Color" }),
+  ).not.toBeInTheDocument();
 });
 
 // Circular specific tests

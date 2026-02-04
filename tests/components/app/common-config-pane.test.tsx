@@ -50,8 +50,8 @@ test("not call onChangeAudioFile when file is not selected", () => {
 
 test("should call onUpdateRendererConfig when background color is changed", () => {
   renderCommonConfigPane();
-  const colorInput = screen.getByLabelText("Background Color");
-  fireEvent.change(colorInput, { target: { value: "#ffffff" } });
+  const colorInput = screen.getByLabelText("Color picker");
+  fireEvent.input(colorInput, { target: { value: "#ffffff" } });
   expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
     backgroundColor: "#ffffff",
   });
