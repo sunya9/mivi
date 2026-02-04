@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as MenubarPrimitive from "@radix-ui/react-menubar";
+import { Menubar as MenubarPrimitive } from "radix-ui";
 
 import { cn } from "@/lib/utils";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
