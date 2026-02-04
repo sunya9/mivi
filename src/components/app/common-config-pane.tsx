@@ -22,7 +22,7 @@ import {
   backgroundImageFitOptions,
   AudioVisualizerLayer,
 } from "@/lib/renderers/renderer";
-import { ColorPickerButton } from "@/components/common/color-picker-button";
+import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
 import { InfoTooltip } from "@/components/common/info-tooltip";
 import { DeepPartial } from "@/lib/type-utils";
@@ -81,7 +81,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
         <FormRow
           label={<span>Background Color</span>}
           controller={({ id }) => (
-            <ColorPickerButton
+            <ColorPickerInput
               id={id}
               value={rendererConfig.backgroundColor}
               onChange={(value) =>

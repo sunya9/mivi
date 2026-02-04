@@ -24,8 +24,8 @@ test("complete happy path on desktop", async () => {
     screen.getByLabelText("Choose Audio file"),
     "./tests/fixtures/test.mp3",
   );
-  const colorInputElement = screen.getByLabelText("Note color");
-  fireEvent.input(colorInputElement.element(), {
+  const colorPickerElement = screen.getByLabelText("Note color picker");
+  fireEvent.input(colorPickerElement.element(), {
     target: { value: "#ff0000" },
   });
 
@@ -63,9 +63,11 @@ test("complete happy path on mobile", async () => {
   );
 
   // Change note color (track item appears after MIDI upload)
-  await expect.element(screen.getByLabelText("Note color")).toBeInTheDocument();
-  const colorInputElement = screen.getByLabelText("Note color");
-  fireEvent.input(colorInputElement.element(), {
+  await expect
+    .element(screen.getByLabelText("Note color picker"))
+    .toBeInTheDocument();
+  const colorPickerElement = screen.getByLabelText("Note color picker");
+  fireEvent.input(colorPickerElement.element(), {
     target: { value: "#ff0000" },
   });
 

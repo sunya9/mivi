@@ -1,4 +1,4 @@
-import { ColorPickerButton } from "@/components/common/color-picker-button";
+import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -343,8 +343,9 @@ export function AudioVisualizerConfigPanel({
                   <FormRow
                     label={<span>Stroke Color</span>}
                     controller={({ id }) => (
-                      <ColorPickerButton
+                      <ColorPickerInput
                         id={id}
+                        aria-label="Stroke Color"
                         value={
                           audioVisualizerConfig.lineSpectrumConfig.strokeColor
                         }
@@ -507,8 +508,9 @@ export function AudioVisualizerConfigPanel({
               <FormRow
                 label={<span>Gradient Start Color</span>}
                 controller={({ id }) => (
-                  <ColorPickerButton
+                  <ColorPickerInput
                     id={id}
+                    aria-label="Gradient Start Color"
                     value={audioVisualizerConfig.gradientStartColor}
                     onChange={(value) =>
                       setConfig({ gradientStartColor: value })
@@ -519,8 +521,9 @@ export function AudioVisualizerConfigPanel({
               <FormRow
                 label={<span>Gradient End Color</span>}
                 controller={({ id }) => (
-                  <ColorPickerButton
+                  <ColorPickerInput
                     id={id}
+                    aria-label="Gradient End Color"
                     value={audioVisualizerConfig.gradientEndColor}
                     onChange={(value) => setConfig({ gradientEndColor: value })}
                   />
@@ -531,8 +534,9 @@ export function AudioVisualizerConfigPanel({
             <FormRow
               label={<span>Color</span>}
               controller={({ id }) => (
-                <ColorPickerButton
+                <ColorPickerInput
                   id={id}
+                  aria-label="Color"
                   value={audioVisualizerConfig.singleColor}
                   onChange={(value) => setConfig({ singleColor: value })}
                 />
