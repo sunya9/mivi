@@ -69,8 +69,8 @@ test("complete happy path on mobile", async () => {
     target: { value: "#ff0000" },
   });
 
-  // Switch to Settings tab and upload audio file
-  await screen.getByRole("tab", { name: "Settings" }).click();
+  // Switch to Audio/Bg tab and upload audio file
+  await screen.getByRole("tab", { name: "Audio/Bg" }).click();
   await userEvent.upload(
     screen.getByLabelText("Choose Audio file"),
     "./tests/fixtures/test.mp3",

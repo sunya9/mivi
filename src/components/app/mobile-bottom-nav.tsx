@@ -1,10 +1,10 @@
-import { ListMusic, Settings, Palette, Info } from "lucide-react";
+import { ListMusic, Music, Palette, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 
-export type MobileTabValue = "tracks" | "visualizer" | "style" | "about";
+export type MobileTabValue = "tracks" | "visualizer" | "style" | "settings";
 
 interface TabConfig {
   value: MobileTabValue;
@@ -20,26 +20,26 @@ const tabs: TabConfig[] = [
   },
   {
     value: "visualizer",
-    label: "Settings",
-    icon: () => <Settings className="size-5" />,
+    label: "Audio/Bg",
+    icon: () => <Music className="size-5" />,
   },
   {
     value: "style",
     label: "Style",
     icon: () => <Palette className="size-5" />,
   },
-  { value: "about", label: "About", icon: AboutIcon },
+  { value: "settings", label: "Settings", icon: SettingsIcon },
 ] as const;
 
-function AboutIcon() {
+function SettingsIcon() {
   const {
-    needRefresh: [showAboutIndicator],
+    needRefresh: [showUpdateIndicator],
   } = usePwaContext();
 
   return (
     <>
-      <Info className="size-5" />
-      {showAboutIndicator && (
+      <Settings className="size-5" />
+      {showUpdateIndicator && (
         <span className="absolute -top-1 -right-1 flex size-2.5">
           <span className="bg-primary absolute inline-flex size-full animate-ping rounded-full opacity-75" />
           <span className="bg-primary relative inline-flex size-2.5 rounded-full" />
