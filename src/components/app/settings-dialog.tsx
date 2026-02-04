@@ -48,18 +48,14 @@ export type SettingsTabValue = (typeof navItems)[number]["value"];
 interface SettingsDialogProps {
   tab?: SettingsTabValue;
   onTabChange: (tab: SettingsTabValue | undefined) => void;
-  open?: boolean;
 }
 
-export function SettingsDialog({
-  tab,
-  onTabChange,
-  open,
-}: SettingsDialogProps) {
+export function SettingsDialog({ tab, onTabChange }: SettingsDialogProps) {
   // Open settings dialog with shortcuts tab on "?" key
   useHotkeys("shift+slash", () => {
     onTabChange("shortcuts");
   });
+  const open = tab !== undefined;
 
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
@@ -150,16 +146,12 @@ function SettingsDialogContent({
 }
 
 interface SettingsContentProps {
-  defaultTab?: SettingsTabValue;
   className?: string;
 }
 
-export function SettingsContent({
-  defaultTab = "general",
-  className,
-}: SettingsContentProps) {
+export function SettingsContent({ className }: SettingsContentProps) {
   return (
-    <Tabs defaultValue={defaultTab} className={className}>
+    <Tabs defaultValue="general" className={className}>
       <TabsList variant="line">
         <TabsTrigger value="general">General</TabsTrigger>
         <TabsTrigger value="about">About</TabsTrigger>

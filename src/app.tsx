@@ -235,11 +235,7 @@ export function App() {
         value={mobileTab}
         onValueChange={setMobileTab}
       />
-      <SettingsDialog
-        open={settingsTab !== undefined}
-        tab={settingsTab}
-        onTabChange={setSettingsTab}
-      />
+      <SettingsDialog tab={settingsTab} onTabChange={setSettingsTab} />
       <Toaster position="top-center" />
       {ConfirmDialog}
     </div>
