@@ -82,7 +82,6 @@ export function useMidi() {
 
   const setMidiFile = useCallback(
     async (midiFile: File | undefined) => {
-      console.log("MIDI file loaded");
       if (!midiFile) {
         setMidiTracks(undefined);
       } else {
