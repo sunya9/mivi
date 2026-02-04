@@ -12,12 +12,10 @@ interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   aspectRatio: number;
   onInit: (ctx: CanvasRenderingContext2D) => void;
   invalidate: () => void;
-  onClickCanvas: (pointerType: string) => void;
 }
 
 export function Canvas({
   onInit,
-  onClickCanvas,
   className,
   aspectRatio,
   style,
@@ -71,7 +69,6 @@ export function Canvas({
           ...style,
           aspectRatio: `${1 / aspectRatio}`,
         }}
-        onPointerUp={(e) => e.button === 0 && onClickCanvas(e.pointerType)}
         {...props}
       />
     </div>

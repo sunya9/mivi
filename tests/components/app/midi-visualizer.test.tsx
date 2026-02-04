@@ -298,45 +298,45 @@ test("reveal control panel when 'm' key is pressed", async () => {
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
+  // When playing, panel should initially be hidden (translate-y-full)
+  const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
+  expect(panelContainer.className).toContain("translate-y-full");
+
   await userEvent.keyboard("m");
 
-  const playerContainer = findPlayer().querySelector("[data-is-mute-revealed]");
-  expect(playerContainer).toHaveAttribute("data-is-mute-revealed", "true");
+  // After pressing 'm', panel should be visible (translate-y-0)
+  expect(panelContainer.className).toContain("translate-y-0");
+  expect(panelContainer.className).not.toContain("translate-y-full");
 });
 
 // --- Keep panel visible tests ---
-test("should keep panel visible when paused while panel was showing via hover", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true },
-  });
-
-  const { rerender } = customRender(
-    <MidiVisualizer rendererConfig={rendererConfig} />,
-  );
-
-  const playerContainer = findPlayer().querySelector(
-    "[data-keep-panel-visible]",
-  );
-
-  // Simulate mouse enter to trigger hover state
-  await userEvent.hover(playerContainer!);
-
-  // Click play button to pause (isPlaying will change from true to false)
-  const playButton = screen.getByRole("button", { name: "Pause" });
-  await userEvent.click(playButton);
-
-  // Check that keepPanelVisible is true
-  expect(playerContainer).toHaveAttribute("data-keep-panel-visible", "true");
-
-  // Rerender with isPlaying: false to verify state persists
+test("panel is always visible when not playing", () => {
+  // When not playing, panel should always be visible
   vi.mocked(useAudioPlaybackStore).mockReturnValue({
     ...defaultStoreMock,
     snapshot: { ...defaultStoreMock.snapshot, isPlaying: false },
   });
 
-  rerender(<MidiVisualizer rendererConfig={rendererConfig} />);
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
-  // Panel should still have keepPanelVisible true
-  expect(playerContainer).toHaveAttribute("data-keep-panel-visible", "true");
+  const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
+
+  // Panel should be visible (translate-y-0) when not playing
+  expect(panelContainer.className).toContain("translate-y-0");
+  expect(panelContainer.className).not.toContain("translate-y-full");
+});
+
+test("panel is hidden when playing and no interaction", () => {
+  // When playing with no interaction, panel should be hidden
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true },
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
+
+  // Panel should be hidden (translate-y-full) when playing with no interaction
+  expect(panelContainer.className).toContain("translate-y-full");
 });
