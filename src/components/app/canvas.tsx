@@ -65,10 +65,7 @@ export function Canvas({
     >
       <canvas
         ref={canvasRef}
-        className={cn(
-          "h-auto max-h-full w-full object-contain [view-transition-name:canvas]",
-          className,
-        )}
+        className={cn("h-auto max-h-full w-full object-contain", className)}
         aria-label="Visualized Midi"
         style={{
           ...style,
