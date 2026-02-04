@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import { Toaster } from "@/components/ui/sonner";
 import {
   GridResizablePanelGroup,
@@ -10,7 +11,7 @@ import { AppHeader } from "@/components/app/app-header";
 import { TrackListPane } from "@/components/app/track-list-pane";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { CommonConfigPane } from "@/components/app/common-config-pane";
-import { AboutPanel } from "@/components/app/about-panel";
+import { FooterPanel } from "@/components/app/footer-panel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMidi } from "@/lib/midi/use-midi";
 import { useAudio } from "@/lib/audio/use-audio";
@@ -24,7 +25,11 @@ import {
   type MobileTabValue,
 } from "@/components/app/mobile-bottom-nav";
 import { cn } from "@/lib/utils";
-import { KeyboardShortcutsDialog } from "@/components/app/keyboard-shortcuts-dialog";
+import {
+  UnifiedSettingsDialog,
+  SettingsContent,
+  type SettingsTabValue,
+} from "@/components/app/unified-settings-dialog";
 
 export function App() {
   const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();
@@ -50,6 +55,16 @@ export function App() {
     });
 
   const [mobileTab, setMobileTab] = useState<MobileTabValue>("visualizer");
+
+  // Settings dialog state
+  const [settingsTab, setSettingsTab] = useState<SettingsTabValue | undefined>(
+    undefined,
+  );
+
+  // Open settings dialog with shortcuts tab on "?" key
+  useHotkeys("shift+slash", () => {
+    setSettingsTab("shortcuts");
+  });
 
   // Ref to the visualizer container for measuring dimensions
   const visualizerContainerRef = useRef<HTMLDivElement>(null);
@@ -111,7 +126,7 @@ export function App() {
           panelId="visualizer"
           className={cn(
             "area-[visualizer] max-h-[calc(100dvh/3)] md:max-h-none",
-            { "hidden md:block": mobileTab === "about" },
+            { "hidden md:block": mobileTab === "settings" },
           )}
         >
           <MidiVisualizer
@@ -202,15 +217,21 @@ export function App() {
 
         <GridResizablePanel
           panelId="about"
-          className={cn(
-            "area-[content] md:area-[about] md:block",
-            mobileTab === "about" ? "block" : "hidden",
-            "md:border-t",
-          )}
+          className="area-[about] hidden md:block md:border-t"
           asChild
         >
-          <ScrollArea className="h-full w-full" type="auto">
-            <AboutPanel />
+          <FooterPanel onOpenSettings={() => setSettingsTab("general")} />
+        </GridResizablePanel>
+
+        <GridResizablePanel
+          panelId="settings"
+          className={cn(
+            "area-[content] md:hidden",
+            mobileTab === "settings" ? "block" : "hidden",
+          )}
+        >
+          <ScrollArea className="h-full w-full px-6 py-4" type="auto">
+            <SettingsContent />
           </ScrollArea>
         </GridResizablePanel>
       </GridResizablePanelGroup>
@@ -220,7 +241,11 @@ export function App() {
         value={mobileTab}
         onValueChange={setMobileTab}
       />
-      <KeyboardShortcutsDialog />
+      <UnifiedSettingsDialog
+        open={settingsTab !== undefined}
+        tab={settingsTab}
+        onTabChange={setSettingsTab}
+      />
       <Toaster position="top-center" />
       {ConfirmDialog}
     </div>

@@ -17,6 +17,7 @@ export function AboutContent({ className }: Props) {
 
   return (
     <div className={cn("space-y-4", className)}>
+      <h2 className="hidden text-lg font-semibold md:block">About</h2>
       <p>
         MiVi is a web application that visualizes MIDI files with synchronized
         audio playback and video export capabilities.
