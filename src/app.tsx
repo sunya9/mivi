@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo, useRef } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
 import { Toaster } from "@/components/ui/sonner";
 import {
   GridResizablePanelGroup,
@@ -60,11 +59,6 @@ export function App() {
   const [settingsTab, setSettingsTab] = useState<SettingsTabValue | undefined>(
     undefined,
   );
-
-  // Open settings dialog with shortcuts tab on "?" key
-  useHotkeys("shift+slash", () => {
-    setSettingsTab("shortcuts");
-  });
 
   // Ref to the visualizer container for measuring dimensions
   const visualizerContainerRef = useRef<HTMLDivElement>(null);

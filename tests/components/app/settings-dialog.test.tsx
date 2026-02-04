@@ -6,15 +6,6 @@ import {
   SettingsContent,
 } from "@/components/app/settings-dialog";
 
-// Mock next-themes
-vi.mock("next-themes", () => ({
-  useTheme: () => ({
-    theme: "light",
-    setTheme: vi.fn(),
-    systemTheme: "light",
-  }),
-}));
-
 test("SettingsDialog renders when open is true", () => {
   render(<SettingsDialog open={true} tab="general" onTabChange={vi.fn()} />);
 
@@ -127,4 +118,32 @@ test("SettingsContent applies custom className", () => {
 
   const tabsElement = container.firstChild;
   expect(tabsElement).toHaveClass("custom-class");
+});
+
+// Keyboard shortcut tests
+
+const slashKeyMap = [{ code: "Slash", key: "/" }];
+
+test("SettingsDialog opens with shortcuts tab when Shift+/ is pressed", async () => {
+  const onTabChange = vi.fn();
+
+  render(
+    <SettingsDialog open={false} tab={undefined} onTabChange={onTabChange} />,
+  );
+
+  await userEvent.keyboard("{Shift>}/{/Shift}", { keyboardMap: slashKeyMap });
+
+  expect(onTabChange).toHaveBeenCalledWith("shortcuts");
+});
+
+test("SettingsDialog keyboard shortcut works when dialog is already open", async () => {
+  const onTabChange = vi.fn();
+
+  render(
+    <SettingsDialog open={true} tab="general" onTabChange={onTabChange} />,
+  );
+
+  await userEvent.keyboard("{Shift>}/{/Shift}", { keyboardMap: slashKeyMap });
+
+  expect(onTabChange).toHaveBeenCalledWith("shortcuts");
 });
