@@ -235,7 +235,7 @@ export function MidiVisualizer({
   return (
     <div
       onClick={closeExpanded}
-      className={cn("", {
+      className={cn({
         "relative flex h-full w-full items-center justify-center bg-gray-50 bg-[linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas)),linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas))] bg-size-[16px_16px] bg-position-[0_0,8px_8px] dark:bg-gray-600":
           !expanded,
         "bg-background/50 fixed inset-0 z-30 flex items-center justify-center backdrop-blur-sm":
@@ -287,9 +287,10 @@ export function MidiVisualizer({
         className={cn(
           "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
           "hover:translate-y-0",
-          panelVisible
-            ? "pointer-events-auto translate-y-0"
-            : "pointer-events-none translate-y-full",
+          {
+            "pointer-events-auto translate-y-0": panelVisible,
+            "pointer-events-none translate-y-full": !panelVisible,
+          },
           "light",
         )}
         aria-label="Midi Visualizer Controls"
