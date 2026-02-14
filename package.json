@@ -33,7 +33,7 @@
     "radix-ui": "^1.4.3",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "react-error-boundary": "^6.1.0",
+    "react-error-boundary": "^6.1.1",
     "react-hotkeys-hook": "^5.2.3",
     "react-resize-detector": "^12.3.0",
     "sonner": "^2.0.7",
