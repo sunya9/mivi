@@ -1,17 +1,17 @@
 pre-commit:
   commands:
-    eslint:
+    oxlint:
       glob: "*.{tsx,ts,json}"
       run: |
-        pnpm dlx eslint --fix {staged_files}
+        pnpm oxlint --fix {staged_files}
       stage_fixed: true
       skip:
         - merge
         - rebase
-    prettier:
+    oxfmt:
       glob: "*.{tsx,ts,json,md,yml,yaml}"
       run: |
-        pnpm dlx prettier --write {staged_files}
+        pnpm oxfmt {staged_files}
       stage_fixed: true
       skip:
         - merge
