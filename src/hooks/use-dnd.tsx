@@ -3,9 +3,9 @@ import { cn, errorLogWithToast } from "@/lib/utils";
 import { useState, useCallback, useMemo } from "react";
 
 interface Props {
-  onDropMidi(file: File): Promise<void>;
-  onDropAudio(file: File): Promise<void>;
-  onDropImage(file: File): Promise<void>;
+  onDropMidi: (file: File) => Promise<void>;
+  onDropAudio: (file: File) => Promise<void>;
+  onDropImage: (file: File) => Promise<void>;
 }
 
 export function useDnd({ onDropMidi, onDropAudio, onDropImage }: Props) {

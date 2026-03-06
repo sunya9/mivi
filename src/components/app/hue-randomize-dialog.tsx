@@ -76,9 +76,9 @@ function Content({
       <div className="space-y-6 py-4">
         {/* Preview swatches */}
         <div className="flex justify-center gap-2">
-          {previewColors.map((color, i) => (
+          {previewColors.map((color) => (
             <div
-              key={i}
+              key={color}
               className="size-10 rounded-md border border-input shadow-sm"
               style={{ backgroundColor: color }}
             />
