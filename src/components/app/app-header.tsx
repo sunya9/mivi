@@ -35,7 +35,7 @@ export function AppHeader({
           <h1 className="text-2xl font-bold tracking-tighter md:text-7xl">
             MiVi
           </h1>
-          <p className="text-muted-foreground text-sm font-medium tracking-tighter md:text-xl">
+          <p className="text-sm font-medium tracking-tighter text-muted-foreground md:text-xl">
             <span className="text-accent-foreground">MI</span>DI{" "}
             <span className="text-accent-foreground">Vi</span>sualizer
           </p>
@@ -59,7 +59,7 @@ export function AppHeader({
       {recordingState.type === "recording" && (
         <Progress
           aria-label="Export progress"
-          className="animate-in fade-in absolute bottom-0 left-0 z-10 h-1 w-full rounded-none duration-300"
+          className="absolute bottom-0 left-0 z-10 h-1 w-full animate-in rounded-none duration-300 fade-in"
           value={recordingState.progress * 100}
         />
       )}

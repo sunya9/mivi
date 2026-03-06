@@ -51,7 +51,7 @@ export const TrackItem = React.memo(function TrackItem({
         type="button"
         {...attributes}
         {...listeners}
-        className="text-muted-foreground hover:text-foreground cursor-grab touch-none active:cursor-grabbing"
+        className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
         aria-label="Drag to reorder"
       >
         <GripVertical className="size-4" />
@@ -76,7 +76,7 @@ export const TrackItem = React.memo(function TrackItem({
       {track.config.visible && (
         <>
           <div className="col-span-2 col-start-2 flex flex-row items-center gap-2">
-            <span className="text-muted-foreground inline-flex gap-2 text-xs">
+            <span className="inline-flex gap-2 text-xs text-muted-foreground">
               Opacity: {Math.round(track.config.opacity * 100)}%
               <Slider
                 value={[track.config.opacity]}
@@ -100,7 +100,7 @@ export const TrackItem = React.memo(function TrackItem({
             aria-label="Note color"
           />
 
-          <label className="text-muted-foreground col-start-2 flex items-center gap-1 text-xs">
+          <label className="col-start-2 flex items-center gap-1 text-xs text-muted-foreground">
             <Checkbox
               checked={track.config.staccato}
               onCheckedChange={(checked) =>
@@ -110,7 +110,7 @@ export const TrackItem = React.memo(function TrackItem({
             Staccato
           </label>
           <div className="col-span-2 col-start-3 flex flex-row items-center gap-2 justify-self-end">
-            <span className="text-muted-foreground inline-flex gap-2 text-xs">
+            <span className="inline-flex gap-2 text-xs text-muted-foreground">
               Scale: {Math.round(track.config.scale * 100)}%
               <Slider
                 value={[track.config.scale]}

@@ -238,7 +238,7 @@ export function MidiVisualizer({
       className={cn({
         "relative flex h-full w-full items-center justify-center bg-gray-50 bg-[linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas)),linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas))] bg-size-[16px_16px] bg-position-[0_0,8px_8px] dark:bg-gray-600":
           !expanded,
-        "bg-background/50 fixed inset-0 z-30 flex items-center justify-center backdrop-blur-sm":
+        "fixed inset-0 z-30 flex items-center justify-center bg-background/50 backdrop-blur-sm":
           expanded,
       })}
       aria-expanded={expanded}

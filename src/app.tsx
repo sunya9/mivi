@@ -114,12 +114,12 @@ export function App() {
       <GridResizablePanelGroup
         id="main-layout"
         panels={panels}
-        className="grid-main-layout mx-auto min-h-0"
+        className="mx-auto grid-main-layout min-h-0"
       >
         <GridResizablePanel
           panelId="visualizer"
           className={cn(
-            "area-[visualizer] max-h-[calc(100dvh/3)] md:max-h-none",
+            "max-h-[calc(100dvh/3)] area-[visualizer] md:max-h-none",
             { "hidden md:block": mobileTab === "settings" },
           )}
         >
@@ -134,7 +134,7 @@ export function App() {
         <GridResizablePanel
           panelId="track-list"
           className={cn(
-            "area-[content] md:area-[track-list] md:block",
+            "area-[content] md:block md:area-[track-list]",
             mobileTab === "tracks" ? "block" : "hidden",
           )}
         >
@@ -170,7 +170,7 @@ export function App() {
         <GridResizablePanel
           panelId="config"
           className={cn(
-            "area-[content] md:area-[config] md:block",
+            "area-[content] md:block md:area-[config]",
             mobileTab === "visualizer" ? "block" : "hidden",
           )}
         >
@@ -200,7 +200,7 @@ export function App() {
         <GridResizablePanel
           panelId="style"
           className={cn(
-            "area-[content] md:area-[style] md:block",
+            "area-[content] md:block md:area-[style]",
             mobileTab === "style" ? "block" : "hidden",
           )}
         >
@@ -211,7 +211,7 @@ export function App() {
 
         <GridResizablePanel
           panelId="about"
-          className="area-[about] hidden md:block md:border-t"
+          className="hidden area-[about] md:block md:border-t"
           asChild
         >
           <FooterPanel onOpenSettings={() => setSettingsTab("general")} />
