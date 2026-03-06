@@ -7,6 +7,8 @@ import { IDBFactory } from "fake-indexeddb";
 import * as nodeCrypto from "node:crypto";
 import { RafStub } from "./raf-stub";
 import { AudioContext } from "standardized-audio-context-mock";
+import "fake-indexeddb/auto";
+
 export const rafStub = new RafStub();
 
 vi.mock("virtual:pwa-register/react", () => ({
@@ -24,12 +26,12 @@ vi.stubGlobal("cancelAnimationFrame", rafStub.cancelAnimationFrame);
 afterEach(() => {
   cleanup();
   localStorage.clear();
+  // oxlint-disable-next-line no-global-assign
   indexedDB = new IDBFactory();
   rafStub.reset();
   vi.clearAllMocks();
 });
 
-vi.stubGlobal("indexedDB", new IDBFactory());
 vi.stubGlobal("AudioContext", AudioContext);
 
 let idCounter = 0;
