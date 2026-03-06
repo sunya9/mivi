@@ -5,10 +5,6 @@
   "ignoreIssues": {
     "src/components/ui/**": ["exports", "types"]
   },
-  "ignoreDependencies": [
-    "shadcn",
-    "@babel/plugin-transform-explicit-resource-management",
-    "babel-plugin-react-compiler"
-  ],
+  "ignoreDependencies": ["shadcn"],
   "ignoreBinaries": ["only-allow"]
 }

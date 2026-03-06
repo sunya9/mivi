@@ -1,5 +1,4 @@
 /// <reference types="vitest" />
-import path from "path";
 import { execFileSync } from "child_process";
 import { defineConfig, PluginOption } from "vite";
 import { configDefaults } from "vitest/config";
@@ -11,21 +10,12 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { codecovVitePlugin } from "@codecov/vite-plugin";
 import { BrowserCommand } from "vitest/node";
 import { playwright } from "@vitest/browser-playwright";
-import * as pkg from "./package.json";
-
-const deps = Object.keys(pkg.dependencies);
 
 export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
-    react({
-      babel: {
-        plugins: [
-          "babel-plugin-react-compiler",
-          "@babel/plugin-transform-explicit-resource-management",
-        ],
-      },
-    }),
+    react(),
+    // TODO?: add react compiler plugin (not using Babel)
     Unfonts({
       google: {
         families: [
@@ -128,28 +118,37 @@ export default defineConfig(({ mode }) => ({
     }),
     mode === "development" && devBranchTitlePlugin(),
   ],
-  optimizeDeps: {
-    include: ["mediabunny", "throttle-debounce"],
-  },
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          react: [
-            ...deps.filter(
-              (dep) => dep.includes("react") || dep === "@base-ui/react",
-            ),
-            "react-dom/client",
+        codeSplitting: {
+          groups: [
+            {
+              name: "react-vendor",
+              test: /node_modules[\\/](react|@base-ui[\\/]react)/,
+              priority: 20,
+            },
+            {
+              name: "radix-ui-vendor",
+              test: /node_modules[\\/]@radix-ui/,
+              priority: 15,
+            },
+            {
+              name: "vendor",
+              test: /node_modules/,
+              priority: 10,
+            },
           ],
         },
       },
     },
   },
+  oxc: {
+    // transform explicit-resource-management
+    target: "ES2023",
+  },
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-      tests: path.resolve(__dirname, "./tests"),
-    },
+    tsconfigPaths: true,
   },
   base: "/mivi/",
   test: {

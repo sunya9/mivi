@@ -19,6 +19,7 @@ vi.mock("virtual:pwa-register/react", () => ({
 afterEach(() => {
   cleanup();
   localStorage.clear();
+  // oxlint-disable-next-line no-global-assign
   indexedDB = new IDBFactory();
   vi.clearAllMocks();
 });
