@@ -79,7 +79,7 @@ function Content({
           {previewColors.map((color, i) => (
             <div
               key={i}
-              className="border-input size-10 rounded-md border shadow-sm"
+              className="size-10 rounded-md border border-input shadow-sm"
               style={{ backgroundColor: color }}
             />
           ))}

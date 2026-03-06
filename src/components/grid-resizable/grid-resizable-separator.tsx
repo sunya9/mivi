@@ -150,7 +150,7 @@ export function GridResizableSeparator({
       className={cn(
         "hidden md:block", // Hidden on mobile, visible on desktop
         "group relative z-10 touch-none",
-        "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         {
           "-mx-[7.5px] h-full w-4 cursor-col-resize":
             orientation === "horizontal",
@@ -169,8 +169,8 @@ export function GridResizableSeparator({
       {/* Visual separator line - centered at 50% of wrapper */}
       <div
         className={cn(
-          "bg-border absolute transition-all duration-150",
-          "group-hover:bg-primary/50 group-hover:ring-primary/50 transition-all group-hover:shadow-lg group-hover:ring-2",
+          "absolute bg-border transition-all duration-150",
+          "transition-all group-hover:bg-primary/50 group-hover:shadow-lg group-hover:ring-2 group-hover:ring-primary/50",
           "group-focus-visible:bg-primary group-focus-visible:shadow-[0_0_8px_2px_hsl(var(--primary)/0.4)]",
           orientation === "horizontal"
             ? "top-0 bottom-0 left-1/2 w-px -translate-x-1/2 group-hover:w-0.5"

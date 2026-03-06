@@ -30,7 +30,7 @@ export const FooterPanel = memo(function FooterPanel({
       >
         <CardContent
           className={cn(
-            "text-muted-foreground space-y-4",
+            "space-y-4 text-muted-foreground",
             "md:mx-auto md:flex md:flex-row md:items-center md:justify-center md:gap-4 md:space-y-0 md:px-0 md:py-1 md:text-sm",
           )}
         >

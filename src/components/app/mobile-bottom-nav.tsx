@@ -41,8 +41,8 @@ function SettingsIcon() {
       <Settings className="size-5" />
       {showUpdateIndicator && (
         <span className="absolute -top-1 -right-1 flex size-2.5">
-          <span className="bg-primary absolute inline-flex size-full animate-ping rounded-full opacity-75" />
-          <span className="bg-primary relative inline-flex size-2.5 rounded-full" />
+          <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-75" />
+          <span className="relative inline-flex size-2.5 rounded-full bg-primary" />
         </span>
       )}
     </>
@@ -65,7 +65,7 @@ export function MobileBottomNav({
       value={value}
       onValueChange={(v) => onValueChange(v as MobileTabValue)}
       className={cn(
-        "bg-background border-border border-t drop-shadow",
+        "border-t border-border bg-background drop-shadow",
         className,
       )}
     >
@@ -73,7 +73,7 @@ export function MobileBottomNav({
         className={cn(
           "relative grid grid-cols-4",
           // Indicator element using CSS custom property for position-anchor
-          "before:bg-secondary before:absolute before:m-1 before:rounded-md before:transition-all",
+          "before:absolute before:m-1 before:rounded-md before:bg-secondary before:transition-all",
           "before:inset-[anchor(top)_anchor(right)_anchor(bottom)_anchor(left)] before:-z-10",
           "before:[position-anchor:var(--active-tab-anchor)]",
         )}
@@ -86,7 +86,7 @@ export function MobileBottomNav({
             key={tab.value}
             value={tab.value}
             className={cn(
-              "text-muted-foreground relative flex flex-1 flex-col items-center gap-1 border-transparent bg-clip-padding py-2 text-xs font-normal",
+              "relative flex flex-1 flex-col items-center gap-1 border-transparent bg-clip-padding py-2 text-xs font-normal text-muted-foreground",
               "not-data-[state=active]:hover:text-primary data-[state=active]:text-primary",
               // Fallback for browsers without anchor positioning
               "not-supports-position-anchor:data-[state=active]:before:bg-secondary",

@@ -21,7 +21,7 @@ export function Fallback(props: FallbackProps) {
             If you are seeing this, please try resetting the configuration. If
             the problem persists, please contact the developer.
           </p>
-          <pre className="bg-muted mt-3 max-h-96 overflow-auto px-2 py-4">
+          <pre className="mt-3 max-h-96 overflow-auto bg-muted px-2 py-4">
             {getErrorMessage(props.error)}
           </pre>
         </CardContent>

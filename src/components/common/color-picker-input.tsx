@@ -143,7 +143,7 @@ export function ColorPickerInput({
         aria-label={ariaLabel}
         aria-invalid={isInvalid || undefined}
         disabled={disabled}
-        className="h-8 w-[9ch] font-mono"
+        className="font-mono h-8 w-[9ch]"
       />
     </InputGroup>
   );
