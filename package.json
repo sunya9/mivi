@@ -14,7 +14,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test": "vitest",
-    "test:vrt": "vitest --project vrt"
+    "test:vrt": "vitest --project vrt",
+    "knip": "knip"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -69,6 +70,7 @@
     "eslint-plugin-testing-library": "^7.16.0",
     "fake-indexeddb": "^6.2.5",
     "happy-dom": "^20.8.3",
+    "knip": "^5.86.0",
     "lefthook": "^2.1.2",
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
