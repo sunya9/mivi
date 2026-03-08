@@ -1,7 +1,7 @@
 import { RendererContext } from "../renderer";
 import { seededRandom } from "@/lib/seeded-random";
 
-export interface NoiseTextureConfig {
+interface NoiseTextureConfig {
   intensity: number;
   grainSize: number;
   colorVariance: number;

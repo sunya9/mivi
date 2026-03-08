@@ -10,7 +10,7 @@ export interface PrecomputedFFTData {
   readonly duration: number;
 }
 
-export interface FFTPrecomputeOptions {
+interface FFTPrecomputeOptions {
   fftSize?: FFTSize;
   smoothingTimeConstant?: number;
   minDecibels?: number;

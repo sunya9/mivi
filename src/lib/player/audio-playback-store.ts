@@ -2,7 +2,7 @@ import { type StorageRepository } from "@/lib/storage/storage-repository";
 import { AudioAnalyzer, type FrequencyData } from "@/lib/audio/audio-analyzer";
 
 /** Immutable snapshot of playback state */
-export interface PlaybackSnapshot {
+interface PlaybackSnapshot {
   readonly audioBuffer: AudioBuffer | undefined;
   readonly isPlaying: boolean;
   readonly position: number;
