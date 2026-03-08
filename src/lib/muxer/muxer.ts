@@ -62,7 +62,7 @@ const FORMAT_CONFIGS: Record<
   },
 } as const;
 
-export interface MuxerOptions {
+interface MuxerOptions {
   format: VideoFormat;
   frameRate: number;
 }

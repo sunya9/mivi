@@ -14,7 +14,7 @@ export interface FrequencyData {
 
 export type FFTSize = 256 | 512 | 1024 | 2048 | 4096 | 8192;
 
-export interface AudioAnalyzerOptions {
+interface AudioAnalyzerOptions {
   fftSize?: FFTSize;
   smoothingTimeConstant?: number;
   minDecibels?: number;

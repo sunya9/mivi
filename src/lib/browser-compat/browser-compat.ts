@@ -1,4 +1,4 @@
-export interface BrowserApiStatus {
+interface BrowserApiStatus {
   name: string;
   supported: boolean;
 }
