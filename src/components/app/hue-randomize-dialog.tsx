@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { HSL_PRESETS, HSLPresetBase, hslToHex } from "@/lib/colors/color";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { cn } from "@/lib/utils";
 
 interface Props {
@@ -28,7 +29,7 @@ interface HueRandomizeSL {
 export function HueRandomizeDialog({ open, onOpenChange, onConfirm }: Props) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <Content onOpenChange={onOpenChange} onConfirm={onConfirm} />
       </DialogContent>
     </Dialog>
@@ -76,13 +77,31 @@ function Content({
       <div className="space-y-6 py-4">
         {/* Preview swatches */}
         <div className="flex justify-center gap-2">
-          {previewColors.map((color, i) => (
+          {previewColors.map((color) => (
             <div
-              key={i}
+              key={color}
               className="size-10 rounded-md border border-input shadow-sm"
               style={{ backgroundColor: color }}
             />
           ))}
+        </div>
+
+        {/* Preset buttons */}
+        <div className="space-y-2">
+          <div className="text-sm">Presets</div>
+          <ButtonGroup>
+            {HSL_PRESETS.map((preset) => (
+              <Button
+                key={preset.name}
+                variant="outline"
+                size="sm"
+                onClick={() => handlePresetClick(preset)}
+                className="capitalize"
+              >
+                {preset.name}
+              </Button>
+            ))}
+          </ButtonGroup>
         </div>
 
         {/* Saturation slider */}
@@ -104,29 +123,6 @@ function Content({
           onValueChange={setLightness}
           label="Lightness"
         />
-        {/* Preset buttons */}
-        <div className="space-y-2">
-          <div className="text-sm">Presets</div>
-          <div className="inline-flex">
-            {HSL_PRESETS.map((preset, index) => (
-              <Button
-                key={preset.name}
-                variant="outline"
-                size="sm"
-                onClick={() => handlePresetClick(preset)}
-                className={`capitalize ${
-                  index === 0
-                    ? "rounded-r-none"
-                    : index === HSL_PRESETS.length - 1
-                      ? "rounded-l-none border-l-0"
-                      : "rounded-none border-l-0"
-                }`}
-              >
-                {preset.name}
-              </Button>
-            ))}
-          </div>
-        </div>
       </div>
 
       <DialogFooter>
