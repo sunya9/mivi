@@ -1,17 +1,12 @@
 name: Deploy static content to Pages
 
 on:
-  # Trigger after Build Test completes
-  workflow_run:
-    workflows: ["Build Test"]
-    types: [completed]
+  push:
     branches: [main]
-
   workflow_dispatch:
 
 permissions:
   contents: read
-  actions: write
   pages: write # to deploy to Pages
   id-token: write # to verify the deployment originates from an appropriate source
 
@@ -21,8 +16,6 @@ concurrency:
 
 jobs:
   build:
-    # Skip if triggered by workflow_run and it failed
-    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     uses: ./.github/workflows/build-common.yml
     with:
       upload_artifact: true
