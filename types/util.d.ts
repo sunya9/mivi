@@ -10,11 +10,11 @@ declare global {
   interface BeforeInstallPromptEvent extends Event {
     preventDefault: () => void;
     prompt: () => Promise<void>;
-    userChoice: readonly Promise<{
+    readonly userChoice: Promise<{
       outcome: "accepted" | "dismissed";
       platform: string;
     }>;
-    platforms: readonly string[];
+    readonly platforms: string[];
   }
   interface WindowEventMap {
     beforeinstallprompt: BeforeInstallPromptEvent;
