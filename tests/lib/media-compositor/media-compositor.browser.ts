@@ -24,7 +24,7 @@ test("composite() with WebM muxer returns a valid WebM Blob", async () => {
   expect(blob.size).toBeGreaterThan(0);
 });
 
-test.todo("composite() with MP4 muxer returns a valid MP4 Blob");
+// TODO?: composite() with MP4 muxer returns a valid MP4 Blob
 
 test("onProgress is called with progress value", async () => {
   const resources = createTestRecorderResources("webm");
