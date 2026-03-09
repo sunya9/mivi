@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: ["main"]
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
   build-test:
     runs-on: ubuntu-24.04
@@ -104,6 +100,9 @@ jobs:
   deploy:
     if: github.event_name == 'push'
     needs: build-test
+    concurrency:
+      group: "pages"
+      cancel-in-progress: true
     runs-on: ubuntu-24.04
     permissions:
       pages: write
