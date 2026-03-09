@@ -7,16 +7,15 @@ function createBeforeInstallPromptEvent(
     Pick<BeforeInstallPromptEvent, "prompt" | "userChoice">
   > = {},
 ): BeforeInstallPromptEvent {
-  return {
-    ...new Event("beforeinstallprompt"),
+  return Object.assign(new Event("beforeinstallprompt"), {
     prompt: vi.fn(),
-    platforms: [],
+    platforms: [] as string[],
     userChoice: Promise.resolve({
       outcome: "accepted" as const,
       platform: "",
     }),
     ...overrides,
-  } satisfies BeforeInstallPromptEvent;
+  });
 }
 
 test("usePwaState initializes with canInstall as false", () => {
