@@ -29,7 +29,6 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-vi.stubGlobal("indexedDB", new IDBFactory());
 vi.stubGlobal("AudioContext", AudioContext);
 
 let idCounter = 0;
