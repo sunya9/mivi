@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 interface Props {
   className?: string;
   recordingState: RecordingStatus;
-  toggleRecording(): void;
+  toggleRecording: () => void;
 }
 export function AppHeader({
   className,
