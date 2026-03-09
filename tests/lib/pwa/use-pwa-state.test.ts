@@ -2,6 +2,23 @@ import { expect, test, vi } from "vitest";
 import { renderHook, waitFor, fireEvent } from "@testing-library/react";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 
+function createBeforeInstallPromptEvent(
+  overrides: Partial<
+    Pick<BeforeInstallPromptEvent, "prompt" | "userChoice">
+  > = {},
+): BeforeInstallPromptEvent {
+  return {
+    ...new Event("beforeinstallprompt"),
+    prompt: vi.fn(),
+    platforms: [],
+    userChoice: Promise.resolve({
+      outcome: "accepted" as const,
+      platform: "",
+    }),
+    ...overrides,
+  } satisfies BeforeInstallPromptEvent;
+}
+
 test("usePwaState initializes with canInstall as false", () => {
   const { result } = renderHook(() => usePwaState());
 
@@ -42,24 +59,19 @@ test("usePwaState removes event listeners on unmount", () => {
 test("usePwaState sets canInstall to true when beforeinstallprompt fires", () => {
   const { result } = renderHook(() => usePwaState());
 
-  // Simulate beforeinstallprompt event
-  const beforeInstallPromptEvent = new Event("beforeinstallprompt");
-  vi.spyOn(beforeInstallPromptEvent, "preventDefault");
-  fireEvent(window, beforeInstallPromptEvent);
+  const event = createBeforeInstallPromptEvent();
+  vi.spyOn(event, "preventDefault");
+  fireEvent(window, event);
   expect(result.current.canInstall).toBe(true);
-  expect(beforeInstallPromptEvent.preventDefault).toHaveBeenCalled();
+  expect(event.preventDefault).toHaveBeenCalled();
 });
 
 test("usePwaState sets canInstall to false when appinstalled fires", () => {
   const { result } = renderHook(() => usePwaState());
 
-  // First, trigger beforeinstallprompt to set canInstall to true
-  const beforeInstallPromptEvent = new Event(
-    "beforeinstallprompt",
-  ) as BeforeInstallPromptEvent;
-  beforeInstallPromptEvent.prompt = vi.fn();
-  vi.spyOn(beforeInstallPromptEvent, "preventDefault");
-  fireEvent(window, beforeInstallPromptEvent);
+  const event = createBeforeInstallPromptEvent();
+  vi.spyOn(event, "preventDefault");
+  fireEvent(window, event);
   expect(result.current.canInstall).toBe(true);
 
   const appInstalledEvent = new Event("appinstalled");
@@ -70,37 +82,23 @@ test("usePwaState sets canInstall to false when appinstalled fires", () => {
 test("usePwaState calls prompt() when installPwa is called", async () => {
   const { result } = renderHook(() => usePwaState());
 
-  const beforeInstallPromptEvent = new Event(
-    "beforeinstallprompt",
-  ) as BeforeInstallPromptEvent;
-  beforeInstallPromptEvent.prompt = vi.fn();
-  beforeInstallPromptEvent.userChoice = Promise.resolve({
-    outcome: "accepted",
-    platform: "",
-  });
-  vi.spyOn(beforeInstallPromptEvent, "preventDefault");
-  fireEvent(window, beforeInstallPromptEvent);
+  const event = createBeforeInstallPromptEvent();
+  vi.spyOn(event, "preventDefault");
+  fireEvent(window, event);
   expect(result.current.canInstall).toBe(true);
 
   const installResult = await result.current.installPwa();
   expect(installResult).toBe(true);
 
-  expect(beforeInstallPromptEvent.prompt).toHaveBeenCalled();
+  expect(event.prompt).toHaveBeenCalled();
 });
 
 test("usePwaState sets canInstall to false when user accepts install", async () => {
   const { result } = renderHook(() => usePwaState());
 
-  const beforeInstallPromptEvent = new Event(
-    "beforeinstallprompt",
-  ) as BeforeInstallPromptEvent;
-  beforeInstallPromptEvent.prompt = vi.fn();
-  beforeInstallPromptEvent.userChoice = Promise.resolve({
-    outcome: "accepted",
-    platform: "",
-  });
-  vi.spyOn(beforeInstallPromptEvent, "preventDefault");
-  fireEvent(window, beforeInstallPromptEvent);
+  const event = createBeforeInstallPromptEvent();
+  vi.spyOn(event, "preventDefault");
+  fireEvent(window, event);
 
   expect(result.current.canInstall).toBe(true);
 
@@ -116,16 +114,11 @@ test("usePwaState sets canInstall to false when user accepts install", async () 
 test("usePwaState returns false and keeps canInstall true when user dismisses install", async () => {
   const { result } = renderHook(() => usePwaState());
 
-  const beforeInstallPromptEvent = new Event(
-    "beforeinstallprompt",
-  ) as BeforeInstallPromptEvent;
-  beforeInstallPromptEvent.prompt = vi.fn();
-  beforeInstallPromptEvent.userChoice = Promise.resolve({
-    outcome: "dismissed",
-    platform: "",
+  const event = createBeforeInstallPromptEvent({
+    userChoice: Promise.resolve({ outcome: "dismissed", platform: "" }),
   });
-  vi.spyOn(beforeInstallPromptEvent, "preventDefault");
-  fireEvent(window, beforeInstallPromptEvent);
+  vi.spyOn(event, "preventDefault");
+  fireEvent(window, event);
 
   await waitFor(() => {
     expect(result.current.canInstall).toBe(true);
@@ -134,7 +127,7 @@ test("usePwaState returns false and keeps canInstall true when user dismisses in
   const installResult = await result.current.installPwa();
 
   // prompt() should still be called even when dismissed
-  expect(beforeInstallPromptEvent.prompt).toHaveBeenCalled();
+  expect(event.prompt).toHaveBeenCalled();
   // installPwa returns false when not accepted
   expect(installResult).toBe(false);
   // canInstall remains true so user can try again
