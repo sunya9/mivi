@@ -82,9 +82,7 @@ export function AudioVisualizerConfigPanel({
         controller={({ id }) => (
           <Select
             value={audioVisualizerConfig.style}
-            onValueChange={(value: AudioVisualizerStyle) =>
-              setConfig({ style: value })
-            }
+            onValueChange={(value) => setConfig({ style: value ?? undefined })}
           >
             <SelectTrigger id={id}>
               <SelectValue placeholder="Select style" />
@@ -109,8 +107,8 @@ export function AudioVisualizerConfigPanel({
               controller={({ id }) => (
                 <Select
                   value={audioVisualizerConfig.position}
-                  onValueChange={(value: AudioVisualizerPosition) =>
-                    setConfig({ position: value })
+                  onValueChange={(value) =>
+                    setConfig({ position: value ?? undefined })
                   }
                 >
                   <SelectTrigger id={id}>
@@ -253,8 +251,8 @@ export function AudioVisualizerConfigPanel({
                     controller={({ id }) => (
                       <Select
                         value={audioVisualizerConfig.barStyle}
-                        onValueChange={(value: AudioVisualizerBarStyle) =>
-                          setConfig({ barStyle: value })
+                        onValueChange={(value) =>
+                          setConfig({ barStyle: value ?? undefined })
                         }
                       >
                         <SelectTrigger id={id}>
@@ -487,8 +485,8 @@ export function AudioVisualizerConfigPanel({
                   controller={({ id }) => (
                     <Select
                       value={audioVisualizerConfig.gradientDirection}
-                      onValueChange={(value: GradientDirection) =>
-                        setConfig({ gradientDirection: value })
+                      onValueChange={(value) =>
+                        setConfig({ gradientDirection: value ?? undefined })
                       }
                     >
                       <SelectTrigger id={id}>

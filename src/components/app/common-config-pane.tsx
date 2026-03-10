@@ -12,15 +12,10 @@ import {
   FPS,
   fpsOptions,
   formatOptions,
-  VideoFormat,
   RendererConfig,
-  BackgroundImagePosition,
   backgroundImagePositions,
-  BackgroundImageRepeat,
   backgroundImageRepeats,
-  BackgroundImageFit,
   backgroundImageFitOptions,
-  AudioVisualizerLayer,
 } from "@/lib/renderers/renderer";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
@@ -116,8 +111,10 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               controller={({ id }) => (
                 <Select
                   value={rendererConfig.backgroundImageFit}
-                  onValueChange={(value: BackgroundImageFit) =>
-                    onUpdateRendererConfig({ backgroundImageFit: value })
+                  onValueChange={(value) =>
+                    onUpdateRendererConfig({
+                      backgroundImageFit: value ?? undefined,
+                    })
                   }
                 >
                   <SelectTrigger id={id} className="w-48">
@@ -138,9 +135,11 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               controller={({ id }) => (
                 <Select
                   value={rendererConfig.backgroundImagePosition}
-                  onValueChange={(
-                    backgroundImagePosition: BackgroundImagePosition,
-                  ) => onUpdateRendererConfig({ backgroundImagePosition })}
+                  onValueChange={(value) =>
+                    onUpdateRendererConfig({
+                      backgroundImagePosition: value ?? undefined,
+                    })
+                  }
                 >
                   <SelectTrigger id={id} className="w-48">
                     <SelectValue placeholder="Select image position" />
@@ -160,8 +159,10 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               controller={({ id }) => (
                 <Select
                   value={rendererConfig.backgroundImageRepeat}
-                  onValueChange={(value: BackgroundImageRepeat) =>
-                    onUpdateRendererConfig({ backgroundImageRepeat: value })
+                  onValueChange={(value) =>
+                    onUpdateRendererConfig({
+                      backgroundImageRepeat: value ?? undefined,
+                    })
                   }
                 >
                   <SelectTrigger id={id} className="w-48">
@@ -216,6 +217,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             <Select
               value={rendererConfig.resolution.label}
               onValueChange={(value) => {
+                if (value == null) return;
                 const resolution = resolutions.find((r) => r.label === value);
                 onUpdateRendererConfig({ resolution });
               }}
@@ -246,6 +248,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             <Select
               value={rendererConfig.fps.toString()}
               onValueChange={(value) => {
+                if (value == null) return;
                 const fps = +value as FPS;
                 onUpdateRendererConfig({ fps });
               }}
@@ -271,8 +274,8 @@ export const CommonConfigPane = memo(function CommonConfigPane({
           controller={({ id }) => (
             <Select
               value={rendererConfig.format}
-              onValueChange={(value: VideoFormat) =>
-                onUpdateRendererConfig({ format: value })
+              onValueChange={(value) =>
+                onUpdateRendererConfig({ format: value ?? undefined })
               }
             >
               <SelectTrigger id={id}>
@@ -293,8 +296,10 @@ export const CommonConfigPane = memo(function CommonConfigPane({
           controller={({ id }) => (
             <Select
               value={rendererConfig.audioVisualizerLayer}
-              onValueChange={(value: AudioVisualizerLayer) =>
-                onUpdateRendererConfig({ audioVisualizerLayer: value })
+              onValueChange={(value) =>
+                onUpdateRendererConfig({
+                  audioVisualizerLayer: value ?? undefined,
+                })
               }
             >
               <SelectTrigger id={id}>
