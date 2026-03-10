@@ -1,24 +1,24 @@
 import { cn } from "@/lib/utils";
-import { Slot } from "radix-ui";
 
-interface GridResizablePanelProps extends React.HTMLAttributes<HTMLDivElement> {
+interface GridResizablePanelProps extends Omit<
+  React.HTMLAttributes<HTMLDivElement>,
+  "render"
+> {
   panelId: string;
-  asChild?: boolean;
 }
 
 export function GridResizablePanel({
   panelId,
-  asChild = false,
   className,
+  children,
   ...props
 }: GridResizablePanelProps) {
-  const Comp = asChild ? Slot.Root : "div";
-  return (
-    <Comp
-      {...props}
-      data-slot="grid-resizable-panel"
-      data-panel-id={panelId}
-      className={cn("min-h-0 min-w-0 overflow-hidden", className)}
-    />
-  );
+  const sharedProps = {
+    ...props,
+    "data-slot": "grid-resizable-panel",
+    "data-panel-id": panelId,
+    className: cn("min-h-0 min-w-0 overflow-hidden", className),
+  };
+
+  return <div {...sharedProps}>{children}</div>;
 }
