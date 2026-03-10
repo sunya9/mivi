@@ -44,7 +44,7 @@ export const TrackItem = React.memo(function TrackItem({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "grid grid-cols-[auto_1fr_auto_auto] items-center gap-x-2 gap-y-2 py-4",
+        "grid grid-cols-[auto_1fr_auto_48px] items-center gap-x-2 gap-y-2 py-4",
       )}
     >
       <button
@@ -75,29 +75,27 @@ export const TrackItem = React.memo(function TrackItem({
 
       {track.config.visible && (
         <>
-          <div className="col-span-2 col-start-2 flex flex-row items-center gap-2">
-            <span className="inline-flex gap-2 text-xs text-muted-foreground">
-              Opacity: {Math.round(track.config.opacity * 100)}%
-              <Slider
-                value={[track.config.opacity]}
-                min={0}
-                max={1}
-                step={0.05}
-                defaultValue={[1]}
-                onValueChange={([value]) =>
-                  onUpdateTrackConfig(index, { opacity: value })
-                }
-                className="w-16"
-                key={`${track.id}-opacity`}
-                aria-label="Opacity"
-              />
-            </span>
-          </div>
           <ColorPickerInput
             value={track.config.color}
             onChange={(value) => onUpdateTrackConfig(index, { color: value })}
-            className="col-start-4 justify-self-end"
+            className="col-start-2"
             aria-label="Note color"
+          />
+          <div className="text-end text-xs text-muted-foreground tabular-nums">
+            Opacity: {Math.round(track.config.opacity * 100)}%
+          </div>
+          <Slider
+            value={[track.config.opacity]}
+            min={0}
+            max={1}
+            step={0.05}
+            defaultValue={[1]}
+            onValueChange={([value]) =>
+              onUpdateTrackConfig(index, { opacity: value })
+            }
+            className="w-16"
+            key={`${track.id}-opacity`}
+            aria-label="Opacity"
           />
 
           <label className="col-start-2 flex items-center gap-1 text-xs text-muted-foreground">
@@ -109,24 +107,22 @@ export const TrackItem = React.memo(function TrackItem({
             />
             Staccato
           </label>
-          <div className="col-span-2 col-start-3 flex flex-row items-center gap-2 justify-self-end">
-            <span className="inline-flex gap-2 text-xs text-muted-foreground">
-              Scale: {Math.round(track.config.scale * 100)}%
-              <Slider
-                value={[track.config.scale]}
-                min={0.5}
-                max={1}
-                step={0.05}
-                defaultValue={[1]}
-                onValueChange={([value]) =>
-                  onUpdateTrackConfig(index, { scale: value })
-                }
-                aria-label="Scale"
-                key={`${track.id}-scale`}
-                className="w-16"
-              />
-            </span>
+          <div className="text-end text-xs text-muted-foreground tabular-nums">
+            Scale: {Math.round(track.config.scale * 100)}%
           </div>
+          <Slider
+            value={[track.config.scale]}
+            min={0.5}
+            max={1}
+            step={0.05}
+            defaultValue={[1]}
+            onValueChange={([value]) =>
+              onUpdateTrackConfig(index, { scale: value })
+            }
+            aria-label="Scale"
+            key={`${track.id}-scale`}
+            className="col-start-4 basis-16"
+          />
         </>
       )}
     </div>
