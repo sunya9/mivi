@@ -248,7 +248,8 @@ export function MidiVisualizer({
     >
       {expanded && (
         <Button
-          variant="icon"
+          size="icon"
+          variant="ghost"
           onClick={closeExpanded}
           className="absolute top-2 right-2 z-50 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16"
         >
@@ -331,7 +332,7 @@ export function MidiVisualizer({
               endInteraction();
               setIsSeeking(false);
             }}
-            className="*:data-[slot=slider-track]:bg-muted/30"
+            className="**:data-[slot=slider-track]:bg-muted/30"
           />
           <div className="flex items-center gap-2">
             <Button
@@ -365,7 +366,7 @@ export function MidiVisualizer({
                 endInteraction();
               }}
               aria-label="Volume"
-              className="w-24"
+              className="basis-24"
             />
             <span className="flex-1 text-white tabular-nums">
               {formatTime(position)} / {formatTime(duration)}
