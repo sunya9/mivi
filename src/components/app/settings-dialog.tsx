@@ -63,18 +63,9 @@ export function SettingsDialog({ tab, onTabChange }: SettingsDialogProps) {
     },
     [onTabChange],
   );
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const handleOpenAutoFocus = useCallback((e: Event) => {
-    e.preventDefault();
-    closeButtonRef.current?.focus();
-  }, []);
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent
-        className="overflow-hidden p-0 md:max-w-175"
-        onOpenAutoFocus={handleOpenAutoFocus}
-        closeButtonRef={closeButtonRef}
-      >
+      <DialogContent className="overflow-hidden p-0 md:max-w-175">
         {tab && (
           <SettingsDialogContent activeTab={tab} onTabChange={onTabChange} />
         )}
