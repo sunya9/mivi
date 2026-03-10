@@ -13,7 +13,13 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsIndicator,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sidebar,
@@ -142,9 +148,10 @@ interface SettingsContentProps {
 export function SettingsContent({ className }: SettingsContentProps) {
   return (
     <Tabs defaultValue="general" className={className}>
-      <TabsList variant="line">
+      <TabsList variant="line-indicator" className="w-full">
         <TabsTrigger value="general">General</TabsTrigger>
         <TabsTrigger value="about">About</TabsTrigger>
+        <TabsIndicator />
       </TabsList>
       <div>
         <TabsContent value="general" className="py-4">
