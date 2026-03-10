@@ -16,7 +16,11 @@ function ScrollArea({ className, children, orientation, ...props }: Props) {
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
         className={cn(
-          "scroll-fade-y size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1",
+          "size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1",
+          // scroll fade (top)
+          "before:pointer-events-none before:absolute before:top-0 before:left-0 before:block before:h-[min(40px,var(--scroll-area-overflow-y-start))] before:w-full before:rounded-md before:bg-linear-to-b before:from-background before:to-transparent before:transition-[height] before:duration-100 before:ease-out before:[--scroll-area-overflow-y-start:inherit]",
+          // scroll fade (bottom)
+          "after:pointer-events-none after:absolute after:bottom-0 after:left-0 after:block after:h-[min(40px,var(--scroll-area-overflow-y-end,40px))] after:w-full after:rounded-md after:bg-linear-to-t after:from-background after:to-transparent after:transition-[height] after:duration-100 after:ease-out after:[--scroll-area-overflow-y-end:inherit]",
           {
             "overflow-x-hidden!": orientation === "vertical",
             "overflow-y-hidden!": orientation === "horizontal",
