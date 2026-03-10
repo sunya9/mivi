@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import { checkBrowserApis } from "@/lib/browser-compat/browser-compat";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { Button } from "@/components/ui/button";
 
 interface Props {
   className?: string;
@@ -48,11 +47,7 @@ export function AboutContent({ className }: Props) {
         </AlertDescription>
       </Alert>
       <p>
-        Created by{" "}
-        <Button variant="link" size="link" asChild>
-          <a href="https://x.com/ephemeralMocha">@ephemeralMocha</a>
-        </Button>
-        .
+        Created by <a href="https://x.com/ephemeralMocha">@ephemeralMocha</a>.
       </p>
 
       <dl className="grid grid-cols-[auto_1fr] gap-x-2 text-xs text-muted-foreground">
@@ -63,9 +58,7 @@ export function AboutContent({ className }: Props) {
       </dl>
 
       <p>
-        <Button variant="link" size="link" asChild>
-          <a href="https://github.com/sunya9/mivi">GitHub Repository</a>
-        </Button>
+        <a href="https://github.com/sunya9/mivi">GitHub Repository</a>
       </p>
     </div>
   );
