@@ -151,7 +151,7 @@ function ParamSlider({
   className?: string;
 }) {
   const labelId = useId();
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const handleClick = useCallback(() => {
     ref.current?.focus();
   }, []);
