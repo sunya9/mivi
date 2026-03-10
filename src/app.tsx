@@ -174,7 +174,7 @@ export function App() {
             mobileTab === "visualizer" ? "block" : "hidden",
           )}
         >
-          <ScrollArea className="h-full w-full" type="auto">
+          <ScrollArea className="h-full w-full">
             <CommonConfigPane
               rendererConfig={rendererConfig}
               onUpdateRendererConfig={onUpdateRendererConfig}
