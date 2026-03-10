@@ -138,7 +138,7 @@ export function App() {
             mobileTab === "tracks" ? "block" : "hidden",
           )}
         >
-          <ScrollArea type="auto" className="@container h-full w-full">
+          <ScrollArea className="@container h-full w-full">
             <TrackListPane
               key={midiTracks?.instanceKey}
               midiTracks={midiTracks}
@@ -204,9 +204,7 @@ export function App() {
             mobileTab === "style" ? "block" : "hidden",
           )}
         >
-          <ScrollArea className="h-full w-full" type="auto">
-            {VisualizerStyle}
-          </ScrollArea>
+          {VisualizerStyle}
         </GridResizablePanel>
 
         <GridResizablePanel
@@ -224,7 +222,7 @@ export function App() {
             mobileTab === "settings" ? "block" : "hidden",
           )}
         >
-          <ScrollArea className="h-full w-full px-6 py-4" type="auto">
+          <ScrollArea className="h-full w-full px-6 py-4">
             <SettingsContent />
           </ScrollArea>
         </GridResizablePanel>
