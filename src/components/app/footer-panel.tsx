@@ -24,9 +24,8 @@ export const FooterPanel = memo(function FooterPanel({
   return (
     <footer {...props}>
       <Card
-        className={cn(
-          "border-0 bg-transparent shadow-none md:mx-auto md:block md:max-w-384 md:px-6 md:py-0",
-        )}
+        variant="transparent"
+        className={cn("md:mx-auto md:block md:max-w-384 md:px-6 md:py-0")}
       >
         <CardContent
           className={cn(

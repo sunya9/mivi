@@ -134,7 +134,7 @@ export const TrackListPane = React.memo(function TrackListPane({
     [onMidiOffsetChange],
   );
   return (
-    <Card className="border-0 bg-transparent shadow-none">
+    <Card variant="transparent">
       <CardHeader>
         <CardTitle>
           <h2>Tracks</h2>

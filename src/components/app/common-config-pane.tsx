@@ -47,7 +47,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
   onChangeBackgroundImage,
 }: Props) {
   return (
-    <Card className="border-0 bg-transparent shadow-none">
+    <Card variant="transparent">
       <CardHeader>
         <CardTitle>
           <h2>Audio Settings</h2>
