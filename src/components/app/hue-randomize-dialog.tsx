@@ -126,9 +126,7 @@ function Content({
       </div>
 
       <DialogFooter>
-        <DialogClose asChild>
-          <Button variant="outline">Cancel</Button>
-        </DialogClose>
+        <DialogClose render={<Button variant="outline">Cancel</Button>} />
         <Button onClick={handleConfirm}>Apply</Button>
       </DialogFooter>
     </>
