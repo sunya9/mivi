@@ -309,14 +309,14 @@ export function MidiVisualizer({
               // Stop playback at current position (don't commit so we can resume later)
               invalidateSeek(position, false);
             }}
-            onValueChange={([value], reason) => {
-              if (reason === "pointer-down" || reason === "drag") {
+            onValueChange={([value], { reason }) => {
+              if (reason === "track-press" || reason === "drag") {
                 // Seek to new position (playback already stopped at pointer-down)
                 invalidateSeek(value, false);
               }
               // keyboard: handled only in onValueCommit (seamless)
             }}
-            onValueCommit={([value], reason) => {
+            onValueCommitted={([value], { reason }) => {
               if (reason === "keyboard") {
                 // Keyboard: seamless seek
                 invalidateSeek(value, true, true);
@@ -360,7 +360,7 @@ export function MidiVisualizer({
               step={0.01}
               onPointerDown={startInteraction}
               onValueChange={([value]) => setVolume(value)}
-              onValueCommit={([value]) => {
+              onValueCommitted={([value]) => {
                 setVolume(value);
                 endInteraction();
               }}
