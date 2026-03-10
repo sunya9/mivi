@@ -210,7 +210,6 @@ export function App() {
         <GridResizablePanel
           panelId="about"
           className="hidden area-[about] md:block md:border-t"
-          asChild
         >
           <FooterPanel onOpenSettings={() => setSettingsTab("general")} />
         </GridResizablePanel>
