@@ -47,14 +47,14 @@ export const FooterPanel = memo(function FooterPanel({
           {needRefresh && (
             <Badge
               variant="default"
-              asChild
               className="group hidden md:inline-flex"
-            >
-              <button onClick={() => updateServiceWorker()}>
-                <RefreshCw className="group-hover:animate-spin" />
-                Update available
-              </button>
-            </Badge>
+              render={
+                <button onClick={() => updateServiceWorker()}>
+                  <RefreshCw className="group-hover:animate-spin" />
+                  Update available
+                </button>
+              }
+            />
           )}
 
           <Button
