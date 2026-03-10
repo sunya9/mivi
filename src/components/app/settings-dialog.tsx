@@ -122,7 +122,7 @@ function SettingsDialogContent({
           </SidebarContent>
         </Sidebar>
         <SidebarInset>
-          <ScrollArea className="relative h-107.5 max-h-107.5" type="auto">
+          <ScrollArea className="relative h-107.5 max-h-107.5">
             <div className="p-4">
               <Activity mode={modeForTab("general")}>
                 <ThemeSettings />
