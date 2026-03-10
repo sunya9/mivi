@@ -1,7 +1,7 @@
 import { ListMusic, Music, Palette, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
-import { Tabs as TabsPrimitive } from "radix-ui";
+import { Tabs as TabsPrimitive } from "@base-ui/react";
 import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 
 export type MobileTabValue = "tracks" | "visualizer" | "style" | "settings";
@@ -63,46 +63,28 @@ export function MobileBottomNav({
   return (
     <TabsPrimitive.Root
       value={value}
-      onValueChange={(v) => onValueChange(v as MobileTabValue)}
+      onValueChange={(v: MobileTabValue) => onValueChange(v)}
       className={cn(
         "border-t border-border bg-background drop-shadow",
         className,
       )}
     >
-      <TabsPrimitive.List
-        className={cn(
-          "relative grid grid-cols-4",
-          // Indicator element using CSS custom property for position-anchor
-          "before:absolute before:m-1 before:rounded-md before:bg-secondary before:transition-all",
-          "before:inset-[anchor(top)_anchor(right)_anchor(bottom)_anchor(left)] before:-z-10",
-          "before:[position-anchor:var(--active-tab-anchor)]",
-        )}
-        style={
-          { "--active-tab-anchor": `--tab-${value}` } as React.CSSProperties
-        }
-      >
+      <TabsPrimitive.List className="relative grid grid-cols-4">
+        <TabsPrimitive.Indicator className="absolute inset-y-0 right-(--active-tab-right) left-(--active-tab-left) -z-10 m-1 rounded-md bg-secondary transition-all" />
         {tabs.map((tab) => (
-          <TabsPrimitive.Trigger
+          <TabsPrimitive.Tab
             key={tab.value}
             value={tab.value}
             className={cn(
               "relative flex flex-1 flex-col items-center gap-1 border-transparent bg-clip-padding py-2 text-xs font-normal text-muted-foreground",
-              "not-data-[state=active]:hover:text-primary data-[state=active]:text-primary",
-              // Fallback for browsers without anchor positioning
-              "not-supports-position-anchor:data-[state=active]:before:bg-secondary",
-              "not-supports-position-anchor:before:absolute",
-              "not-supports-position-anchor:before:inset-0",
-              "not-supports-position-anchor:before:-z-10",
-              "not-supports-position-anchor:before:m-1",
-              "not-supports-position-anchor:before:rounded-md",
+              "not-data-active:hover:text-primary data-active:text-primary",
             )}
-            style={{ anchorName: `--tab-${tab.value}` }}
           >
             <span className="relative">
               <tab.icon />
             </span>
             <span>{tab.label}</span>
-          </TabsPrimitive.Trigger>
+          </TabsPrimitive.Tab>
         ))}
       </TabsPrimitive.List>
     </TabsPrimitive.Root>
