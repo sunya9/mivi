@@ -11,7 +11,7 @@ import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
 import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
 import { FormRow } from "@/components/common/form-row";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectTrigger,
@@ -19,8 +19,15 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+  TabsIndicator,
+} from "@/components/ui/tabs";
 import React from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const defaultConfig = getDefaultRendererConfig();
 
@@ -104,60 +111,64 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
     label: option.label,
   }));
   const VisualizerStyle = (
-    <Card className="border-0 bg-transparent shadow-none">
-      <CardHeader>
-        <CardTitle>
-          <h2>Visualizer Style</h2>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Tabs defaultValue="visualizer">
-          <TabsList variant="line">
-            <TabsTrigger value="visualizer">MIDI</TabsTrigger>
-            <TabsTrigger value="audio">Audio</TabsTrigger>
-          </TabsList>
-          <TabsContent value="visualizer" className="space-y-4">
-            <FormRow
-              label={<span>Style</span>}
-              controller={({ id }) => (
-                <Select
-                  value={rendererConfig.type}
-                  onValueChange={(value: RendererType) =>
-                    onUpdateRendererConfig({ type: value })
-                  }
-                >
-                  <SelectTrigger id={id}>
-                    <SelectValue
-                      className="display w-auto"
-                      placeholder="Select visualization style"
-                    />
-                  </SelectTrigger>
-                  <SelectContent align="end">
-                    {renderers.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+    <Tabs defaultValue="visualizer" className="h-full gap-0 pt-4">
+      <TabsList variant="line-indicator" className="mx-6 flex w-auto">
+        <TabsTrigger value="visualizer">MIDI Style</TabsTrigger>
+        <TabsTrigger value="audio">Audio Style</TabsTrigger>
+        <TabsIndicator />
+      </TabsList>
+      <TabsContent keepMounted value="visualizer" className="overflow-hidden">
+        <ScrollArea className="h-full" orientation="vertical">
+          <Card variant="transparent">
+            <CardContent className="space-y-4">
+              <FormRow
+                label={<span>Style</span>}
+                controller={({ id }) => (
+                  <Select
+                    value={rendererConfig.type}
+                    onValueChange={(value) =>
+                      onUpdateRendererConfig({ type: value ?? undefined })
+                    }
+                  >
+                    <SelectTrigger id={id}>
+                      <SelectValue
+                        className="display w-auto"
+                        placeholder="Select visualization style"
+                      />
+                    </SelectTrigger>
+                    <SelectContent align="end">
+                      {renderers.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {selectedRenderer?.renderConfig(
+                rendererConfig,
+                onUpdateRendererConfig,
+                minNote,
+                maxNote,
               )}
-            />
-            {selectedRenderer?.renderConfig(
-              rendererConfig,
-              onUpdateRendererConfig,
-              minNote,
-              maxNote,
-            )}
-          </TabsContent>
-          <TabsContent value="audio" className="space-y-4">
-            <AudioVisualizerConfigPanel
-              audioVisualizerConfig={rendererConfig.audioVisualizerConfig}
-              onUpdateRendererConfig={onUpdateRendererConfig}
-            />
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+            </CardContent>
+          </Card>
+        </ScrollArea>
+      </TabsContent>
+      <TabsContent value="audio" className="overflow-hidden" keepMounted>
+        <ScrollArea className="h-full" orientation="vertical">
+          <Card variant="transparent">
+            <CardContent className="space-y-4">
+              <AudioVisualizerConfigPanel
+                audioVisualizerConfig={rendererConfig.audioVisualizerConfig}
+                onUpdateRendererConfig={onUpdateRendererConfig}
+              />
+            </CardContent>
+          </Card>
+        </ScrollArea>
+      </TabsContent>
+    </Tabs>
   );
 
   return {
