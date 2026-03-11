@@ -1,7 +1,23 @@
-import { test, expect, vi } from "vitest";
+import { test, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useAnimationFrame } from "@/hooks/use-animation-frame";
-import { rafStub } from "tests/setup";
+import { RafStub } from "tests/raf-stub";
+
+export const rafStub = new RafStub();
+
+beforeEach(() => {
+  vi.spyOn(window, "requestAnimationFrame").mockImplementation(
+    rafStub.requestAnimationFrame,
+  );
+  vi.spyOn(window, "cancelAnimationFrame").mockImplementation(
+    rafStub.cancelAnimationFrame,
+  );
+});
+
+afterEach(() => {
+  rafStub.reset();
+  vi.restoreAllMocks();
+});
 
 test("starts animation frame loop", () => {
   const onAnimate = vi.fn();
