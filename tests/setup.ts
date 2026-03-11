@@ -5,9 +5,7 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
 import * as nodeCrypto from "node:crypto";
-import { RafStub } from "./raf-stub";
 import { AudioContext } from "standardized-audio-context-mock";
-export const rafStub = new RafStub();
 
 vi.mock("virtual:pwa-register/react", () => ({
   useRegisterSW: vi.fn(() => ({
@@ -17,15 +15,11 @@ vi.mock("virtual:pwa-register/react", () => ({
   })),
 }));
 
-vi.stubGlobal("requestAnimationFrame", rafStub.requestAnimationFrame);
-vi.stubGlobal("cancelAnimationFrame", rafStub.cancelAnimationFrame);
-
 // runs a cleanup after each test case (e.g. clearing jsdom)
 afterEach(() => {
   cleanup();
   localStorage.clear();
   indexedDB = new IDBFactory();
-  rafStub.reset();
   vi.clearAllMocks();
 });
 
