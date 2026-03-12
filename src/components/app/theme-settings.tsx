@@ -1,6 +1,18 @@
 import { useTheme } from "next-themes";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Item,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions,
+} from "@/components/ui/item";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 const themes = [
   { value: "light", label: "Light" },
@@ -14,19 +26,32 @@ export function ThemeSettings() {
   return (
     <div className="space-y-4">
       <h2 className="hidden text-lg font-semibold md:block">General</h2>
-      <div className="space-y-3">
-        <h3 className="text-base font-medium">Theme</h3>
-        <RadioGroup value={theme} onValueChange={setTheme}>
-          {themes.map(({ value, label }) => (
-            <div key={value} className="flex items-center gap-3">
-              <RadioGroupItem value={value} id={`theme-${value}`} />
-              <Label htmlFor={`theme-${value}`} className="font-normal">
-                {label}
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
-      </div>
+      <Item>
+        <ItemContent>
+          <ItemTitle>Theme</ItemTitle>
+          <ItemDescription>
+            Select the color theme for the application.
+          </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <Select
+            value={theme}
+            onValueChange={(value) => value && setTheme(value)}
+            items={[...themes]}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select theme" />
+            </SelectTrigger>
+            <SelectContent align="end">
+              {themes.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </ItemActions>
+      </Item>
     </div>
   );
 }
