@@ -81,7 +81,7 @@ describe("FormRow", () => {
       />,
     );
 
-    const labelDiv = screen.getByText("Accessible Label").closest("div");
-    expect(labelDiv).toHaveAttribute("id");
+    const label = screen.getByText("Accessible Label").closest("label");
+    expect(label).toHaveAttribute("id");
   });
 });

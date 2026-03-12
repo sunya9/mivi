@@ -1,5 +1,5 @@
 import { afterEach, expect, test, vi } from "vitest";
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
@@ -53,8 +53,12 @@ test("renders basic controls", () => {
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   expect(screen.getByRole("button", { name: "Play" })).toBeInTheDocument();
-  expect(screen.getAllByRole("slider")).toHaveLength(2); // seek + volume
-  expect(screen.getByRole("slider", { name: "Volume" })).toBeInTheDocument();
+  expect(screen.getAllByRole("slider", { hidden: true })).toHaveLength(2); // seek + volume
+  expect(
+    within(screen.getByRole("group", { name: "Volume" })).getByRole("slider", {
+      hidden: true,
+    }),
+  ).toBeInTheDocument();
   expect(screen.getByText(/0:00 \/ 0:10/)).toBeInTheDocument();
 });
 
@@ -62,8 +66,10 @@ test("handles volume control", async () => {
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Volume slider is always visible (no longer in HoverCard)
-  const volumeSlider = screen.getByRole("slider", { name: "Volume" });
-  await userEvent.click(volumeSlider);
+  const volumeSlider = within(
+    screen.getByRole("group", { name: "Volume" }),
+  ).getByRole("slider", { hidden: true });
+  volumeSlider.focus();
   await userEvent.keyboard("{arrowleft}");
 
   expect(defaultStoreMock.setVolume).toHaveBeenLastCalledWith(0.99);
@@ -72,7 +78,7 @@ test("handles volume control", async () => {
 test("handles seek control with keyboard", async () => {
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
-  const seekSlider = screen.getAllByRole("slider")[0];
+  const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
   // Focus slider via tab (no pointer interaction)
   await userEvent.tab();
   expect(seekSlider).toHaveFocus();
@@ -95,12 +101,12 @@ test("toggle play state when space key is pressed while slider is focused", asyn
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Focus the seek slider
-  const seekSlider = screen.getAllByRole("slider")[0];
-  await userEvent.click(seekSlider);
+  const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
+  seekSlider.focus();
 
   // Verify slider is focused
   expect(document.activeElement).toBe(seekSlider);
-  expect(seekSlider.getAttribute("role")).toBe("slider");
+  expect(seekSlider).toHaveAttribute("type", "range");
 
   // Clear previous calls
   vi.mocked(defaultStoreMock.togglePlay).mockClear();
@@ -115,8 +121,10 @@ test("toggle play state when space key is pressed while volume slider is focused
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Focus the volume slider
-  const volumeSlider = screen.getByRole("slider", { name: "Volume" });
-  await userEvent.click(volumeSlider);
+  const volumeSlider = within(
+    screen.getByRole("group", { name: "Volume" }),
+  ).getByRole("slider", { hidden: true });
+  volumeSlider.focus();
 
   // Clear previous calls
   vi.mocked(defaultStoreMock.togglePlay).mockClear();

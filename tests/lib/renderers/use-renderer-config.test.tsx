@@ -43,9 +43,10 @@ test("deep merges nested config objects", () => {
 test("should render", async () => {
   const { result } = renderHook(() => useRendererConfig());
   render(<Wrapper>{result.current.VisualizerStyle}</Wrapper>);
-  expect(screen.getByText("Visualizer Style")).toBeInTheDocument();
+  expect(screen.getByText("MIDI Style")).toBeInTheDocument();
+  expect(screen.getByText("Audio Style")).toBeInTheDocument();
   await userEvent.click(screen.getByRole("combobox", { name: "Style" }));
-  await userEvent.click(screen.getByLabelText("Comet"));
+  await userEvent.click(screen.getByRole("option", { name: "Comet" }));
   expect(result.current.rendererConfig.type).toBe("comet");
 });
 

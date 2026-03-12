@@ -38,7 +38,7 @@ test("MobileBottomNav highlights the active tab", () => {
   );
 
   const audioBgTab = screen.getByRole("tab", { name: /audio\/bg/i });
-  expect(audioBgTab).toHaveAttribute("data-state", "active");
+  expect(audioBgTab).toHaveAttribute("data-active");
 });
 
 test("MobileBottomNav calls onValueChange when tab is clicked", async () => {
@@ -79,7 +79,7 @@ test("MobileBottomNav shows tracks tab as active by default when value is tracks
   );
 
   const tracksTab = screen.getByRole("tab", { name: /tracks/i });
-  expect(tracksTab).toHaveAttribute("data-state", "active");
+  expect(tracksTab).toHaveAttribute("data-active");
 });
 
 test("MobileBottomNav calls onValueChange with correct value for each tab", async () => {

@@ -192,7 +192,7 @@ test("Cancel button closes dialog without calling onConfirm or saving", async ()
   expect(localStorage.getItem("mivi:hue-randomize-sl")).not.toBe(
     JSON.stringify({ s: 100, l: 60 }),
   );
-  expect(onOpenChange).toHaveBeenCalledWith(false);
+  expect(onOpenChange).toHaveBeenCalledWith(false, expect.anything());
 });
 
 test("renders saturation and lightness sliders with correct labels", () => {
@@ -206,7 +206,7 @@ test("renders saturation and lightness sliders with correct labels", () => {
 
   expect(screen.getByText("Saturation")).toBeInTheDocument();
   expect(screen.getByText("Lightness")).toBeInTheDocument();
-  expect(screen.getAllByRole("slider").length).toBe(2);
+  expect(screen.getAllByRole("slider", { hidden: true }).length).toBe(2);
 });
 
 test("clicking label focuses the corresponding slider", async () => {
@@ -219,14 +219,14 @@ test("clicking label focuses the corresponding slider", async () => {
   );
 
   const saturationLabel = screen.getByText("Saturation");
-  const saturationSlider = screen.getByRole("slider", { name: "Saturation" });
+  const saturationGroup = screen.getByRole("group", { name: "Saturation" });
 
   await userEvent.click(saturationLabel);
-  expect(saturationSlider).toHaveFocus();
+  expect(saturationGroup).toHaveFocus();
 
   const lightnessLabel = screen.getByText("Lightness");
-  const lightnessSlider = screen.getByRole("slider", { name: "Lightness" });
+  const lightnessGroup = screen.getByRole("group", { name: "Lightness" });
 
   await userEvent.click(lightnessLabel);
-  expect(lightnessSlider).toHaveFocus();
+  expect(lightnessGroup).toHaveFocus();
 });
