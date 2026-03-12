@@ -137,7 +137,7 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           react: [
             ...deps.filter(
-              (dep) => dep.includes("react") || dep === "radix-ui",
+              (dep) => dep.includes("react") || dep === "@base-ui/react",
             ),
             "react-dom/client",
           ],
