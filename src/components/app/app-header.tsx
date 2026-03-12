@@ -43,7 +43,7 @@ export function AppHeader({
         <div className="flex items-center gap-2 md:ml-auto">
           <Button
             onClick={handleToggleRecording}
-            className="h-8 px-3 [view-transition-name:export-button] md:h-9 md:px-4"
+            className="h-8 px-3 md:h-9 md:px-4 [html:active-view-transition-type(export-button-change)_&]:[view-transition-name:export-button]"
           >
             {recordingState.type === "recording" ? (
               <>
