@@ -262,10 +262,6 @@ export function MidiVisualizer({
         ref={containerRef}
         onMouseMove={handleMouseMove}
         onPointerUp={handleContainerClick}
-        style={{
-          "--aspect-ratio":
-            rendererConfig.resolution.width / rendererConfig.resolution.height,
-        }}
         className={cn("h-full w-full overflow-hidden", {
           "max-h-full max-w-full": !expanded,
           "absolute inset-4 m-auto max-h-3/4 max-w-4xl shadow-lg": expanded,
@@ -274,7 +270,7 @@ export function MidiVisualizer({
       >
         <Canvas
           aspectRatio={
-            rendererConfig.resolution.height / rendererConfig.resolution.width
+            rendererConfig.resolution.width / rendererConfig.resolution.height
           }
           invalidate={invalidate}
           onInit={handleInit}
