@@ -227,6 +227,95 @@ export function MidiVisualizer({
     { enableOnFormTags: ["slider"] },
     [toggleMute, showPanel],
   );
+
+  // F: Toggle expand/collapse canvas
+  useHotkeys(
+    "f",
+    (e) => {
+      if (e.repeat) return;
+      e.preventDefault();
+      setExpandedAnimation((prev) => !prev);
+    },
+    [setExpandedAnimation],
+  );
+
+  // Arrow left/right: Seek ±5s (skip when slider is focused)
+  useHotkeys(
+    "left,right",
+    (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (
+        target.role === "slider" ||
+        (target instanceof HTMLInputElement && target.type === "range")
+      )
+        return;
+      e.preventDefault();
+      const offset = e.key === "ArrowLeft" ? -5 : 5;
+      const newTime = Math.max(0, Math.min(duration, getPosition() + offset));
+      invalidateSeek(newTime, true, true);
+      showPanel();
+    },
+    { enableOnFormTags: ["input"] },
+    [duration, getPosition, invalidateSeek, showPanel],
+  );
+
+  // J/L: Seek ±10s
+  useHotkeys(
+    "j,l",
+    (e) => {
+      if (e.repeat) return;
+      e.preventDefault();
+      const offset = e.key === "j" || e.key === "J" ? -10 : 10;
+      const newTime = Math.max(0, Math.min(duration, getPosition() + offset));
+      invalidateSeek(newTime, true, true);
+      showPanel();
+    },
+    [duration, getPosition, invalidateSeek, showPanel],
+  );
+
+  // Arrow up/down: Volume ±5% (skip when slider is focused)
+  useHotkeys(
+    "up,down",
+    (e) => {
+      const target = e.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (
+        target.role === "slider" ||
+        (target instanceof HTMLInputElement && target.type === "range")
+      )
+        return;
+      e.preventDefault();
+      const delta = e.key === "ArrowUp" ? 0.05 : -0.05;
+      const newVolume = Math.max(0, Math.min(1, volume + delta));
+      setVolume(newVolume);
+      showPanel();
+    },
+    { enableOnFormTags: ["input"] },
+    [volume, setVolume, showPanel],
+  );
+
+  // Home/0: Jump to beginning
+  useHotkeys(
+    "home,0",
+    (e) => {
+      e.preventDefault();
+      invalidateSeek(0, true, true);
+      showPanel();
+    },
+    [invalidateSeek, showPanel],
+  );
+
+  // End: Jump to end
+  useHotkeys(
+    "end",
+    (e) => {
+      e.preventDefault();
+      invalidateSeek(duration, true, true);
+      showPanel();
+    },
+    [duration, invalidateSeek, showPanel],
+  );
   const closeExpanded = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       e.stopPropagation();
