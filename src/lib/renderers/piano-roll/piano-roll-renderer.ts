@@ -51,9 +51,7 @@ export class PianoRollRenderer extends Renderer {
   }
 
   private noteToY(midi: number) {
-    const {
-      canvas: { height },
-    } = this.ctx;
+    const { height } = this.config.resolution;
     const noteHeight = Math.max(
       height / 127,
       this.config.pianoRollConfig.noteHeight,
@@ -75,9 +73,7 @@ export class PianoRollRenderer extends Renderer {
 
     // Background is now rendered by RendererController
     this.updateNoiseTexture();
-    const {
-      canvas: { width, height },
-    } = this.ctx;
+    const { width, height } = this.config.resolution;
 
     const isNoteInViewRange = (midi: number) => {
       const viewRangeTop = this.config.pianoRollConfig.viewRangeTop;

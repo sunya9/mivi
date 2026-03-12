@@ -3,10 +3,19 @@ import { page } from "vitest/browser";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type { AudioVisualizerConfig } from "@/lib/renderers/renderer";
+import type {
+  AudioVisualizerConfig,
+  Resolution,
+} from "@/lib/renderers/renderer";
 
 const WIDTH = 800;
 const HEIGHT = 600;
+
+const resolution: Resolution = {
+  width: WIDTH,
+  height: HEIGHT,
+  label: `${WIDTH}×${HEIGHT}`,
+};
 
 function createTestCanvas(): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
@@ -92,7 +101,7 @@ test("bars style - bottom position", async () => {
     height: 30,
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 
@@ -117,7 +126,7 @@ test("bars style - top position with mirror", async () => {
     height: 30,
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 
@@ -142,7 +151,7 @@ test("bars style - center position single color", async () => {
     height: 40,
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 
@@ -179,7 +188,7 @@ test("lineSpectrum style - stroke only", async () => {
     },
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 
@@ -211,7 +220,7 @@ test("lineSpectrum style - fill with stroke", async () => {
     },
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 
@@ -242,7 +251,7 @@ test("lineSpectrum style - high tension", async () => {
     },
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 
@@ -268,7 +277,7 @@ test("circular style - default", async () => {
     useGradient: true,
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 
@@ -291,7 +300,7 @@ test("circular style - high bar count", async () => {
     singleColor: "#ec4899",
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 
@@ -317,7 +326,7 @@ test("circular style - low bar count", async () => {
     gradientEndColor: "#8b5cf6",
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config);
+  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
   overlay.render(frequencyData);
 

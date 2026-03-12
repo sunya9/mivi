@@ -2,6 +2,7 @@ import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type {
   AudioVisualizerConfig,
   RendererContext,
+  Resolution,
 } from "@/lib/renderers/renderer";
 import type { AudioVisualizerDrawer } from "./types";
 import { getGradientCoords } from "./gradient-utils";
@@ -13,10 +14,16 @@ import { getGradientCoords } from "./gradient-utils";
 export class LineSpectrumDrawer implements AudioVisualizerDrawer {
   readonly #ctx: RendererContext;
   #config: AudioVisualizerConfig;
+  readonly #resolution: Resolution;
 
-  constructor(ctx: RendererContext, config: AudioVisualizerConfig) {
+  constructor(
+    ctx: RendererContext,
+    config: AudioVisualizerConfig,
+    resolution: Resolution,
+  ) {
     this.#ctx = ctx;
     this.#config = config;
+    this.#resolution = resolution;
   }
 
   setConfig(config: AudioVisualizerConfig): void {
@@ -24,8 +31,8 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
   }
 
   draw(frequencyData: FrequencyData): void {
-    const { canvas } = this.#ctx;
-    const { width: canvasWidth, height: canvasHeight } = canvas;
+    const canvasWidth = this.#resolution.width;
+    const canvasHeight = this.#resolution.height;
 
     const {
       barCount,

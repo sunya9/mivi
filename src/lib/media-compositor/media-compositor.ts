@@ -178,6 +178,7 @@ export class MediaCompositor {
     const audioVisualizerOverlay = new AudioVisualizerOverlay(
       ctx,
       this.rendererConfig.audioVisualizerConfig,
+      this.rendererConfig.resolution,
     );
     const renderer = getRendererFromConfig(ctx, this.rendererConfig);
     const midiOffset = this.midiTracks?.midiOffset ?? 0;

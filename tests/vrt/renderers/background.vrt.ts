@@ -2,9 +2,15 @@ import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import type { Resolution } from "@/lib/renderers/renderer";
 
 const WIDTH = 800;
 const HEIGHT = 600;
+const resolution: Resolution = {
+  width: WIDTH,
+  height: HEIGHT,
+  label: `${WIDTH}×${HEIGHT}`,
+};
 
 function createTestCanvas(): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
@@ -59,6 +65,7 @@ test("solid color background", async () => {
     ...getDefaultRendererConfig(),
     backgroundColor: "#1a1a1a",
     backgroundImageEnabled: false,
+    resolution,
   };
 
   const renderer = new BackgroundRenderer(ctx, config);
@@ -83,6 +90,7 @@ test("background image with cover fit", async () => {
     backgroundImagePosition: "center" as const,
     backgroundImageRepeat: "no-repeat" as const,
     backgroundImageOpacity: 1,
+    resolution,
   };
 
   const renderer = new BackgroundRenderer(ctx, config, imageBitmap);
@@ -107,6 +115,7 @@ test("background image with contain fit", async () => {
     backgroundImagePosition: "center" as const,
     backgroundImageRepeat: "no-repeat" as const,
     backgroundImageOpacity: 1,
+    resolution,
   };
 
   const renderer = new BackgroundRenderer(ctx, config, imageBitmap);

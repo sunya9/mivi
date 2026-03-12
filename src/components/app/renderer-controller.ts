@@ -4,6 +4,7 @@ import {
   Renderer,
   RendererConfig,
   RendererType,
+  Resolution,
 } from "@/lib/renderers/renderer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
@@ -22,6 +23,7 @@ export class RendererController {
   private rendererConfig?: RendererConfig;
   private backgroundImageBitmap?: ImageBitmap;
   private currentRendererType?: RendererType;
+  private currentResolution?: Resolution;
 
   setRendererConfig(rendererConfig: RendererConfig) {
     const previousType = this.currentRendererType;
@@ -44,16 +46,22 @@ export class RendererController {
       );
     }
 
-    // Update or create audio visualizer overlay
+    // Update or recreate audio visualizer overlay
     if (this.audioVisualizerOverlay) {
       this.audioVisualizerOverlay.setConfig(
         rendererConfig.audioVisualizerConfig,
       );
-    } else {
+    }
+    if (
+      !this.audioVisualizerOverlay ||
+      this.currentResolution !== rendererConfig.resolution
+    ) {
       this.audioVisualizerOverlay = new AudioVisualizerOverlay(
         this.context,
         rendererConfig.audioVisualizerConfig,
+        rendererConfig.resolution,
       );
+      this.currentResolution = rendererConfig.resolution;
     }
   }
 
@@ -76,7 +84,20 @@ export class RendererController {
     currentTime: number,
     frequencyData?: FrequencyData | null,
   ) {
-    const layer = this.rendererConfig?.audioVisualizerLayer ?? "front";
+    if (!this.rendererConfig) return;
+    const { resolution } = this.rendererConfig;
+    const ctx = this.context;
+    const layer = this.rendererConfig.audioVisualizerLayer ?? "front";
+
+    ctx.save();
+    ctx.setTransform(
+      ctx.canvas.width / resolution.width,
+      0,
+      0,
+      ctx.canvas.height / resolution.height,
+      0,
+      0,
+    );
 
     // 1. Render background (always first)
     this.backgroundRenderer?.render();
@@ -93,5 +114,7 @@ export class RendererController {
     if (layer === "front" && frequencyData) {
       this.audioVisualizerOverlay?.render(frequencyData);
     }
+
+    ctx.restore();
   }
 }

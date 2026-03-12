@@ -40,9 +40,7 @@ export class CometRenderer extends Renderer {
 
     // Background is now rendered by RendererController
 
-    const {
-      canvas: { width, height },
-    } = this.ctx;
+    const { width, height } = this.config.resolution;
 
     const { cometConfig } = this.config;
 
@@ -194,9 +192,7 @@ export class CometRenderer extends Renderer {
     currentTime: number,
   ): CometTrail {
     const { cometConfig } = this.config;
-    const {
-      canvas: { width, height },
-    } = this.ctx;
+    const { width, height } = this.config.resolution;
     const positions: Array<{ x: number; y: number; timestamp: number }> = [];
 
     if (currentTime < comet.startTime) {
