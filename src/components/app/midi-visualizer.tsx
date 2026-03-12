@@ -334,7 +334,7 @@ export function MidiVisualizer({
               endInteraction();
               setIsSeeking(false);
             }}
-            className="**:data-[slot=slider-track]:bg-muted/30"
+            className="px-1 **:data-[slot=slider-track]:bg-muted/30"
           />
           <div className="flex items-center gap-2">
             <Button
