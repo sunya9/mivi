@@ -27,6 +27,12 @@ function isArray(
   return Array.isArray(v);
 }
 
+function roundToStep(value: number, step: number): number {
+  const precision = Math.max(0, -Math.floor(Math.log10(step)));
+  const factor = 10 ** precision;
+  return Math.round(value * factor) / factor;
+}
+
 function Slider({
   className,
   defaultValue,
@@ -47,6 +53,7 @@ function Slider({
     [value, defaultValue, min, max],
   );
 
+  const step = props.step ?? 1;
   return (
     <SliderPrimitive.Root
       className={cn(
@@ -58,9 +65,18 @@ function Slider({
       value={value}
       min={min}
       max={max}
-      thumbAlignment="edge"
-      onValueChange={(v, details) => onValueChange?.(toArray(v), details)}
-      onValueCommitted={(v, details) => onValueCommitted?.(toArray(v), details)}
+      onValueChange={(v, details) => {
+        onValueChange?.(
+          toArray(v).map((n) => roundToStep(n, step)),
+          details,
+        );
+      }}
+      onValueCommitted={(v, details) => {
+        onValueCommitted?.(
+          toArray(v).map((n) => roundToStep(n, step)),
+          details,
+        );
+      }}
       {...props}
     >
       <SliderPrimitive.Control className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-40 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col">
@@ -77,7 +93,7 @@ function Slider({
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
-            className="block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] select-none hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+            className="block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] select-none hover:ring-4 disabled:pointer-events-none disabled:opacity-50 has-focus-visible:ring-4 has-focus-visible:outline-hidden"
           />
         ))}
       </SliderPrimitive.Control>
