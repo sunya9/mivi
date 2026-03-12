@@ -12,6 +12,7 @@ import { CometConfigPanel } from "@/components/app/comet-config-panel";
 import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
 import { FormRow } from "@/components/common/form-row";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectTrigger,
@@ -147,6 +148,9 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
                   </Select>
                 )}
               />
+              {selectedRenderer && rendererConfig.type !== "none" && (
+                <Separator />
+              )}
               {selectedRenderer?.renderConfig(
                 rendererConfig,
                 onUpdateRendererConfig,
