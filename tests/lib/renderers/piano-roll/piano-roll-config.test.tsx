@@ -215,7 +215,7 @@ test("flash mode select is rendered with current value", () => {
   const trigger = screen.getByRole("combobox", { name: "Flash Mode" });
   expect(trigger).toBeInTheDocument();
   expect(trigger).toHaveTextContent(
-    pianoRollConfig.noteFlashMode === "on" ? "On" : "duration▼",
+    pianoRollConfig.noteFlashMode === "on" ? "On" : "Duration▼",
   );
 });
 

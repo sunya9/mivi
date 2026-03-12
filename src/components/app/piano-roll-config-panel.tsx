@@ -3,7 +3,7 @@ import { FormRow } from "@/components/common/form-row";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { RendererConfig } from "@/lib/renderers/renderer";
+import { RendererConfig, noteFlashModeOptions } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
 import { useCallback } from "react";
 import {
@@ -465,17 +465,22 @@ export function PianoRollConfigPanel({
               <Select
                 value={pianoRollConfig.noteFlashMode}
                 onValueChange={(value) => {
+                  if (!value) return;
                   setPianoRollConfig({
-                    noteFlashMode: value as "on" | "duration",
+                    noteFlashMode: value,
                   });
                 }}
+                items={noteFlashModeOptions}
               >
                 <SelectTrigger id={id} aria-labelledby={labelId}>
                   <SelectValue placeholder="Select flash mode" />
                 </SelectTrigger>
                 <SelectContent align="end">
-                  <SelectItem value="on">On</SelectItem>
-                  <SelectItem value="duration">Duration</SelectItem>
+                  {noteFlashModeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}

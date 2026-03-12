@@ -92,6 +92,54 @@ export type GradientDirection =
   | "to-top"
   | "to-top-right";
 
+export const audioVisualizerStyleOptions = [
+  { value: "none", label: "None" },
+  { value: "bars", label: "Bars" },
+  { value: "lineSpectrum", label: "Line Spectrum" },
+  { value: "circular", label: "Circular" },
+] as const satisfies readonly { value: AudioVisualizerStyle; label: string }[];
+
+export const audioVisualizerPositionOptions = [
+  { value: "top", label: "Top" },
+  { value: "center", label: "Center" },
+  { value: "bottom", label: "Bottom" },
+] as const satisfies readonly {
+  value: AudioVisualizerPosition;
+  label: string;
+}[];
+
+export const audioVisualizerBarStyleOptions = [
+  { value: "rounded", label: "Rounded" },
+  { value: "sharp", label: "Sharp" },
+] as const satisfies readonly {
+  value: AudioVisualizerBarStyle;
+  label: string;
+}[];
+
+export const gradientDirectionOptions = [
+  { value: "to-right", label: "→ Right" },
+  { value: "to-bottom-right", label: "↘ Bottom Right" },
+  { value: "to-bottom", label: "↓ Bottom" },
+  { value: "to-bottom-left", label: "↙ Bottom Left" },
+  { value: "to-left", label: "← Left" },
+  { value: "to-top-left", label: "↖ Top Left" },
+  { value: "to-top", label: "↑ Top" },
+  { value: "to-top-right", label: "↗ Top Right" },
+] as const satisfies readonly { value: GradientDirection; label: string }[];
+
+export const audioVisualizerLayerOptions = [
+  { value: "front", label: "Front (over MIDI)" },
+  { value: "back", label: "Back (under MIDI)" },
+] as const satisfies readonly { value: AudioVisualizerLayer; label: string }[];
+
+export const noteFlashModeOptions = [
+  { value: "on", label: "On" },
+  { value: "duration", label: "Duration" },
+] as const satisfies readonly {
+  value: PianoRollConfigValues["noteFlashMode"];
+  label: string;
+}[];
+
 export interface LineSpectrumConfig {
   lineWidth: number;
   tension: number;

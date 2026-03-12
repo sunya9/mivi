@@ -129,6 +129,7 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
                     onValueChange={(value) =>
                       onUpdateRendererConfig({ type: value ?? undefined })
                     }
+                    items={renderers}
                   >
                     <SelectTrigger id={id}>
                       <SelectValue

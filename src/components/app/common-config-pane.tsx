@@ -16,6 +16,7 @@ import {
   backgroundImagePositions,
   backgroundImageRepeats,
   backgroundImageFitOptions,
+  audioVisualizerLayerOptions,
 } from "@/lib/renderers/renderer";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
@@ -116,6 +117,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                       backgroundImageFit: value ?? undefined,
                     })
                   }
+                  items={backgroundImageFitOptions}
                 >
                   <SelectTrigger id={id} className="w-48">
                     <SelectValue placeholder="Select image fit" />
@@ -140,6 +142,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                       backgroundImagePosition: value ?? undefined,
                     })
                   }
+                  items={backgroundImagePositions}
                 >
                   <SelectTrigger id={id} className="w-48">
                     <SelectValue placeholder="Select image position" />
@@ -164,6 +167,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                       backgroundImageRepeat: value ?? undefined,
                     })
                   }
+                  items={backgroundImageRepeats}
                 >
                   <SelectTrigger id={id} className="w-48">
                     <SelectValue placeholder="Select image repeat" />
@@ -221,6 +225,10 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 const resolution = resolutions.find((r) => r.label === value);
                 onUpdateRendererConfig({ resolution });
               }}
+              items={resolutions.map((r) => ({
+                value: r.label,
+                label: r.label,
+              }))}
             >
               <SelectTrigger id={id} className="w-48">
                 <SelectValue placeholder="Select resolution" />
@@ -252,6 +260,10 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                 const fps = +value as FPS;
                 onUpdateRendererConfig({ fps });
               }}
+              items={fpsOptions.map((o) => ({
+                value: o.value.toString(),
+                label: o.label,
+              }))}
             >
               <SelectTrigger id={id} className="w-48">
                 <SelectValue placeholder="Select frame rate" />
@@ -277,6 +289,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               onValueChange={(value) =>
                 onUpdateRendererConfig({ format: value ?? undefined })
               }
+              items={formatOptions}
             >
               <SelectTrigger id={id}>
                 <SelectValue placeholder="Select video format" />
@@ -301,13 +314,17 @@ export const CommonConfigPane = memo(function CommonConfigPane({
                   audioVisualizerLayer: value ?? undefined,
                 })
               }
+              items={audioVisualizerLayerOptions}
             >
               <SelectTrigger id={id}>
                 <SelectValue placeholder="Select layer" />
               </SelectTrigger>
               <SelectContent align="end">
-                <SelectItem value="front">Front (over MIDI)</SelectItem>
-                <SelectItem value="back">Back (under MIDI)</SelectItem>
+                {audioVisualizerLayerOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           )}

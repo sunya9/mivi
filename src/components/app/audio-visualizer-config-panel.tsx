@@ -5,11 +5,11 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import {
   AudioVisualizerConfig,
-  AudioVisualizerBarStyle,
-  AudioVisualizerPosition,
-  AudioVisualizerStyle,
-  GradientDirection,
   RendererConfig,
+  audioVisualizerStyleOptions,
+  audioVisualizerPositionOptions,
+  audioVisualizerBarStyleOptions,
+  gradientDirectionOptions,
 } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
 import { useCallback } from "react";
@@ -25,36 +25,6 @@ interface Props {
   audioVisualizerConfig: AudioVisualizerConfig;
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
 }
-
-const positionOptions: { value: AudioVisualizerPosition; label: string }[] = [
-  { value: "top", label: "Top" },
-  { value: "center", label: "Center" },
-  { value: "bottom", label: "Bottom" },
-];
-
-const barStyleOptions: { value: AudioVisualizerBarStyle; label: string }[] = [
-  { value: "rounded", label: "Rounded" },
-  { value: "sharp", label: "Sharp" },
-];
-
-const styleOptions: { value: AudioVisualizerStyle; label: string }[] = [
-  { value: "none", label: "None" },
-  { value: "bars", label: "Bars" },
-  { value: "lineSpectrum", label: "Line Spectrum" },
-  { value: "circular", label: "Circular" },
-];
-
-const gradientDirectionOptions: { value: GradientDirection; label: string }[] =
-  [
-    { value: "to-right", label: "→ Right" },
-    { value: "to-bottom-right", label: "↘ Bottom Right" },
-    { value: "to-bottom", label: "↓ Bottom" },
-    { value: "to-bottom-left", label: "↙ Bottom Left" },
-    { value: "to-left", label: "← Left" },
-    { value: "to-top-left", label: "↖ Top Left" },
-    { value: "to-top", label: "↑ Top" },
-    { value: "to-top-right", label: "↗ Top Right" },
-  ];
 
 export function AudioVisualizerConfigPanel({
   audioVisualizerConfig,
@@ -83,12 +53,13 @@ export function AudioVisualizerConfigPanel({
           <Select
             value={audioVisualizerConfig.style}
             onValueChange={(value) => setConfig({ style: value ?? undefined })}
+            items={audioVisualizerStyleOptions}
           >
             <SelectTrigger id={id}>
               <SelectValue placeholder="Select style" />
             </SelectTrigger>
             <SelectContent align="end">
-              {styleOptions.map((option) => (
+              {audioVisualizerStyleOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -110,12 +81,13 @@ export function AudioVisualizerConfigPanel({
                   onValueChange={(value) =>
                     setConfig({ position: value ?? undefined })
                   }
+                  items={audioVisualizerPositionOptions}
                 >
                   <SelectTrigger id={id}>
                     <SelectValue placeholder="Select position" />
                   </SelectTrigger>
                   <SelectContent align="end">
-                    {positionOptions.map((option) => (
+                    {audioVisualizerPositionOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -254,12 +226,13 @@ export function AudioVisualizerConfigPanel({
                         onValueChange={(value) =>
                           setConfig({ barStyle: value ?? undefined })
                         }
+                        items={audioVisualizerBarStyleOptions}
                       >
                         <SelectTrigger id={id}>
                           <SelectValue placeholder="Select style" />
                         </SelectTrigger>
                         <SelectContent align="end">
-                          {barStyleOptions.map((option) => (
+                          {audioVisualizerBarStyleOptions.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
                               {option.label}
                             </SelectItem>
@@ -488,6 +461,7 @@ export function AudioVisualizerConfigPanel({
                       onValueChange={(value) =>
                         setConfig({ gradientDirection: value ?? undefined })
                       }
+                      items={gradientDirectionOptions}
                     >
                       <SelectTrigger id={id}>
                         <SelectValue placeholder="Select direction" />
