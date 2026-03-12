@@ -71,6 +71,9 @@ export class BackgroundRenderer {
       } else {
         const pattern = this.#ctx.createPattern(img, backgroundImageRepeat);
         if (pattern) {
+          // Shift the pattern origin by the position offset,
+          // matching CSS background-position behavior with repeat
+          pattern.setTransform(new DOMMatrix().translateSelf(offsetX, offsetY));
           this.#ctx.fillStyle = pattern;
           this.#ctx.fillRect(0, 0, width, height);
         }
@@ -87,7 +90,15 @@ export class BackgroundRenderer {
     height: number,
   ) {
     const { backgroundImageFit } = this.#config;
+    const img = this.#backgroundImageBitmap!;
     switch (backgroundImageFit) {
+      case "auto":
+        return {
+          drawWidth: img.width,
+          drawHeight: img.height,
+          offsetX: (width - img.width) / 2,
+          offsetY: (height - img.height) / 2,
+        };
       case "cover":
         if (imgRatio > canvasRatio) {
           return {
