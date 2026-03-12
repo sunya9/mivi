@@ -164,6 +164,7 @@ test("should create AudioVisualizerOverlay when config is set", () => {
   expect(AudioVisualizerOverlay).toHaveBeenCalledWith(
     ctx,
     config.audioVisualizerConfig,
+    config.resolution,
   );
 });
 

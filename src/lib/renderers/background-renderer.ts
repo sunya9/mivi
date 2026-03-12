@@ -32,9 +32,7 @@ export class BackgroundRenderer {
   }
 
   render(): void {
-    const {
-      canvas: { width, height },
-    } = this.#ctx;
+    const { width, height } = this.#config.resolution;
     this.#ctx.clearRect(0, 0, width, height);
 
     // Draw background color

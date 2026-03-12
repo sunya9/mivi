@@ -32,6 +32,12 @@ function prepareTestRenderer(options?: {
     canvas.width = options.canvasSize.width;
     canvas.height = options.canvasSize.height;
   }
+  // Sync resolution with canvas size so tests use consistent dimensions
+  config.resolution = {
+    width: canvas.width,
+    height: canvas.height,
+    label: `${canvas.width}×${canvas.height}`,
+  };
   const context = canvas.getContext("2d")!;
   const renderer = new BackgroundRenderer(
     context,
@@ -279,6 +285,7 @@ test("should render with cover when imgRatio > canvasRatio (no fraction)", async
   );
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "cover";
+  config.resolution = { width: 100, height: 100, label: "100×100" };
   const renderer = new BackgroundRenderer(ctx, config, imageBitmap);
 
   ctx.clearRect = vi.fn();
@@ -308,6 +315,7 @@ test("should render with contain when imgRatio > canvasRatio (no fraction)", asy
   );
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "contain";
+  config.resolution = { width: 100, height: 100, label: "100×100" };
   const renderer = new BackgroundRenderer(ctx, config, imageBitmap);
 
   ctx.clearRect = vi.fn();

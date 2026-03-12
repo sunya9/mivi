@@ -2,6 +2,7 @@ import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type {
   AudioVisualizerConfig,
   RendererContext,
+  Resolution,
 } from "@/lib/renderers/renderer";
 import type { AudioVisualizerDrawer } from "./types";
 import { getGradientCoords } from "./gradient-utils";
@@ -13,10 +14,16 @@ import { getGradientCoords } from "./gradient-utils";
 export class BarSpectrumDrawer implements AudioVisualizerDrawer {
   readonly #ctx: RendererContext;
   #config: AudioVisualizerConfig;
+  readonly #resolution: Resolution;
 
-  constructor(ctx: RendererContext, config: AudioVisualizerConfig) {
+  constructor(
+    ctx: RendererContext,
+    config: AudioVisualizerConfig,
+    resolution: Resolution,
+  ) {
     this.#ctx = ctx;
     this.#config = config;
+    this.#resolution = resolution;
   }
 
   setConfig(config: AudioVisualizerConfig): void {
@@ -28,8 +35,8 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
    * @param frequencyData - Frequency data from AudioAnalyzer
    */
   draw(frequencyData: FrequencyData): void {
-    const { canvas } = this.#ctx;
-    const { width: canvasWidth, height: canvasHeight } = canvas;
+    const canvasWidth = this.#resolution.width;
+    const canvasHeight = this.#resolution.height;
 
     const {
       barCount,
@@ -126,6 +133,7 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
         position,
         mirror,
         mirrorOpacity,
+        canvasHeight,
       );
     }
 
@@ -197,6 +205,7 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
     position: "bottom" | "top" | "center",
     mirror: boolean,
     mirrorOpacity: number,
+    canvasHeight: number,
   ): void {
     // cornerRadius: which corners to round [topLeft, topRight, bottomRight, bottomLeft]
     const drawSingleBar = (
@@ -232,7 +241,6 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
         drawSingleBar(baseY, height, [0, 0, radius, radius]);
         if (mirror) {
           // Mirror sticks to bottom of canvas, pointing up
-          const canvasHeight = this.#ctx.canvas.height;
           this.#ctx.save();
           this.#ctx.globalAlpha *= mirrorOpacity;
           drawSingleBar(canvasHeight - height, height, [radius, radius, 0, 0]);
