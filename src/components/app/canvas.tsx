@@ -1,12 +1,10 @@
 import { cn } from "@/lib/utils";
 import {
   CanvasHTMLAttributes,
-  useCallback,
   useEffectEvent,
   useLayoutEffect,
   useRef,
 } from "react";
-import { OnResizeCallback, useResizeDetector } from "react-resize-detector";
 
 interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   aspectRatio: number;
@@ -23,22 +21,9 @@ export function Canvas({
   ...props
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const onResize: OnResizeCallback = useCallback(
-    ({ width }) => {
-      if (!canvasRef.current) return;
-      if (!width) return;
-      canvasRef.current.width = width * window.devicePixelRatio;
-      canvasRef.current.height = width * aspectRatio * window.devicePixelRatio;
-      invalidate();
-    },
-    [aspectRatio, invalidate],
-  );
-
-  const { ref: containerRef } = useResizeDetector<HTMLDivElement>({
-    onResize,
-  });
-
+  const onInvalidate = useEffectEvent(invalidate);
   const onInitEffect = useEffectEvent(onInit);
 
   useLayoutEffect(() => {
@@ -47,6 +32,27 @@ export function Canvas({
     if (!ctx) throw new Error("Failed to get canvas context");
     onInitEffect(ctx);
   }, []);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const resizeCanvas = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const width = container.clientWidth;
+      if (!width) return;
+      canvas.width = width * window.devicePixelRatio;
+      canvas.height = (width / aspectRatio) * window.devicePixelRatio;
+      onInvalidate();
+    };
+
+    const observer = new ResizeObserver(resizeCanvas);
+    observer.observe(container);
+    resizeCanvas();
+
+    return () => observer.disconnect();
+  }, [aspectRatio]);
 
   return (
     <div
@@ -67,7 +73,7 @@ export function Canvas({
         aria-label="Visualized Midi"
         style={{
           ...style,
-          aspectRatio: `${1 / aspectRatio}`,
+          aspectRatio,
         }}
         {...props}
       />

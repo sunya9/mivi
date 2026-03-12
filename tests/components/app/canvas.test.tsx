@@ -1,6 +1,6 @@
-import { screen, render, waitFor } from "@testing-library/react";
+import { screen, render } from "@testing-library/react";
 import { Canvas } from "@/components/app/canvas";
-import { expect, test, vi } from "vitest";
+import { afterEach, expect, test, vi } from "vitest";
 import { ComponentProps } from "react";
 
 const mockOnInit = vi.fn();
@@ -11,15 +11,37 @@ const defaultProps: ComponentProps<typeof Canvas> = {
   invalidate: mockInvalidate,
 };
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 function findCanvas() {
   return screen.getByLabelText("Visualized Midi");
+}
+
+function mockClientWidth(element: Element, value: number) {
+  vi.spyOn(element, "clientWidth", "get").mockReturnValue(value);
+}
+
+let resizeCallback: (() => void) | undefined;
+function stubResizeObserver() {
+  resizeCallback = undefined;
+  vi.stubGlobal(
+    "ResizeObserver",
+    class MockResizeObserver extends ResizeObserver {
+      constructor(cb: ResizeObserverCallback) {
+        super(cb);
+        resizeCallback = () => cb([], this);
+      }
+    },
+  );
 }
 
 test("should render canvas with correct aspect ratio", () => {
   render(<Canvas {...defaultProps} aspectRatio={2} />);
   const canvas = findCanvas();
   expect(canvas).toBeInTheDocument();
-  expect(canvas).toHaveStyle({ aspectRatio: "0.5" });
+  expect(canvas).toHaveStyle({ aspectRatio: "2" });
 });
 
 test("should call onInit with canvas context", () => {
@@ -29,48 +51,44 @@ test("should call onInit with canvas context", () => {
   );
 });
 
-test("should call onRedraw when canvas is resized", async () => {
-  let resizeCallback: ((element: Element) => void) | undefined;
-  class MockedResizeObserver implements ResizeObserver {
-    constructor(
-      private callback: ConstructorParameters<typeof ResizeObserver>[0],
-    ) {
-      resizeCallback = (element: Element) =>
-        this.callback(
-          [
-            {
-              borderBoxSize: [{ blockSize: 100, inlineSize: 100 }],
-              contentBoxSize: [{ blockSize: 100, inlineSize: 100 }],
-              contentRect: DOMRectReadOnly.fromRect({
-                x: 0,
-                y: 0,
-                width: 100,
-                height: 100,
-              }),
-              devicePixelContentBoxSize: [{ blockSize: 100, inlineSize: 100 }],
-              target: element,
-            },
-          ],
-          this,
-        );
-    }
-    disconnect = vi.fn();
-    observe = vi.fn();
-    unobserve = vi.fn();
-  }
+test("should call invalidate when container is resized", () => {
+  stubResizeObserver();
 
-  window.ResizeObserver = MockedResizeObserver;
+  const invalidate = vi.fn();
+  const { container } = render(
+    <Canvas {...defaultProps} invalidate={invalidate} />,
+  );
+  mockClientWidth(container.firstElementChild!, 300);
 
-  render(<Canvas {...defaultProps} />);
+  invalidate.mockClear();
+  resizeCallback?.();
 
+  expect(invalidate).toHaveBeenCalledOnce();
   const canvas = findCanvas();
-  expect(canvas).toBeInTheDocument();
-  // Get the container div (parent of canvas) which is now observed by useResizeDetector
-  const container = canvas.parentElement!;
-  await waitFor(() => {
-    resizeCallback?.(container);
-    expect(mockInvalidate).toHaveBeenCalledExactlyOnceWith();
-  });
+  expect(canvas).toHaveProperty("width", 300 * window.devicePixelRatio);
+});
+
+test("should update canvas dimensions when aspectRatio changes", () => {
+  const invalidate = vi.fn();
+  const { container, rerender } = render(
+    <Canvas {...defaultProps} aspectRatio={1} invalidate={invalidate} />,
+  );
+  mockClientWidth(container.firstElementChild!, 200);
+
+  invalidate.mockClear();
+
+  rerender(
+    <Canvas {...defaultProps} aspectRatio={0.5} invalidate={invalidate} />,
+  );
+
+  expect(invalidate).toHaveBeenCalled();
+  const canvas = findCanvas();
+  expect(canvas).toHaveStyle({ aspectRatio: "0.5" });
+  expect(canvas).toHaveProperty("width", 200 * window.devicePixelRatio);
+  expect(canvas).toHaveProperty(
+    "height",
+    (200 / 0.5) * window.devicePixelRatio,
+  );
 });
 
 test("should apply custom className", () => {
