@@ -19,8 +19,13 @@ function findCanvas() {
   return screen.getByLabelText("Visualized Midi");
 }
 
-function mockClientWidth(element: Element, value: number) {
-  vi.spyOn(element, "clientWidth", "get").mockReturnValue(value);
+function mockContainerSize(
+  element: Element,
+  width: number,
+  height: number = width,
+) {
+  vi.spyOn(element, "clientWidth", "get").mockReturnValue(width);
+  vi.spyOn(element, "clientHeight", "get").mockReturnValue(height);
 }
 
 let resizeCallback: (() => void) | undefined;
@@ -58,7 +63,7 @@ test("should call invalidate when container is resized", () => {
   const { container } = render(
     <Canvas {...defaultProps} invalidate={invalidate} />,
   );
-  mockClientWidth(container.firstElementChild!, 300);
+  mockContainerSize(container.firstElementChild!, 300);
 
   invalidate.mockClear();
   resizeCallback?.();
@@ -73,7 +78,7 @@ test("should update canvas dimensions when aspectRatio changes", () => {
   const { container, rerender } = render(
     <Canvas {...defaultProps} aspectRatio={1} invalidate={invalidate} />,
   );
-  mockClientWidth(container.firstElementChild!, 200);
+  mockContainerSize(container.firstElementChild!, 200);
 
   invalidate.mockClear();
 
@@ -84,17 +89,16 @@ test("should update canvas dimensions when aspectRatio changes", () => {
   expect(invalidate).toHaveBeenCalled();
   const canvas = findCanvas();
   expect(canvas).toHaveStyle({ aspectRatio: "0.5" });
-  expect(canvas).toHaveProperty("width", 200 * window.devicePixelRatio);
-  expect(canvas).toHaveProperty(
-    "height",
-    (200 / 0.5) * window.devicePixelRatio,
-  );
+  // aspectRatio=0.5 (tall), container=200x200 → height-constrained: width=100, height=200
+  expect(canvas).toHaveProperty("width", 100 * window.devicePixelRatio);
+  expect(canvas).toHaveProperty("height", 200 * window.devicePixelRatio);
 });
 
-test("should apply custom className", () => {
+test("should apply custom className to container", () => {
   const customClassName = "custom-class";
-  render(<Canvas {...defaultProps} className={customClassName} />);
+  const { container } = render(
+    <Canvas {...defaultProps} className={customClassName} />,
+  );
 
-  const canvas = findCanvas();
-  expect(canvas).toHaveClass(customClassName);
+  expect(container.firstElementChild).toHaveClass(customClassName);
 });

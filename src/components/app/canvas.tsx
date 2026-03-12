@@ -12,6 +12,25 @@ interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   invalidate: () => void;
 }
 
+function calcSize(container: HTMLElement, aspectRatio: number) {
+  const containerWidth = container.clientWidth;
+  const containerHeight = container.clientHeight;
+  if (!containerWidth || !containerHeight) return;
+  // Contain-fit: use the dimension that is more constrained
+  const heightFromWidth = containerWidth / aspectRatio;
+  if (heightFromWidth <= containerHeight) {
+    return {
+      width: containerWidth,
+      height: heightFromWidth,
+    };
+  } else {
+    return {
+      height: containerHeight,
+      width: containerHeight * aspectRatio,
+    };
+  }
+}
+
 export function Canvas({
   onInit,
   className,
@@ -35,15 +54,14 @@ export function Canvas({
 
   useLayoutEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    const canvas = canvasRef.current;
+    if (!container || !canvas) return;
 
     const resizeCanvas = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const width = container.clientWidth;
-      if (!width) return;
-      canvas.width = width * window.devicePixelRatio;
-      canvas.height = (width / aspectRatio) * window.devicePixelRatio;
+      const size = calcSize(container, aspectRatio);
+      if (!size) return;
+      canvas.width = size.width * window.devicePixelRatio;
+      canvas.height = size.height * window.devicePixelRatio;
       onInvalidate();
     };
 
@@ -60,16 +78,12 @@ export function Canvas({
       className={cn(
         "h-full w-full",
         "flex items-center justify-center",
-        "bg-gray-50 dark:bg-gray-600",
-        "bg-[linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas)),linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas))]",
-        "bg-position-[0_0,8px_8px]",
-        "bg-size-[16px_16px]",
-        "[view-transition-name:canvas-wrapper]",
+        className,
       )}
     >
       <canvas
         ref={canvasRef}
-        className={cn("h-auto max-h-full w-full object-contain", className)}
+        className="max-h-full max-w-full [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-canvas]"
         aria-label="Visualized Midi"
         style={{
           ...style,
