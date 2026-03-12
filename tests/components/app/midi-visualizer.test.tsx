@@ -348,3 +348,245 @@ test("panel is hidden when playing and no interaction", () => {
   // Panel should be hidden (translate-y-full) when playing with no interaction
   expect(panelContainer.className).toContain("translate-y-full");
 });
+
+// --- F key expand toggle ---
+test("F key toggles expand", async () => {
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  expect(findPlayer()).toHaveAttribute("aria-expanded", "false");
+
+  await userEvent.keyboard("f");
+  expect(findPlayer()).toHaveAttribute("aria-expanded", "true");
+
+  await userEvent.keyboard("f");
+  expect(findPlayer()).toHaveAttribute("aria-expanded", "false");
+});
+
+// --- Arrow key seek tests ---
+test("arrow left seeks backward 5s", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("{arrowleft}");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(25, true, true);
+});
+
+test("arrow right seeks forward 5s", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("{arrowright}");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(35, true, true);
+});
+
+test("arrow keys do not seek when slider is focused", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
+  seekSlider.focus();
+
+  vi.mocked(defaultStoreMock.seek).mockClear();
+
+  await userEvent.keyboard("{arrowleft}");
+
+  // seek is called via slider's onValueCommit, not by our hotkey
+  // Our hotkey handler should not fire when slider is focused
+  // The slider's own handler calls seek with step-based values, not ±5s
+  expect(defaultStoreMock.seek).not.toHaveBeenCalledWith(25, true, true);
+});
+
+// --- J/L seek tests ---
+test("J key seeks backward 10s", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("j");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(20, true, true);
+});
+
+test("L key seeks forward 10s", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("l");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(40, true, true);
+});
+
+// --- Volume key tests ---
+test("arrow up increases volume", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, volume: 0.5 },
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("{arrowup}");
+
+  expect(defaultStoreMock.setVolume).toHaveBeenCalledWith(0.55);
+});
+
+test("arrow down decreases volume", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, volume: 0.5 },
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("{arrowdown}");
+
+  expect(defaultStoreMock.setVolume).toHaveBeenCalledWith(0.45);
+});
+
+test("arrow up/down do not adjust volume when slider is focused", async () => {
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
+  seekSlider.focus();
+
+  vi.mocked(defaultStoreMock.setVolume).mockClear();
+
+  await userEvent.keyboard("{arrowup}");
+
+  // Our hotkey handler should not fire — let slider handle it natively
+  expect(defaultStoreMock.setVolume).not.toHaveBeenCalled();
+});
+
+// --- Home/0/End tests ---
+test("Home key seeks to beginning", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("{home}");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(0, true, true);
+});
+
+test("0 key seeks to beginning", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("0");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(0, true, true);
+});
+
+test("End key seeks to end", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("{end}");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(60, true, true);
+});
+
+// --- Seek/volume shortcuts reveal control panel ---
+test("seek shortcuts reveal control panel", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true, duration: 60 },
+    getPosition: () => 30,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
+  expect(panelContainer.className).toContain("translate-y-full");
+
+  await userEvent.keyboard("{arrowright}");
+
+  expect(panelContainer.className).toContain("translate-y-0");
+  expect(panelContainer.className).not.toContain("translate-y-full");
+});
+
+test("volume shortcuts reveal control panel", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true, volume: 0.5 },
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
+  expect(panelContainer.className).toContain("translate-y-full");
+
+  await userEvent.keyboard("{arrowup}");
+
+  expect(panelContainer.className).toContain("translate-y-0");
+  expect(panelContainer.className).not.toContain("translate-y-full");
+});
+
+// --- Seek clamps to boundaries ---
+test("seek does not go below 0", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 3,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("{arrowleft}");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(0, true, true);
+});
+
+test("seek does not exceed duration", async () => {
+  vi.mocked(useAudioPlaybackStore).mockReturnValue({
+    ...defaultStoreMock,
+    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    getPosition: () => 58,
+  });
+
+  customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
+
+  await userEvent.keyboard("{arrowright}");
+
+  expect(defaultStoreMock.seek).toHaveBeenCalledWith(60, true, true);
+});
