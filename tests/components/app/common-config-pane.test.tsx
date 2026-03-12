@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { fireEvent, screen } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import { CommonConfigPane } from "@/components/app/common-config-pane";
 import { resolutions } from "@/lib/renderers/renderer";
 import { customRender } from "tests/util";
@@ -139,8 +139,9 @@ test("should call onUpdateRendererConfig when background image repeat is changed
 
 test("should call onUpdateRendererConfig when background image opacity is changed", async () => {
   renderCommonConfigPane();
-  const opacitySlider = screen.getByRole("slider", { name: /Image Opacity/ });
-  await userEvent.click(opacitySlider);
+  const group = screen.getByRole("group", { name: /Image Opacity/ });
+  const opacitySlider = within(group).getByRole("slider", { hidden: true });
+  opacitySlider.focus();
   await userEvent.keyboard("{arrowleft}");
   expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
     backgroundImageOpacity: 0.99,
@@ -172,7 +173,7 @@ test("should not show background image settings when no image is selected", () =
     screen.queryByRole("combobox", { name: "Image Repeat" }),
   ).not.toBeInTheDocument();
   expect(
-    screen.queryByRole("slider", { name: /Image Opacity/ }),
+    screen.queryByRole("group", { name: /Image Opacity/ }),
   ).not.toBeInTheDocument();
   expect(
     screen.queryByRole("switch", { name: "Show Background Image" }),

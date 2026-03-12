@@ -1,5 +1,5 @@
 import { expect, vi, test, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, within } from "@testing-library/react";
 import { TrackItem } from "@/components/app/track-item";
 import { MidiTrack } from "@/lib/midi/midi";
 import { testMidiTracks } from "tests/fixtures";
@@ -67,7 +67,11 @@ test("should render opacity slider when track is visible", () => {
   );
 
   expect(screen.getByText("Opacity: 100%")).toBeInTheDocument();
-  expect(screen.getByRole("slider", { name: "Opacity" })).toBeInTheDocument();
+  expect(
+    within(screen.getByRole("group", { name: "Opacity" })).getByRole("slider", {
+      hidden: true,
+    }),
+  ).toBeInTheDocument();
 });
 
 test("should call onUpdateTrackConfig when opacity is changed", async () => {
@@ -79,8 +83,10 @@ test("should call onUpdateTrackConfig when opacity is changed", async () => {
     />,
   );
 
-  const slider = screen.getByRole("slider", { name: "Opacity" });
-  await userEvent.click(slider);
+  const slider = within(
+    screen.getByRole("group", { name: "Opacity" }),
+  ).getByRole("slider", { hidden: true });
+  slider.focus();
   await userEvent.keyboard("{arrowleft}");
 
   expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {
@@ -159,7 +165,11 @@ test("should render scale slider when track is visible", () => {
   );
 
   expect(screen.getByText("Scale: 100%")).toBeInTheDocument();
-  expect(screen.getByRole("slider", { name: "Scale" })).toBeInTheDocument();
+  expect(
+    within(screen.getByRole("group", { name: "Scale" })).getByRole("slider", {
+      hidden: true,
+    }),
+  ).toBeInTheDocument();
 });
 
 test("should call onUpdateTrackConfig when scale is changed", async () => {
@@ -171,8 +181,11 @@ test("should call onUpdateTrackConfig when scale is changed", async () => {
     />,
   );
 
-  const slider = screen.getByRole("slider", { name: "Scale" });
-  await userEvent.click(slider);
+  const slider = within(screen.getByRole("group", { name: "Scale" })).getByRole(
+    "slider",
+    { hidden: true },
+  );
+  slider.focus();
   await userEvent.keyboard("{arrowleft}");
 
   expect(mockOnUpdateTrackConfig).toHaveBeenLastCalledWith(0, {

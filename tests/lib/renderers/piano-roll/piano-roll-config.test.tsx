@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
 import { customRender } from "tests/util";
@@ -116,9 +116,10 @@ test("toggle noise texture", async () => {
 // Slider value change tests
 test("time window slider updates value", async () => {
   renderPane();
-  const slider = screen.getByRole("slider", {
+  const group = screen.getByRole("group", {
     name: `Time Window: ${pianoRollConfig.timeWindow}s`,
   });
+  const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -128,9 +129,10 @@ test("time window slider updates value", async () => {
 
 test("note height slider updates value", async () => {
   renderPane();
-  const slider = screen.getByRole("slider", {
+  const group = screen.getByRole("group", {
     name: `Note Height: ${pianoRollConfig.noteHeight}px`,
   });
+  const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -140,9 +142,10 @@ test("note height slider updates value", async () => {
 
 test("note corner radius slider updates value", async () => {
   renderPane();
-  const slider = screen.getByRole("slider", {
+  const group = screen.getByRole("group", {
     name: `Note Corner Radius: ${pianoRollConfig.noteCornerRadius}px`,
   });
+  const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -154,9 +157,10 @@ test("note corner radius slider updates value", async () => {
 
 test("note margin slider updates value", async () => {
   renderPane();
-  const slider = screen.getByRole("slider", {
+  const group = screen.getByRole("group", {
     name: `Note Margin: ${pianoRollConfig.noteMargin}px`,
   });
+  const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -166,9 +170,10 @@ test("note margin slider updates value", async () => {
 
 test("playhead position slider updates value", async () => {
   renderPane();
-  const slider = screen.getByRole("slider", {
+  const group = screen.getByRole("group", {
     name: `Playhead Position: ${pianoRollConfig.playheadPosition}%`,
   });
+  const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -210,7 +215,7 @@ test("flash mode select is rendered with current value", () => {
   const trigger = screen.getByRole("combobox", { name: "Flash Mode" });
   expect(trigger).toBeInTheDocument();
   expect(trigger).toHaveTextContent(
-    pianoRollConfig.noteFlashMode === "on" ? "On" : "Duration",
+    pianoRollConfig.noteFlashMode === "on" ? "On" : "duration▼",
   );
 });
 

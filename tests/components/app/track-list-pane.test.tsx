@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { TrackListPane } from "@/components/app/track-list-pane";
 import { testMidiTracks } from "tests/fixtures";
 import { MidiTracks } from "@/lib/midi/midi";
@@ -337,7 +337,9 @@ test("should reset dialog values when cancelled and reopened", async () => {
   await userEvent.click(screen.getByRole("button", { name: /cancel/i }));
 
   // Dialog should be closed
-  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  await waitFor(() => {
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
 
   // Reopen dialog
   await userEvent.click(dropdownButton);

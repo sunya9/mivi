@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import { expect, test, vi } from "vitest";
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
 import { customRender } from "tests/util";
@@ -22,9 +22,9 @@ function renderPane(overrideProps?: Props) {
 
 test("should render Comet component", async () => {
   renderPane();
-  const fallAngleSlider = screen.getByRole("slider", {
-    name: /Fall Angle/,
-  });
+  const fallAngleSlider = within(
+    screen.getByRole("group", { name: /Fall Angle/ }),
+  ).getByRole("slider", { hidden: true });
   expect(fallAngleSlider).toBeInTheDocument();
   await userEvent.click(fallAngleSlider);
   await userEvent.keyboard("{arrowleft}");
