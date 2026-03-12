@@ -191,13 +191,15 @@ export function MidiVisualizer({
       const target = e.target;
       if (e.repeat || !(target instanceof HTMLElement)) return;
       const isBody = target instanceof HTMLBodyElement;
-      const isSlider = target.role === "slider";
+      const isSlider =
+        target.role === "slider" ||
+        (target instanceof HTMLInputElement && target.type === "range");
       if (!isBody && !isSlider) return;
       e.preventDefault();
       togglePlay();
     },
     {
-      enableOnFormTags: ["slider"],
+      enableOnFormTags: ["input"],
     },
     [togglePlay],
   );
