@@ -230,7 +230,10 @@ test.each(patternParameters)(
       },
     });
 
-    context.createPattern = vi.fn().mockReturnValue({});
+    const mockSetTransform = vi.fn();
+    context.createPattern = vi
+      .fn()
+      .mockReturnValue({ setTransform: mockSetTransform });
     context.fillRect = vi.fn();
     renderer.render();
 
@@ -238,6 +241,7 @@ test.each(patternParameters)(
       imageBitmap,
       pattern,
     );
+    expect(mockSetTransform).toHaveBeenCalledOnce();
     // draw background color + draw pattern
     expect(context.fillRect).toHaveBeenNthCalledWith(2, 0, 0, 300, 150);
   },
@@ -351,6 +355,78 @@ test("should render with contain when canvasRatio > imgRatio (no fraction)", asy
     0,
     50,
     100,
+  );
+});
+
+test("should render with fit: auto (original image size)", async () => {
+  const imageBitmap = await prepareImage(80, 40);
+  const { context, renderer } = prepareTestRenderer({
+    canvasSize: { width: 200, height: 100 },
+    backgroundImageBitmap: imageBitmap,
+    rendererConfig: {
+      ...getDefaultRendererConfig(),
+      backgroundImageFit: "auto",
+    },
+  });
+
+  context.drawImage = vi.fn();
+  renderer.render();
+
+  // auto: draw at original size, centered
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
+    imageBitmap,
+    60, // (200 - 80) / 2
+    30, // (100 - 40) / 2
+    80,
+    40,
+  );
+});
+
+test("should render with fit: auto and position: top-left", async () => {
+  const imageBitmap = await prepareImage(80, 40);
+  const { context, renderer } = prepareTestRenderer({
+    canvasSize: { width: 200, height: 100 },
+    backgroundImageBitmap: imageBitmap,
+    rendererConfig: {
+      ...getDefaultRendererConfig(),
+      backgroundImageFit: "auto",
+      backgroundImagePosition: "top-left",
+    },
+  });
+
+  context.drawImage = vi.fn();
+  renderer.render();
+
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
+    imageBitmap,
+    0,
+    0,
+    80,
+    40,
+  );
+});
+
+test("should render with fit: auto when image is larger than canvas", async () => {
+  const imageBitmap = await prepareImage(400, 300);
+  const { context, renderer } = prepareTestRenderer({
+    canvasSize: { width: 200, height: 100 },
+    backgroundImageBitmap: imageBitmap,
+    rendererConfig: {
+      ...getDefaultRendererConfig(),
+      backgroundImageFit: "auto",
+    },
+  });
+
+  context.drawImage = vi.fn();
+  renderer.render();
+
+  // auto: draw at original size even if larger, centered
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
+    imageBitmap,
+    -100, // (200 - 400) / 2
+    -100, // (100 - 300) / 2
+    400,
+    300,
   );
 });
 

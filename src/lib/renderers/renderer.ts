@@ -191,6 +191,7 @@ export type FPS = (typeof fpsOptions)[number]["value"];
 export type VideoFormat = (typeof formatOptions)[number]["value"];
 
 export const backgroundImageFitOptions = [
+  { value: "auto", label: "Auto" },
   { value: "cover", label: "Cover" },
   { value: "contain", label: "Contain" },
 ] as const;
