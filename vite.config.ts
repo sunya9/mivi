@@ -104,19 +104,19 @@ export default defineConfig(({ mode }) => ({
       },
     }),
     mode === "analyze" &&
-      (visualizer({
+      visualizer({
         open: true,
         filename: "dist/stats.html",
         gzipSize: true,
         brotliSize: true,
-      }) as PluginOption),
+      }),
     // Put the Codecov vite plugin after all other plugins
     codecovVitePlugin({
       enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
       bundleName: "mivi",
       uploadToken: process.env.CODECOV_TOKEN,
     }),
-    mode === "development" && devBranchTitlePlugin(),
+    devBranchTitlePlugin(),
   ],
   build: {
     rolldownOptions: {
@@ -125,12 +125,12 @@ export default defineConfig(({ mode }) => ({
           groups: [
             {
               name: "react-vendor",
-              test: /node_modules[\\/](react|@base-ui[\\/]react)/,
+              test: /node_modules[\\/](react)/,
               priority: 20,
             },
             {
-              name: "radix-ui-vendor",
-              test: /node_modules[\\/]@radix-ui/,
+              name: "base-ui-vendor",
+              test: /node_modules[\\/]@base-ui[\\/]react/,
               priority: 15,
             },
             {
@@ -239,6 +239,7 @@ const waitForDownload: BrowserCommand<[]> = (ctx) =>
 function devBranchTitlePlugin(): PluginOption {
   return {
     name: "dev-branch-title",
+    apply: "serve", // only dev
     transformIndexHtml(html) {
       try {
         const branch = execFileSync("git", ["branch", "--show-current"], {
