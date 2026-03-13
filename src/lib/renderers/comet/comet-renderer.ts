@@ -20,9 +20,9 @@ interface CometTrail {
 }
 
 export class CometRenderer extends Renderer {
-  private activeComets = new Map<string, CometParticle>();
+  private activeComets = new Map<number, CometParticle>();
   private lastCurrentTime: number = 0;
-  private cometAngleOffsets = new Map<string, number>();
+  private cometAngleOffsets = new Map<number, number>();
 
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -55,7 +55,7 @@ export class CometRenderer extends Renderer {
       if (!track.config.visible) return;
 
       track.notes.forEach((note) => {
-        const cometKey = `${track.id}-${note.time}-${note.midi}`;
+        const cometKey = note.id;
 
         // Check if note should trigger a comet
         if (

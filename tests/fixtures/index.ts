@@ -35,6 +35,7 @@ const testMidiTracks: MidiTracks = {
       id: "0",
       notes: [
         {
+          id: 0,
           duration: 0.5,
           durationTicks: 480,
           midi: 60,
@@ -44,6 +45,7 @@ const testMidiTracks: MidiTracks = {
           velocity: 1,
         },
         {
+          id: 1,
           duration: 0.5,
           durationTicks: 480,
           midi: 62,
@@ -53,6 +55,7 @@ const testMidiTracks: MidiTracks = {
           velocity: 1,
         },
         {
+          id: 2,
           duration: 0.5,
           durationTicks: 480,
           midi: 64,
@@ -62,6 +65,7 @@ const testMidiTracks: MidiTracks = {
           velocity: 1,
         },
         {
+          id: 3,
           duration: 0.5,
           durationTicks: 480,
           midi: 65,
@@ -71,6 +75,7 @@ const testMidiTracks: MidiTracks = {
           velocity: 1,
         },
         {
+          id: 4,
           duration: 0.5,
           durationTicks: 480,
           midi: 67,
@@ -80,6 +85,7 @@ const testMidiTracks: MidiTracks = {
           velocity: 1,
         },
         {
+          id: 5,
           duration: 0.5,
           durationTicks: 480,
           midi: 69,
@@ -89,6 +95,7 @@ const testMidiTracks: MidiTracks = {
           velocity: 1,
         },
         {
+          id: 6,
           duration: 0.5,
           durationTicks: 480,
           midi: 71,
@@ -98,6 +105,7 @@ const testMidiTracks: MidiTracks = {
           velocity: 1,
         },
         {
+          id: 7,
           duration: 0.5,
           durationTicks: 480,
           midi: 72,
