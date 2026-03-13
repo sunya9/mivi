@@ -15,11 +15,10 @@ updates:
           - "vitest"
           - "vitest-*"
           - "@vitest/*"
-      eslint:
+      oxc:
         patterns:
-          - "eslint"
-          - "@eslint/*"
-          - "typescript-eslint"
+          - "oxlint"
+          - "oxfmt"
       dev-dependency:
         dependency-type: development
         update-types:

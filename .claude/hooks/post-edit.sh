@@ -21,8 +21,8 @@ pnpm typecheck 2>&1
 # Run lint on the specific file
 pnpm lint --fix "$FILE_PATH" 2>&1
 
-# Run prettier on the specific file
-pnpm exec prettier --write "$FILE_PATH" 2>&1
+# Run format on the specific file
+pnpm format "$FILE_PATH" 2>&1
 
 # Run knip (unused files, exports, dependencies check)
 pnpm knip 2>&1
