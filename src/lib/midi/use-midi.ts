@@ -23,6 +23,7 @@ async function loadMidi(
     hash ? Promise.resolve(hash) : hashArrayBuffer(arrayBuffer),
     Promise.resolve(new Midi(arrayBuffer)),
   ]);
+  let noteId = 0;
   const tracks = midi.tracks.map((track, index): MidiTrack => {
     const color = "#ffffff";
     const config = getDefaultTrackConfig(
@@ -31,7 +32,7 @@ async function loadMidi(
     );
     return {
       id: crypto.randomUUID(),
-      notes: track.notes.map((note) => note.toJSON()),
+      notes: track.notes.map((note) => ({ ...note.toJSON(), id: noteId++ })),
       config,
     };
   });
@@ -53,10 +54,15 @@ async function loadMidi(
 
 function overwriteMidiTracks(midiTracks: MidiTracks | undefined) {
   if (!midiTracks) return;
+  let noteId = 0;
   const tracks: MidiTrack[] = midiTracks.tracks.map((track) => {
     const config: TrackConfig = defaultsDeep(track.config, defaultTrackConfig);
     return {
       ...track,
+      notes: track.notes.map((note) => ({
+        ...note,
+        id: note.id ?? noteId++,
+      })),
       config,
     };
   });

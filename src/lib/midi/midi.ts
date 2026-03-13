@@ -1,5 +1,10 @@
 import { NoteJSON } from "@tonejs/midi/dist/Note";
 
+export interface MidiNote extends NoteJSON {
+  /** Globally unique numeric ID assigned at load time for efficient Map keying */
+  id: number;
+}
+
 export interface TrackConfig {
   visible: boolean;
   color: string;
@@ -11,7 +16,7 @@ export interface TrackConfig {
 
 export interface MidiTrack {
   id: string;
-  notes: NoteJSON[];
+  notes: MidiNote[];
   config: TrackConfig;
 }
 

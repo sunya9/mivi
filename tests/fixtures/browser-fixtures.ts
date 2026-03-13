@@ -40,6 +40,7 @@ export function createTestMidiTracks(): MidiTracks {
         },
         notes: [
           {
+            id: 0,
             duration: 0.5,
             durationTicks: 480,
             midi: 60,

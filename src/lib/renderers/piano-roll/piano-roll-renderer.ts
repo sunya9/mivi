@@ -1,5 +1,6 @@
 import { MidiTrack } from "@/lib/midi/midi";
 import { Renderer, RendererConfig } from "../renderer";
+import { findFirstVisibleNoteIndex } from "./find-first-visible-note";
 import { NoiseTextureRenderer } from "./noise-texture-renderer";
 import { RoughRectDrawer } from "./rough-rect-drawer";
 
@@ -9,7 +10,7 @@ export class PianoRollRenderer extends Renderer {
   private lastCurrentTime: number = 0;
 
   private rippleStates = new Map<
-    string,
+    number,
     {
       noteStart: number;
       noteEnd: number;
@@ -20,7 +21,7 @@ export class PianoRollRenderer extends Renderer {
   >();
 
   private noteFlashStates = new Map<
-    string,
+    number,
     {
       noteStart: number;
       color: string;
@@ -31,7 +32,7 @@ export class PianoRollRenderer extends Renderer {
   >();
 
   private pressStates = new Map<
-    string,
+    number,
     {
       startTime: number;
       isPressed: boolean;
@@ -40,6 +41,7 @@ export class PianoRollRenderer extends Renderer {
 
   private noiseTextureRenderer: NoiseTextureRenderer;
   private roughRectDrawer: RoughRectDrawer;
+  private rgbCache = new Map<string, [number, number, number]>();
 
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -100,27 +102,32 @@ export class PianoRollRenderer extends Renderer {
     };
 
     // Reverse iteration so first track in list appears on top (drawn last)
-    tracks.toReversed().forEach((track) => {
-      if (!track.config.visible) return;
+    for (let ti = tracks.length - 1; ti >= 0; ti--) {
+      const track = tracks[ti];
+      if (!track.config.visible) continue;
 
-      track.notes.forEach((note) => {
+      // Calculate actual time corresponding to screen edges, accounting for scale
+      const scale = track.config.scale;
+      const leftEdgeTime = currentTime + (startTime - currentTime) / scale;
+      const rightEdgeTime = currentTime + (endTime - currentTime) / scale;
+      const scaledOverflow =
+        (this.config.pianoRollConfig.timeWindow * this.overflowFactor) / scale;
+
+      // Binary search to skip notes that end before the visible range
+      const startIdx = findFirstVisibleNoteIndex(
+        track.notes,
+        leftEdgeTime - scaledOverflow,
+      );
+
+      for (let ni = startIdx; ni < track.notes.length; ni++) {
+        const note = track.notes[ni];
         const noteStart = note.time;
         const noteEnd = note.time + note.duration;
 
-        // Calculate actual time corresponding to screen edges, accounting for scale
-        const scale = track.config.scale;
-        const leftEdgeTime = currentTime + (startTime - currentTime) / scale;
-        const rightEdgeTime = currentTime + (endTime - currentTime) / scale;
-        const scaledOverflow =
-          (this.config.pianoRollConfig.timeWindow * this.overflowFactor) /
-          scale;
+        // Notes are sorted by time; if start exceeds right edge, all remaining are off-screen
+        if (noteStart > rightEdgeTime + scaledOverflow) break;
 
-        if (
-          noteEnd < leftEdgeTime - scaledOverflow ||
-          noteStart > rightEdgeTime + scaledOverflow ||
-          !isNoteInViewRange(note.midi)
-        )
-          return;
+        if (!isNoteInViewRange(note.midi)) continue;
 
         const x = timeToX(noteStart, track.config.scale);
         const rawNoteWidth = timeToX(noteEnd, track.config.scale) - x;
@@ -142,24 +149,26 @@ export class PianoRollRenderer extends Renderer {
 
         const y = this.noteToY(note.midi) + verticalMargin;
 
-        const noteKey = `${track.id}-${note.time}-${note.midi}`;
+        const noteKey = note.id;
         const isTouchingPlayhead =
           Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
         const wasNotTouchingPlayhead = !this.noteFlashStates.has(noteKey);
 
-        // Update press state
-        if (!this.pressStates.has(noteKey)) {
-          this.pressStates.set(noteKey, {
-            startTime: currentTime,
-            isPressed: isTouchingPlayhead,
-          });
-        } else if (
-          this.pressStates.get(noteKey)!.isPressed !== isTouchingPlayhead
-        ) {
-          this.pressStates.set(noteKey, {
-            startTime: currentTime,
-            isPressed: isTouchingPlayhead,
-          });
+        // Update press state (only when press effect is enabled)
+        if (this.config.pianoRollConfig.showNotePressEffect) {
+          if (!this.pressStates.has(noteKey)) {
+            this.pressStates.set(noteKey, {
+              startTime: currentTime,
+              isPressed: isTouchingPlayhead,
+            });
+          } else if (
+            this.pressStates.get(noteKey)!.isPressed !== isTouchingPlayhead
+          ) {
+            this.pressStates.set(noteKey, {
+              startTime: currentTime,
+              isPressed: isTouchingPlayhead,
+            });
+          }
         }
 
         // Draw note with effects
@@ -180,6 +189,11 @@ export class PianoRollRenderer extends Renderer {
             ? pressProgress * targetOffset
             : targetOffset * (1 - pressProgress);
           pressOffset = -currentOffset;
+
+          // Clean up completed release animations
+          if (!pressState.isPressed && pressProgress >= 1) {
+            this.pressStates.delete(noteKey);
+          }
         }
 
         if (
@@ -309,12 +323,12 @@ export class PianoRollRenderer extends Renderer {
               : track.config.color,
           });
         }
-      });
+      }
 
       this.ctx.shadowColor = "transparent";
       this.ctx.shadowBlur = 0;
       this.ctx.shadowOffsetY = 0;
-    });
+    }
 
     this.rippleStates.forEach((state, noteKey) => {
       const rippleProgress = Math.min(
@@ -383,17 +397,23 @@ export class PianoRollRenderer extends Renderer {
     }
   }
 
+  private parseRgb(color: string): [number, number, number] {
+    let rgb = this.rgbCache.get(color);
+    if (!rgb) {
+      rgb = [
+        parseInt(color.slice(1, 3), 16),
+        parseInt(color.slice(3, 5), 16),
+        parseInt(color.slice(5, 7), 16),
+      ];
+      this.rgbCache.set(color, rgb);
+    }
+    return rgb;
+  }
+
   private adjustColorBrightness(color: string, intensity: number): string {
-    const r = parseInt(color.slice(1, 3), 16);
-    const g = parseInt(color.slice(3, 5), 16);
-    const b = parseInt(color.slice(5, 7), 16);
-
+    const [r, g, b] = this.parseRgb(color);
     const brightenValue = intensity * 255;
-    const newR = Math.min(255, r + brightenValue);
-    const newG = Math.min(255, g + brightenValue);
-    const newB = Math.min(255, b + brightenValue);
-
-    return `rgb(${newR}, ${newG}, ${newB})`;
+    return `rgb(${Math.min(255, r + brightenValue)}, ${Math.min(255, g + brightenValue)}, ${Math.min(255, b + brightenValue)})`;
   }
 
   private updateNoiseTexture(): void {
