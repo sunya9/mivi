@@ -54,7 +54,13 @@ export class BackgroundRenderer {
         drawHeight,
         offsetX: baseOffsetX,
         offsetY: baseOffsetY,
-      } = this.#calculateImageDimensions(imgRatio, canvasRatio, width, height);
+      } = this.#calculateImageDimensions(
+        img,
+        imgRatio,
+        canvasRatio,
+        width,
+        height,
+      );
 
       const { offsetX, offsetY } = this.#adjustImagePosition(
         backgroundImagePosition,
@@ -84,13 +90,13 @@ export class BackgroundRenderer {
   }
 
   #calculateImageDimensions(
+    img: ImageBitmap,
     imgRatio: number,
     canvasRatio: number,
     width: number,
     height: number,
   ) {
     const { backgroundImageFit } = this.#config;
-    const img = this.#backgroundImageBitmap!;
     switch (backgroundImageFit) {
       case "auto":
         return {
