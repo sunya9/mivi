@@ -209,14 +209,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
           </>
         )}
         <FormRow
-          label={
-            <span className="inline-flex items-center gap-2">
-              Resolution
-              <InfoTooltip>
-                <p>Only aspect ratio is reflected in preview</p>
-              </InfoTooltip>
-            </span>
-          }
+          label="Resolution"
           controller={({ id }) => (
             <Select
               value={rendererConfig.resolution.label}
