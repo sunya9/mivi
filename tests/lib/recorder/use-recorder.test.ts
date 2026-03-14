@@ -2,23 +2,26 @@ import { test, expect, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { toast } from "sonner";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
-import { SerializedAudio } from "@/lib/audio/audio";
+import { AudioSource } from "@/lib/audio/audio";
 import { testMidiTracks, rendererConfig } from "tests/fixtures";
 import { runWorker } from "@/lib/media-compositor/run-worker";
 
 vi.mock("@/lib/media-compositor/run-worker", { spy: true });
 vi.mock("sonner", { spy: true });
 
-const mockSerializedAudio: SerializedAudio = {
-  length: 100,
-  sampleRate: 44100,
-  numberOfChannels: 2,
-  duration: 10,
-  channels: [new Float32Array(100), new Float32Array(100)],
+const mockAudioSource: AudioSource = {
+  name: "test.mp3",
+  serialized: {
+    length: 100,
+    sampleRate: 44100,
+    numberOfChannels: 2,
+    duration: 10,
+    channels: [new Float32Array(100), new Float32Array(100)],
+  },
 };
 
 const mockProps: Parameters<typeof useRecorder>[0] = {
-  serializedAudio: mockSerializedAudio,
+  audioSource: mockAudioSource,
   midiTracks: testMidiTracks,
   rendererConfig: rendererConfig,
 };
@@ -36,7 +39,7 @@ test("should show error toast when trying to start recording without audio file"
   const { result } = renderHook((props) => useRecorder(props), {
     initialProps: {
       ...mockProps,
-      serializedAudio: undefined,
+      audioSource: undefined,
     },
   });
 
@@ -94,7 +97,7 @@ test("should allow recording without MIDI when renderer type is none and audio v
 
   expect(runWorker).toHaveBeenCalledExactlyOnceWith(
     expect.objectContaining({
-      serializedAudio: mockProps.serializedAudio,
+      audioSource: mockProps.audioSource,
       midiTracks: undefined,
     }),
     expect.any(Function),
@@ -142,7 +145,7 @@ test("should start recording when all required files are present", async () => {
     {
       rendererConfig: mockProps.rendererConfig,
       midiTracks: mockProps.midiTracks,
-      serializedAudio: mockProps.serializedAudio,
+      audioSource: mockProps.audioSource,
     },
     expect.any(Function),
     expect.any(AbortSignal),

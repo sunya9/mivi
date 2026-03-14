@@ -5,3 +5,8 @@ export interface SerializedAudio {
   readonly duration: number;
   readonly channels: Float32Array[];
 }
+
+export interface AudioSource {
+  readonly name: string;
+  readonly serialized: SerializedAudio;
+}

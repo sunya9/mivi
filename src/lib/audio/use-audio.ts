@@ -1,6 +1,6 @@
 import { useAppContext } from "@/contexts/app-context";
 import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
-import { SerializedAudio } from "@/lib/audio/audio";
+import { AudioSource, SerializedAudio } from "@/lib/audio/audio";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useCacheContext } from "@/contexts/cache-context";
@@ -100,9 +100,15 @@ export function useAudio() {
     };
   }, [audioBuffer]);
 
+  const audioSource: AudioSource | undefined = useMemo(() => {
+    if (!serializedAudio || !audioFile) return;
+    return { name: audioFile.name, serialized: serializedAudio };
+  }, [serializedAudio, audioFile]);
+
   return {
     audioBuffer,
     setAudioFile,
+    audioSource,
     serializedAudio,
     audioFile,
     isDecoding,

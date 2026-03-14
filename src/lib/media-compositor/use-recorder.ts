@@ -6,10 +6,17 @@ import {
 } from "@/lib/media-compositor/recording-status";
 import { toast } from "sonner";
 import { runWorker } from "./run-worker";
-import { PartialRecorderResources } from "./recorder-resources";
 import { errorLogWithToast } from "../utils";
+import type { MidiTracks } from "@/lib/midi/midi";
+import type { AudioSource } from "@/lib/audio/audio";
+import type { RendererConfig } from "@/lib/renderers/renderer";
 
-export function useRecorder(resources: PartialRecorderResources) {
+export function useRecorder(resources: {
+  midiTracks?: MidiTracks;
+  audioSource?: AudioSource;
+  rendererConfig: RendererConfig;
+  backgroundImageBitmap?: ImageBitmap;
+}) {
   const [recordingState, setRecordingState] = useState<RecordingStatus>(
     new ReadyState(),
   );
@@ -17,13 +24,13 @@ export function useRecorder(resources: PartialRecorderResources) {
   const toggleRecording = useCallback(async () => {
     if (!recordingState.isRecording) {
       const midiTracks = resources.midiTracks;
-      const serializedAudio = resources.serializedAudio;
+      const audioSource = resources.audioSource;
       const rendererType = resources.rendererConfig.type;
       const audioVisualizerStyle =
         resources.rendererConfig.audioVisualizerConfig.style;
 
       // Audio is always required
-      if (!serializedAudio) {
+      if (!audioSource) {
         errorLogWithToast("Please select an audio file.");
         return;
       }
@@ -56,7 +63,7 @@ export function useRecorder(resources: PartialRecorderResources) {
         {
           ...resources,
           midiTracks,
-          serializedAudio,
+          audioSource,
         },
         onProgress,
         signal,
@@ -66,7 +73,7 @@ export function useRecorder(resources: PartialRecorderResources) {
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          const exportName = midiTracks?.name ?? "audio";
+          const exportName = midiTracks?.name ?? audioSource.name ?? "audio";
           a.download = `mivi-${exportName}.${resources.rendererConfig.format}`;
           a.click();
           URL.revokeObjectURL(url);

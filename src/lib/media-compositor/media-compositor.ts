@@ -36,7 +36,7 @@ export class MediaCompositor {
       },
       error: onError,
     });
-    const { serializedAudio } = this.resources;
+    const { serialized: serializedAudio } = this.resources.audioSource;
 
     audioEncoder.configure({
       codec: this.muxer.audioCodec,
@@ -80,7 +80,7 @@ export class MediaCompositor {
   }
 
   private get serializedAudio() {
-    return this.resources.serializedAudio;
+    return this.resources.audioSource.serialized;
   }
 
   private get backgroundImageBitmap() {

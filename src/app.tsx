@@ -17,7 +17,6 @@ import { useAudio } from "@/lib/audio/use-audio";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
 import { useRendererConfig } from "@/lib/renderers/use-renderer-config";
 import { useBackgroundImage } from "./lib/background-image/use-background-image";
-import { createRecorderResources } from "./lib/media-compositor/recorder-resources";
 import { useDnd } from "@/hooks/use-dnd";
 import {
   MobileBottomNav,
@@ -34,17 +33,22 @@ export function App() {
   const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();
   const { rendererConfig, onUpdateRendererConfig, VisualizerStyle } =
     useRendererConfig(midiTracks?.minNote, midiTracks?.maxNote);
-  const { audioFile, setAudioFile, serializedAudio, isDecoding, cancelDecode } =
-    useAudio();
+  const {
+    audioFile,
+    setAudioFile,
+    audioSource,
+    serializedAudio,
+    isDecoding,
+    cancelDecode,
+  } = useAudio();
   const { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile } =
     useBackgroundImage();
-  const recordResources = createRecorderResources({
+  const { recordingState, toggleRecording } = useRecorder({
     midiTracks,
-    serializedAudio,
+    audioSource,
     rendererConfig,
     backgroundImageBitmap,
   });
-  const { recordingState, toggleRecording } = useRecorder(recordResources);
 
   const { handleDrop, handleDragOver, handleDragLeave, DragDropOverlay } =
     useDnd({

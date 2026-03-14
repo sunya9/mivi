@@ -140,12 +140,15 @@ const rendererConfig: RendererConfig = getDefaultRendererConfig();
 
 const resources: RecorderResources = {
   midiTracks: testMidiTracks,
-  serializedAudio: {
-    channels: [new Float32Array(1), new Float32Array(1)],
-    duration: 1,
-    length: 1,
-    sampleRate: 44100,
-    numberOfChannels: 2,
+  audioSource: {
+    name: "test.mp3",
+    serialized: {
+      channels: [new Float32Array(1), new Float32Array(1)],
+      duration: 1,
+      length: 1,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+    },
   },
   rendererConfig,
 };

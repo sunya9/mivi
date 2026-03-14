@@ -67,7 +67,10 @@ test("progress completes when audio visualizer is enabled", async () => {
   const config = getDefaultRendererConfig();
   const resources = {
     midiTracks: createTestMidiTracks(),
-    serializedAudio: createTestSerializedAudio(),
+    audioSource: {
+      name: "test.mp3",
+      serialized: createTestSerializedAudio(),
+    },
     rendererConfig: {
       ...config,
       resolution: { width: 320, height: 240, label: "320×240 (4:3)" },

@@ -70,7 +70,10 @@ export function createTestRecorderResources(
 ): RecorderResources {
   return {
     midiTracks: createTestMidiTracks(),
-    serializedAudio: createTestSerializedAudio(),
+    audioSource: {
+      name: "test.mp3",
+      serialized: createTestSerializedAudio(),
+    },
     rendererConfig: createTestRendererConfig(format),
   };
 }
