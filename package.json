@@ -98,8 +98,8 @@
       "sharp"
     ],
     "overrides": {
-      "undici@<6.23.0": ">=6.23.0",
-      "serialize-javascript@<=7.0.2": ">=7.0.3"
+      "serialize-javascript@<=7.0.2": ">=7.0.3",
+      "undici@<6.24.0": ">=6.24.0"
     }
   }
 }
