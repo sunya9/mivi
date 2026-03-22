@@ -65,7 +65,7 @@
     "lefthook": "^2.1.4",
     "oxfmt": "^0.41.0",
     "oxlint": "^1.56.0",
-    "oxlint-tsgolint": "^0.16.0",
+    "oxlint-tsgolint": "^0.17.1",
     "playwright": "^1.58.2",
     "rollup-plugin-visualizer": "^7.0.1",
     "shadcn": "^4.1.0",
