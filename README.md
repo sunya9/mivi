@@ -26,7 +26,7 @@ Transform your MIDI files into stunning visual experiences.
 
 ### Prerequisites
 
-- Node.js (v22 or later)
+- Node.js (v24 or later)
 - pnpm (v10 or later)
 
 ### Setup
