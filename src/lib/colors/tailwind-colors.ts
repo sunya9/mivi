@@ -48,7 +48,7 @@ function getTailwindColors() {
 
 const getColorsPerPalette = getTailwindColors();
 
-const tailwindColors = getColorsPerPalette.map((map) => Object.values(map)).flat();
+const tailwindColors = getColorsPerPalette.flatMap((map) => Object.values(map));
 
 export function getRandomTailwindColor() {
   const oklchColor = tailwindColors[Math.floor(Math.random() * tailwindColors.length)];

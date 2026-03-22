@@ -24,7 +24,7 @@ async function loadMidi(midiFile: File, arrayBuffer: ArrayBuffer, hash?: string)
       config,
     };
   });
-  const notes = tracks.map((track) => track.notes).flat();
+  const notes = tracks.flatMap((track) => track.notes);
   const min = notes.reduce((a, b) => Math.min(a, b.midi), Infinity);
   const max = notes.reduce((a, b) => Math.max(a, b.midi), -Infinity);
   const newMidiTracks: MidiTracks = {
