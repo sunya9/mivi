@@ -16,23 +16,24 @@ export function useDnd({ onDropMidi, onDropAudio, onDropImage }: Props) {
       e.preventDefault();
       setIsDragging(false);
       const files = Array.from(e.dataTransfer.files);
-      for (const file of files) {
-        const fileType = file.type;
-
-        try {
-          if (fileType === "audio/midi" || fileType === "audio/x-midi") {
-            await onDropMidi(file);
-          } else if (fileType.startsWith("audio/")) {
-            await onDropAudio(file);
-          } else if (fileType.startsWith("image/")) {
-            await onDropImage(file);
-          } else {
-            errorLogWithToast(`Unsupported file type: ${fileType}`);
+      await Promise.all(
+        files.map(async (file) => {
+          const fileType = file.type;
+          try {
+            if (fileType === "audio/midi" || fileType === "audio/x-midi") {
+              await onDropMidi(file);
+            } else if (fileType.startsWith("audio/")) {
+              await onDropAudio(file);
+            } else if (fileType.startsWith("image/")) {
+              await onDropImage(file);
+            } else {
+              errorLogWithToast(`Unsupported file type: ${fileType}`);
+            }
+          } catch (error) {
+            errorLogWithToast("Error processing dropped file:", error);
           }
-        } catch (error) {
-          errorLogWithToast("Error processing dropped file:", error);
-        }
-      }
+        }),
+      );
     },
     [onDropMidi, onDropAudio, onDropImage],
   );

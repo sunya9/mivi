@@ -15,7 +15,7 @@ test("should throw error when used outside provider", () => {
   );
 });
 
-test("should return context value when used within provider", () => {
+function createMockContextValue() {
   const mockContextValue: GridResizableContextValue = {
     sizes: { panel1: 1, panel2: 1 },
     panelConfigs: new Map(),
@@ -27,6 +27,10 @@ test("should return context value when used within provider", () => {
     resizeToFit: () => {},
     getContainerRef: () => null,
   };
+  return mockContextValue;
+}
+test("should return context value when used within provider", () => {
+  const mockContextValue = createMockContextValue();
 
   const wrapper = ({ children }: { children: ReactNode }) => (
     <GridResizableContext.Provider value={mockContextValue}>
