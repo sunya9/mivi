@@ -1,9 +1,9 @@
 pre-commit:
   commands:
-    oxlint:
+    eslint:
       glob: "*.{tsx,ts,json}"
       run: |
-        pnpm oxlint --fix {staged_files}
+        pnpm dlx eslint --fix {staged_files}
       stage_fixed: true
       skip:
         - merge

@@ -1,0 +1,80 @@
+import js from "@eslint/js";
+import { defineConfig } from "eslint/config";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import tseslint from "typescript-eslint";
+import testingLibrary from "eslint-plugin-testing-library";
+import vitest from "@vitest/eslint-plugin";
+
+export default defineConfig(
+  { ignores: ["dist", "dev-dist", "coverage", "eslint.config.js"] },
+  js.configs.recommended,
+  tseslint.configs.recommendedTypeChecked,
+  reactRefresh.configs.vite,
+  reactHooks.configs.flat.recommended,
+  {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+        projectService: true,
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        {
+          // allow onClick={() => Promise<void>}
+          checksVoidReturn: {
+            attributes: false,
+          },
+        },
+      ],
+      // for `expect.anything`
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      // for `expect(location.reload)`
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/only-throw-error": [
+        "error",
+        {
+          // for suspense
+          allow: ["Promise"],
+        },
+      ],
+      "@typescript-eslint/prefer-promise-reject-errors": [
+        "error",
+        {
+          // allow reject(<any>)
+          allowThrowingAny: true,
+        },
+      ],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { ignoreRestSiblings: true },
+      ],
+    },
+  },
+  {
+    files: ["src/components/ui/**"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
+  {
+    files: ["tests/**"],
+    plugins: { vitest },
+    settings: {
+      vitest: {
+        typecheck: true,
+      },
+    },
+    rules: vitest.configs.recommended.rules,
+  },
+  {
+    ...testingLibrary.configs["flat/react"],
+    files: ["tests/**/*.{ts,tsx}"],
+    rules: {
+      "testing-library/render-result-naming-convention": "off",
+    },
+  },
+);
