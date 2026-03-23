@@ -19,7 +19,7 @@ fi
 pnpm typecheck 2>&1
 
 # Run lint on the specific file
-pnpm lint --fix "$FILE_PATH" 2>&1
+pnpm dlx eslint --fix "$FILE_PATH" 2>&1
 
 # Run format on the specific file
 pnpm format "$FILE_PATH" 2>&1
