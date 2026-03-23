@@ -5,6 +5,5 @@
   "ignoreIssues": {
     "src/components/ui/**": ["exports", "types"]
   },
-  "ignoreDependencies": ["shadcn"],
   "ignoreBinaries": ["only-allow"]
 }
