@@ -4,6 +4,5 @@
     "stylesheet": "./src/index.css",
     "functions": ["clsx", "cn"]
   },
-  "printWidth": 80,
-  "ignorePatterns": ["pnpm-lock.yaml", "settings.local.json"]
+  "printWidth": 80
 }
