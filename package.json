@@ -14,7 +14,6 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test": "vitest",
-    "test:vrt": "vitest --project vrt",
     "knip": "knip"
   },
   "dependencies": {
