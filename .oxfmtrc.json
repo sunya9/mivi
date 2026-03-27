@@ -5,6 +5,5 @@
     "functions": ["clsx", "cn"]
   },
   "printWidth": 80,
-  "sortPackageJson": false,
   "ignorePatterns": ["pnpm-lock.yaml", "settings.local.json"]
 }
