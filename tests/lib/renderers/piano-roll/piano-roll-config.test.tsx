@@ -25,16 +25,12 @@ function renderPane(overrideProps?: Partial<Props>) {
 // Render tests
 test("renders time window label", () => {
   renderPane();
-  expect(
-    screen.getByText(`Time Window: ${pianoRollConfig.timeWindow}s`),
-  ).toBeInTheDocument();
+  expect(screen.getByText(`Time Window: ${pianoRollConfig.timeWindow}s`)).toBeInTheDocument();
 });
 
 test("renders note height label", () => {
   renderPane();
-  expect(
-    screen.getByText(`Note Height: ${pianoRollConfig.noteHeight}px`),
-  ).toBeInTheDocument();
+  expect(screen.getByText(`Note Height: ${pianoRollConfig.noteHeight}px`)).toBeInTheDocument();
 });
 
 test("renders playhead position label", () => {
@@ -46,9 +42,7 @@ test("renders playhead position label", () => {
 
 test("displays detected note range when midiTracks provided", () => {
   renderPane();
-  expect(
-    screen.getByText(/Detected range: 60 - 72/, { exact: false }),
-  ).toBeInTheDocument();
+  expect(screen.getByText(/Detected range: 60 - 72/, { exact: false })).toBeInTheDocument();
 });
 
 test("does not display detected note range when no midiTracks", () => {
@@ -190,9 +184,7 @@ test("playhead border fields shown when showPlayhead is true", () => {
   });
   expect(screen.getByText("Playhead Border Color")).toBeInTheDocument();
   expect(
-    screen.getByText(
-      `Playhead Border Width: ${pianoRollConfig.playheadWidth}px`,
-    ),
+    screen.getByText(`Playhead Border Width: ${pianoRollConfig.playheadWidth}px`),
   ).toBeInTheDocument();
 });
 
@@ -200,9 +192,7 @@ test("ripple fields shown when showRippleEffect is true", () => {
   renderPane({
     pianoRollConfig: { ...pianoRollConfig, showRippleEffect: true },
   });
-  expect(
-    screen.getByRole("switch", { name: "Use Custom Ripple Color" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("switch", { name: "Use Custom Ripple Color" })).toBeInTheDocument();
   expect(
     screen.getByText(`Ripple Duration: ${pianoRollConfig.rippleDuration}sec`),
   ).toBeInTheDocument();
@@ -214,9 +204,7 @@ test("flash mode select is rendered with current value", () => {
   });
   const trigger = screen.getByRole("combobox", { name: "Flash Mode" });
   expect(trigger).toBeInTheDocument();
-  expect(trigger).toHaveTextContent(
-    pianoRollConfig.noteFlashMode === "on" ? "On" : "Duration▼",
-  );
+  expect(trigger).toHaveTextContent(pianoRollConfig.noteFlashMode === "on" ? "On" : "Duration▼");
 });
 
 test("flash duration slider shown when flash mode is duration", () => {

@@ -16,9 +16,7 @@ function getSourceNodes(appContextValue: AppContextValue) {
   // The audioContext in appContextValue is the one used by the hook
   // Cast needed because the mock's AudioContext type differs from native AudioContext
   return registrar.getAudioNodes(
-    appContextValue.audioContext as unknown as Parameters<
-      typeof registrar.getAudioNodes
-    >[0],
+    appContextValue.audioContext as unknown as Parameters<typeof registrar.getAudioNodes>[0],
     "AudioBufferSourceNode",
   );
 }

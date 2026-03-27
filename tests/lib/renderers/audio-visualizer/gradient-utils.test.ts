@@ -17,13 +17,10 @@ test.each<{
   { direction: "to-top-left", expected: [100, 200, 0, 0] },
   { direction: "to-top", expected: [50, 200, 50, 0] },
   { direction: "to-top-right", expected: [0, 200, 100, 0] },
-])(
-  "getGradientCoords should return correct coords for $direction",
-  ({ direction, expected }) => {
-    const result = getGradientCoords(direction, width, height);
-    expect(result).toEqual(expected);
-  },
-);
+])("getGradientCoords should return correct coords for $direction", ({ direction, expected }) => {
+  const result = getGradientCoords(direction, width, height);
+  expect(result).toEqual(expected);
+});
 
 test("getGradientCoords with square canvas", () => {
   const size = 100;

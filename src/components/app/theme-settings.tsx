@@ -1,11 +1,5 @@
 import { useTheme } from "next-themes";
-import {
-  Item,
-  ItemContent,
-  ItemTitle,
-  ItemDescription,
-  ItemActions,
-} from "@/components/ui/item";
+import { Item, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item";
 import {
   Select,
   SelectTrigger,
@@ -29,9 +23,7 @@ export function ThemeSettings() {
       <Item>
         <ItemContent>
           <ItemTitle>Theme</ItemTitle>
-          <ItemDescription>
-            Select the color theme for the application.
-          </ItemDescription>
+          <ItemDescription>Select the color theme for the application.</ItemDescription>
         </ItemContent>
         <ItemActions>
           <Select

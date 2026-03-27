@@ -8,10 +8,7 @@ export interface AppContextValue {
 }
 
 export function createAppContext(audioContext: AudioContext): AppContextValue {
-  const audioPlaybackStore = new AudioPlaybackStore(
-    audioContext,
-    new LocalStorageRepository(),
-  );
+  const audioPlaybackStore = new AudioPlaybackStore(audioContext, new LocalStorageRepository());
 
   return {
     audioContext,

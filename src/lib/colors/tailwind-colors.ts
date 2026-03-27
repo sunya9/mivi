@@ -22,18 +22,7 @@ const colorKeys = [
 ] as const;
 
 type ColorKey = (typeof colorKeys)[number];
-type Brightness =
-  | 50
-  | 100
-  | 200
-  | 300
-  | 400
-  | 500
-  | 600
-  | 700
-  | 800
-  | 900
-  | 950;
+type Brightness = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 | 950;
 
 function getTailwindColors() {
   const getPropertyValue = (colorKey: ColorKey, brightness: Brightness) => {
@@ -59,23 +48,18 @@ function getTailwindColors() {
 
 const getColorsPerPalette = getTailwindColors();
 
-const tailwindColors = getColorsPerPalette
-  .map((map) => Object.values(map))
-  .flat();
+const tailwindColors = getColorsPerPalette.map((map) => Object.values(map)).flat();
 
 export function getRandomTailwindColor() {
-  const oklchColor =
-    tailwindColors[Math.floor(Math.random() * tailwindColors.length)];
+  const oklchColor = tailwindColors[Math.floor(Math.random() * tailwindColors.length)];
   return oklchColor;
 }
 
 export function getRandomTailwindColorPalette() {
-  const palette =
-    getColorsPerPalette[Math.floor(Math.random() * getColorsPerPalette.length)];
+  const palette = getColorsPerPalette[Math.floor(Math.random() * getColorsPerPalette.length)];
   let counter = 0;
   return () => {
-    const oklchColor =
-      Object.values(palette)[(counter + 4) % Object.keys(palette).length];
+    const oklchColor = Object.values(palette)[(counter + 4) % Object.keys(palette).length];
     counter += 2;
     return oklchColor;
   };

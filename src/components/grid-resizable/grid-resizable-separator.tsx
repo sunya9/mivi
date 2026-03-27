@@ -80,15 +80,7 @@ export function GridResizableSeparator({
 
     const targetPanel = fitTargetPanel ?? beforeId;
     resizeToFit(id, orientation, controls, targetPanel, getOptimalSizeForFit);
-  }, [
-    getOptimalSizeForFit,
-    fitTargetPanel,
-    beforeId,
-    id,
-    orientation,
-    controls,
-    resizeToFit,
-  ]);
+  }, [getOptimalSizeForFit, fitTargetPanel, beforeId, id, orientation, controls, resizeToFit]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -131,8 +123,7 @@ export function GridResizableSeparator({
 
   // aria-orientation is opposite of separator orientation
   // horizontal separator controls vertical split (and vice versa)
-  const ariaOrientation =
-    orientation === "horizontal" ? "vertical" : "horizontal";
+  const ariaOrientation = orientation === "horizontal" ? "vertical" : "horizontal";
 
   return (
     <div
@@ -152,10 +143,8 @@ export function GridResizableSeparator({
         "group relative z-10 touch-none",
         "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         {
-          "-mx-[7.5px] h-full w-4 cursor-col-resize":
-            orientation === "horizontal",
-          "-my-[7.5px] h-4 w-full cursor-row-resize":
-            orientation === "vertical",
+          "-mx-[7.5px] h-full w-4 cursor-col-resize": orientation === "horizontal",
+          "-my-[7.5px] h-4 w-full cursor-row-resize": orientation === "vertical",
         },
         className,
       )}

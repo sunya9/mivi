@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  ReadyState,
-  RecordingState,
-} from "@/lib/media-compositor/recording-status";
+import { ReadyState, RecordingState } from "@/lib/media-compositor/recording-status";
 
 describe("ReadyState", () => {
   it("should have type 'ready'", () => {

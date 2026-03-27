@@ -67,9 +67,7 @@ export async function saveFile(key: string, newFile: File | undefined) {
   }
   return new Promise<void>((resolve, reject) => {
     request.onerror = () => {
-      const message = !newFile
-        ? "Failed to delete file"
-        : "Failed to save file";
+      const message = !newFile ? "Failed to delete file" : "Failed to save file";
       const error = new Error(message);
       reject(error);
     };

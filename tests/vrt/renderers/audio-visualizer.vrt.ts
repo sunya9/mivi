@@ -3,10 +3,7 @@ import { page } from "vitest/browser";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type {
-  AudioVisualizerConfig,
-  Resolution,
-} from "@/lib/renderers/renderer";
+import type { AudioVisualizerConfig, Resolution } from "@/lib/renderers/renderer";
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -26,10 +23,7 @@ function createTestCanvas(): HTMLCanvasElement {
   return canvas;
 }
 
-function fillBackground(
-  ctx: CanvasRenderingContext2D,
-  color: string = "#1a1a1a",
-): void {
+function fillBackground(ctx: CanvasRenderingContext2D, color: string = "#1a1a1a"): void {
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 }
@@ -57,16 +51,11 @@ function createTestFrequencyData(fftSize: number = 2048): FrequencyData {
     const peak3 = Math.exp(-Math.pow((normalizedIndex - 0.5) * 6, 2)) * 60;
 
     // Combine and clamp to 0-255
-    const value = Math.min(
-      255,
-      Math.max(0, bassEmphasis + peak1 + peak2 + peak3),
-    );
+    const value = Math.min(255, Math.max(0, bassEmphasis + peak1 + peak2 + peak3));
     frequencyData[i] = Math.round(value);
 
     // Time domain: simple sine-like waveform centered at 128
-    timeDomainData[i] = Math.round(
-      128 + 50 * Math.sin((i / frequencyBinCount) * Math.PI * 8),
-    );
+    timeDomainData[i] = Math.round(128 + 50 * Math.sin((i / frequencyBinCount) * Math.PI * 8));
   }
 
   return {
@@ -156,9 +145,7 @@ test("bars style - center position single color", async () => {
   overlay.render(frequencyData);
 
   const element = page.getByTestId("vrt-canvas");
-  await expect(element).toMatchScreenshot(
-    "audio-visualizer-bars-center-single-color",
-  );
+  await expect(element).toMatchScreenshot("audio-visualizer-bars-center-single-color");
 });
 
 // ============================================
@@ -305,9 +292,7 @@ test("circular style - high bar count", async () => {
   overlay.render(frequencyData);
 
   const element = page.getByTestId("vrt-canvas");
-  await expect(element).toMatchScreenshot(
-    "audio-visualizer-circular-high-bars",
-  );
+  await expect(element).toMatchScreenshot("audio-visualizer-circular-high-bars");
 });
 
 test("circular style - low bar count", async () => {

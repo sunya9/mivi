@@ -11,10 +11,7 @@ interface Props {
   onOpenSettings?: () => void;
 }
 
-export const FooterPanel = memo(function FooterPanel({
-  onOpenSettings,
-  ...props
-}: Props) {
+export const FooterPanel = memo(function FooterPanel({ onOpenSettings, ...props }: Props) {
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
@@ -57,12 +54,7 @@ export const FooterPanel = memo(function FooterPanel({
             />
           )}
 
-          <Button
-            variant="ghost"
-            onClick={onOpenSettings}
-            size="sm"
-            className="md:ml-auto"
-          >
+          <Button variant="ghost" onClick={onOpenSettings} size="sm" className="md:ml-auto">
             <Settings />
             Settings
           </Button>

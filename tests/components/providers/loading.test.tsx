@@ -17,9 +17,7 @@ test("renders loading spinner and message", async () => {
 
   const resetButton = screen.getByRole("button");
   expect(resetButton).not.toHaveClass("invisible");
-  expect(
-    screen.getByText(/If nothing appears after a few seconds/),
-  ).toBeVisible();
+  expect(screen.getByText(/If nothing appears after a few seconds/)).toBeVisible();
   vi.useRealTimers();
 
   await userEvent.click(resetButton);

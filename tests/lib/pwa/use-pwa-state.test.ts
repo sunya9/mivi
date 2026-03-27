@@ -3,9 +3,7 @@ import { renderHook, waitFor, fireEvent } from "@testing-library/react";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 
 function createBeforeInstallPromptEvent(
-  overrides: Partial<
-    Pick<BeforeInstallPromptEvent, "prompt" | "userChoice">
-  > = {},
+  overrides: Partial<Pick<BeforeInstallPromptEvent, "prompt" | "userChoice">> = {},
 ): BeforeInstallPromptEvent {
   return Object.assign(new Event("beforeinstallprompt"), {
     prompt: vi.fn(),
@@ -28,14 +26,8 @@ test("usePwaState registers event listeners on mount", () => {
   const addEventListenerSpy = vi.spyOn(window, "addEventListener");
   renderHook(() => usePwaState());
   expect(addEventListenerSpy).toHaveBeenCalledTimes(2);
-  expect(addEventListenerSpy).toHaveBeenCalledWith(
-    "beforeinstallprompt",
-    expect.any(Function),
-  );
-  expect(addEventListenerSpy).toHaveBeenCalledWith(
-    "appinstalled",
-    expect.any(Function),
-  );
+  expect(addEventListenerSpy).toHaveBeenCalledWith("beforeinstallprompt", expect.any(Function));
+  expect(addEventListenerSpy).toHaveBeenCalledWith("appinstalled", expect.any(Function));
 });
 
 test("usePwaState removes event listeners on unmount", () => {
@@ -45,14 +37,8 @@ test("usePwaState removes event listeners on unmount", () => {
   unmount();
 
   expect(removeEventListenerSpy).toHaveBeenCalledTimes(2);
-  expect(removeEventListenerSpy).toHaveBeenCalledWith(
-    "beforeinstallprompt",
-    expect.any(Function),
-  );
-  expect(removeEventListenerSpy).toHaveBeenCalledWith(
-    "appinstalled",
-    expect.any(Function),
-  );
+  expect(removeEventListenerSpy).toHaveBeenCalledWith("beforeinstallprompt", expect.any(Function));
+  expect(removeEventListenerSpy).toHaveBeenCalledWith("appinstalled", expect.any(Function));
 });
 
 test("usePwaState sets canInstall to true when beforeinstallprompt fires", () => {

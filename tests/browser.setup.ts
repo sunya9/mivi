@@ -17,10 +17,7 @@ beforeEach(async () => {
             const req = indexedDB.deleteDatabase(name);
             req.onsuccess = () => resolve();
             req.onerror = () =>
-              reject(
-                req.error ||
-                  new Error("Failed to delete database by unknown reason"),
-              );
+              reject(req.error || new Error("Failed to delete database by unknown reason"));
             req.onblocked = () => resolve();
           }),
       ),

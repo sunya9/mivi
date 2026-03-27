@@ -9,10 +9,7 @@ import { RendererController } from "@/components/app/renderer-controller";
 import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
 
 const mockRender = vi.spyOn(RendererController.prototype, "render");
-const mockSetRendererConfig = vi.spyOn(
-  RendererController.prototype,
-  "setRendererConfig",
-);
+const mockSetRendererConfig = vi.spyOn(RendererController.prototype, "setRendererConfig");
 const mockSetBackgroundImageBitmap = vi.spyOn(
   RendererController.prototype,
   "setBackgroundImageBitmap",
@@ -66,9 +63,9 @@ test("handles volume control", async () => {
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Volume slider is always visible (no longer in HoverCard)
-  const volumeSlider = within(
-    screen.getByRole("group", { name: "Volume" }),
-  ).getByRole("slider", { hidden: true });
+  const volumeSlider = within(screen.getByRole("group", { name: "Volume" })).getByRole("slider", {
+    hidden: true,
+  });
   volumeSlider.focus();
   await userEvent.keyboard("{arrowleft}");
 
@@ -121,9 +118,9 @@ test("toggle play state when space key is pressed while volume slider is focused
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   // Focus the volume slider
-  const volumeSlider = within(
-    screen.getByRole("group", { name: "Volume" }),
-  ).getByRole("slider", { hidden: true });
+  const volumeSlider = within(screen.getByRole("group", { name: "Volume" })).getByRole("slider", {
+    hidden: true,
+  });
   volumeSlider.focus();
 
   // Clear previous calls
@@ -188,10 +185,7 @@ test("should work without View Transitions API support", async () => {
 // --- Canvas invalidation tests ---
 test("should call render when midiTracks changes", () => {
   const { rerender } = customRender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      midiTracks={testMidiTracks}
-    />,
+    <MidiVisualizer rendererConfig={rendererConfig} midiTracks={testMidiTracks} />,
   );
 
   const initialCallCount = mockRender.mock.calls.length;
@@ -205,20 +199,13 @@ test("should call render when midiTracks changes", () => {
     })),
   };
 
-  rerender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      midiTracks={updatedMidiTracks}
-    />,
-  );
+  rerender(<MidiVisualizer rendererConfig={rendererConfig} midiTracks={updatedMidiTracks} />);
 
   expect(mockRender.mock.calls.length).toBeGreaterThan(initialCallCount);
 });
 
 test("should call render when rendererConfig changes", () => {
-  const { rerender } = customRender(
-    <MidiVisualizer rendererConfig={rendererConfig} />,
-  );
+  const { rerender } = customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   const initialCallCount = mockRender.mock.calls.length;
 
@@ -235,9 +222,7 @@ test("should call render when rendererConfig changes", () => {
 });
 
 test("should call render when backgroundImageBitmap changes", async () => {
-  const { rerender } = customRender(
-    <MidiVisualizer rendererConfig={rendererConfig} />,
-  );
+  const { rerender } = customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   const initialCallCount = mockRender.mock.calls.length;
 
@@ -246,10 +231,7 @@ test("should call render when backgroundImageBitmap changes", async () => {
   const mockImageBitmap = await createImageBitmap(imgEl);
 
   rerender(
-    <MidiVisualizer
-      rendererConfig={rendererConfig}
-      backgroundImageBitmap={mockImageBitmap}
-    />,
+    <MidiVisualizer rendererConfig={rendererConfig} backgroundImageBitmap={mockImageBitmap} />,
   );
 
   expect(mockRender.mock.calls.length).toBeGreaterThan(initialCallCount);

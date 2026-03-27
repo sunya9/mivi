@@ -3,6 +3,5 @@
   "sortTailwindcss": {
     "stylesheet": "./src/index.css",
     "functions": ["clsx", "cn"]
-  },
-  "printWidth": 80
+  }
 }

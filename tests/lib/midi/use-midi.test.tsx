@@ -13,10 +13,7 @@ function TestComponent() {
   const { setMidiFile, midiTracks, ConfirmDialog } = useMidi();
   return (
     <>
-      <button
-        onClick={() => setMidiFile(midiFile)}
-        data-testid="load-midi"
-      ></button>
+      <button onClick={() => setMidiFile(midiFile)} data-testid="load-midi"></button>
       <span data-testid="midi-loaded">{midiTracks ? "loaded" : "empty"}</span>
       <span data-testid="instance-key">{midiTracks?.instanceKey ?? ""}</span>
       {ConfirmDialog}
@@ -120,9 +117,7 @@ test("shows confirm dialog when loading the same file", async () => {
   await userEvent.click(loadButton);
 
   expect(await screen.findByText("Same file detected")).toBeInTheDocument();
-  expect(
-    screen.getByText(/The same MIDI file is already loaded/),
-  ).toBeInTheDocument();
+  expect(screen.getByText(/The same MIDI file is already loaded/)).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Overwrite" })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Keep" })).toBeInTheDocument();
 });

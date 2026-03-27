@@ -48,9 +48,7 @@ interface Props {
   onChangeMidiFile: (file: File | undefined) => void;
 }
 
-function useRandomizeColorsHue(
-  setMidiTracks: Dispatch<SetStateAction<MidiTracks | undefined>>,
-) {
+function useRandomizeColorsHue(setMidiTracks: Dispatch<SetStateAction<MidiTracks | undefined>>) {
   return useCallback(
     (saturation: number, lightness: number) => {
       setMidiTracks((midiTracks) => {
@@ -79,9 +77,7 @@ export const TrackListPane = React.memo(function TrackListPane({
   midiFilename,
   onChangeMidiFile,
 }: Props) {
-  const [offsetInputValue, setOffsetInputValue] = useState(
-    () => `${midiTracks?.midiOffset || 0}`,
-  );
+  const [offsetInputValue, setOffsetInputValue] = useState(() => `${midiTracks?.midiOffset || 0}`);
   const [hslDialogOpen, setHslDialogOpen] = useState(false);
 
   const randomizeColorsHue = useRandomizeColorsHue(setMidiTracks);
@@ -236,9 +232,7 @@ export const TrackListPane = React.memo(function TrackListPane({
                 >
                   Randomize (gradient)
                 </MenubarItem>
-                <MenubarItem onClick={() => setHslDialogOpen(true)}>
-                  Randomize (Hue)...
-                </MenubarItem>
+                <MenubarItem onClick={() => setHslDialogOpen(true)}>Randomize (Hue)...</MenubarItem>
               </MenubarContent>
             </MenubarMenu>
             <MenubarMenu>
@@ -283,10 +277,7 @@ export const TrackListPane = React.memo(function TrackListPane({
       {midiTracks && (
         <CardContent>
           <div className="divide-y">
-            <TrackList
-              midiTracks={midiTracks}
-              onUpdateMidiTracks={setMidiTracks}
-            />
+            <TrackList midiTracks={midiTracks} onUpdateMidiTracks={setMidiTracks} />
           </div>
         </CardContent>
       )}
@@ -350,11 +341,7 @@ const TrackList = React.memo(function TrackList({
   );
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext
         items={midiTracks.tracks.map((t) => t.id)}
         strategy={verticalListSortingStrategy}

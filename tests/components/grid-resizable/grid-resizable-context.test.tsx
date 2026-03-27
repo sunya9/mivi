@@ -10,9 +10,7 @@ import {
 test("should throw error when used outside provider", () => {
   expect(() => {
     renderHook(() => useGridResizableContext());
-  }).toThrow(
-    "useGridResizableContext must be used within GridResizablePanelGroup",
-  );
+  }).toThrow("useGridResizableContext must be used within GridResizablePanelGroup");
 });
 
 test("should return context value when used within provider", () => {

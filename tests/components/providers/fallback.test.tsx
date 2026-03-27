@@ -7,12 +7,7 @@ import * as utils from "@/lib/utils";
 vi.spyOn(utils, "resetConfig");
 
 function renderFallback() {
-  render(
-    <Fallback
-      error={new Error("Test error message")}
-      resetErrorBoundary={() => {}}
-    />,
-  );
+  render(<Fallback error={new Error("Test error message")} resetErrorBoundary={() => {}} />);
 }
 
 test("renders error message", () => {
@@ -30,12 +25,7 @@ test("calls resetConfig when reset button is clicked", async () => {
 
 test("calls resetErrorBoundary when Reload app button is clicked", async () => {
   const resetErrorBoundary = vi.fn();
-  render(
-    <Fallback
-      error={new Error("Test error")}
-      resetErrorBoundary={resetErrorBoundary}
-    />,
-  );
+  render(<Fallback error={new Error("Test error")} resetErrorBoundary={resetErrorBoundary} />);
   await userEvent.click(screen.getByText("Reload app"));
   expect(resetErrorBoundary).toHaveBeenCalledTimes(1);
 });

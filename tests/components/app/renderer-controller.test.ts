@@ -23,8 +23,7 @@ vi.mock("@/lib/renderers/background-renderer", () => {
   return {
     BackgroundRenderer: vi.fn(function (this: unknown) {
       (this as Record<string, unknown>).render = mockBackgroundRendererRender;
-      (this as Record<string, unknown>).setConfig =
-        mockBackgroundRendererSetConfig;
+      (this as Record<string, unknown>).setConfig = mockBackgroundRendererSetConfig;
       (this as Record<string, unknown>).setBackgroundImageBitmap =
         mockBackgroundRendererSetBackgroundImageBitmap;
     }),
@@ -37,10 +36,8 @@ const mockAudioVisualizerOverlaySetConfig = vi.fn();
 vi.mock("@/lib/renderers/audio-visualizer-overlay", () => {
   return {
     AudioVisualizerOverlay: vi.fn(function (this: unknown) {
-      (this as Record<string, unknown>).render =
-        mockAudioVisualizerOverlayRender;
-      (this as Record<string, unknown>).setConfig =
-        mockAudioVisualizerOverlaySetConfig;
+      (this as Record<string, unknown>).render = mockAudioVisualizerOverlayRender;
+      (this as Record<string, unknown>).setConfig = mockAudioVisualizerOverlaySetConfig;
     }),
   };
 });
@@ -311,9 +308,7 @@ test("should update audioVisualizerOverlay config instead of recreating", () => 
   controller.setRendererConfig(config2);
 
   expect(AudioVisualizerOverlay).not.toHaveBeenCalled();
-  expect(mockAudioVisualizerOverlaySetConfig).toHaveBeenCalledWith(
-    config2.audioVisualizerConfig,
-  );
+  expect(mockAudioVisualizerOverlaySetConfig).toHaveBeenCalledWith(config2.audioVisualizerConfig);
 });
 
 test("should call backgroundRenderer.setBackgroundImageBitmap when bitmap is set", () => {
@@ -324,7 +319,5 @@ test("should call backgroundRenderer.setBackgroundImageBitmap when bitmap is set
   controller.setRendererConfig(config);
   controller.setBackgroundImageBitmap(mockBitmap);
 
-  expect(mockBackgroundRendererSetBackgroundImageBitmap).toHaveBeenCalledWith(
-    mockBitmap,
-  );
+  expect(mockBackgroundRendererSetBackgroundImageBitmap).toHaveBeenCalledWith(mockBitmap);
 });

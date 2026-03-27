@@ -73,8 +73,5 @@ const GOLDEN_ANGLE = 360 / (PHI * PHI); // ≈ 137.5°
  */
 export function generateGoldenAngleHues(count: number): number[] {
   const startHue = Math.random() * 360;
-  return Array.from(
-    { length: count },
-    (_, i) => (startHue + i * GOLDEN_ANGLE) % 360,
-  );
+  return Array.from({ length: count }, (_, i) => (startHue + i * GOLDEN_ANGLE) % 360);
 }

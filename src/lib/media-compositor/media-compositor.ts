@@ -121,33 +121,18 @@ export class MediaCompositor {
   }
 
   private renderAudio() {
-    const samplesPerFrame =
-      (this.serializedAudio.sampleRate * frameSize) / 1000;
+    const samplesPerFrame = (this.serializedAudio.sampleRate * frameSize) / 1000;
     const numberOfFrames = this.totalAudioFrames;
     for (let i = 0; i < numberOfFrames; i++) {
       const startSample = i * samplesPerFrame;
-      const endSample = Math.min(
-        (i + 1) * samplesPerFrame,
-        this.serializedAudio.length,
-      );
-      const timestamp = Math.floor(
-        (startSample / this.serializedAudio.sampleRate) * 1_000_000,
-      );
+      const endSample = Math.min((i + 1) * samplesPerFrame, this.serializedAudio.length);
+      const timestamp = Math.floor((startSample / this.serializedAudio.sampleRate) * 1_000_000);
       const frameSamples = endSample - startSample;
-      const frameData = new Float32Array(
-        this.serializedAudio.numberOfChannels * frameSamples,
-      );
+      const frameData = new Float32Array(this.serializedAudio.numberOfChannels * frameSamples);
 
-      for (
-        let channel = 0;
-        channel < this.serializedAudio.numberOfChannels;
-        channel++
-      ) {
+      for (let channel = 0; channel < this.serializedAudio.numberOfChannels; channel++) {
         const sourceData = this.serializedAudio.channels[channel];
-        frameData.set(
-          sourceData.subarray(startSample, endSample),
-          channel * frameSamples,
-        );
+        frameData.set(sourceData.subarray(startSample, endSample), channel * frameSamples);
       }
 
       const audioData = new AudioData({
@@ -197,9 +182,7 @@ export class MediaCompositor {
       backgroundRenderer.render();
 
       // 2. Get frequency data for audio visualizer (from pre-computed data)
-      const frequencyData = precomputedFFT
-        ? getFrameAtTime(precomputedFFT, currentTime)
-        : null;
+      const frequencyData = precomputedFFT ? getFrameAtTime(precomputedFFT, currentTime) : null;
 
       // 3. Render audio visualizer in back layer (under MIDI)
       if (layer === "back") {
@@ -242,9 +225,7 @@ export class MediaCompositor {
       return null;
     }
 
-    console.log(
-      "[MediaCompositor] Pre-computing FFT data for audio visualizer...",
-    );
+    console.log("[MediaCompositor] Pre-computing FFT data for audio visualizer...");
     const data = precomputeFFTData(this.serializedAudio, this.fps, {
       fftSize: audioVisualizerConfig.fftSize,
       smoothingTimeConstant: audioVisualizerConfig.smoothingTimeConstant,
@@ -253,18 +234,13 @@ export class MediaCompositor {
         this.onProgressInternal();
       },
     });
-    console.log(
-      `[MediaCompositor] Pre-computed ${data.frames.length} FFT frames`,
-    );
+    console.log(`[MediaCompositor] Pre-computed ${data.frames.length} FFT frames`);
     return data;
   }
 
   private get progressTotal() {
     // 5 stages: FFT + audio render + audio encode + video render + video encode
-    return (
-      this.totalVideoFrames +
-      (this.totalAudioFrames + this.totalVideoFrames) * 2
-    );
+    return this.totalVideoFrames + (this.totalAudioFrames + this.totalVideoFrames) * 2;
   }
 
   private onProgressInternal = () => {

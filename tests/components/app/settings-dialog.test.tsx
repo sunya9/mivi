@@ -1,10 +1,7 @@
 import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  SettingsDialog,
-  SettingsContent,
-} from "@/components/app/settings-dialog";
+import { SettingsDialog, SettingsContent } from "@/components/app/settings-dialog";
 
 test("SettingsDialog renders when open is true", () => {
   render(<SettingsDialog tab="general" onTabChange={vi.fn()} />);
@@ -66,9 +63,7 @@ test("SettingsDialog switches to About content when About sidebar item is clicke
   const user = userEvent.setup();
   const onTabChange = vi.fn();
 
-  const { rerender } = render(
-    <SettingsDialog tab="general" onTabChange={onTabChange} />,
-  );
+  const { rerender } = render(<SettingsDialog tab="general" onTabChange={onTabChange} />);
 
   // Verify initial General content is shown
   expect(screen.getByText("Theme")).toBeVisible();
@@ -90,9 +85,7 @@ test("SettingsDialog switches to Shortcuts content when Shortcuts sidebar item i
   const user = userEvent.setup();
   const onTabChange = vi.fn();
 
-  const { rerender } = render(
-    <SettingsDialog tab="general" onTabChange={onTabChange} />,
-  );
+  const { rerender } = render(<SettingsDialog tab="general" onTabChange={onTabChange} />);
 
   // Verify initial General content is shown
   expect(screen.getByText("Theme")).toBeVisible();
@@ -115,9 +108,7 @@ test("SettingsDialog has accessible title and description", () => {
   render(<SettingsDialog tab="general" onTabChange={vi.fn()} />);
 
   expect(screen.getByText("Settings")).toBeVisible();
-  expect(
-    screen.getByText("Application settings and information"),
-  ).toBeVisible();
+  expect(screen.getByText("Application settings and information")).toBeVisible();
 });
 
 // SettingsContent tests (for mobile inline settings)
@@ -132,9 +123,7 @@ test("SettingsContent renders General and About tabs", () => {
 test("SettingsContent does not render Shortcuts tab", () => {
   render(<SettingsContent />);
 
-  expect(
-    screen.queryByRole("tab", { name: "Shortcuts" }),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("tab", { name: "Shortcuts" })).not.toBeInTheDocument();
 });
 
 test("SettingsContent shows General content by default", () => {

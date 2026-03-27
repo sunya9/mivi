@@ -43,9 +43,7 @@ function Content({
   onOpenChange: (open: boolean) => void;
   onConfirm: (saturation: number, lightness: number) => void;
 }) {
-  const [savedSL, setSavedSL] = useLocalStorage<HueRandomizeSL>(
-    "mivi:hue-randomize-sl",
-  );
+  const [savedSL, setSavedSL] = useLocalStorage<HueRandomizeSL>("mivi:hue-randomize-sl");
   const [saturation, setSaturation] = useState(savedSL?.s ?? 100);
   const [lightness, setLightness] = useState(savedSL?.l ?? 50);
 
@@ -69,9 +67,7 @@ function Content({
     <>
       <DialogHeader>
         <DialogTitle>Randomize Hue</DialogTitle>
-        <DialogDescription>
-          Set saturation and lightness for random hue colors
-        </DialogDescription>
+        <DialogDescription>Set saturation and lightness for random hue colors</DialogDescription>
       </DialogHeader>
 
       <div className="space-y-6 py-4">

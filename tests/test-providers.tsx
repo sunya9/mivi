@@ -18,11 +18,7 @@ export function TestProviders({
   pwaState?: PwaState;
 }) {
   return (
-    <ThemeProvider
-      themes={["light", "dark"]}
-      defaultTheme="light"
-      attribute="class"
-    >
+    <ThemeProvider themes={["light", "dark"]} defaultTheme="light" attribute="class">
       <CacheProvider>
         <AppContext value={appContextValue}>
           <PwaContext value={pwaState}>

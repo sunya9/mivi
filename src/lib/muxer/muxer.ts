@@ -15,14 +15,8 @@ import {
 import { VideoFormat } from "../renderers/renderer";
 
 export interface Muxer {
-  addVideoChunk(
-    chunk: EncodedVideoChunk,
-    metadata?: EncodedVideoChunkMetadata,
-  ): Promise<void>;
-  addAudioChunk(
-    chunk: EncodedAudioChunk,
-    metadata?: EncodedAudioChunkMetadata,
-  ): Promise<void>;
+  addVideoChunk(chunk: EncodedVideoChunk, metadata?: EncodedVideoChunkMetadata): Promise<void>;
+  addAudioChunk(chunk: EncodedAudioChunk, metadata?: EncodedAudioChunkMetadata): Promise<void>;
 
   start(): Promise<void>;
 

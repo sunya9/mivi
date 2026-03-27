@@ -3,14 +3,8 @@ import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 
 import { cn } from "@/lib/utils";
 
-type SliderProps = Omit<
-  SliderPrimitive.Root.Props,
-  "onValueChange" | "onValueCommitted"
-> & {
-  onValueChange?: (
-    value: number[],
-    eventDetails: SliderPrimitive.Root.ChangeEventDetails,
-  ) => void;
+type SliderProps = Omit<SliderPrimitive.Root.Props, "onValueChange" | "onValueCommitted"> & {
+  onValueChange?: (value: number[], eventDetails: SliderPrimitive.Root.ChangeEventDetails) => void;
   onValueCommitted?: (
     value: number[],
     eventDetails: SliderPrimitive.Root.CommitEventDetails,
@@ -21,9 +15,7 @@ function toArray(v: number | readonly number[]): number[] {
   return typeof v === "number" ? [v] : Array.from(v);
 }
 
-function isArray(
-  v: SliderPrimitive.Root.Props["value"],
-): v is readonly number[] {
+function isArray(v: SliderPrimitive.Root.Props["value"]): v is readonly number[] {
   return Array.isArray(v);
 }
 
@@ -44,12 +36,7 @@ function Slider({
   ...props
 }: SliderProps) {
   const _values = React.useMemo(
-    () =>
-      isArray(value)
-        ? value
-        : Array.isArray(defaultValue)
-          ? defaultValue
-          : [min, max],
+    () => (isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]),
     [value, defaultValue, min, max],
   );
 

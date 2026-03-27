@@ -32,9 +32,7 @@ export function ColorSettings({
             <Switch
               id={id}
               checked={config.lineSpectrumConfig.fill}
-              onCheckedChange={(checked) =>
-                setConfig({ lineSpectrumConfig: { fill: checked } })
-              }
+              onCheckedChange={(checked) => setConfig({ lineSpectrumConfig: { fill: checked } })}
             />
           )}
         />
@@ -57,9 +55,7 @@ export function ColorSettings({
               controller={({ id }) => (
                 <Select
                   value={config.gradientDirection}
-                  onValueChange={(value) =>
-                    setConfig({ gradientDirection: value ?? undefined })
-                  }
+                  onValueChange={(value) => setConfig({ gradientDirection: value ?? undefined })}
                   items={gradientDirectionOptions}
                 >
                   <SelectTrigger id={id}>
@@ -115,10 +111,7 @@ export function ColorSettings({
       {showFill && config.lineSpectrumConfig.fill && (
         <FormRow
           label={
-            <span>
-              Fill Opacity:{" "}
-              {Math.round(config.lineSpectrumConfig.fillOpacity * 100)}%
-            </span>
+            <span>Fill Opacity: {Math.round(config.lineSpectrumConfig.fillOpacity * 100)}%</span>
           }
           customControl
           controller={({ labelId, ref }) => (
@@ -130,9 +123,7 @@ export function ColorSettings({
               min={0}
               max={1}
               step={0.1}
-              onValueChange={([value]) =>
-                setConfig({ lineSpectrumConfig: { fillOpacity: value } })
-              }
+              onValueChange={([value]) => setConfig({ lineSpectrumConfig: { fillOpacity: value } })}
             />
           )}
         />

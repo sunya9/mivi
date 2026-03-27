@@ -88,11 +88,7 @@ test("oklchToSrgb converts Tailwind green-500 correctly", () => {
 });
 
 test("oklchToSrgb returns valid sRGB values (0-1 range)", () => {
-  const testColors = [
-    "oklch(0.5 0.1 0)",
-    "oklch(0.7 0.15 120)",
-    "oklch(0.3 0.05 240)",
-  ];
+  const testColors = ["oklch(0.5 0.1 0)", "oklch(0.7 0.15 120)", "oklch(0.3 0.05 240)"];
   for (const color of testColors) {
     const [r, g, b] = oklchToSrgb(color);
     expect(r).toBeGreaterThanOrEqual(0);

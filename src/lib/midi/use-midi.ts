@@ -1,10 +1,5 @@
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import {
-  getDefaultTrackConfig,
-  MidiTrack,
-  MidiTracks,
-  TrackConfig,
-} from "@/lib/midi/midi";
+import { getDefaultTrackConfig, MidiTrack, MidiTracks, TrackConfig } from "@/lib/midi/midi";
 import { hashArrayBuffer } from "@/lib/hash";
 import { Midi } from "@tonejs/midi";
 import { defaultsDeep } from "lodash-es";
@@ -14,11 +9,7 @@ import { toast } from "sonner";
 
 const defaultTrackConfig = getDefaultTrackConfig("");
 
-async function loadMidi(
-  midiFile: File,
-  arrayBuffer: ArrayBuffer,
-  hash?: string,
-) {
+async function loadMidi(midiFile: File, arrayBuffer: ArrayBuffer, hash?: string) {
   const [computedHash, midi] = await Promise.all([
     hash ? Promise.resolve(hash) : hashArrayBuffer(arrayBuffer),
     Promise.resolve(new Midi(arrayBuffer)),
@@ -26,10 +17,7 @@ async function loadMidi(
   let noteId = 0;
   const tracks = midi.tracks.map((track, index): MidiTrack => {
     const color = "#ffffff";
-    const config = getDefaultTrackConfig(
-      track.name || `Track ${index + 1}`,
-      color,
-    );
+    const config = getDefaultTrackConfig(track.name || `Track ${index + 1}`, color);
     return {
       id: crypto.randomUUID(),
       notes: track.notes.map((note) => ({ ...note.toJSON(), id: noteId++ })),
@@ -77,9 +65,9 @@ function overwriteMidiTracks(midiTracks: MidiTracks | undefined) {
 
 export function useMidi() {
   // don't use undefined because it's not valid json
-  const [rawMidiTracks, setMidiTracks] = useLocalStorage<
-    MidiTracks | undefined
-  >("mivi:midi-tracks");
+  const [rawMidiTracks, setMidiTracks] = useLocalStorage<MidiTracks | undefined>(
+    "mivi:midi-tracks",
+  );
   const midiTracks: MidiTracks | undefined = useMemo(
     () => overwriteMidiTracks(rawMidiTracks),
     [rawMidiTracks],

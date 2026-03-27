@@ -40,8 +40,7 @@ export function precomputeFFTData(
     maxDecibels = DEFAULT_MAX_DECIBELS,
   } = options;
 
-  const { sampleRate, numberOfChannels, duration, channels, length } =
-    serializedAudio;
+  const { sampleRate, numberOfChannels, duration, channels, length } = serializedAudio;
 
   console.log("[precomputeFFTData] Input:", {
     sampleRate,
@@ -81,17 +80,10 @@ export function precomputeFFTData(
     }
 
     // Compute FFT using pure JavaScript DFT
-    const frequencyData = computeFrequencyData(
-      samples,
-      fftSize,
-      minDecibels,
-      maxDecibels,
-    );
+    const frequencyData = computeFrequencyData(samples, fftSize, minDecibels, maxDecibels);
 
     // Create time domain data (simplified - just the samples normalized to 0-255)
-    const timeDomainData: Uint8Array<ArrayBuffer> = new Uint8Array(
-      frequencyBinCount,
-    );
+    const timeDomainData: Uint8Array<ArrayBuffer> = new Uint8Array(frequencyBinCount);
     for (let i = 0; i < frequencyBinCount && i < fftSize; i++) {
       // Convert -1..1 to 0..255
       timeDomainData[i] = Math.round((samples[i] + 1) * 127.5);
@@ -109,20 +101,14 @@ export function precomputeFFTData(
         startSample,
         endSample,
         samplesExtracted: Math.min(fftSize, endSample - startSample),
-        sampleRange: [
-          samples[0],
-          samples[Math.floor(fftSize / 2)],
-          samples[fftSize - 1],
-        ],
+        sampleRange: [samples[0], samples[Math.floor(fftSize / 2)], samples[fftSize - 1]],
         frequencyDataSample: Array.from(frequencyData.slice(0, 10)),
       });
     }
 
     // Log progress every 100 frames
     if (frameIndex % 100 === 0) {
-      console.log(
-        `[precomputeFFTData] Progress: ${frameIndex}/${totalFrames} frames`,
-      );
+      console.log(`[precomputeFFTData] Progress: ${frameIndex}/${totalFrames} frames`);
     }
 
     // Report progress to callback
@@ -156,9 +142,7 @@ function computeFrequencyData(
   maxDecibels: number,
 ): Uint8Array<ArrayBuffer> {
   const frequencyBinCount = fftSize / 2;
-  const frequencyData: Uint8Array<ArrayBuffer> = new Uint8Array(
-    frequencyBinCount,
-  );
+  const frequencyData: Uint8Array<ArrayBuffer> = new Uint8Array(frequencyBinCount);
 
   // Apply Hann window
   const real = new Float32Array(fftSize);
@@ -177,17 +161,13 @@ function computeFrequencyData(
 
   for (let k = 0; k < frequencyBinCount; k++) {
     // Compute magnitude
-    const magnitude =
-      Math.sqrt(real[k] * real[k] + imag[k] * imag[k]) / fftSize;
+    const magnitude = Math.sqrt(real[k] * real[k] + imag[k] * imag[k]) / fftSize;
 
     // Convert to decibels
     const db = magnitude > 0 ? 20 * Math.log10(magnitude) : minDecibels;
 
     // Normalize to 0-255 based on decibel range
-    const normalized = Math.max(
-      0,
-      Math.min(1, (db - minDecibels) / decibelRange),
-    );
+    const normalized = Math.max(0, Math.min(1, (db - minDecibels) / decibelRange));
     frequencyData[k] = Math.round(normalized * 255);
   }
 
@@ -253,10 +233,7 @@ function fft(real: Float32Array, imag: Float32Array): void {
 /**
  * Apply temporal smoothing between frames.
  */
-function applySmoothing(
-  frames: FrequencyData[],
-  smoothingTimeConstant: number,
-): void {
+function applySmoothing(frames: FrequencyData[], smoothingTimeConstant: number): void {
   for (let i = 1; i < frames.length; i++) {
     const prevFrame = frames[i - 1];
     const currentFrame = frames[i];
@@ -303,8 +280,7 @@ export function computeFFTAtTime(
     maxDecibels = DEFAULT_MAX_DECIBELS,
   } = options;
 
-  const { sampleRate, numberOfChannels, duration, channels, length } =
-    serializedAudio;
+  const { sampleRate, numberOfChannels, duration, channels, length } = serializedAudio;
 
   // Validate time
   if (time < 0 || time > duration) {
@@ -328,17 +304,10 @@ export function computeFFTAtTime(
   }
 
   // Compute FFT
-  const frequencyData = computeFrequencyData(
-    samples,
-    fftSize,
-    minDecibels,
-    maxDecibels,
-  );
+  const frequencyData = computeFrequencyData(samples, fftSize, minDecibels, maxDecibels);
 
   // Create time domain data
-  const timeDomainData: Uint8Array<ArrayBuffer> = new Uint8Array(
-    frequencyBinCount,
-  );
+  const timeDomainData: Uint8Array<ArrayBuffer> = new Uint8Array(frequencyBinCount);
   for (let i = 0; i < frequencyBinCount && i < fftSize; i++) {
     timeDomainData[i] = Math.round((samples[i] + 1) * 127.5);
   }

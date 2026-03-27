@@ -41,18 +41,14 @@ test("should not show position selector when style is none", () => {
   renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "none" },
   });
-  expect(
-    screen.queryByRole("combobox", { name: "Position" }),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("combobox", { name: "Position" })).not.toBeInTheDocument();
 });
 
 test("should show position selector when style is bars", () => {
   renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "bars" },
   });
-  expect(
-    screen.getByRole("combobox", { name: "Position" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("combobox", { name: "Position" })).toBeInTheDocument();
 });
 
 test("position options should be in order: Top, Center, Bottom", async () => {
@@ -114,9 +110,7 @@ test("should show use gradient switch when style is enabled", () => {
   renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "bars" },
   });
-  expect(
-    screen.getByRole("switch", { name: "Use Gradient" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("switch", { name: "Use Gradient" })).toBeInTheDocument();
 });
 
 test("should show gradient direction when use gradient is enabled", () => {
@@ -127,9 +121,7 @@ test("should show gradient direction when use gradient is enabled", () => {
       useGradient: true,
     },
   });
-  expect(
-    screen.getByRole("combobox", { name: "Gradient Direction" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("combobox", { name: "Gradient Direction" })).toBeInTheDocument();
 });
 
 test("should show single color picker when use gradient is disabled", () => {
@@ -164,9 +156,7 @@ test("should show stroke color picker when stroke is enabled for lineSpectrum", 
       },
     },
   });
-  expect(
-    screen.getByRole("textbox", { name: "Stroke Color" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("textbox", { name: "Stroke Color" })).toBeInTheDocument();
 });
 
 test("should not show stroke color picker when stroke is disabled", () => {
@@ -180,9 +170,7 @@ test("should not show stroke color picker when stroke is disabled", () => {
       },
     },
   });
-  expect(
-    screen.queryByRole("textbox", { name: "Stroke Color" }),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("textbox", { name: "Stroke Color" })).not.toBeInTheDocument();
 });
 
 // Circular specific tests
@@ -190,9 +178,7 @@ test("should not show position selector when style is circular", () => {
   renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "circular" },
   });
-  expect(
-    screen.queryByRole("combobox", { name: "Position" }),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("combobox", { name: "Position" })).not.toBeInTheDocument();
 });
 
 test("should show size label instead of height when style is circular", () => {

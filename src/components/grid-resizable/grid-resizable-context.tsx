@@ -5,11 +5,7 @@ import type { Orientation, PanelConfig, PanelSize } from "./types";
 export interface GridResizableContextValue {
   sizes: Record<string, PanelSize>;
   panelConfigs: Map<string, PanelConfig>;
-  startResize: (
-    separatorId: string,
-    orientation: Orientation,
-    controls: [string, string],
-  ) => void;
+  startResize: (separatorId: string, orientation: Orientation, controls: [string, string]) => void;
   updateResize: (currentPosition: number) => void;
   endResize: () => void;
   resizeByKeyboard: (
@@ -29,15 +25,12 @@ export interface GridResizableContextValue {
   getContainerRef: () => HTMLDivElement | null;
 }
 
-export const GridResizableContext =
-  createContext<GridResizableContextValue | null>(null);
+export const GridResizableContext = createContext<GridResizableContextValue | null>(null);
 
 export function useGridResizableContext(): GridResizableContextValue {
   const context = useContext(GridResizableContext);
   if (!context) {
-    throw new Error(
-      "useGridResizableContext must be used within GridResizablePanelGroup",
-    );
+    throw new Error("useGridResizableContext must be used within GridResizablePanelGroup");
   }
   return context;
 }

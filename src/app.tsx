@@ -18,10 +18,7 @@ import { useRecorder } from "@/lib/media-compositor/use-recorder";
 import { useRendererConfig } from "@/lib/renderers/use-renderer-config";
 import { useBackgroundImage } from "./lib/background-image/use-background-image";
 import { useDnd } from "@/hooks/use-dnd";
-import {
-  MobileBottomNav,
-  type MobileTabValue,
-} from "@/components/app/mobile-bottom-nav";
+import { MobileBottomNav, type MobileTabValue } from "@/components/app/mobile-bottom-nav";
 import { cn } from "@/lib/utils";
 import {
   SettingsDialog,
@@ -31,16 +28,12 @@ import {
 
 export function App() {
   const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();
-  const { rendererConfig, onUpdateRendererConfig, VisualizerStyle } =
-    useRendererConfig(midiTracks?.minNote, midiTracks?.maxNote);
-  const {
-    audioFile,
-    setAudioFile,
-    audioSource,
-    serializedAudio,
-    isDecoding,
-    cancelDecode,
-  } = useAudio();
+  const { rendererConfig, onUpdateRendererConfig, VisualizerStyle } = useRendererConfig(
+    midiTracks?.minNote,
+    midiTracks?.maxNote,
+  );
+  const { audioFile, setAudioFile, audioSource, serializedAudio, isDecoding, cancelDecode } =
+    useAudio();
   const { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile } =
     useBackgroundImage();
   const { recordingState, toggleRecording } = useRecorder({
@@ -50,19 +43,16 @@ export function App() {
     backgroundImageBitmap,
   });
 
-  const { handleDrop, handleDragOver, handleDragLeave, DragDropOverlay } =
-    useDnd({
-      onDropMidi: setMidiFile,
-      onDropAudio: setAudioFile,
-      onDropImage: setBackgroundImageFile,
-    });
+  const { handleDrop, handleDragOver, handleDragLeave, DragDropOverlay } = useDnd({
+    onDropMidi: setMidiFile,
+    onDropAudio: setAudioFile,
+    onDropImage: setBackgroundImageFile,
+  });
 
   const [mobileTab, setMobileTab] = useState<MobileTabValue>("visualizer");
 
   // Settings dialog state
-  const [settingsTab, setSettingsTab] = useState<SettingsTabValue | undefined>(
-    undefined,
-  );
+  const [settingsTab, setSettingsTab] = useState<SettingsTabValue | undefined>(undefined);
 
   // Ref to the visualizer container for measuring dimensions
   const visualizerContainerRef = useRef<HTMLDivElement>(null);
@@ -72,8 +62,7 @@ export function App() {
     if (!container) return null;
 
     const rect = container.getBoundingClientRect();
-    const aspectRatio =
-      rendererConfig.resolution.height / rendererConfig.resolution.width;
+    const aspectRatio = rendererConfig.resolution.height / rendererConfig.resolution.width;
 
     return rect.width * aspectRatio;
   }, [rendererConfig.resolution.height, rendererConfig.resolution.width]);
@@ -111,10 +100,7 @@ export function App() {
       onDragLeave={handleDragLeave}
     >
       {DragDropOverlay}
-      <AppHeader
-        toggleRecording={toggleRecording}
-        recordingState={recordingState}
-      />
+      <AppHeader toggleRecording={toggleRecording} recordingState={recordingState} />
       <GridResizablePanelGroup
         id="main-layout"
         panels={panels}
@@ -122,10 +108,9 @@ export function App() {
       >
         <GridResizablePanel
           panelId="visualizer"
-          className={cn(
-            "max-h-[calc(100dvh/3)] area-[visualizer] md:max-h-none",
-            { "hidden md:block": mobileTab === "settings" },
-          )}
+          className={cn("max-h-[calc(100dvh/3)] area-[visualizer] md:max-h-none", {
+            "hidden md:block": mobileTab === "settings",
+          })}
         >
           <MidiVisualizer
             rendererConfig={rendererConfig}
@@ -211,19 +196,13 @@ export function App() {
           {VisualizerStyle}
         </GridResizablePanel>
 
-        <GridResizablePanel
-          panelId="about"
-          className="hidden area-[about] md:block md:border-t"
-        >
+        <GridResizablePanel panelId="about" className="hidden area-[about] md:block md:border-t">
           <FooterPanel onOpenSettings={() => setSettingsTab("general")} />
         </GridResizablePanel>
 
         <GridResizablePanel
           panelId="settings"
-          className={cn(
-            "area-[content] md:hidden",
-            mobileTab === "settings" ? "block" : "hidden",
-          )}
+          className={cn("area-[content] md:hidden", mobileTab === "settings" ? "block" : "hidden")}
         >
           <ScrollArea className="h-full w-full px-6 py-4">
             <SettingsContent />

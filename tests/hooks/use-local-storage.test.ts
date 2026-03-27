@@ -7,9 +7,7 @@ const mockValue = { test: "value" };
 test("returns initial value from localStorage", () => {
   localStorage.setItem("test-key", JSON.stringify(mockValue));
 
-  const { result } = renderHook(() =>
-    useLocalStorage<typeof mockValue>("test-key"),
-  );
+  const { result } = renderHook(() => useLocalStorage<typeof mockValue>("test-key"));
   expect(result.current[0]).toEqual(mockValue);
 });
 

@@ -21,10 +21,7 @@ function createTestCanvas(): HTMLCanvasElement {
   return canvas;
 }
 
-async function createTestImageBitmap(
-  width: number,
-  height: number,
-): Promise<ImageBitmap> {
+async function createTestImageBitmap(width: number, height: number): Promise<ImageBitmap> {
   const offscreen = new OffscreenCanvas(width, height);
   const ctx = offscreen.getContext("2d")!;
 
@@ -44,13 +41,7 @@ async function createTestImageBitmap(
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
   ctx.beginPath();
-  ctx.arc(
-    (width * 2) / 3,
-    (height * 2) / 3,
-    Math.min(width, height) / 5,
-    0,
-    Math.PI * 2,
-  );
+  ctx.arc((width * 2) / 3, (height * 2) / 3, Math.min(width, height) / 5, 0, Math.PI * 2);
   ctx.fill();
 
   return createImageBitmap(offscreen);

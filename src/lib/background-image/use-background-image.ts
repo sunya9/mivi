@@ -12,9 +12,7 @@ function loadInitialBackgroundImage(
 ) {
   if (!backgroundImageFile) return;
   if (cacheContext.caches.has(initialBackgroundImageCacheKey))
-    return cacheContext.caches.get(initialBackgroundImageCacheKey) as
-      | ImageBitmap
-      | undefined;
+    return cacheContext.caches.get(initialBackgroundImageCacheKey) as ImageBitmap | undefined;
   throw createImageBitmap(backgroundImageFile)
     .catch((error) => {
       console.error("Failed to load background image", error);
@@ -26,11 +24,10 @@ function loadInitialBackgroundImage(
 }
 
 export function useBackgroundImage() {
-  const { file: backgroundImageFile, setFile } =
-    useIndexedDb(backgroundImageDbKey);
+  const { file: backgroundImageFile, setFile } = useIndexedDb(backgroundImageDbKey);
   const cacheContext = useCacheContext();
-  const [backgroundImageBitmap, setBackgroundImageBitmapInternal] = useState(
-    () => loadInitialBackgroundImage(cacheContext, backgroundImageFile),
+  const [backgroundImageBitmap, setBackgroundImageBitmapInternal] = useState(() =>
+    loadInitialBackgroundImage(cacheContext, backgroundImageFile),
   );
   const setBackgroundImageBitmap = (imageBitmap: ImageBitmap | undefined) => {
     setBackgroundImageBitmapInternal((prev) => {

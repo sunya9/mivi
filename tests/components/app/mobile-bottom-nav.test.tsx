@@ -12,9 +12,7 @@ function PwaWrapper({
   children: React.ReactNode;
   pwaState?: Partial<PwaState>;
 }) {
-  return (
-    <PwaContext value={createMockPwaState(pwaState)}>{children}</PwaContext>
-  );
+  return <PwaContext value={createMockPwaState(pwaState)}>{children}</PwaContext>;
 }
 
 test("MobileBottomNav renders all four tabs", () => {
@@ -59,11 +57,7 @@ test("MobileBottomNav calls onValueChange when tab is clicked", async () => {
 test("MobileBottomNav applies custom className", () => {
   const { container } = render(
     <PwaWrapper>
-      <MobileBottomNav
-        value="tracks"
-        onValueChange={vi.fn()}
-        className="custom-class"
-      />
+      <MobileBottomNav value="tracks" onValueChange={vi.fn()} className="custom-class" />
     </PwaWrapper>,
   );
 

@@ -1,9 +1,5 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type {
-  AudioVisualizerConfig,
-  RendererContext,
-  Resolution,
-} from "@/lib/renderers/renderer";
+import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/renderers/renderer";
 import type { AudioVisualizerDrawer } from "./types";
 
 /**
@@ -15,11 +11,7 @@ export class CircularDrawer implements AudioVisualizerDrawer {
   #config: AudioVisualizerConfig;
   readonly #resolution: Resolution;
 
-  constructor(
-    ctx: RendererContext,
-    config: AudioVisualizerConfig,
-    resolution: Resolution,
-  ) {
+  constructor(ctx: RendererContext, config: AudioVisualizerConfig, resolution: Resolution) {
     this.#ctx = ctx;
     this.#config = config;
     this.#resolution = resolution;
@@ -52,8 +44,7 @@ export class CircularDrawer implements AudioVisualizerDrawer {
     // Calculate center and radius
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
-    const maxRadius =
-      (Math.min(canvasWidth, canvasHeight) * heightPercent) / 100 / 2;
+    const maxRadius = (Math.min(canvasWidth, canvasHeight) * heightPercent) / 100 / 2;
     const innerRadius = maxRadius * 0.3;
 
     // Calculate bar width based on circumference and bar count
@@ -74,10 +65,7 @@ export class CircularDrawer implements AudioVisualizerDrawer {
 
     for (let i = 0; i < barCount; i++) {
       const amplitude = amplitudes[i];
-      const barHeight = Math.max(
-        barMinHeight,
-        (amplitude / 255) * (maxRadius - innerRadius),
-      );
+      const barHeight = Math.max(barMinHeight, (amplitude / 255) * (maxRadius - innerRadius));
 
       const angle = i * angleStep - Math.PI / 2; // Start from top
 
@@ -134,11 +122,7 @@ export class CircularDrawer implements AudioVisualizerDrawer {
     minFrequency: number,
     maxFrequency: number,
   ): number[] {
-    const {
-      frequencyData: data,
-      frequencyBinCount,
-      nyquistFrequency,
-    } = frequencyData;
+    const { frequencyData: data, frequencyBinCount, nyquistFrequency } = frequencyData;
     const result: number[] = [];
 
     const logMin = Math.log10(minFrequency);
@@ -149,20 +133,12 @@ export class CircularDrawer implements AudioVisualizerDrawer {
       const freqStart = Math.pow(10, logMin + i * logStep);
       const freqEnd = Math.pow(10, logMin + (i + 1) * logStep);
 
-      const binStart = Math.floor(
-        (freqStart / nyquistFrequency) * frequencyBinCount,
-      );
-      const binEnd = Math.ceil(
-        (freqEnd / nyquistFrequency) * frequencyBinCount,
-      );
+      const binStart = Math.floor((freqStart / nyquistFrequency) * frequencyBinCount);
+      const binEnd = Math.ceil((freqEnd / nyquistFrequency) * frequencyBinCount);
 
       let sum = 0;
       let count = 0;
-      for (
-        let j = Math.max(0, binStart);
-        j < Math.min(frequencyBinCount, binEnd);
-        j++
-      ) {
+      for (let j = Math.max(0, binStart); j < Math.min(frequencyBinCount, binEnd); j++) {
         sum += data[j];
         count++;
       }

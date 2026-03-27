@@ -1,19 +1,7 @@
-import {
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-  type CSSProperties,
-} from "react";
+import { useState, useRef, useCallback, useMemo, type CSSProperties } from "react";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import type { GridResizableContextValue } from "./grid-resizable-context";
-import type {
-  PanelConfig,
-  PanelSize,
-  PanelSizeUnit,
-  LayoutState,
-  Orientation,
-} from "./types";
+import type { PanelConfig, PanelSize, PanelSizeUnit, LayoutState, Orientation } from "./types";
 
 /** Resize state during drag (position-based) */
 interface ResizeState {
@@ -60,8 +48,7 @@ function applyConstraints(
     const unit = config.sizeUnit ?? "fr";
     // Default min size depends on unit type (fr uses large integers like 1000)
     const defaultMinSize = unit === "px" ? 100 : 100;
-    const { minSize = defaultMinSize, maxSize = Infinity } =
-      config.constraints ?? {};
+    const { minSize = defaultMinSize, maxSize = Infinity } = config.constraints ?? {};
     result[id] = Math.max(minSize, Math.min(maxSize, size));
   }
 
@@ -82,24 +69,16 @@ function getResizableRange(
   const [beforeId, afterId] = controls;
 
   // Get the current separator element to exclude it from searches
-  const currentSeparator = container.querySelector(
-    `[data-separator-id="${separatorId}"]`,
-  );
+  const currentSeparator = container.querySelector(`[data-separator-id="${separatorId}"]`);
 
   if (orientation === "horizontal") {
     // Find the left edge of the before panel
-    const beforePanel = container.querySelector(
-      `[data-panel-id="${beforeId}"]`,
-    );
-    let start = beforePanel
-      ? beforePanel.getBoundingClientRect().left
-      : containerRect.left;
+    const beforePanel = container.querySelector(`[data-panel-id="${beforeId}"]`);
+    let start = beforePanel ? beforePanel.getBoundingClientRect().left : containerRect.left;
 
     // Find the right edge of the after panel
     const afterPanel = container.querySelector(`[data-panel-id="${afterId}"]`);
-    let end = afterPanel
-      ? afterPanel.getBoundingClientRect().right
-      : containerRect.right;
+    let end = afterPanel ? afterPanel.getBoundingClientRect().right : containerRect.right;
 
     // Handle virtual panels (no DOM element) by finding adjacent separators
     // Only consider separators with the same orientation
@@ -132,17 +111,11 @@ function getResizableRange(
     return { start, end };
   } else {
     // Vertical orientation - use top/bottom
-    const beforePanel = container.querySelector(
-      `[data-panel-id="${beforeId}"]`,
-    );
-    let start = beforePanel
-      ? beforePanel.getBoundingClientRect().top
-      : containerRect.top;
+    const beforePanel = container.querySelector(`[data-panel-id="${beforeId}"]`);
+    let start = beforePanel ? beforePanel.getBoundingClientRect().top : containerRect.top;
 
     const afterPanel = container.querySelector(`[data-panel-id="${afterId}"]`);
-    let end = afterPanel
-      ? afterPanel.getBoundingClientRect().bottom
-      : containerRect.bottom;
+    let end = afterPanel ? afterPanel.getBoundingClientRect().bottom : containerRect.bottom;
 
     // Handle virtual panels - only consider separators with the same orientation
     if (!beforePanel) {
@@ -175,25 +148,18 @@ function getResizableRange(
   }
 }
 
-export function useGridResizable({
-  id,
-  panels,
-}: UseGridResizableOptions): UseGridResizableReturn {
+export function useGridResizable({ id, panels }: UseGridResizableOptions): UseGridResizableReturn {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const resizeStateRef = useRef<ResizeState | null>(null);
 
-  const [storedLayout, setStoredLayout] = useLocalStorage<LayoutState>(
-    STORAGE_KEY_PREFIX + id,
-  );
+  const [storedLayout, setStoredLayout] = useLocalStorage<LayoutState>(STORAGE_KEY_PREFIX + id);
 
   const panelConfigs = useMemo(() => {
     return new Map(panels.map((p) => [p.id, p]));
   }, [panels]);
 
   const [sizes, setSizesInternal] = useState<Record<string, PanelSize>>(() => {
-    const defaultSizes = Object.fromEntries(
-      panels.map((p) => [p.id, p.defaultSize]),
-    );
+    const defaultSizes = Object.fromEntries(panels.map((p) => [p.id, p.defaultSize]));
     // Use stored sizes if available and non-empty, otherwise use defaults
     if (storedLayout?.sizes && Object.keys(storedLayout.sizes).length > 0) {
       return storedLayout.sizes;
@@ -224,23 +190,14 @@ export function useGridResizable({
   const getContainerRef = useCallback(() => containerRef.current, []);
 
   const startResize = useCallback(
-    (
-      separatorId: string,
-      orientation: Orientation,
-      controls: [string, string],
-    ) => {
+    (separatorId: string, orientation: Orientation, controls: [string, string]) => {
       const container = containerRef.current;
       if (!container) return;
 
       const [beforeId, afterId] = controls;
 
       // Calculate the resizable range
-      const { start, end } = getResizableRange(
-        container,
-        separatorId,
-        orientation,
-        controls,
-      );
+      const { start, end } = getResizableRange(container, separatorId, orientation, controls);
 
       // Calculate the sum of fr values for the controlled panels
       const beforeSize = sizes[beforeId] ?? 0;
@@ -273,14 +230,7 @@ export function useGridResizable({
       const state = resizeStateRef.current;
       if (!state?.active) return;
 
-      const {
-        controls,
-        rangeStart,
-        rangeEnd,
-        controlledFrSum,
-        beforeUnit,
-        afterUnit,
-      } = state;
+      const { controls, rangeStart, rangeEnd, controlledFrSum, beforeUnit, afterUnit } = state;
       const [beforeId, afterId] = controls;
 
       // Calculate ratio based on mouse position within the range
@@ -358,9 +308,7 @@ export function useGridResizable({
       // Handle px + fr combination
       if (beforeUnit === "px" && afterUnit === "fr") {
         const pxStep =
-          step === DEFAULT_KEYBOARD_STEP
-            ? DEFAULT_KEYBOARD_STEP_PX
-            : LARGE_KEYBOARD_STEP_PX;
+          step === DEFAULT_KEYBOARD_STEP ? DEFAULT_KEYBOARD_STEP_PX : LARGE_KEYBOARD_STEP_PX;
         const newBeforeSize = beforeSize + pxStep * direction;
         if (newBeforeSize <= 100) return;
         setSizes({ ...sizes, [beforeId]: newBeforeSize });
@@ -371,9 +319,7 @@ export function useGridResizable({
       // Handle fr + px combination
       if (beforeUnit === "fr" && afterUnit === "px") {
         const pxStep =
-          step === DEFAULT_KEYBOARD_STEP
-            ? DEFAULT_KEYBOARD_STEP_PX
-            : LARGE_KEYBOARD_STEP_PX;
+          step === DEFAULT_KEYBOARD_STEP ? DEFAULT_KEYBOARD_STEP_PX : LARGE_KEYBOARD_STEP_PX;
         // Direction is reversed for after panel
         const newAfterSize = afterSize - pxStep * direction;
         if (newAfterSize <= 100) return;
@@ -486,12 +432,7 @@ export function useGridResizable({
       // For fr panels, use ratio calculation
       // Use getResizableRange to get the total pixel range
       // This handles virtual panels (panels without DOM elements)
-      const { start, end } = getResizableRange(
-        container,
-        separatorId,
-        orientation,
-        controls,
-      );
+      const { start, end } = getResizableRange(container, separatorId, orientation, controls);
       const totalPixels = end - start;
 
       if (totalPixels <= 0) return;
@@ -500,10 +441,7 @@ export function useGridResizable({
       const totalFr = beforeSize + afterSize;
       const isTargetBefore = targetPanelId === beforeId;
 
-      const optimalRatio = Math.max(
-        0.05,
-        Math.min(0.95, optimalPixelSize / totalPixels),
-      );
+      const optimalRatio = Math.max(0.05, Math.min(0.95, optimalPixelSize / totalPixels));
 
       // Round to integers to avoid floating point errors
       const targetFr = Math.round(totalFr * optimalRatio);

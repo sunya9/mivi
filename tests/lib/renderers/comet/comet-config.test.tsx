@@ -22,9 +22,10 @@ function renderPane(overrideProps?: Props) {
 
 test("should render Comet component", async () => {
   renderPane();
-  const fallAngleSlider = within(
-    screen.getByRole("group", { name: /Fall Angle/ }),
-  ).getByRole("slider", { hidden: true });
+  const fallAngleSlider = within(screen.getByRole("group", { name: /Fall Angle/ })).getByRole(
+    "slider",
+    { hidden: true },
+  );
   expect(fallAngleSlider).toBeInTheDocument();
   await userEvent.click(fallAngleSlider);
   await userEvent.keyboard("{arrowleft}");

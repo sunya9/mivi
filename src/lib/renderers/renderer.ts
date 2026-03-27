@@ -77,11 +77,7 @@ export type RendererType = "none" | "pianoRoll" | "comet";
 export type AudioVisualizerFFTSize = 512 | 1024 | 2048 | 4096;
 export type AudioVisualizerPosition = "bottom" | "top" | "center";
 export type AudioVisualizerBarStyle = "rounded" | "sharp";
-export type AudioVisualizerStyle =
-  | "none"
-  | "bars"
-  | "lineSpectrum"
-  | "circular";
+export type AudioVisualizerStyle = "none" | "bars" | "lineSpectrum" | "circular";
 export type GradientDirection =
   | "to-right"
   | "to-bottom-right"
@@ -195,8 +191,7 @@ export const backgroundImageFitOptions = [
   { value: "cover", label: "Cover" },
   { value: "contain", label: "Contain" },
 ] as const;
-export type BackgroundImageFit =
-  (typeof backgroundImageFitOptions)[number]["value"];
+export type BackgroundImageFit = (typeof backgroundImageFitOptions)[number]["value"];
 
 export const backgroundImagePositions = [
   { value: "top-left", label: "Top Left" },
@@ -209,8 +204,7 @@ export const backgroundImagePositions = [
   { value: "bottom", label: "Bottom" },
   { value: "bottom-right", label: "Bottom Right" },
 ] as const;
-export type BackgroundImagePosition =
-  (typeof backgroundImagePositions)[number]["value"];
+export type BackgroundImagePosition = (typeof backgroundImagePositions)[number]["value"];
 
 export const backgroundImageRepeats = [
   { value: "repeat", label: "Repeat" },
@@ -218,8 +212,7 @@ export const backgroundImageRepeats = [
   { value: "repeat-x", label: "Repeat X" },
   { value: "repeat-y", label: "Repeat Y" },
 ] as const;
-export type BackgroundImageRepeat =
-  (typeof backgroundImageRepeats)[number]["value"];
+export type BackgroundImageRepeat = (typeof backgroundImageRepeats)[number]["value"];
 
 export interface RendererConfig {
   type: RendererType;
@@ -239,9 +232,7 @@ export interface RendererConfig {
   audioVisualizerLayer: AudioVisualizerLayer;
 }
 
-export type RendererContext =
-  | CanvasRenderingContext2D
-  | OffscreenCanvasRenderingContext2D;
+export type RendererContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
 export const getDefaultRendererConfig = (): RendererConfig => ({
   type: "pianoRoll",
@@ -344,9 +335,7 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
 
 export abstract class Renderer {
   constructor(
-    protected readonly ctx:
-      | CanvasRenderingContext2D
-      | OffscreenCanvasRenderingContext2D,
+    protected readonly ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     protected config: RendererConfig,
   ) {}
 

@@ -1,25 +1,8 @@
-import {
-  useCallback,
-  RefAttributes,
-  SVGProps,
-  ForwardRefExoticComponent,
-  Activity,
-} from "react";
+import { useCallback, RefAttributes, SVGProps, ForwardRefExoticComponent, Activity } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Palette, Info, Keyboard } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Tabs,
-  TabsContent,
-  TabsIndicator,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sidebar,
@@ -43,9 +26,7 @@ const navItems = [
 ] satisfies readonly {
   value: string;
   name: string;
-  icon: ForwardRefExoticComponent<
-    RefAttributes<SVGSVGElement> & SVGProps<SVGSVGElement>
-  >;
+  icon: ForwardRefExoticComponent<RefAttributes<SVGSVGElement> & SVGProps<SVGSVGElement>>;
 }[];
 
 export type SettingsTabValue = (typeof navItems)[number]["value"];
@@ -71,9 +52,7 @@ export function SettingsDialog({ tab, onTabChange }: SettingsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="overflow-hidden p-0 md:max-w-175">
-        {tab && (
-          <SettingsDialogContent activeTab={tab} onTabChange={onTabChange} />
-        )}
+        {tab && <SettingsDialogContent activeTab={tab} onTabChange={onTabChange} />}
       </DialogContent>
     </Dialog>
   );

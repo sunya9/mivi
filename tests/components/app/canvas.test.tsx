@@ -19,11 +19,7 @@ function findCanvas() {
   return screen.getByLabelText("Visualized Midi");
 }
 
-function mockContainerSize(
-  element: Element,
-  width: number,
-  height: number = width,
-) {
+function mockContainerSize(element: Element, width: number, height: number = width) {
   vi.spyOn(element, "clientWidth", "get").mockReturnValue(width);
   vi.spyOn(element, "clientHeight", "get").mockReturnValue(height);
 }
@@ -51,18 +47,14 @@ test("should render canvas with correct aspect ratio", () => {
 
 test("should call onInit with canvas context", () => {
   render(<Canvas {...defaultProps} />);
-  expect(mockOnInit).toHaveBeenCalledExactlyOnceWith(
-    expect.any(CanvasRenderingContext2D),
-  );
+  expect(mockOnInit).toHaveBeenCalledExactlyOnceWith(expect.any(CanvasRenderingContext2D));
 });
 
 test("should call invalidate when container is resized", () => {
   stubResizeObserver();
 
   const invalidate = vi.fn();
-  const { container } = render(
-    <Canvas {...defaultProps} invalidate={invalidate} />,
-  );
+  const { container } = render(<Canvas {...defaultProps} invalidate={invalidate} />);
   mockContainerSize(container.firstElementChild!, 300);
 
   invalidate.mockClear();
@@ -82,9 +74,7 @@ test("should update canvas dimensions when aspectRatio changes", () => {
 
   invalidate.mockClear();
 
-  rerender(
-    <Canvas {...defaultProps} aspectRatio={0.5} invalidate={invalidate} />,
-  );
+  rerender(<Canvas {...defaultProps} aspectRatio={0.5} invalidate={invalidate} />);
 
   expect(invalidate).toHaveBeenCalled();
   const canvas = findCanvas();
@@ -96,9 +86,7 @@ test("should update canvas dimensions when aspectRatio changes", () => {
 
 test("should apply custom className to container", () => {
   const customClassName = "custom-class";
-  const { container } = render(
-    <Canvas {...defaultProps} className={customClassName} />,
-  );
+  const { container } = render(<Canvas {...defaultProps} className={customClassName} />);
 
   expect(container.firstElementChild).toHaveClass(customClassName);
 });

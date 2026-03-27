@@ -36,9 +36,7 @@ vi.stubGlobal("crypto", {
   },
   subtle: {
     digest: async (algorithm: string, data: ArrayBuffer) => {
-      const hash = nodeCrypto.createHash(
-        algorithm.toLowerCase().replace("-", ""),
-      );
+      const hash = nodeCrypto.createHash(algorithm.toLowerCase().replace("-", ""));
       hash.update(Buffer.from(data));
       return Promise.resolve(hash.digest().buffer);
     },

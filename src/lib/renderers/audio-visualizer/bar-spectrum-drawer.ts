@@ -1,9 +1,5 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type {
-  AudioVisualizerConfig,
-  RendererContext,
-  Resolution,
-} from "@/lib/renderers/renderer";
+import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/renderers/renderer";
 import type { AudioVisualizerDrawer } from "./types";
 import { getGradientCoords } from "./gradient-utils";
 
@@ -16,11 +12,7 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
   #config: AudioVisualizerConfig;
   readonly #resolution: Resolution;
 
-  constructor(
-    ctx: RendererContext,
-    config: AudioVisualizerConfig,
-    resolution: Resolution,
-  ) {
+  constructor(ctx: RendererContext, config: AudioVisualizerConfig, resolution: Resolution) {
     this.#ctx = ctx;
     this.#config = config;
     this.#resolution = resolution;
@@ -88,11 +80,7 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
     // Create gradient if enabled
     let fillStyle: string | CanvasGradient;
     if (useGradient) {
-      const [x0, y0, x1, y1] = getGradientCoords(
-        gradientDirection,
-        canvasWidth,
-        canvasHeight,
-      );
+      const [x0, y0, x1, y1] = getGradientCoords(gradientDirection, canvasWidth, canvasHeight);
       const gradient = this.#ctx.createLinearGradient(x0, y0, x1, y1);
       gradient.addColorStop(0, gradientStartColor);
       gradient.addColorStop(1, gradientEndColor);
@@ -117,10 +105,7 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
     for (let i = 0; i < barCount; i++) {
       const amplitude = binsPerBar[i];
       // Normalize amplitude (0-255) to height
-      const barHeight = Math.max(
-        barMinHeight,
-        (amplitude / 255) * visualizerHeight,
-      );
+      const barHeight = Math.max(barMinHeight, (amplitude / 255) * visualizerHeight);
 
       const x = startX + i * (barWidth + gapWidth);
 
@@ -149,11 +134,7 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
     minFrequency: number,
     maxFrequency: number,
   ): number[] {
-    const {
-      frequencyData: data,
-      frequencyBinCount,
-      nyquistFrequency,
-    } = frequencyData;
+    const { frequencyData: data, frequencyBinCount, nyquistFrequency } = frequencyData;
 
     const result: number[] = [];
 
@@ -168,21 +149,13 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
       const freqEnd = Math.pow(10, logMin + (i + 1) * logStep);
 
       // Convert to bin indices
-      const binStart = Math.floor(
-        (freqStart / nyquistFrequency) * frequencyBinCount,
-      );
-      const binEnd = Math.ceil(
-        (freqEnd / nyquistFrequency) * frequencyBinCount,
-      );
+      const binStart = Math.floor((freqStart / nyquistFrequency) * frequencyBinCount);
+      const binEnd = Math.ceil((freqEnd / nyquistFrequency) * frequencyBinCount);
 
       // Average the bins in this range
       let sum = 0;
       let count = 0;
-      for (
-        let j = Math.max(0, binStart);
-        j < Math.min(frequencyBinCount, binEnd);
-        j++
-      ) {
+      for (let j = Math.max(0, binStart); j < Math.min(frequencyBinCount, binEnd); j++) {
         sum += data[j];
         count++;
       }

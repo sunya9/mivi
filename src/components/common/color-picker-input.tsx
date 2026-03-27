@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useId, useState } from "react";
 import { cn } from "@/lib/utils";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@/components/ui/input-group";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 
 interface ColorPickerInputProps {
   value: string;
@@ -25,8 +21,7 @@ function normalizeColor(input: string): string | null {
 
   // Expand 3-digit hex to 6-digit
   if (/^#[0-9a-f]{3}$/.test(color)) {
-    color =
-      "#" + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+    color = "#" + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
   }
 
   // Validate 6-digit hex
@@ -65,23 +60,20 @@ export function ColorPickerInput({
     [onChange],
   );
 
-  const handleTextChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      let newValue = e.target.value;
+  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    let newValue = e.target.value;
 
-      // Ensure # is always at the beginning
-      if (!newValue.startsWith("#")) {
-        // If user deleted #, restore it
-        newValue = "#" + newValue.replace(/#/g, "");
-      }
+    // Ensure # is always at the beginning
+    if (!newValue.startsWith("#")) {
+      // If user deleted #, restore it
+      newValue = "#" + newValue.replace(/#/g, "");
+    }
 
-      // Limit to 7 characters (#RRGGBB)
-      if (newValue.length <= 7) {
-        setInputValue(newValue);
-      }
-    },
-    [],
-  );
+    // Limit to 7 characters (#RRGGBB)
+    if (newValue.length <= 7) {
+      setInputValue(newValue);
+    }
+  }, []);
 
   const handleCommit = useCallback(() => {
     const normalized = normalizeColor(inputValue);
@@ -108,10 +100,7 @@ export function ColorPickerInput({
   const previewColor = normalizedInputColor ?? value;
 
   return (
-    <InputGroup
-      className={cn("h-8 w-fit", className)}
-      data-disabled={disabled || undefined}
-    >
+    <InputGroup className={cn("h-8 w-fit", className)} data-disabled={disabled || undefined}>
       <InputGroupAddon align="inline-start" className="pl-1.5">
         <div
           className={cn(

@@ -67,11 +67,7 @@ export function FileButton({
           className="hidden"
           id={id}
         />
-        <InputGroupInput
-          readOnly
-          value={filename || placeholder}
-          id={inputId}
-        />
+        <InputGroupInput readOnly value={filename || placeholder} id={inputId} />
         <InputGroupAddon align="inline-end">
           {filename && (
             <InputGroupButton

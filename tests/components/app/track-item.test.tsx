@@ -12,10 +12,7 @@ const mockTrack: MidiTrack = testMidiTracks.tracks[0];
 const mockOnUpdateTrackConfig = vi.fn();
 
 // Wrapper component for dnd-kit context
-function renderWithDndContext(
-  ui: React.ReactElement,
-  trackId: string = mockTrack.id,
-) {
+function renderWithDndContext(ui: React.ReactElement, trackId: string = mockTrack.id) {
   return render(
     <DndContext>
       <SortableContext items={[trackId]}>{ui}</SortableContext>
@@ -29,11 +26,7 @@ beforeEach(() => {
 
 test("should render track name and visibility switch", () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   expect(screen.getByText("Acoustic Piano - Full")).toBeInTheDocument();
@@ -42,11 +35,7 @@ test("should render track name and visibility switch", () => {
 
 test("should call onUpdateTrackConfig when visibility is toggled", async () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   const switchElement = screen.getByRole("switch");
@@ -59,11 +48,7 @@ test("should call onUpdateTrackConfig when visibility is toggled", async () => {
 
 test("should render opacity slider when track is visible", () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   expect(screen.getByText("Opacity: 100%")).toBeInTheDocument();
@@ -76,16 +61,12 @@ test("should render opacity slider when track is visible", () => {
 
 test("should call onUpdateTrackConfig when opacity is changed", async () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
-  const slider = within(
-    screen.getByRole("group", { name: "Opacity" }),
-  ).getByRole("slider", { hidden: true });
+  const slider = within(screen.getByRole("group", { name: "Opacity" })).getByRole("slider", {
+    hidden: true,
+  });
   slider.focus();
   await userEvent.keyboard("{arrowleft}");
 
@@ -96,25 +77,15 @@ test("should call onUpdateTrackConfig when opacity is changed", async () => {
 
 test("should render color picker when track is visible", () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
-  expect(
-    screen.getByRole("textbox", { name: "Note color" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("textbox", { name: "Note color" })).toBeInTheDocument();
 });
 
 test("should call onUpdateTrackConfig when color is changed via native picker", () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   const colorPicker = screen.getByLabelText("Note color picker");
@@ -127,11 +98,7 @@ test("should call onUpdateTrackConfig when color is changed via native picker", 
 
 test("should render staccato checkbox when track is visible", () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   expect(screen.getByText("Staccato")).toBeInTheDocument();
@@ -140,11 +107,7 @@ test("should render staccato checkbox when track is visible", () => {
 
 test("should call onUpdateTrackConfig when staccato is toggled", async () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   const checkbox = screen.getByRole("checkbox");
@@ -157,11 +120,7 @@ test("should call onUpdateTrackConfig when staccato is toggled", async () => {
 
 test("should render scale slider when track is visible", () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   expect(screen.getByText("Scale: 100%")).toBeInTheDocument();
@@ -174,17 +133,12 @@ test("should render scale slider when track is visible", () => {
 
 test("should call onUpdateTrackConfig when scale is changed", async () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
-  const slider = within(screen.getByRole("group", { name: "Scale" })).getByRole(
-    "slider",
-    { hidden: true },
-  );
+  const slider = within(screen.getByRole("group", { name: "Scale" })).getByRole("slider", {
+    hidden: true,
+  });
   slider.focus();
   await userEvent.keyboard("{arrowleft}");
 
@@ -203,11 +157,7 @@ test("should not render controls when track is not visible", () => {
   };
 
   renderWithDndContext(
-    <TrackItem
-      track={invisibleTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={invisibleTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
     invisibleTrack.id,
   );
 
@@ -220,11 +170,7 @@ test("should not render controls when track is not visible", () => {
 
 test("should render drag handle button", () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   const dragHandle = screen.getByRole("button", { name: "Drag to reorder" });
@@ -233,11 +179,7 @@ test("should render drag handle button", () => {
 
 test("should have correct cursor style on drag handle", () => {
   renderWithDndContext(
-    <TrackItem
-      track={mockTrack}
-      index={0}
-      onUpdateTrackConfig={mockOnUpdateTrackConfig}
-    />,
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
   const dragHandle = screen.getByRole("button", { name: "Drag to reorder" });

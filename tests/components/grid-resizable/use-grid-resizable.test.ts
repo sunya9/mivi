@@ -28,9 +28,7 @@ describe("useGridResizable", () => {
 
   describe("initialization", () => {
     it("should initialize with default sizes from panels", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       expect(result.current.contextValue.sizes).toEqual({
         panel1: 1000,
@@ -40,14 +38,9 @@ describe("useGridResizable", () => {
 
     it("should load sizes from localStorage if available", () => {
       const storedState = { sizes: { panel1: 500, panel2: 1500 } };
-      localStorage.setItem(
-        STORAGE_KEY_PREFIX + "test",
-        JSON.stringify(storedState),
-      );
+      localStorage.setItem(STORAGE_KEY_PREFIX + "test", JSON.stringify(storedState));
 
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       expect(result.current.contextValue.sizes).toEqual({
         panel1: 500,
@@ -56,31 +49,21 @@ describe("useGridResizable", () => {
     });
 
     it("should return panelConfigs as a Map", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       expect(result.current.contextValue.panelConfigs).toBeInstanceOf(Map);
-      expect(result.current.contextValue.panelConfigs.get("panel1")).toEqual(
-        defaultPanels[0],
-      );
-      expect(result.current.contextValue.panelConfigs.get("panel2")).toEqual(
-        defaultPanels[1],
-      );
+      expect(result.current.contextValue.panelConfigs.get("panel1")).toEqual(defaultPanels[0]);
+      expect(result.current.contextValue.panelConfigs.get("panel2")).toEqual(defaultPanels[1]);
     });
 
     it("should provide containerRef", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       expect(result.current.containerRef).toBeDefined();
     });
 
     it("should generate panelStyles with CSS variables", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       expect(result.current.panelStyles).toEqual({
         "--panel-panel1": "1000fr",
@@ -89,9 +72,7 @@ describe("useGridResizable", () => {
     });
 
     it("should generate panelStyles with px unit for px panels", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test-px", panels: pxFrPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test-px", panels: pxFrPanels }));
 
       expect(result.current.panelStyles).toEqual({
         "--panel-panel1": "300px",
@@ -113,31 +94,19 @@ describe("useGridResizable", () => {
 
   describe("resizeByKeyboard", () => {
     it("should resize panels by default step", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard(
-          "horizontal",
-          ["panel1", "panel2"],
-          1,
-        );
+        result.current.contextValue.resizeByKeyboard("horizontal", ["panel1", "panel2"], 1);
       });
 
       // DEFAULT_KEYBOARD_STEP is 50 for fr panels
-      expect(result.current.contextValue.sizes.panel1).toBe(
-        1000 + DEFAULT_KEYBOARD_STEP,
-      );
-      expect(result.current.contextValue.sizes.panel2).toBe(
-        1000 - DEFAULT_KEYBOARD_STEP,
-      );
+      expect(result.current.contextValue.sizes.panel1).toBe(1000 + DEFAULT_KEYBOARD_STEP);
+      expect(result.current.contextValue.sizes.panel2).toBe(1000 - DEFAULT_KEYBOARD_STEP);
     });
 
     it("should resize panels by custom step", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
         result.current.contextValue.resizeByKeyboard(
@@ -149,33 +118,19 @@ describe("useGridResizable", () => {
       });
 
       // LARGE_KEYBOARD_STEP is 100 for fr panels
-      expect(result.current.contextValue.sizes.panel1).toBe(
-        1000 + LARGE_KEYBOARD_STEP,
-      );
-      expect(result.current.contextValue.sizes.panel2).toBe(
-        1000 - LARGE_KEYBOARD_STEP,
-      );
+      expect(result.current.contextValue.sizes.panel1).toBe(1000 + LARGE_KEYBOARD_STEP);
+      expect(result.current.contextValue.sizes.panel2).toBe(1000 - LARGE_KEYBOARD_STEP);
     });
 
     it("should resize in negative direction", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard(
-          "horizontal",
-          ["panel1", "panel2"],
-          -1,
-        );
+        result.current.contextValue.resizeByKeyboard("horizontal", ["panel1", "panel2"], -1);
       });
 
-      expect(result.current.contextValue.sizes.panel1).toBe(
-        1000 - DEFAULT_KEYBOARD_STEP,
-      );
-      expect(result.current.contextValue.sizes.panel2).toBe(
-        1000 + DEFAULT_KEYBOARD_STEP,
-      );
+      expect(result.current.contextValue.sizes.panel1).toBe(1000 - DEFAULT_KEYBOARD_STEP);
+      expect(result.current.contextValue.sizes.panel2).toBe(1000 + DEFAULT_KEYBOARD_STEP);
     });
 
     it("should not resize if result would be <= 0", () => {
@@ -183,16 +138,10 @@ describe("useGridResizable", () => {
         { id: "panel1", defaultSize: 30, constraints: { minSize: 10 } },
         { id: "panel2", defaultSize: 1000 },
       ];
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: smallPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: smallPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard(
-          "horizontal",
-          ["panel1", "panel2"],
-          -1,
-        );
+        result.current.contextValue.resizeByKeyboard("horizontal", ["panel1", "panel2"], -1);
       });
 
       // Should not change because newBeforeSize would be <= 0 (30 - 50 = -20)
@@ -201,16 +150,10 @@ describe("useGridResizable", () => {
     });
 
     it("should persist layout to localStorage after resize", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard(
-          "horizontal",
-          ["panel1", "panel2"],
-          1,
-        );
+        result.current.contextValue.resizeByKeyboard("horizontal", ["panel1", "panel2"], 1);
       });
 
       const stored = localStorage.getItem(STORAGE_KEY_PREFIX + "test");
@@ -225,11 +168,7 @@ describe("useGridResizable", () => {
       );
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard(
-          "vertical",
-          ["panel1", "panel2"],
-          1,
-        );
+        result.current.contextValue.resizeByKeyboard("vertical", ["panel1", "panel2"], 1);
       });
 
       // px panels use 20px step by default
@@ -271,11 +210,7 @@ describe("useGridResizable", () => {
       );
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard(
-          "vertical",
-          ["panel1", "panel2"],
-          -1,
-        );
+        result.current.contextValue.resizeByKeyboard("vertical", ["panel1", "panel2"], -1);
       });
 
       // Should not go below 100px
@@ -303,9 +238,7 @@ describe("useGridResizable", () => {
         );
       });
 
-      expect(result.current.contextValue.sizes.panel1).toBeGreaterThanOrEqual(
-        500,
-      );
+      expect(result.current.contextValue.sizes.panel1).toBeGreaterThanOrEqual(500);
     });
 
     it("should apply maxSize constraint", () => {
@@ -327,9 +260,7 @@ describe("useGridResizable", () => {
         );
       });
 
-      expect(result.current.contextValue.sizes.panel1).toBeLessThanOrEqual(
-        1500,
-      );
+      expect(result.current.contextValue.sizes.panel1).toBeLessThanOrEqual(1500);
     });
 
     it("should apply default minSize of 100px for px panels when setSizes is called", () => {
@@ -377,9 +308,7 @@ describe("useGridResizable", () => {
 
   describe("getContainerRef", () => {
     it("should return null when no container", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       expect(result.current.contextValue.getContainerRef()).toBeNull();
     });
@@ -421,9 +350,7 @@ describe("useGridResizable", () => {
     });
 
     it("should use default minSize of 100 when no constraint is set", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
         result.current.contextValue.resizeToMin(["panel1", "panel2"], "panel1");
@@ -469,9 +396,7 @@ describe("useGridResizable", () => {
     });
 
     it("should persist layout to localStorage after resizeToMin", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
         result.current.contextValue.resizeToMin(["panel1", "panel2"], "panel1");
@@ -484,17 +409,12 @@ describe("useGridResizable", () => {
     });
 
     it("should not change sizes if panel sizes are undefined", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       // Manually set sizes to undefined (shouldn't happen in practice)
       act(() => {
         // This should not throw or change anything
-        result.current.contextValue.resizeToMin(
-          ["nonexistent1", "nonexistent2"],
-          "nonexistent1",
-        );
+        result.current.contextValue.resizeToMin(["nonexistent1", "nonexistent2"], "nonexistent1");
       });
 
       // Original sizes should remain unchanged
@@ -515,9 +435,7 @@ describe("useGridResizable", () => {
 
   describe("resizeToFit", () => {
     it("should not resize if getOptimalSize returns null", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
         result.current.contextValue.resizeToFit(
@@ -535,9 +453,7 @@ describe("useGridResizable", () => {
     });
 
     it("should not resize if container is not available", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
         result.current.contextValue.resizeToFit(
@@ -555,9 +471,7 @@ describe("useGridResizable", () => {
     });
 
     it("should not resize if panel sizes are undefined", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
         result.current.contextValue.resizeToFit(
@@ -575,9 +489,7 @@ describe("useGridResizable", () => {
     });
 
     it("should resize panels based on optimal size for vertical orientation", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       // Create a mock container with panels
       const container = document.createElement("div");
@@ -613,8 +525,7 @@ describe("useGridResizable", () => {
       });
 
       // Manually set containerRef
-      (result.current.containerRef as { current: HTMLDivElement }).current =
-        container;
+      (result.current.containerRef as { current: HTMLDivElement }).current = container;
 
       act(() => {
         // Request optimal size of 300px for panel1 (total is 400px)
@@ -634,9 +545,7 @@ describe("useGridResizable", () => {
     });
 
     it("should resize panels based on optimal size for horizontal orientation", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       // Create a mock container with panels
       const container = document.createElement("div");
@@ -672,8 +581,7 @@ describe("useGridResizable", () => {
       });
 
       // Manually set containerRef
-      (result.current.containerRef as { current: HTMLDivElement }).current =
-        container;
+      (result.current.containerRef as { current: HTMLDivElement }).current = container;
 
       act(() => {
         // Request optimal size of 100px for panel1 (total width is 400px)
@@ -693,9 +601,7 @@ describe("useGridResizable", () => {
     });
 
     it("should resize after panel when it is the target", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       // Create a mock container with panels
       const container = document.createElement("div");
@@ -731,8 +637,7 @@ describe("useGridResizable", () => {
       });
 
       // Manually set containerRef
-      (result.current.containerRef as { current: HTMLDivElement }).current =
-        container;
+      (result.current.containerRef as { current: HTMLDivElement }).current = container;
 
       act(() => {
         // Request optimal size of 300px for panel2 (after panel)
@@ -752,9 +657,7 @@ describe("useGridResizable", () => {
     });
 
     it("should clamp ratio between 0.05 and 0.95", () => {
-      const { result } = renderHook(() =>
-        useGridResizable({ id: "test", panels: defaultPanels }),
-      );
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       // Create a mock container with panels
       const container = document.createElement("div");
@@ -790,8 +693,7 @@ describe("useGridResizable", () => {
       });
 
       // Manually set containerRef
-      (result.current.containerRef as { current: HTMLDivElement }).current =
-        container;
+      (result.current.containerRef as { current: HTMLDivElement }).current = container;
 
       act(() => {
         // Request a very large optimal size that would exceed 95%
@@ -849,8 +751,7 @@ describe("useGridResizable", () => {
       });
 
       // Manually set containerRef
-      (result.current.containerRef as { current: HTMLDivElement }).current =
-        container;
+      (result.current.containerRef as { current: HTMLDivElement }).current = container;
 
       act(() => {
         result.current.contextValue.resizeToFit(
@@ -875,8 +776,7 @@ describe("useGridResizable", () => {
 
       // Create a mock container (required by resizeToFit)
       const container = document.createElement("div");
-      (result.current.containerRef as { current: HTMLDivElement }).current =
-        container;
+      (result.current.containerRef as { current: HTMLDivElement }).current = container;
 
       act(() => {
         result.current.contextValue.resizeToFit(
@@ -901,8 +801,7 @@ describe("useGridResizable", () => {
 
       // Create a mock container (required by resizeToFit)
       const container = document.createElement("div");
-      (result.current.containerRef as { current: HTMLDivElement }).current =
-        container;
+      (result.current.containerRef as { current: HTMLDivElement }).current = container;
 
       act(() => {
         result.current.contextValue.resizeToFit(
@@ -914,9 +813,7 @@ describe("useGridResizable", () => {
         );
       });
 
-      const stored = localStorage.getItem(
-        STORAGE_KEY_PREFIX + "test-px-fit-persist",
-      );
+      const stored = localStorage.getItem(STORAGE_KEY_PREFIX + "test-px-fit-persist");
       expect(stored).not.toBeNull();
       const parsed = JSON.parse(stored!) as { sizes: Record<string, number> };
       expect(parsed.sizes.panel1).toBe(400);

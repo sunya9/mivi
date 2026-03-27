@@ -1,10 +1,7 @@
 import { FormRow } from "@/components/common/form-row";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import {
-  AudioVisualizerStyle,
-  audioVisualizerBarStyleOptions,
-} from "@/lib/renderers/renderer";
+import { AudioVisualizerStyle, audioVisualizerBarStyleOptions } from "@/lib/renderers/renderer";
 import {
   Select,
   SelectTrigger,
@@ -81,9 +78,7 @@ export function BarSettings({
             controller={({ id }) => (
               <Select
                 value={config.barStyle}
-                onValueChange={(value) =>
-                  setConfig({ barStyle: value ?? undefined })
-                }
+                onValueChange={(value) => setConfig({ barStyle: value ?? undefined })}
                 items={audioVisualizerBarStyleOptions}
               >
                 <SelectTrigger id={id}>

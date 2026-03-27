@@ -49,19 +49,12 @@ const shortcutGroups: ShortcutGroup[] = [
 export function KeyboardShortcutsContent() {
   return (
     <div className="space-y-4">
-      <h2 className="hidden text-lg font-semibold md:block">
-        Keyboard Shortcuts
-      </h2>
+      <h2 className="hidden text-lg font-semibold md:block">Keyboard Shortcuts</h2>
       {shortcutGroups.map((group) => (
         <div key={group.label} className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground">
-            {group.label}
-          </h3>
+          <h3 className="text-sm font-medium text-muted-foreground">{group.label}</h3>
           {group.shortcuts.map((shortcut) => (
-            <div
-              key={shortcut.key}
-              className="flex items-center justify-between"
-            >
+            <div key={shortcut.key} className="flex items-center justify-between">
               <span className="text-sm">{shortcut.description}</span>
               <Kbd>{shortcut.key}</Kbd>
             </div>

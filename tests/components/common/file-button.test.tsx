@@ -7,9 +7,7 @@ import { ComponentProps } from "react";
 
 const mockSetFile = vi.fn();
 
-function renderFileButton(
-  props: Partial<ComponentProps<typeof FileButton>> = {},
-) {
+function renderFileButton(props: Partial<ComponentProps<typeof FileButton>> = {}) {
   return customRender(
     <FileButton
       filename={undefined}
@@ -31,9 +29,7 @@ test("should render placeholder when no file is selected", () => {
 test("should render filename when file is selected", () => {
   renderFileButton({ filename: "test.mp3" });
   expect(screen.getByDisplayValue("test.mp3")).toBeInTheDocument();
-  expect(
-    screen.getByRole("button", { name: "Cancel file" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Cancel file" })).toBeInTheDocument();
 });
 
 test("should call setFile when file is selected", () => {

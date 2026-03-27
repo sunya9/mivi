@@ -55,19 +55,12 @@ interface MobileBottomNavProps {
   className?: string;
 }
 
-export function MobileBottomNav({
-  value,
-  onValueChange,
-  className,
-}: MobileBottomNavProps) {
+export function MobileBottomNav({ value, onValueChange, className }: MobileBottomNavProps) {
   return (
     <TabsPrimitive.Root
       value={value}
       onValueChange={(v: MobileTabValue) => onValueChange(v)}
-      className={cn(
-        "border-t border-border bg-background drop-shadow",
-        className,
-      )}
+      className={cn("border-t border-border bg-background drop-shadow", className)}
     >
       <TabsPrimitive.List className="relative grid grid-cols-4">
         <TabsPrimitive.Indicator className="absolute inset-y-0 right-(--active-tab-right) left-(--active-tab-left) -z-10 m-1 rounded-md bg-secondary transition-all" />

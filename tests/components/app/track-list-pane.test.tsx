@@ -9,9 +9,7 @@ import { ComponentProps } from "react";
 const mockSetMidiTracks = vi.fn();
 const mockOnChangeMidiFile = vi.fn();
 
-function renderTrackListPane(
-  props: Partial<ComponentProps<typeof TrackListPane>> = {},
-) {
+function renderTrackListPane(props: Partial<ComponentProps<typeof TrackListPane>> = {}) {
   return render(
     <TrackListPane
       setMidiTracks={mockSetMidiTracks}
@@ -51,9 +49,7 @@ test("should call setMidiTracks with all white colors when All white is selected
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const newMidiTracks = mockSetMidiTracks.mock.calls[0][0] as MidiTracks;
-  expect(newMidiTracks.tracks.every((t) => t.config.color === "#ffffff")).toBe(
-    true,
-  );
+  expect(newMidiTracks.tracks.every((t) => t.config.color === "#ffffff")).toBe(true);
 });
 
 test("should call setMidiTracks with all black colors when All black is selected", async () => {
@@ -66,9 +62,7 @@ test("should call setMidiTracks with all black colors when All black is selected
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const newMidiTracks = mockSetMidiTracks.mock.calls[0][0] as MidiTracks;
-  expect(newMidiTracks.tracks.every((t) => t.config.color === "#000000")).toBe(
-    true,
-  );
+  expect(newMidiTracks.tracks.every((t) => t.config.color === "#000000")).toBe(true);
 });
 
 test("should call setMidiTracks with new colors when Randomize (colorful) is selected", async () => {
@@ -132,9 +126,7 @@ test("should increment MIDI offset when plus button is clicked", async () => {
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
-  const newMidiTracks = mockSetMidiTracks.mock.calls[
-    lastCallIndex
-  ][0] as MidiTracks;
+  const newMidiTracks = mockSetMidiTracks.mock.calls[lastCallIndex][0] as MidiTracks;
   expect(newMidiTracks.midiOffset).toBe(0.1);
 });
 
@@ -146,9 +138,7 @@ test("should decrement MIDI offset when minus button is clicked", async () => {
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
-  const newMidiTracks = mockSetMidiTracks.mock.calls[
-    lastCallIndex
-  ][0] as MidiTracks;
+  const newMidiTracks = mockSetMidiTracks.mock.calls[lastCallIndex][0] as MidiTracks;
   expect(newMidiTracks.midiOffset).toBe(-0.1);
 });
 
@@ -284,10 +274,7 @@ test("should open HueRandomizeDialog when Randomize (Hue)... is selected", async
 
 test("should call setMidiTracks with hue-randomized colors when Apply is clicked in HueRandomizeDialog", async () => {
   vi.spyOn(Math, "random").mockReturnValue(0);
-  localStorage.setItem(
-    "mivi:hue-randomize-sl",
-    JSON.stringify({ s: 100, l: 50 }),
-  );
+  localStorage.setItem("mivi:hue-randomize-sl", JSON.stringify({ s: 100, l: 50 }));
   // h = 0, s = 100, l = 50 -> #ff0000
   renderTrackListPane({ midiTracks: testMidiTracks });
 
@@ -381,12 +368,8 @@ test("should call setMidiTracks with all tracks disabled when Disable all is sel
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
-  const newMidiTracks = mockSetMidiTracks.mock.calls[
-    lastCallIndex
-  ][0] as MidiTracks;
-  expect(newMidiTracks.tracks.every((t) => t.config.visible === false)).toBe(
-    true,
-  );
+  const newMidiTracks = mockSetMidiTracks.mock.calls[lastCallIndex][0] as MidiTracks;
+  expect(newMidiTracks.tracks.every((t) => t.config.visible === false)).toBe(true);
 });
 
 test("should call setMidiTracks with all tracks enabled when Enable all is selected", async () => {
@@ -414,12 +397,8 @@ test("should call setMidiTracks with all tracks enabled when Enable all is selec
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
-  const newMidiTracks = mockSetMidiTracks.mock.calls[
-    lastCallIndex
-  ][0] as MidiTracks;
-  expect(newMidiTracks.tracks.every((t) => t.config.visible === true)).toBe(
-    true,
-  );
+  const newMidiTracks = mockSetMidiTracks.mock.calls[lastCallIndex][0] as MidiTracks;
+  expect(newMidiTracks.tracks.every((t) => t.config.visible === true)).toBe(true);
 });
 
 test("should sort disabled tracks to bottom when Sort disabled to bottom is selected", async () => {
@@ -464,9 +443,7 @@ test("should sort disabled tracks to bottom when Sort disabled to bottom is sele
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const lastCallIndex = mockSetMidiTracks.mock.calls.length - 1;
-  const newMidiTracks = mockSetMidiTracks.mock.calls[
-    lastCallIndex
-  ][0] as MidiTracks;
+  const newMidiTracks = mockSetMidiTracks.mock.calls[lastCallIndex][0] as MidiTracks;
 
   // Enabled tracks should come first, disabled tracks at the end
   expect(newMidiTracks.tracks[0].config.visible).toBe(true);

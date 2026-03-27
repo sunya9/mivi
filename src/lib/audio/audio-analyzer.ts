@@ -113,13 +113,9 @@ export class AudioAnalyzer {
 
     // Ensure buffers are correct size (in case fftSize was changed)
     const frequencyData: Uint8Array<ArrayBuffer> =
-      this.#frequencyData.length === binCount
-        ? this.#frequencyData
-        : new Uint8Array(binCount);
+      this.#frequencyData.length === binCount ? this.#frequencyData : new Uint8Array(binCount);
     const timeDomainData: Uint8Array<ArrayBuffer> =
-      this.#timeDomainData.length === binCount
-        ? this.#timeDomainData
-        : new Uint8Array(binCount);
+      this.#timeDomainData.length === binCount ? this.#timeDomainData : new Uint8Array(binCount);
 
     this.#analyser.getByteFrequencyData(frequencyData);
     this.#analyser.getByteTimeDomainData(timeDomainData);
@@ -136,28 +132,21 @@ export class AudioAnalyzer {
    * Convert a frequency bin index to its corresponding frequency in Hz.
    */
   binToFrequency(binIndex: number): number {
-    return (
-      (binIndex / this.#analyser.frequencyBinCount) * this.#nyquistFrequency
-    );
+    return (binIndex / this.#analyser.frequencyBinCount) * this.#nyquistFrequency;
   }
 
   /**
    * Convert a frequency in Hz to its corresponding bin index.
    */
   frequencyToBin(frequency: number): number {
-    return Math.round(
-      (frequency / this.#nyquistFrequency) * this.#analyser.frequencyBinCount,
-    );
+    return Math.round((frequency / this.#nyquistFrequency) * this.#analyser.frequencyBinCount);
   }
 
   /**
    * Get frequency data for a specific frequency range.
    * Useful for isolating bass, mid, or treble frequencies.
    */
-  getFrequencyRangeData(
-    minFrequency: number,
-    maxFrequency: number,
-  ): Uint8Array {
+  getFrequencyRangeData(minFrequency: number, maxFrequency: number): Uint8Array {
     const data = this.getFrequencyData();
     const startBin = this.frequencyToBin(minFrequency);
     const endBin = this.frequencyToBin(maxFrequency);

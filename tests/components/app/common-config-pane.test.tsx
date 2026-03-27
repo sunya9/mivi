@@ -11,9 +11,7 @@ const mockOnChangeAudioFile = vi.fn();
 const mockOnUpdateRendererConfig = vi.fn();
 const mockOnChangeBackgroundImage = vi.fn();
 
-function renderCommonConfigPane(
-  props: Partial<ComponentProps<typeof CommonConfigPane>> = {},
-) {
+function renderCommonConfigPane(props: Partial<ComponentProps<typeof CommonConfigPane>> = {}) {
   return customRender(
     <CommonConfigPane
       rendererConfig={rendererConfig}
@@ -155,29 +153,17 @@ test("should clear background image when cancel button is clicked", async () => 
     name: "Cancel background image",
   });
   await userEvent.click(cancelButton);
-  expect(mockOnChangeBackgroundImage).toHaveBeenCalledExactlyOnceWith(
-    undefined,
-  );
+  expect(mockOnChangeBackgroundImage).toHaveBeenCalledExactlyOnceWith(undefined);
 });
 
 test("should not show background image settings when no image is selected", () => {
   renderCommonConfigPane({ backgroundImageFilename: undefined });
 
-  expect(
-    screen.queryByRole("combobox", { name: "Image Fit" }),
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole("combobox", { name: "Image Position" }),
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole("combobox", { name: "Image Repeat" }),
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole("group", { name: /Image Opacity/ }),
-  ).not.toBeInTheDocument();
-  expect(
-    screen.queryByRole("switch", { name: "Show Background Image" }),
-  ).not.toBeInTheDocument();
+  expect(screen.queryByRole("combobox", { name: "Image Fit" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("combobox", { name: "Image Position" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("combobox", { name: "Image Repeat" })).not.toBeInTheDocument();
+  expect(screen.queryByRole("group", { name: /Image Opacity/ })).not.toBeInTheDocument();
+  expect(screen.queryByRole("switch", { name: "Show Background Image" })).not.toBeInTheDocument();
 });
 
 test("should call onUpdateRendererConfig when background image enabled is toggled", async () => {
@@ -194,7 +180,5 @@ test("should call onUpdateRendererConfig when background image enabled is toggle
 
 test("should show background image toggle when image is selected", () => {
   renderCommonConfigPane({ backgroundImageFilename: "test.png" });
-  expect(
-    screen.getByRole("switch", { name: "Show Background Image" }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("switch", { name: "Show Background Image" })).toBeInTheDocument();
 });

@@ -12,10 +12,7 @@ import { GripVertical } from "lucide-react";
 interface Props {
   track: MidiTrack;
   index: number;
-  onUpdateTrackConfig: (
-    index: number,
-    config: Partial<MidiTrack["config"]>,
-  ) => void;
+  onUpdateTrackConfig: (index: number, config: Partial<MidiTrack["config"]>) => void;
 }
 
 export const TrackItem = React.memo(function TrackItem({
@@ -23,14 +20,9 @@ export const TrackItem = React.memo(function TrackItem({
   onUpdateTrackConfig,
   index,
 }: Props) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: track.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: track.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -43,9 +35,7 @@ export const TrackItem = React.memo(function TrackItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn(
-        "grid grid-cols-[auto_1fr_auto_48px] items-center gap-x-2 gap-y-2 py-4",
-      )}
+      className={cn("grid grid-cols-[auto_1fr_auto_48px] items-center gap-x-2 gap-y-2 py-4")}
     >
       <button
         type="button"
@@ -67,9 +57,7 @@ export const TrackItem = React.memo(function TrackItem({
       <Switch
         id={id}
         checked={track.config.visible}
-        onCheckedChange={(checked) =>
-          onUpdateTrackConfig(index, { visible: checked })
-        }
+        onCheckedChange={(checked) => onUpdateTrackConfig(index, { visible: checked })}
         className="col-start-4 justify-self-end"
       />
 
@@ -90,9 +78,7 @@ export const TrackItem = React.memo(function TrackItem({
             max={1}
             step={0.05}
             defaultValue={[1]}
-            onValueChange={([value]) =>
-              onUpdateTrackConfig(index, { opacity: value })
-            }
+            onValueChange={([value]) => onUpdateTrackConfig(index, { opacity: value })}
             className="w-16"
             key={`${track.id}-opacity`}
             aria-label="Opacity"
@@ -101,9 +87,7 @@ export const TrackItem = React.memo(function TrackItem({
           <label className="col-start-2 flex items-center gap-1 text-xs text-muted-foreground">
             <Checkbox
               checked={track.config.staccato}
-              onCheckedChange={(checked) =>
-                onUpdateTrackConfig(index, { staccato: !!checked })
-              }
+              onCheckedChange={(checked) => onUpdateTrackConfig(index, { staccato: !!checked })}
             />
             Staccato
           </label>
@@ -116,9 +100,7 @@ export const TrackItem = React.memo(function TrackItem({
             max={1}
             step={0.05}
             defaultValue={[1]}
-            onValueChange={([value]) =>
-              onUpdateTrackConfig(index, { scale: value })
-            }
+            onValueChange={([value]) => onUpdateTrackConfig(index, { scale: value })}
             aria-label="Scale"
             key={`${track.id}-scale`}
             className="col-start-4 basis-16"

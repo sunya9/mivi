@@ -1,8 +1,4 @@
-import {
-  BackgroundImagePosition,
-  RendererConfig,
-  RendererContext,
-} from "./renderer";
+import { BackgroundImagePosition, RendererConfig, RendererContext } from "./renderer";
 
 /**
  * Renders the background (color and image) for the visualization.
@@ -13,11 +9,7 @@ export class BackgroundRenderer {
   #config: RendererConfig;
   #backgroundImageBitmap?: ImageBitmap;
 
-  constructor(
-    ctx: RendererContext,
-    config: RendererConfig,
-    backgroundImageBitmap?: ImageBitmap,
-  ) {
+  constructor(ctx: RendererContext, config: RendererConfig, backgroundImageBitmap?: ImageBitmap) {
     this.#ctx = ctx;
     this.#config = config;
     this.#backgroundImageBitmap = backgroundImageBitmap;
@@ -54,13 +46,7 @@ export class BackgroundRenderer {
         drawHeight,
         offsetX: baseOffsetX,
         offsetY: baseOffsetY,
-      } = this.#calculateImageDimensions(
-        img,
-        imgRatio,
-        canvasRatio,
-        width,
-        height,
-      );
+      } = this.#calculateImageDimensions(img, imgRatio, canvasRatio, width, height);
 
       const { offsetX, offsetY } = this.#adjustImagePosition(
         backgroundImagePosition,
@@ -139,9 +125,7 @@ export class BackgroundRenderer {
         }
       default: {
         const _exhaustiveCheck: never = backgroundImageFit;
-        throw new Error(
-          `Unknown background image fit: ${String(_exhaustiveCheck)}`,
-        );
+        throw new Error(`Unknown background image fit: ${String(_exhaustiveCheck)}`);
       }
     }
   }
@@ -176,9 +160,7 @@ export class BackgroundRenderer {
         return { offsetX, offsetY };
       default: {
         const _exhaustiveCheck: never = position;
-        throw new Error(
-          `Unknown background image position: ${String(_exhaustiveCheck)}`,
-        );
+        throw new Error(`Unknown background image position: ${String(_exhaustiveCheck)}`);
       }
     }
   }

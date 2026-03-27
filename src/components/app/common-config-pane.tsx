@@ -80,9 +80,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
             <ColorPickerInput
               id={id}
               value={rendererConfig.backgroundColor}
-              onChange={(value) =>
-                onUpdateRendererConfig({ backgroundColor: value })
-              }
+              onChange={(value) => onUpdateRendererConfig({ backgroundColor: value })}
             />
           )}
         />
@@ -183,11 +181,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               )}
             />
             <FormRow
-              label={
-                <span>
-                  Image Opacity: {rendererConfig.backgroundImageOpacity}
-                </span>
-              }
+              label={<span>Image Opacity: {rendererConfig.backgroundImageOpacity}</span>}
               customControl
               controller={({ labelId, ref }) => (
                 <Slider
@@ -263,10 +257,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
               </SelectTrigger>
               <SelectContent>
                 {fpsOptions.map((option) => (
-                  <SelectItem
-                    key={option.value}
-                    value={option.value.toString()}
-                  >
+                  <SelectItem key={option.value} value={option.value.toString()}>
                     {option.label}
                   </SelectItem>
                 ))}
@@ -279,9 +270,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
           controller={({ id }) => (
             <Select
               value={rendererConfig.format}
-              onValueChange={(value) =>
-                onUpdateRendererConfig({ format: value ?? undefined })
-              }
+              onValueChange={(value) => onUpdateRendererConfig({ format: value ?? undefined })}
               items={formatOptions}
             >
               <SelectTrigger id={id}>

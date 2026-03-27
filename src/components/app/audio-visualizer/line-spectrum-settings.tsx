@@ -5,19 +5,12 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { AudioVisualizerSectionProps } from "./types";
 
-export function LineSpectrumSettings({
-  config,
-  setConfig,
-}: AudioVisualizerSectionProps) {
+export function LineSpectrumSettings({ config, setConfig }: AudioVisualizerSectionProps) {
   return (
     <>
       <Separator />
       <FormRow
-        label={
-          <span>
-            Smoothness: {Math.round(config.lineSpectrumConfig.tension * 100)}%
-          </span>
-        }
+        label={<span>Smoothness: {Math.round(config.lineSpectrumConfig.tension * 100)}%</span>}
         customControl
         controller={({ labelId, ref }) => (
           <Slider
@@ -28,9 +21,7 @@ export function LineSpectrumSettings({
             min={0}
             max={1}
             step={0.1}
-            onValueChange={([value]) =>
-              setConfig({ lineSpectrumConfig: { tension: value } })
-            }
+            onValueChange={([value]) => setConfig({ lineSpectrumConfig: { tension: value } })}
           />
         )}
       />
@@ -41,9 +32,7 @@ export function LineSpectrumSettings({
           <Switch
             id={id}
             checked={config.lineSpectrumConfig.stroke}
-            onCheckedChange={(checked) =>
-              setConfig({ lineSpectrumConfig: { stroke: checked } })
-            }
+            onCheckedChange={(checked) => setConfig({ lineSpectrumConfig: { stroke: checked } })}
           />
         )}
       />
@@ -56,16 +45,12 @@ export function LineSpectrumSettings({
                 id={id}
                 aria-label="Stroke Color"
                 value={config.lineSpectrumConfig.strokeColor}
-                onChange={(value) =>
-                  setConfig({ lineSpectrumConfig: { strokeColor: value } })
-                }
+                onChange={(value) => setConfig({ lineSpectrumConfig: { strokeColor: value } })}
               />
             )}
           />
           <FormRow
-            label={
-              <span>Line Width: {config.lineSpectrumConfig.lineWidth}px</span>
-            }
+            label={<span>Line Width: {config.lineSpectrumConfig.lineWidth}px</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider
@@ -76,17 +61,14 @@ export function LineSpectrumSettings({
                 min={1}
                 max={10}
                 step={1}
-                onValueChange={([value]) =>
-                  setConfig({ lineSpectrumConfig: { lineWidth: value } })
-                }
+                onValueChange={([value]) => setConfig({ lineSpectrumConfig: { lineWidth: value } })}
               />
             )}
           />
           <FormRow
             label={
               <span>
-                Stroke Opacity:{" "}
-                {Math.round(config.lineSpectrumConfig.strokeOpacity * 100)}%
+                Stroke Opacity: {Math.round(config.lineSpectrumConfig.strokeOpacity * 100)}%
               </span>
             }
             customControl

@@ -7,10 +7,7 @@ import { useCacheContext } from "@/contexts/cache-context";
 import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 import { errorLogWithToast } from "../utils";
 
-async function createAudioBufferFromFile(
-  audioFile: File,
-  audioContext: AudioContext,
-) {
+async function createAudioBufferFromFile(audioFile: File, audioContext: AudioContext) {
   const arrayBuffer = await audioFile.arrayBuffer();
   return audioContext.decodeAudioData(arrayBuffer);
 }
@@ -52,10 +49,7 @@ export function useAudio() {
         const currentDecodeId = ++decodeIdRef.current;
         setIsDecoding(true);
         try {
-          const audioBuffer = await createAudioBufferFromFile(
-            newAudioFile,
-            audioContext,
-          );
+          const audioBuffer = await createAudioBufferFromFile(newAudioFile, audioContext);
           // Ignore result if cancelled (decodeId changed)
           if (decodeIdRef.current !== currentDecodeId) return;
           // Also update cache to prevent double decode if component re-renders

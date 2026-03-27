@@ -3,10 +3,7 @@ import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
 import { AudioVisualizerSectionProps } from "./types";
 
-export function AnalyzerSettings({
-  config,
-  setConfig,
-}: AudioVisualizerSectionProps) {
+export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionProps) {
   return (
     <>
       <Separator />
@@ -26,9 +23,7 @@ export function AnalyzerSettings({
             min={20}
             max={20000}
             step={100}
-            onValueChange={([min, max]) =>
-              setConfig({ minFrequency: min, maxFrequency: max })
-            }
+            onValueChange={([min, max]) => setConfig({ minFrequency: min, maxFrequency: max })}
           />
         )}
       />

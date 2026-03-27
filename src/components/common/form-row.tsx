@@ -11,8 +11,7 @@ interface Props {
   customControl?: boolean;
 }
 
-const FOCUSABLE_SELECTOR =
-  '[role="switch"], [role="combobox"], input[type="range"]';
+const FOCUSABLE_SELECTOR = '[role="switch"], [role="combobox"], input[type="range"]';
 
 export function FormRow({ label, controller, customControl = false }: Props) {
   const labelId = useId();
@@ -28,17 +27,11 @@ export function FormRow({ label, controller, customControl = false }: Props) {
 
   if (customControl) {
     return (
-      <div
-        ref={containerRef}
-        className="flex items-center justify-between"
-        onClick={handleClick}
-      >
+      <div ref={containerRef} className="flex items-center justify-between" onClick={handleClick}>
         <div id={labelId} className="flex-1">
           {label}
         </div>
-        <div className="flex-none">
-          {controller({ id: controlId, labelId, ref })}
-        </div>
+        <div className="flex-none">{controller({ id: controlId, labelId, ref })}</div>
       </div>
     );
   }
@@ -50,9 +43,7 @@ export function FormRow({ label, controller, customControl = false }: Props) {
       onClick={handleClick}
     >
       <Field.Label className="flex-1">{label}</Field.Label>
-      <div className="flex-none">
-        {controller({ id: controlId, labelId, ref })}
-      </div>
+      <div className="flex-none">{controller({ id: controlId, labelId, ref })}</div>
     </Field.Root>
   );
 }

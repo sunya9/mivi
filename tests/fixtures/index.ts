@@ -153,12 +153,4 @@ const resources: RecorderResources = {
   rendererConfig,
 };
 
-export {
-  midiFile,
-  testMidiTracks,
-  audioFile,
-  invalidFile,
-  rendererConfig,
-  audioBuffer,
-  resources,
-};
+export { midiFile, testMidiTracks, audioFile, invalidFile, rendererConfig, audioBuffer, resources };

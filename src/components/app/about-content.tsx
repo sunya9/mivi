@@ -18,23 +18,20 @@ export function AboutContent({ className }: Props) {
     <div className={cn("space-y-4", className)}>
       <h2 className="hidden text-lg font-semibold md:block">About</h2>
       <p>
-        MiVi is a web application that visualizes MIDI files with synchronized
-        audio playback and video export capabilities.
+        MiVi is a web application that visualizes MIDI files with synchronized audio playback and
+        video export capabilities.
       </p>
       <Alert>
         <Info />
         <AlertTitle>Browser API Support</AlertTitle>
         <AlertDescription>
           <p>
-            This app uses modern browser APIs. For the best experience, please
-            use the latest version of Chrome, Firefox, Edge, or Safari.
+            This app uses modern browser APIs. For the best experience, please use the latest
+            version of Chrome, Firefox, Edge, or Safari.
           </p>
           <ul>
             {apiStatuses.map((api) => (
-              <li
-                key={api.name}
-                className={cn("flex items-center gap-2 text-sm")}
-              >
+              <li key={api.name} className={cn("flex items-center gap-2 text-sm")}>
                 {api.supported ? (
                   <CheckIcon className="size-4 text-emerald-500" />
                 ) : (

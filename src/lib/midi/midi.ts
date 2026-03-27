@@ -32,10 +32,7 @@ export interface MidiTracks {
   midiOffset: number;
 }
 
-export const getDefaultTrackConfig = (
-  name: string,
-  color: string = "#ffffff",
-): TrackConfig => ({
+export const getDefaultTrackConfig = (name: string, color: string = "#ffffff"): TrackConfig => ({
   visible: true,
   color,
   opacity: 1,

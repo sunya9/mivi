@@ -9,13 +9,7 @@ import {
 import { expect, test, vi } from "vitest";
 
 function prepareImage(width: number, height: number) {
-  return window.createImageBitmap(
-    new Blob([], { type: "image/png" }),
-    0,
-    0,
-    width,
-    height,
-  );
+  return window.createImageBitmap(new Blob([], { type: "image/png" }), 0, 0, width, height);
 }
 
 function prepareTestRenderer(options?: {
@@ -39,11 +33,7 @@ function prepareTestRenderer(options?: {
     label: `${canvas.width}×${canvas.height}`,
   };
   const context = canvas.getContext("2d")!;
-  const renderer = new BackgroundRenderer(
-    context,
-    config,
-    options?.backgroundImageBitmap,
-  );
+  const renderer = new BackgroundRenderer(context, config, options?.backgroundImageBitmap);
 
   return { context, renderer };
 }
@@ -218,34 +208,26 @@ test("should render with no-repeat", async () => {
   );
 });
 
-test.each(patternParameters)(
-  "should render with pattern: $repeat",
-  async ({ repeat, pattern }) => {
-    const imageBitmap = await prepareImage(150, 150);
-    const { context, renderer } = prepareTestRenderer({
-      backgroundImageBitmap: imageBitmap,
-      rendererConfig: {
-        ...getDefaultRendererConfig(),
-        backgroundImageRepeat: repeat,
-      },
-    });
+test.each(patternParameters)("should render with pattern: $repeat", async ({ repeat, pattern }) => {
+  const imageBitmap = await prepareImage(150, 150);
+  const { context, renderer } = prepareTestRenderer({
+    backgroundImageBitmap: imageBitmap,
+    rendererConfig: {
+      ...getDefaultRendererConfig(),
+      backgroundImageRepeat: repeat,
+    },
+  });
 
-    const mockSetTransform = vi.fn();
-    context.createPattern = vi
-      .fn()
-      .mockReturnValue({ setTransform: mockSetTransform });
-    context.fillRect = vi.fn();
-    renderer.render();
+  const mockSetTransform = vi.fn();
+  context.createPattern = vi.fn().mockReturnValue({ setTransform: mockSetTransform });
+  context.fillRect = vi.fn();
+  renderer.render();
 
-    expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(
-      imageBitmap,
-      pattern,
-    );
-    expect(mockSetTransform).toHaveBeenCalledOnce();
-    // draw background color + draw pattern
-    expect(context.fillRect).toHaveBeenNthCalledWith(2, 0, 0, 300, 150);
-  },
-);
+  expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(imageBitmap, pattern);
+  expect(mockSetTransform).toHaveBeenCalledOnce();
+  // draw background color + draw pattern
+  expect(context.fillRect).toHaveBeenNthCalledWith(2, 0, 0, 300, 150);
+});
 
 test("should render with opacity", async () => {
   const imageBitmap = await prepareImage(150, 150);
@@ -266,13 +248,7 @@ test("should render with opacity", async () => {
   expect(context.save).toHaveBeenCalled();
   expect(context.globalAlpha).toBe(0.5);
   expect(context.restore).toHaveBeenCalled();
-  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
-    imageBitmap,
-    0,
-    -75,
-    300,
-    300,
-  );
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 0, -75, 300, 300);
 });
 
 test("should render with cover when imgRatio > canvasRatio (no fraction)", async () => {
@@ -296,13 +272,7 @@ test("should render with cover when imgRatio > canvasRatio (no fraction)", async
   ctx.drawImage = vi.fn();
   renderer.render();
 
-  expect(ctx.drawImage).toHaveBeenCalledExactlyOnceWith(
-    imageBitmap,
-    -50,
-    0,
-    200,
-    100,
-  );
+  expect(ctx.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, -50, 0, 200, 100);
 });
 
 test("should render with contain when imgRatio > canvasRatio (no fraction)", async () => {
@@ -326,13 +296,7 @@ test("should render with contain when imgRatio > canvasRatio (no fraction)", asy
   ctx.drawImage = vi.fn();
   renderer.render();
 
-  expect(ctx.drawImage).toHaveBeenCalledExactlyOnceWith(
-    imageBitmap,
-    0,
-    25,
-    100,
-    50,
-  );
+  expect(ctx.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 0, 25, 100, 50);
 });
 
 test("should render with contain when canvasRatio > imgRatio (no fraction)", async () => {
@@ -349,13 +313,7 @@ test("should render with contain when canvasRatio > imgRatio (no fraction)", asy
   context.drawImage = vi.fn();
   renderer.render();
 
-  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
-    imageBitmap,
-    75,
-    0,
-    50,
-    100,
-  );
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 75, 0, 50, 100);
 });
 
 test("should render with fit: auto (original image size)", async () => {
@@ -397,13 +355,7 @@ test("should render with fit: auto and position: top-left", async () => {
   context.drawImage = vi.fn();
   renderer.render();
 
-  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
-    imageBitmap,
-    0,
-    0,
-    80,
-    40,
-  );
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 0, 0, 80, 40);
 });
 
 test("should render with fit: auto when image is larger than canvas", async () => {
@@ -438,9 +390,7 @@ test("throw error when unknown background image fit", async () => {
     rendererConfig: config,
     backgroundImageBitmap: imageBitmap,
   });
-  expect(() => renderer.render()).toThrow(
-    "Unknown background image fit: unknown",
-  );
+  expect(() => renderer.render()).toThrow("Unknown background image fit: unknown");
 });
 
 test("throw error when unknown background image position", async () => {
@@ -451,9 +401,7 @@ test("throw error when unknown background image position", async () => {
     rendererConfig: config,
     backgroundImageBitmap: imageBitmap,
   });
-  expect(() => renderer.render()).toThrow(
-    "Unknown background image position: unknown",
-  );
+  expect(() => renderer.render()).toThrow("Unknown background image position: unknown");
 });
 
 test("should handle null pattern", async () => {
@@ -470,10 +418,7 @@ test("should handle null pattern", async () => {
   context.fillRect = vi.fn();
   renderer.render();
 
-  expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(
-    imageBitmap,
-    "repeat",
-  );
+  expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(imageBitmap, "repeat");
   expect(context.fillRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
 });
 

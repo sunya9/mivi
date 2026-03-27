@@ -33,9 +33,7 @@ test("panelVisible becomes true on handleMouseMove when playing", () => {
 });
 
 test("panelVisible becomes false after autoHideDelay when mouse stops moving", () => {
-  const { result } = renderHook(() =>
-    usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }),
-  );
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }));
 
   act(() => {
     result.current.handleMouseMove();
@@ -49,9 +47,7 @@ test("panelVisible becomes false after autoHideDelay when mouse stops moving", (
 });
 
 test("handleMouseMove resets hide timer", () => {
-  const { result } = renderHook(() =>
-    usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }),
-  );
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }));
 
   act(() => {
     result.current.handleMouseMove();
@@ -113,9 +109,7 @@ test("mobile: tap while panel visible allows toggle play (returns false)", () =>
 });
 
 test("mobile: tap after auto-hide shows panel again (returns true)", () => {
-  const { result } = renderHook(() =>
-    usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }),
-  );
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }));
 
   // First tap: show panel
   act(() => {
@@ -153,9 +147,7 @@ test("mobile: handleTouchReveal returns false when not playing", () => {
 });
 
 test("mobile: panel auto-hides after autoHideDelay when touch revealed", () => {
-  const { result } = renderHook(() =>
-    usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }),
-  );
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }));
 
   act(() => {
     result.current.handleTouchReveal();
@@ -180,9 +172,7 @@ test("panelVisible is true during interaction", () => {
 });
 
 test("startInteraction cancels hide timer", () => {
-  const { result } = renderHook(() =>
-    usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }),
-  );
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }));
 
   act(() => {
     result.current.handleMouseMove();
@@ -203,9 +193,7 @@ test("startInteraction cancels hide timer", () => {
 });
 
 test("endInteraction keeps panel visible briefly when playing", () => {
-  const { result } = renderHook(() =>
-    usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }),
-  );
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }));
 
   act(() => {
     result.current.startInteraction();
@@ -252,9 +240,7 @@ test("showPanel makes panelVisible true", () => {
 });
 
 test("panel auto-hides after autoHideDelay when showPanel called", () => {
-  const { result } = renderHook(() =>
-    usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }),
-  );
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true, autoHideDelay: 2000 }));
 
   act(() => {
     result.current.showPanel();

@@ -21,17 +21,12 @@ test("should initialize with empty background image", async () => {
 test("should load background image from IndexedDB on mount", async () => {
   const mockImage = new File(["test"], "test.png", { type: "image/png" });
   await saveFile(backgroundImageDbKey, mockImage);
-  vi.stubGlobal(
-    "createImageBitmap",
-    vi.fn().mockResolvedValue(new ImageBitmap()),
-  );
+  vi.stubGlobal("createImageBitmap", vi.fn().mockResolvedValue(new ImageBitmap()));
   const { result } = customRenderHook(() => useBackgroundImage());
 
   await waitFor(() => {
     expect(result.current.backgroundImageFile).toBeDefined();
-    expect(result.current.backgroundImageBitmap).toEqual(
-      expect.any(ImageBitmap),
-    );
+    expect(result.current.backgroundImageBitmap).toEqual(expect.any(ImageBitmap));
   });
 });
 
@@ -61,10 +56,7 @@ test("should handle errors when loading background image", async () => {
   const { result } = customRenderHook(() => useBackgroundImage());
 
   await waitFor(() => {
-    expect(console.error).toHaveBeenCalledExactlyOnceWith(
-      "Failed to load background image",
-      error,
-    );
+    expect(console.error).toHaveBeenCalledExactlyOnceWith("Failed to load background image", error);
     expect(result.current.backgroundImageFile).toBeDefined();
     expect(result.current.backgroundImageBitmap).toBeUndefined();
   });
@@ -79,10 +71,7 @@ test("should handle errors when setting background image", async () => {
   const { result } = customRenderHook(() => useBackgroundImage());
 
   await waitFor(() => result.current.setBackgroundImageFile(mockImage));
-  expect(console.error).toHaveBeenCalledExactlyOnceWith(
-    "Failed to load background image",
-    error,
-  );
+  expect(console.error).toHaveBeenCalledExactlyOnceWith("Failed to load background image", error);
   expect(result.current.backgroundImageFile).toBeUndefined();
   expect(result.current.backgroundImageBitmap).toBeUndefined();
 });

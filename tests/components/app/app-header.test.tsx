@@ -2,10 +2,7 @@ import { test, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AppHeader } from "@/components/app/app-header";
-import {
-  ReadyState,
-  RecordingState,
-} from "@/lib/media-compositor/recording-status";
+import { ReadyState, RecordingState } from "@/lib/media-compositor/recording-status";
 
 const mockToggleRecording = vi.fn();
 
@@ -30,9 +27,7 @@ test("shows recording state UI when recording", () => {
   render(<AppHeader {...recordingProps} />);
 
   const progressbar = screen.getByRole("progressbar");
-  expect(
-    screen.getByRole("button", { name: /Stop export/ }),
-  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Stop export/ })).toBeInTheDocument();
   expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
   expect(progressbar).toHaveValue(50);
 });

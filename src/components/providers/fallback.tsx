@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { resetConfig } from "@/lib/utils";
 import { FallbackProps, getErrorMessage } from "react-error-boundary";
 
@@ -18,8 +12,8 @@ export function Fallback(props: FallbackProps) {
         </CardHeader>
         <CardContent>
           <p>
-            If you are seeing this, please try resetting the configuration. If
-            the problem persists, please contact the developer.
+            If you are seeing this, please try resetting the configuration. If the problem persists,
+            please contact the developer.
           </p>
           <pre className="mt-3 max-h-96 overflow-auto bg-muted px-2 py-4">
             {getErrorMessage(props.error)}

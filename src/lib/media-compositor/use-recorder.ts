@@ -17,17 +17,14 @@ export function useRecorder(resources: {
   rendererConfig: RendererConfig;
   backgroundImageBitmap?: ImageBitmap;
 }) {
-  const [recordingState, setRecordingState] = useState<RecordingStatus>(
-    new ReadyState(),
-  );
+  const [recordingState, setRecordingState] = useState<RecordingStatus>(new ReadyState());
   const abortControllerRef = useRef<AbortController | null>(null);
   const toggleRecording = useCallback(async () => {
     if (!recordingState.isRecording) {
       const midiTracks = resources.midiTracks;
       const audioSource = resources.audioSource;
       const rendererType = resources.rendererConfig.type;
-      const audioVisualizerStyle =
-        resources.rendererConfig.audioVisualizerConfig.style;
+      const audioVisualizerStyle = resources.rendererConfig.audioVisualizerConfig.style;
 
       // Audio is always required
       if (!audioSource) {
@@ -43,9 +40,7 @@ export function useRecorder(resources: {
         return;
       }
       if (!needsMidi && !hasAudioVisualizer) {
-        errorLogWithToast(
-          "Please enable audio visualizer or select a MIDI visualization style.",
-        );
+        errorLogWithToast("Please enable audio visualizer or select a MIDI visualization style.");
         return;
       }
       const abortController = new AbortController();
@@ -53,9 +48,7 @@ export function useRecorder(resources: {
       const signal = abortController.signal;
       setRecordingState(new RecordingState(0));
       const onProgress = (progress: number) => {
-        setRecordingState(
-          progress < 1 ? new RecordingState(progress) : new ReadyState(),
-        );
+        setRecordingState(progress < 1 ? new RecordingState(progress) : new ReadyState());
       };
       toast("Exporting...");
 

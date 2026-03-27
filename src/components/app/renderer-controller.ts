@@ -1,11 +1,6 @@
 import { MidiTrack } from "@/lib/midi/midi";
 import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
-import {
-  Renderer,
-  RendererConfig,
-  RendererType,
-  Resolution,
-} from "@/lib/renderers/renderer";
+import { Renderer, RendererConfig, RendererType, Resolution } from "@/lib/renderers/renderer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
@@ -48,14 +43,9 @@ export class RendererController {
 
     // Update or recreate audio visualizer overlay
     if (this.audioVisualizerOverlay) {
-      this.audioVisualizerOverlay.setConfig(
-        rendererConfig.audioVisualizerConfig,
-      );
+      this.audioVisualizerOverlay.setConfig(rendererConfig.audioVisualizerConfig);
     }
-    if (
-      !this.audioVisualizerOverlay ||
-      this.currentResolution !== rendererConfig.resolution
-    ) {
+    if (!this.audioVisualizerOverlay || this.currentResolution !== rendererConfig.resolution) {
       this.audioVisualizerOverlay = new AudioVisualizerOverlay(
         this.context,
         rendererConfig.audioVisualizerConfig,
@@ -79,11 +69,7 @@ export class RendererController {
     this.renderer = getRendererFromConfig(this.context, this.rendererConfig);
   }
 
-  render(
-    tracks: MidiTrack[],
-    currentTime: number,
-    frequencyData?: FrequencyData | null,
-  ) {
+  render(tracks: MidiTrack[], currentTime: number, frequencyData?: FrequencyData | null) {
     if (!this.rendererConfig) return;
     const { resolution } = this.rendererConfig;
     const ctx = this.context;

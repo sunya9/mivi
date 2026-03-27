@@ -160,11 +160,7 @@ export default defineConfig(({ mode }) => ({
     },
     coverage: {
       include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: [
-        ...(configDefaults.coverage.exclude || []),
-        "src/components/ui/**",
-        "dev-dist",
-      ],
+      exclude: [...(configDefaults.coverage.exclude || []), "src/components/ui/**", "dev-dist"],
     },
     projects: [
       {
@@ -212,13 +208,7 @@ export default defineConfig(({ mode }) => ({
             expect: {
               toMatchScreenshot: {
                 // Exclude browser/platform from screenshot path to allow cross-platform baseline sharing
-                resolveScreenshotPath: ({
-                  root,
-                  testFileDirectory,
-                  testFileName,
-                  arg,
-                  ext,
-                }) =>
+                resolveScreenshotPath: ({ root, testFileDirectory, testFileName, arg, ext }) =>
                   `${root}/${testFileDirectory}/__screenshots__/${testFileName}/${arg}${ext}`,
                 // Increase timeout for CI environments where browser initialization takes longer
                 timeout: 10000,
@@ -233,8 +223,7 @@ export default defineConfig(({ mode }) => ({
   },
 }));
 
-const waitForDownload: BrowserCommand<[]> = (ctx) =>
-  ctx.page.waitForEvent("download");
+const waitForDownload: BrowserCommand<[]> = (ctx) => ctx.page.waitForEvent("download");
 
 function devBranchTitlePlugin(): PluginOption {
   return {
@@ -246,10 +235,7 @@ function devBranchTitlePlugin(): PluginOption {
           encoding: "utf-8",
         }).trim();
         if (branch) {
-          return html.replace(
-            /<title>(.*?)<\/title>/,
-            `<title>$1 (${branch})</title>`,
-          );
+          return html.replace(/<title>(.*?)<\/title>/, `<title>$1 (${branch})</title>`);
         }
       } catch {
         // ignore

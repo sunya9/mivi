@@ -25,9 +25,7 @@ function createDragEvent(files: File[]): DragEvent<HTMLDivElement> {
 }
 
 test("renders overlay component when dragging", () => {
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const event = createDragEvent([]);
   act(() => {
@@ -44,18 +42,14 @@ test("renders overlay component when dragging", () => {
 });
 
 test("does not render overlay component when not dragging", () => {
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const { container } = render(result.current.DragDropOverlay);
   expect(container).toBeEmptyDOMElement();
 });
 
 test("removes overlay component after drag leave", () => {
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const dragOverEvent = createDragEvent([]);
   act(() => {
@@ -75,9 +69,7 @@ test("removes overlay component after drag leave", () => {
 });
 
 test("handles MIDI file drop", async () => {
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.mid", { type: "audio/midi" });
   const event = createDragEvent([file]);
@@ -89,9 +81,7 @@ test("handles MIDI file drop", async () => {
 });
 
 test("handles audio file drop", async () => {
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.mp3", { type: "audio/mpeg" });
   const event = createDragEvent([file]);
@@ -104,9 +94,7 @@ test("handles audio file drop", async () => {
 });
 
 test("handles image file drop", async () => {
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.png", { type: "image/png" });
   const event = createDragEvent([file]);
@@ -119,9 +107,7 @@ test("handles image file drop", async () => {
 });
 
 test("handles unsupported file type", async () => {
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.txt", { type: "text/plain" });
   const event = createDragEvent([file]);
@@ -133,9 +119,7 @@ test("handles unsupported file type", async () => {
   expect(onDropMidi).not.toHaveBeenCalled();
   expect(onDropAudio).not.toHaveBeenCalled();
   expect(onDropImage).not.toHaveBeenCalled();
-  expect(errorLogWithToast).toHaveBeenCalledExactlyOnceWith(
-    "Unsupported file type: text/plain",
-  );
+  expect(errorLogWithToast).toHaveBeenCalledExactlyOnceWith("Unsupported file type: text/plain");
 });
 
 test("handles drag over event", () => {
@@ -175,9 +159,7 @@ test("handles drag leave event", () => {
 });
 
 test("handles multiple files drop", async () => {
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const midiFile = new File([""], "test.mid", { type: "audio/midi" });
   const audioFile = new File([""], "test.mp3", { type: "audio/mpeg" });
@@ -197,9 +179,7 @@ test("handles MIDI file drop error", async () => {
   const error = new Error("Failed to load MIDI file");
   const onDropMidi = vi.fn().mockRejectedValue(error);
 
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.mid", { type: "audio/midi" });
   const event = createDragEvent([file]);
@@ -216,9 +196,7 @@ test("handles MIDI file drop error", async () => {
 test("handles audio file drop error", async () => {
   const error = new Error("Failed to load audio file");
   const onDropAudio = vi.fn().mockRejectedValue(error);
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.mp3", { type: "audio/mpeg" });
   const event = createDragEvent([file]);
@@ -235,9 +213,7 @@ test("handles audio file drop error", async () => {
 test("handles image file drop error", async () => {
   const error = new Error("Failed to load image file");
   const onDropImage = vi.fn().mockRejectedValue(error);
-  const { result } = renderHook(() =>
-    useDnd({ onDropMidi, onDropAudio, onDropImage }),
-  );
+  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.png", { type: "image/png" });
   const event = createDragEvent([file]);

@@ -1,9 +1,5 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type {
-  AudioVisualizerConfig,
-  RendererContext,
-  Resolution,
-} from "./renderer";
+import type { AudioVisualizerConfig, RendererContext, Resolution } from "./renderer";
 import { BarSpectrumDrawer } from "./audio-visualizer/bar-spectrum-drawer";
 import { LineSpectrumDrawer } from "./audio-visualizer/line-spectrum-drawer";
 import { CircularDrawer } from "./audio-visualizer/circular-drawer";
@@ -19,11 +15,7 @@ export class AudioVisualizerOverlay {
   readonly #circularDrawer: CircularDrawer;
   #config: AudioVisualizerConfig;
 
-  constructor(
-    ctx: RendererContext,
-    config: AudioVisualizerConfig,
-    resolution: Resolution,
-  ) {
+  constructor(ctx: RendererContext, config: AudioVisualizerConfig, resolution: Resolution) {
     this.#ctx = ctx;
     this.#config = config;
     this.#barSpectrumDrawer = new BarSpectrumDrawer(ctx, config, resolution);

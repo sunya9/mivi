@@ -103,9 +103,7 @@ export class AudioPlaybackStore {
   #applyGain(): void {
     const now = this.#audioContext.currentTime;
     this.#gainNode.gain.cancelScheduledValues(now);
-    const effectiveVolume = this.#muted
-      ? 0
-      : Math.max(0, Math.min(1, this.#volume));
+    const effectiveVolume = this.#muted ? 0 : Math.max(0, Math.min(1, this.#volume));
     this.#gainNode.gain.setTargetAtTime(effectiveVolume, now, 0);
   }
 

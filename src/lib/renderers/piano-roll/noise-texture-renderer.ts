@@ -26,18 +26,8 @@ export class NoiseTextureRenderer {
       this.patternLight === null ||
       this.patternDark === null
     ) {
-      this.patternLight = this.generatePattern(
-        intensity,
-        grainSize,
-        colorVariance,
-        false,
-      );
-      this.patternDark = this.generatePattern(
-        intensity,
-        grainSize,
-        colorVariance,
-        true,
-      );
+      this.patternLight = this.generatePattern(intensity, grainSize, colorVariance, false);
+      this.patternDark = this.generatePattern(intensity, grainSize, colorVariance, true);
       this.cachedIntensity = intensity;
       this.cachedGrainSize = grainSize;
       this.cachedColorVariance = colorVariance;
@@ -52,12 +42,7 @@ export class NoiseTextureRenderer {
     this.cachedColorVariance = 0;
   }
 
-  apply(
-    noteColor: string,
-    noteX: number,
-    noteY: number,
-    noteSeed: number,
-  ): void {
+  apply(noteColor: string, noteX: number, noteY: number, noteSeed: number): void {
     const luminance = this.getColorLuminance(noteColor);
     const pattern = luminance > 0.5 ? this.patternDark : this.patternLight;
 
@@ -69,9 +54,7 @@ export class NoiseTextureRenderer {
     const uniqueOffsetX = seededRandom(noteSeed) * 256;
     const uniqueOffsetY = seededRandom(noteSeed + 12345) * 256;
 
-    pattern.setTransform(
-      new DOMMatrix().translate(noteX + uniqueOffsetX, noteY + uniqueOffsetY),
-    );
+    pattern.setTransform(new DOMMatrix().translate(noteX + uniqueOffsetX, noteY + uniqueOffsetY));
     this.ctx.fillStyle = pattern;
     this.ctx.fill();
     this.ctx.restore();

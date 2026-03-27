@@ -10,11 +10,7 @@ interface Props {
   recordingState: RecordingStatus;
   toggleRecording: () => void;
 }
-export function AppHeader({
-  className,
-  recordingState,
-  toggleRecording,
-}: Props) {
+export function AppHeader({ className, recordingState, toggleRecording }: Props) {
   const handleToggleRecording = useCallback(() => {
     if (!document.startViewTransition) {
       toggleRecording();
@@ -32,9 +28,7 @@ export function AppHeader({
     <div className={cn("relative border-b shadow-xs", className)}>
       <div className="mx-auto flex max-w-384 items-center justify-between gap-2 px-4 py-2 md:flex-row md:items-end md:p-6">
         <div className="inline-flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold tracking-tighter md:text-7xl">
-            MiVi
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tighter md:text-7xl">MiVi</h1>
           <p className="text-sm font-medium tracking-tighter text-muted-foreground md:text-xl">
             <span className="text-accent-foreground">MI</span>DI{" "}
             <span className="text-accent-foreground">Vi</span>sualizer

@@ -44,9 +44,7 @@ export function PianoRollConfigPanel({
             min={0.1}
             max={20}
             step={0.1}
-            onValueChange={([value]) =>
-              setPianoRollConfig({ timeWindow: value })
-            }
+            onValueChange={([value]) => setPianoRollConfig({ timeWindow: value })}
           />
         )}
       />
@@ -62,16 +60,12 @@ export function PianoRollConfigPanel({
             min={1}
             max={40}
             step={1}
-            onValueChange={([value]) =>
-              setPianoRollConfig({ noteHeight: value })
-            }
+            onValueChange={([value]) => setPianoRollConfig({ noteHeight: value })}
           />
         )}
       />
       <FormRow
-        label={
-          <span>Note Corner Radius: {pianoRollConfig.noteCornerRadius}px</span>
-        }
+        label={<span>Note Corner Radius: {pianoRollConfig.noteCornerRadius}px</span>}
         customControl
         controller={({ labelId, ref }) => (
           <Slider
@@ -82,9 +76,7 @@ export function PianoRollConfigPanel({
             min={0}
             max={10}
             step={0.5}
-            onValueChange={([value]) =>
-              setPianoRollConfig({ noteCornerRadius: value })
-            }
+            onValueChange={([value]) => setPianoRollConfig({ noteCornerRadius: value })}
           />
         )}
       />
@@ -100,18 +92,12 @@ export function PianoRollConfigPanel({
             min={0}
             max={5}
             step={0.5}
-            onValueChange={([value]) =>
-              setPianoRollConfig({ noteMargin: +value })
-            }
+            onValueChange={([value]) => setPianoRollConfig({ noteMargin: +value })}
           />
         )}
       />
       <FormRow
-        label={
-          <span>
-            Note Vertical Margin: {pianoRollConfig.noteVerticalMargin}px
-          </span>
-        }
+        label={<span>Note Vertical Margin: {pianoRollConfig.noteVerticalMargin}px</span>}
         customControl
         controller={({ labelId, ref }) => (
           <Slider
@@ -122,9 +108,7 @@ export function PianoRollConfigPanel({
             min={0}
             max={10}
             step={0.5}
-            onValueChange={([value]) =>
-              setPianoRollConfig({ noteVerticalMargin: value })
-            }
+            onValueChange={([value]) => setPianoRollConfig({ noteVerticalMargin: value })}
           />
         )}
       />
@@ -132,8 +116,7 @@ export function PianoRollConfigPanel({
         label={
           <span className="flex flex-wrap gap-x-2">
             <span>
-              View Range: {pianoRollConfig.viewRangeBottom} -{" "}
-              {pianoRollConfig.viewRangeTop}
+              View Range: {pianoRollConfig.viewRangeBottom} - {pianoRollConfig.viewRangeTop}
             </span>
             {minNote && maxNote && (
               <span className="text-muted-foreground">
@@ -148,10 +131,7 @@ export function PianoRollConfigPanel({
             ref={ref}
             aria-labelledby={labelId}
             className="w-full max-w-48 min-w-24"
-            value={[
-              pianoRollConfig.viewRangeBottom,
-              pianoRollConfig.viewRangeTop,
-            ]}
+            value={[pianoRollConfig.viewRangeBottom, pianoRollConfig.viewRangeTop]}
             min={0}
             max={127}
             step={1}
@@ -170,9 +150,7 @@ export function PianoRollConfigPanel({
       />
       <Separator />
       <FormRow
-        label={
-          <span>Playhead Position: {pianoRollConfig.playheadPosition}%</span>
-        }
+        label={<span>Playhead Position: {pianoRollConfig.playheadPosition}%</span>}
         customControl
         controller={({ labelId, ref }) => (
           <Slider
@@ -183,9 +161,7 @@ export function PianoRollConfigPanel({
             min={0}
             max={75}
             step={1}
-            onValueChange={([value]) =>
-              setPianoRollConfig({ playheadPosition: value })
-            }
+            onValueChange={([value]) => setPianoRollConfig({ playheadPosition: value })}
           />
         )}
       />
@@ -195,9 +171,7 @@ export function PianoRollConfigPanel({
           <Switch
             id={id}
             checked={pianoRollConfig.showPlayhead}
-            onCheckedChange={(checked) =>
-              setPianoRollConfig({ showPlayhead: checked })
-            }
+            onCheckedChange={(checked) => setPianoRollConfig({ showPlayhead: checked })}
           />
         )}
       />
@@ -209,18 +183,12 @@ export function PianoRollConfigPanel({
               <ColorPickerInput
                 id={id}
                 value={pianoRollConfig.playheadColor}
-                onChange={(value) =>
-                  setPianoRollConfig({ playheadColor: value })
-                }
+                onChange={(value) => setPianoRollConfig({ playheadColor: value })}
               />
             )}
           />
           <FormRow
-            label={
-              <span>
-                Playhead Border Width: {pianoRollConfig.playheadWidth}px
-              </span>
-            }
+            label={<span>Playhead Border Width: {pianoRollConfig.playheadWidth}px</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider
@@ -231,17 +199,14 @@ export function PianoRollConfigPanel({
                 min={1}
                 max={10}
                 step={1}
-                onValueChange={([value]) =>
-                  setPianoRollConfig({ playheadWidth: value })
-                }
+                onValueChange={([value]) => setPianoRollConfig({ playheadWidth: value })}
               />
             )}
           />
           <FormRow
             label={
               <span>
-                Playhead Border Opacity:{" "}
-                {Math.round(pianoRollConfig.playheadOpacity * 100)}%
+                Playhead Border Opacity: {Math.round(pianoRollConfig.playheadOpacity * 100)}%
               </span>
             }
             customControl
@@ -254,9 +219,7 @@ export function PianoRollConfigPanel({
                 min={0}
                 max={1}
                 step={0.05}
-                onValueChange={([value]) =>
-                  setPianoRollConfig({ playheadOpacity: value })
-                }
+                onValueChange={([value]) => setPianoRollConfig({ playheadOpacity: value })}
               />
             )}
           />
@@ -304,9 +267,7 @@ export function PianoRollConfigPanel({
             />
           )}
           <FormRow
-            label={
-              <span>Ripple Duration: {pianoRollConfig.rippleDuration}sec</span>
-            }
+            label={<span>Ripple Duration: {pianoRollConfig.rippleDuration}sec</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider
@@ -378,10 +339,7 @@ export function PianoRollConfigPanel({
           />
           <FormRow
             label={
-              <span>
-                Press Animation Duration:{" "}
-                {pianoRollConfig.pressAnimationDuration}sec
-              </span>
+              <span>Press Animation Duration: {pianoRollConfig.pressAnimationDuration}sec</span>
             }
             customControl
             controller={({ labelId, ref }) => (
@@ -417,9 +375,7 @@ export function PianoRollConfigPanel({
       {pianoRollConfig.showNoteFlash && (
         <>
           <FormRow
-            label={
-              <span>Flash Intensity: {pianoRollConfig.noteFlashIntensity}</span>
-            }
+            label={<span>Flash Intensity: {pianoRollConfig.noteFlashIntensity}</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider
@@ -438,11 +394,7 @@ export function PianoRollConfigPanel({
           />
 
           <FormRow
-            label={
-              <span>
-                Fade Out Duration: {pianoRollConfig.noteFlashFadeOutDuration}sec
-              </span>
-            }
+            label={<span>Fade Out Duration: {pianoRollConfig.noteFlashFadeOutDuration}sec</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider
@@ -487,11 +439,7 @@ export function PianoRollConfigPanel({
           />
           {pianoRollConfig.noteFlashMode === "duration" && (
             <FormRow
-              label={
-                <span>
-                  Flash Duration: {pianoRollConfig.noteFlashDuration}sec
-                </span>
-              }
+              label={<span>Flash Duration: {pianoRollConfig.noteFlashDuration}sec</span>}
               customControl
               controller={({ id, labelId, ref }) => (
                 <Slider
@@ -528,11 +476,7 @@ export function PianoRollConfigPanel({
       {pianoRollConfig.showRoughEdge && (
         <>
           <FormRow
-            label={
-              <span>
-                Rough Edge Intensity: {pianoRollConfig.roughEdgeIntensity}px
-              </span>
-            }
+            label={<span>Rough Edge Intensity: {pianoRollConfig.roughEdgeIntensity}px</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider
@@ -550,11 +494,7 @@ export function PianoRollConfigPanel({
             )}
           />
           <FormRow
-            label={
-              <span>
-                Rough Edge Segment: {pianoRollConfig.roughEdgeSegmentLength}px
-              </span>
-            }
+            label={<span>Rough Edge Segment: {pianoRollConfig.roughEdgeSegmentLength}px</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider
@@ -590,10 +530,7 @@ export function PianoRollConfigPanel({
         <>
           <FormRow
             label={
-              <span>
-                Noise Intensity:{" "}
-                {Math.round(pianoRollConfig.noiseIntensity * 100)}%
-              </span>
+              <span>Noise Intensity: {Math.round(pianoRollConfig.noiseIntensity * 100)}%</span>
             }
             customControl
             controller={({ labelId, ref }) => (
@@ -612,9 +549,7 @@ export function PianoRollConfigPanel({
             )}
           />
           <FormRow
-            label={
-              <span>Noise Grain Size: {pianoRollConfig.noiseGrainSize}px</span>
-            }
+            label={<span>Noise Grain Size: {pianoRollConfig.noiseGrainSize}px</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider
@@ -632,11 +567,7 @@ export function PianoRollConfigPanel({
             )}
           />
           <FormRow
-            label={
-              <span>
-                Noise Color Variance: {pianoRollConfig.noiseColorVariance}
-              </span>
-            }
+            label={<span>Noise Color Variance: {pianoRollConfig.noiseColorVariance}</span>}
             customControl
             controller={({ labelId, ref }) => (
               <Slider

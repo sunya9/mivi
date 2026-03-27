@@ -47,10 +47,9 @@ test("should show error toast when trying to start recording without audio file"
     await result.current.toggleRecording();
   });
 
-  expect(toast.error).toHaveBeenCalledExactlyOnceWith(
-    "Please select an audio file.",
-    { description: undefined },
-  );
+  expect(toast.error).toHaveBeenCalledExactlyOnceWith("Please select an audio file.", {
+    description: undefined,
+  });
 });
 
 test("should show error toast when trying to start recording without MIDI file", async () => {
@@ -65,10 +64,9 @@ test("should show error toast when trying to start recording without MIDI file",
     await result.current.toggleRecording();
   });
 
-  expect(toast.error).toHaveBeenCalledExactlyOnceWith(
-    "Please select a MIDI file.",
-    { description: undefined },
-  );
+  expect(toast.error).toHaveBeenCalledExactlyOnceWith("Please select a MIDI file.", {
+    description: undefined,
+  });
 });
 
 test("should allow recording without MIDI when renderer type is none and audio visualizer is enabled", async () => {
@@ -87,8 +85,7 @@ test("should allow recording without MIDI when renderer type is none and audio v
     },
   });
   vi.mocked(runWorker).mockImplementationOnce(
-    () =>
-      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
   );
 
   await act(async () => {
@@ -134,8 +131,7 @@ test("should show error when renderer type is none and audio visualizer is also 
 test("should start recording when all required files are present", async () => {
   const { result } = renderHook(() => useRecorder(mockProps));
   vi.mocked(runWorker).mockImplementationOnce(
-    () =>
-      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
   );
   await act(async () => {
     await result.current.toggleRecording();
@@ -155,8 +151,7 @@ test("should start recording when all required files are present", async () => {
 test("should abort recording when toggling during recording", async () => {
   const { result } = renderHook(() => useRecorder(mockProps));
   vi.mocked(runWorker).mockImplementationOnce(
-    () =>
-      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 10)),
+    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 10)),
   );
 
   // Start recording
@@ -207,8 +202,7 @@ test("should handle errors during recording", async () => {
 
 test("should show 'Exporting...' toast when starting export", async () => {
   vi.mocked(runWorker).mockImplementationOnce(
-    () =>
-      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
   );
   const { result } = renderHook(() => useRecorder(mockProps));
 
@@ -221,8 +215,7 @@ test("should show 'Exporting...' toast when starting export", async () => {
 
 test("should show success toast when export completes", async () => {
   vi.mocked(runWorker).mockImplementationOnce(
-    () =>
-      new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
   );
   const { result } = renderHook(() => useRecorder(mockProps));
 

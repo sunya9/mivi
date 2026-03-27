@@ -26,9 +26,7 @@ export function GeneralSettings({
           controller={({ id }) => (
             <Select
               value={config.position}
-              onValueChange={(value) =>
-                setConfig({ position: value ?? undefined })
-              }
+              onValueChange={(value) => setConfig({ position: value ?? undefined })}
               items={audioVisualizerPositionOptions}
             >
               <SelectTrigger id={id}>
@@ -77,11 +75,7 @@ export function GeneralSettings({
       />
       {config.mirror && (
         <FormRow
-          label={
-            <span>
-              Mirror Opacity: {Math.round(config.mirrorOpacity * 100)}%
-            </span>
-          }
+          label={<span>Mirror Opacity: {Math.round(config.mirrorOpacity * 100)}%</span>}
           customControl
           controller={({ labelId, ref }) => (
             <Slider

@@ -65,9 +65,7 @@ function createTestRendererConfig(format: VideoFormat): RendererConfig {
   };
 }
 
-export function createTestRecorderResources(
-  format: VideoFormat,
-): RecorderResources {
+export function createTestRecorderResources(format: VideoFormat): RecorderResources {
   return {
     midiTracks: createTestMidiTracks(),
     audioSource: {

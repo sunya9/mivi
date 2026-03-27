@@ -27,17 +27,11 @@ const createMockContext = (
   ...overrides,
 });
 
-function renderSeparator(
-  contextOverrides?: Partial<GridResizableContextValue>,
-) {
+function renderSeparator(contextOverrides?: Partial<GridResizableContextValue>) {
   const context = createMockContext(contextOverrides);
   render(
     <GridResizableContext.Provider value={context}>
-      <GridResizableSeparator
-        id="sep1"
-        orientation="horizontal"
-        controls={["panel1", "panel2"]}
-      />
+      <GridResizableSeparator id="sep1" orientation="horizontal" controls={["panel1", "panel2"]} />
     </GridResizableContext.Provider>,
   );
   return context;
@@ -65,10 +59,7 @@ describe("GridResizableSeparator", () => {
       renderSeparator();
       const separator = screen.getByRole("separator");
 
-      expect(separator).toHaveAttribute(
-        "data-slot",
-        "grid-resizable-separator",
-      );
+      expect(separator).toHaveAttribute("data-slot", "grid-resizable-separator");
       expect(separator).toHaveAttribute("data-separator-id", "sep1");
       expect(separator).toHaveAttribute("data-orientation", "horizontal");
     });
@@ -158,10 +149,7 @@ describe("GridResizableSeparator", () => {
       separator.focus();
       await user.keyboard("{Home}");
 
-      expect(context.resizeToMin).toHaveBeenCalledWith(
-        ["panel1", "panel2"],
-        "panel1",
-      );
+      expect(context.resizeToMin).toHaveBeenCalledWith(["panel1", "panel2"], "panel1");
     });
 
     it("should call resizeToMin on End key", async () => {
@@ -172,10 +160,7 @@ describe("GridResizableSeparator", () => {
       separator.focus();
       await user.keyboard("{End}");
 
-      expect(context.resizeToMin).toHaveBeenCalledWith(
-        ["panel1", "panel2"],
-        "panel2",
-      );
+      expect(context.resizeToMin).toHaveBeenCalledWith(["panel1", "panel2"], "panel2");
     });
   });
 
@@ -258,10 +243,7 @@ describe("GridResizableSeparator", () => {
 
       const { container } = render(
         <GridResizablePanelGroup id="test-fit-integration" panels={panels}>
-          <div
-            data-panel-id="panel1"
-            style={{ width: "100px", height: "100px" }}
-          />
+          <div data-panel-id="panel1" style={{ width: "100px", height: "100px" }} />
           <GridResizableSeparator
             id="sep1"
             orientation="horizontal"
@@ -269,10 +251,7 @@ describe("GridResizableSeparator", () => {
             getOptimalSizeForFit={getOptimalSizeForFit}
             fitTargetPanel="panel1"
           />
-          <div
-            data-panel-id="panel2"
-            style={{ width: "100px", height: "100px" }}
-          />
+          <div data-panel-id="panel2" style={{ width: "100px", height: "100px" }} />
         </GridResizablePanelGroup>,
       );
 
@@ -334,10 +313,7 @@ describe("GridResizableSeparator", () => {
 
       const { container } = render(
         <GridResizablePanelGroup id="test-fit-vertical" panels={panels}>
-          <div
-            data-panel-id="panel1"
-            style={{ width: "100px", height: "100px" }}
-          />
+          <div data-panel-id="panel1" style={{ width: "100px", height: "100px" }} />
           <GridResizableSeparator
             id="sep1"
             orientation="vertical"
@@ -345,10 +321,7 @@ describe("GridResizableSeparator", () => {
             getOptimalSizeForFit={getOptimalSizeForFit}
             fitTargetPanel="panel1"
           />
-          <div
-            data-panel-id="panel2"
-            style={{ width: "100px", height: "100px" }}
-          />
+          <div data-panel-id="panel2" style={{ width: "100px", height: "100px" }} />
         </GridResizablePanelGroup>,
       );
 
@@ -447,10 +420,7 @@ describe("GridResizableSeparator", () => {
 
       render(
         <GridResizablePanelGroup id="test-fit-px" panels={panels}>
-          <div
-            data-panel-id="panel1"
-            style={{ width: "300px", height: "100px" }}
-          />
+          <div data-panel-id="panel1" style={{ width: "300px", height: "100px" }} />
           <GridResizableSeparator
             id="sep1"
             orientation="vertical"
@@ -458,10 +428,7 @@ describe("GridResizableSeparator", () => {
             getOptimalSizeForFit={getOptimalSizeForFit}
             fitTargetPanel="panel1"
           />
-          <div
-            data-panel-id="panel2"
-            style={{ width: "100px", height: "100px" }}
-          />
+          <div data-panel-id="panel2" style={{ width: "100px", height: "100px" }} />
         </GridResizablePanelGroup>,
       );
 
@@ -479,26 +446,17 @@ describe("GridResizableSeparator", () => {
   describe("valueNow calculation", () => {
     it("should calculate valueNow correctly with equal sizes", () => {
       renderSeparator({ sizes: { panel1: 1, panel2: 1 } });
-      expect(screen.getByRole("separator")).toHaveAttribute(
-        "aria-valuenow",
-        "50",
-      );
+      expect(screen.getByRole("separator")).toHaveAttribute("aria-valuenow", "50");
     });
 
     it("should calculate valueNow correctly with different sizes", () => {
       renderSeparator({ sizes: { panel1: 3, panel2: 1 } });
-      expect(screen.getByRole("separator")).toHaveAttribute(
-        "aria-valuenow",
-        "75",
-      );
+      expect(screen.getByRole("separator")).toHaveAttribute("aria-valuenow", "75");
     });
 
     it("should calculate valueNow correctly when before panel is smaller", () => {
       renderSeparator({ sizes: { panel1: 1, panel2: 3 } });
-      expect(screen.getByRole("separator")).toHaveAttribute(
-        "aria-valuenow",
-        "25",
-      );
+      expect(screen.getByRole("separator")).toHaveAttribute("aria-valuenow", "25");
     });
   });
 
@@ -506,10 +464,7 @@ describe("GridResizableSeparator", () => {
     it("should have correct aria-orientation for horizontal separator", () => {
       renderSeparator();
       // horizontal separator controls vertical split
-      expect(screen.getByRole("separator")).toHaveAttribute(
-        "aria-orientation",
-        "vertical",
-      );
+      expect(screen.getByRole("separator")).toHaveAttribute("aria-orientation", "vertical");
     });
 
     it("should have correct aria-orientation for vertical separator", () => {
@@ -524,10 +479,7 @@ describe("GridResizableSeparator", () => {
         </GridResizableContext.Provider>,
       );
       // vertical separator controls horizontal split
-      expect(screen.getByRole("separator")).toHaveAttribute(
-        "aria-orientation",
-        "horizontal",
-      );
+      expect(screen.getByRole("separator")).toHaveAttribute("aria-orientation", "horizontal");
     });
   });
 

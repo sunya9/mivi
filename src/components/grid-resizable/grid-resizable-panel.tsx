@@ -1,9 +1,6 @@
 import { cn } from "@/lib/utils";
 
-interface GridResizablePanelProps extends Omit<
-  React.HTMLAttributes<HTMLDivElement>,
-  "render"
-> {
+interface GridResizablePanelProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "render"> {
   panelId: string;
 }
 

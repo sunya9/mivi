@@ -37,8 +37,7 @@ export function AudioVisualizerConfigPanel({
   const style = audioVisualizerConfig.style;
   const isEnabled = style !== "none";
   const isCircular = style === "circular";
-  const showBarSettings =
-    style === "bars" || style === "lineSpectrum" || isCircular;
+  const showBarSettings = style === "bars" || style === "lineSpectrum" || isCircular;
   const showLineSpectrumSettings = style === "lineSpectrum";
 
   return (
@@ -72,17 +71,10 @@ export function AudioVisualizerConfigPanel({
             isCircular={isCircular}
           />
           {showBarSettings && (
-            <BarSettings
-              config={audioVisualizerConfig}
-              setConfig={setConfig}
-              style={style}
-            />
+            <BarSettings config={audioVisualizerConfig} setConfig={setConfig} style={style} />
           )}
           {showLineSpectrumSettings && (
-            <LineSpectrumSettings
-              config={audioVisualizerConfig}
-              setConfig={setConfig}
-            />
+            <LineSpectrumSettings config={audioVisualizerConfig} setConfig={setConfig} />
           )}
           <ColorSettings
             config={audioVisualizerConfig}
@@ -90,10 +82,7 @@ export function AudioVisualizerConfigPanel({
             isCircular={isCircular}
             showFill={showLineSpectrumSettings}
           />
-          <AnalyzerSettings
-            config={audioVisualizerConfig}
-            setConfig={setConfig}
-          />
+          <AnalyzerSettings config={audioVisualizerConfig} setConfig={setConfig} />
         </>
       )}
     </>

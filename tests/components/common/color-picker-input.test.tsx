@@ -10,9 +10,7 @@ beforeEach(() => {
   mockOnChange.mockClear();
 });
 
-function renderColorPickerInput(
-  props: Partial<ComponentProps<typeof ColorPickerInput>> = {},
-) {
+function renderColorPickerInput(props: Partial<ComponentProps<typeof ColorPickerInput>> = {}) {
   return customRender(
     <ColorPickerInput
       value="#ff0000"
@@ -141,22 +139,12 @@ test("should not set aria-invalid for valid input", () => {
 // Sync with external value changes
 test("should sync input value when external value changes", () => {
   const { rerender } = render(
-    <ColorPickerInput
-      value="#ff0000"
-      onChange={mockOnChange}
-      aria-label="Color picker"
-    />,
+    <ColorPickerInput value="#ff0000" onChange={mockOnChange} aria-label="Color picker" />,
   );
   const input = screen.getByRole("textbox");
   expect(input).toHaveValue("#ff0000");
 
-  rerender(
-    <ColorPickerInput
-      value="#00ff00"
-      onChange={mockOnChange}
-      aria-label="Color picker"
-    />,
-  );
+  rerender(<ColorPickerInput value="#00ff00" onChange={mockOnChange} aria-label="Color picker" />);
   expect(screen.getByRole("textbox")).toHaveValue("#00ff00");
 });
 

@@ -1,8 +1,5 @@
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
-import {
-  getDefaultRendererConfig,
-  type Resolution,
-} from "@/lib/renderers/renderer";
+import { getDefaultRendererConfig, type Resolution } from "@/lib/renderers/renderer";
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { expect, test, vi } from "vitest";
 
@@ -126,11 +123,7 @@ test("setConfig should update config and propagate to drawers", () => {
     ...getDefaultRendererConfig().audioVisualizerConfig,
     style: "none" as const,
   };
-  const overlay = new AudioVisualizerOverlay(
-    ctx,
-    initialConfig,
-    defaultResolution,
-  );
+  const overlay = new AudioVisualizerOverlay(ctx, initialConfig, defaultResolution);
 
   const newConfig = {
     ...initialConfig,

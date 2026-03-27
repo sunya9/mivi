@@ -8,9 +8,7 @@ import {
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { SerializedAudio } from "@/lib/audio/audio";
 
-function createMockSerializedAudio(
-  overrides: Partial<SerializedAudio> = {},
-): SerializedAudio {
+function createMockSerializedAudio(overrides: Partial<SerializedAudio> = {}): SerializedAudio {
   const sampleRate = 44100;
   const duration = 1; // 1 second
   const length = sampleRate * duration;
@@ -221,9 +219,7 @@ describe("precomputeFFTData", () => {
     });
 
     // Both should have same structure
-    expect(resultWithSmoothing.frames.length).toBe(
-      resultWithoutSmoothing.frames.length,
-    );
+    expect(resultWithSmoothing.frames.length).toBe(resultWithoutSmoothing.frames.length);
 
     // Values may differ due to smoothing
     // Smoothing should create more continuity between frames

@@ -24,11 +24,7 @@ function TestWrapper({
 }) {
   const appContextValue = createAppContext(audioContext);
   return (
-    <ThemeProvider
-      themes={["light", "dark"]}
-      defaultTheme="light"
-      attribute="class"
-    >
+    <ThemeProvider themes={["light", "dark"]} defaultTheme="light" attribute="class">
       <CacheProvider>
         <AppContext value={appContextValue}>
           <Suspense fallback={null}>{children}</Suspense>
@@ -94,13 +90,9 @@ test("audioBuffer is undefined if failed to load initial audio buffer", async ()
   const error = new Error("Failed to decode audio data");
   // decodeAudioData returns a Promise, so mock should reject
   audioContext.decodeAudioData = vi.fn().mockRejectedValue(error);
-  const consoleErrorSpy = vi
-    .spyOn(console, "error")
-    .mockImplementation(() => {});
+  const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   const { result } = renderHook(() => useAudio(), {
-    wrapper: ({ children }) => (
-      <TestWrapper audioContext={audioContext}>{children}</TestWrapper>
-    ),
+    wrapper: ({ children }) => <TestWrapper audioContext={audioContext}>{children}</TestWrapper>,
   });
   await waitFor(() => {
     expect(result.current.audioBuffer).toBeUndefined();
@@ -118,13 +110,9 @@ test("handles audio file loading errors", async () => {
   const error = new Error("Failed to decode audio data");
   // decodeAudioData returns a Promise, so mock should reject
   audioContext.decodeAudioData = vi.fn().mockRejectedValue(error);
-  const consoleErrorSpy = vi
-    .spyOn(console, "error")
-    .mockImplementation(() => {});
+  const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   const { result } = renderHook(() => useAudio(), {
-    wrapper: ({ children }) => (
-      <TestWrapper audioContext={audioContext}>{children}</TestWrapper>
-    ),
+    wrapper: ({ children }) => <TestWrapper audioContext={audioContext}>{children}</TestWrapper>,
   });
 
   // Wait for initial render to complete (Suspense)
@@ -134,14 +122,10 @@ test("handles audio file loading errors", async () => {
   await result.current.setAudioFile(invalidFile);
 
   // Verify error handling
-  expect(toast.error).toHaveBeenCalledExactlyOnceWith(
-    "Failed to set audio file",
-    { description: error.message },
-  );
-  expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith(
-    "Failed to set audio file",
-    error,
-  );
+  expect(toast.error).toHaveBeenCalledExactlyOnceWith("Failed to set audio file", {
+    description: error.message,
+  });
+  expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith("Failed to set audio file", error);
   expect(result.current.audioBuffer).toBeUndefined();
   expect(result.current.serializedAudio).toBeUndefined();
   expect(result.current.audioFile).toBeUndefined();
@@ -162,9 +146,7 @@ test("isDecoding is true while decoding and false after completion", async () =>
   audioContext.decodeAudioData = vi.fn().mockReturnValue(decodePromise);
 
   const { result } = renderHook(() => useAudio(), {
-    wrapper: ({ children }) => (
-      <TestWrapper audioContext={audioContext}>{children}</TestWrapper>
-    ),
+    wrapper: ({ children }) => <TestWrapper audioContext={audioContext}>{children}</TestWrapper>,
   });
 
   await waitFor(() => expect(result.current).not.toBeNull());
@@ -193,9 +175,7 @@ test("cancelDecode stops decoding and ignores the result", async () => {
   audioContext.decodeAudioData = vi.fn().mockReturnValue(decodePromise);
 
   const { result } = renderHook(() => useAudio(), {
-    wrapper: ({ children }) => (
-      <TestWrapper audioContext={audioContext}>{children}</TestWrapper>
-    ),
+    wrapper: ({ children }) => <TestWrapper audioContext={audioContext}>{children}</TestWrapper>,
   });
 
   await waitFor(() => expect(result.current).not.toBeNull());

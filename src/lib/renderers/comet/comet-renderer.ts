@@ -67,21 +67,17 @@ export class CometRenderer extends Renderer {
           // Calculate angle offset for this comet if not exists
           if (!this.cometAngleOffsets.has(cometKey)) {
             // Create deterministic angle offset based on note properties
-            const pseudoRandomAngle =
-              ((note.time * 54321 + note.midi * 98765) % 1000) / 1000 - 0.5;
-            const randomAngleOffset =
-              pseudoRandomAngle * 2 * cometConfig.angleRandomness;
+            const pseudoRandomAngle = ((note.time * 54321 + note.midi * 98765) % 1000) / 1000 - 0.5;
+            const randomAngleOffset = pseudoRandomAngle * 2 * cometConfig.angleRandomness;
             this.cometAngleOffsets.set(cometKey, randomAngleOffset);
           }
 
           const angleOffset = this.cometAngleOffsets.get(cometKey)!;
 
           // Calculate comet position based on MIDI note
-          const noteRange =
-            cometConfig.viewRangeTop - cometConfig.viewRangeBottom;
+          const noteRange = cometConfig.viewRangeTop - cometConfig.viewRangeBottom;
           // Invert normalizedMidi so high notes (high MIDI values) are at the top (low Y values)
-          const normalizedMidi =
-            1 - (note.midi - cometConfig.viewRangeBottom) / noteRange;
+          const normalizedMidi = 1 - (note.midi - cometConfig.viewRangeBottom) / noteRange;
 
           // Start position based on startPosition settings
           const baseStartX = width * (cometConfig.startPositionX / 100);
@@ -110,18 +106,14 @@ export class CometRenderer extends Renderer {
           const spacingOffsetY = Math.sin(perpendicularAngle) * spacingDistance;
 
           // Create deterministic "random" offset based on note properties
-          const pseudoRandom =
-            ((note.time * 12345 + note.midi * 67890) % 1000) / 1000 - 0.5;
+          const pseudoRandom = ((note.time * 12345 + note.midi * 67890) % 1000) / 1000 - 0.5;
           const randomOffset = pseudoRandom * cometConfig.spacingRandomness;
           const randomOffsetX = Math.cos(perpendicularAngle) * randomOffset;
           const randomOffsetY = Math.sin(perpendicularAngle) * randomOffset;
 
           const startX = baseStartX + spacingOffsetX + randomOffsetX;
           const startY =
-            baseStartY +
-            normalizedMidi * height * 0.2 +
-            spacingOffsetY +
-            randomOffsetY;
+            baseStartY + normalizedMidi * height * 0.2 + spacingOffsetY + randomOffsetY;
 
           // Create comet particle with proper duration timing
           this.activeComets.set(cometKey, {
@@ -145,10 +137,7 @@ export class CometRenderer extends Renderer {
       if (currentTime < comet.startTime) return;
 
       const totalDuration = comet.endTime - comet.startTime;
-      const progress = Math.min(
-        1.0,
-        (currentTime - comet.startTime) / totalDuration,
-      );
+      const progress = Math.min(1.0, (currentTime - comet.startTime) / totalDuration);
 
       if (progress >= 1.0) {
         // Start fade out
@@ -169,8 +158,7 @@ export class CometRenderer extends Renderer {
 
       // Calculate distance based on screen diagonal and percentage
       const screenDiagonal = Math.sqrt(width * width + height * height);
-      const maxDistance =
-        screenDiagonal * (cometConfig.fallDistancePercent / 100);
+      const maxDistance = screenDiagonal * (cometConfig.fallDistancePercent / 100);
       const distance = progress * maxDistance;
 
       const currentX = comet.x + Math.cos(angleRad) * distance;
@@ -187,10 +175,7 @@ export class CometRenderer extends Renderer {
     });
   }
 
-  private calculateCometTrail(
-    comet: CometParticle,
-    currentTime: number,
-  ): CometTrail {
+  private calculateCometTrail(comet: CometParticle, currentTime: number): CometTrail {
     const { cometConfig } = this.config;
     const { width, height } = this.config.resolution;
     const positions: Array<{ x: number; y: number; timestamp: number }> = [];
@@ -205,10 +190,7 @@ export class CometRenderer extends Renderer {
     }
 
     const totalDuration = comet.endTime - comet.startTime;
-    const currentProgress = Math.min(
-      1.0,
-      (currentTime - comet.startTime) / totalDuration,
-    );
+    const currentProgress = Math.min(1.0, (currentTime - comet.startTime) / totalDuration);
 
     // Calculate how many trail points to generate based on trail length setting
     const trailPoints = Math.max(2, Math.floor(cometConfig.trailLength * 60));
@@ -233,8 +215,7 @@ export class CometRenderer extends Renderer {
 
       // Calculate distance based on screen diagonal and percentage
       const screenDiagonal = Math.sqrt(width * width + height * height);
-      const maxDistance =
-        screenDiagonal * (cometConfig.fallDistancePercent / 100);
+      const maxDistance = screenDiagonal * (cometConfig.fallDistancePercent / 100);
       const distance = progress * maxDistance;
 
       const x = comet.x + Math.cos(angleRad) * distance;
@@ -246,8 +227,7 @@ export class CometRenderer extends Renderer {
     // Calculate alpha for fade out
     let alpha = 1.0;
     if (currentProgress >= 1.0) {
-      const fadeProgress =
-        (currentTime - comet.endTime) / cometConfig.fadeOutDuration;
+      const fadeProgress = (currentTime - comet.endTime) / cometConfig.fadeOutDuration;
       alpha = Math.max(0, 1.0 - fadeProgress);
     }
 
@@ -336,14 +316,12 @@ export class CometRenderer extends Renderer {
     // Calculate alpha for fade out
     let alpha = 1.0;
     if (progress >= 1.0) {
-      const fadeProgress =
-        (currentTime - comet.endTime) / cometConfig.fadeOutDuration;
+      const fadeProgress = (currentTime - comet.endTime) / cometConfig.fadeOutDuration;
       alpha = 1.0 - fadeProgress;
     }
 
     // Draw comet particle
-    const radius =
-      cometConfig.cometSize * (comet.velocity / 127) * comet.trackScale;
+    const radius = cometConfig.cometSize * (comet.velocity / 127) * comet.trackScale;
 
     this.ctx.globalAlpha = alpha;
     this.ctx.fillStyle = comet.color;
@@ -353,14 +331,7 @@ export class CometRenderer extends Renderer {
 
     // Add velocity-based glow effect
     const glowRadius = radius * 2;
-    const glowGradient = this.ctx.createRadialGradient(
-      x,
-      y,
-      0,
-      x,
-      y,
-      glowRadius,
-    );
+    const glowGradient = this.ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
     glowGradient.addColorStop(
       0,
       `${comet.color}${Math.floor(alpha * 128)

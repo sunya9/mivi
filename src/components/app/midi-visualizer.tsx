@@ -1,24 +1,9 @@
 import { formatTime } from "@/lib/utils";
 import { Canvas } from "@/components/app/canvas";
 import { Button } from "@/components/ui/button";
-import {
-  Pause,
-  Play,
-  Volume2,
-  VolumeX,
-  Maximize,
-  Minimize,
-  X,
-} from "lucide-react";
+import { Pause, Play, Volume2, VolumeX, Maximize, Minimize, X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import {
-  useCallback,
-  useEffect,
-  useEffectEvent,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
@@ -84,15 +69,10 @@ export function MidiVisualizer({
       if (!frequencyData && usePrecomputed && serializedAudio) {
         frequencyData = computeFFTAtTime(serializedAudio, currentPosition, {
           fftSize: rendererConfig.audioVisualizerConfig.fftSize,
-          smoothingTimeConstant:
-            rendererConfig.audioVisualizerConfig.smoothingTimeConstant,
+          smoothingTimeConstant: rendererConfig.audioVisualizerConfig.smoothingTimeConstant,
         });
       }
-      rendererControllerRef.current?.render(
-        tracks,
-        currentPosition + midiOffset,
-        frequencyData,
-      );
+      rendererControllerRef.current?.render(tracks, currentPosition + midiOffset, frequencyData);
     },
     [
       getPosition,
@@ -114,9 +94,7 @@ export function MidiVisualizer({
   }, [rendererConfig]);
 
   useEffect(() => {
-    rendererControllerRef.current?.setBackgroundImageBitmap(
-      backgroundImageBitmap,
-    );
+    rendererControllerRef.current?.setBackgroundImageBitmap(backgroundImageBitmap);
     // Use pre-computed FFT data for immediate preview when not playing
     invalidateEffect(true);
   }, [backgroundImageBitmap]);
@@ -164,21 +142,18 @@ export function MidiVisualizer({
     },
     [handleTouchReveal, togglePlay],
   );
-  const setExpandedAnimation = useCallback(
-    (expanded: React.SetStateAction<boolean>) => {
-      if (!document.startViewTransition) {
+  const setExpandedAnimation = useCallback((expanded: React.SetStateAction<boolean>) => {
+    if (!document.startViewTransition) {
+      setExpanded(expanded);
+      return;
+    }
+    document.startViewTransition({
+      update: () => {
         setExpanded(expanded);
-        return;
-      }
-      document.startViewTransition({
-        update: () => {
-          setExpanded(expanded);
-        },
-        types: ["canvas-expand"],
-      });
-    },
-    [],
-  );
+      },
+      types: ["canvas-expand"],
+    });
+  }, []);
   const toggleExpanded = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       setExpandedAnimation((prev) => !prev);
@@ -195,8 +170,7 @@ export function MidiVisualizer({
       if (e.repeat || !(target instanceof HTMLElement)) return;
       const isBody = target instanceof HTMLBodyElement;
       const isSlider =
-        target.role === "slider" ||
-        (target instanceof HTMLInputElement && target.type === "range");
+        target.role === "slider" || (target instanceof HTMLInputElement && target.type === "range");
       if (!isBody && !isSlider) return;
       e.preventDefault();
       togglePlay();
@@ -208,12 +182,10 @@ export function MidiVisualizer({
   );
 
   // Escape: Exit expanded view
-  useHotkeys(
-    "escape",
-    () => setExpandedAnimation(false),
-    { enabled: expanded },
-    [expanded, setExpandedAnimation],
-  );
+  useHotkeys("escape", () => setExpandedAnimation(false), { enabled: expanded }, [
+    expanded,
+    setExpandedAnimation,
+  ]);
 
   // M: Mute/Unmute (disabled in form inputs)
   useHotkeys(
@@ -362,9 +334,7 @@ export function MidiVisualizer({
           aria-modal={expanded}
         >
           <Canvas
-            aspectRatio={
-              rendererConfig.resolution.width / rendererConfig.resolution.height
-            }
+            aspectRatio={rendererConfig.resolution.width / rendererConfig.resolution.height}
             invalidate={invalidate}
             onInit={handleInit}
           />
@@ -438,11 +408,7 @@ export function MidiVisualizer({
                   aria-pressed={muted}
                   aria-label={muted ? "Unmute" : "Mute"}
                 >
-                  {muted ? (
-                    <VolumeX className="size-4" />
-                  ) : (
-                    <Volume2 className="size-4" />
-                  )}
+                  {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
                 </Button>
                 <Slider
                   value={[volume]}
@@ -468,11 +434,7 @@ export function MidiVisualizer({
                   aria-haspopup="dialog"
                   aria-label={expanded ? "Minimize" : "Maximize"}
                 >
-                  {expanded ? (
-                    <Minimize className="size-4" />
-                  ) : (
-                    <Maximize className="size-4" />
-                  )}
+                  {expanded ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
                 </Button>
               </div>
             </div>
@@ -535,9 +497,7 @@ function PlayIcon({ isPlaying, showInteractive, onTogglePlay }: PlayIconProps) {
     if (isAnimatingRef.current) return;
     if (interactiveRef.current) {
       interactiveRef.current.style.opacity = showInteractive ? "1" : "0";
-      interactiveRef.current.style.pointerEvents = showInteractive
-        ? "auto"
-        : "none";
+      interactiveRef.current.style.pointerEvents = showInteractive ? "auto" : "none";
     }
   }, [showInteractive]);
 

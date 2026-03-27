@@ -6,12 +6,8 @@ import { RafStub } from "tests/raf-stub";
 export const rafStub = new RafStub();
 
 beforeEach(() => {
-  vi.spyOn(window, "requestAnimationFrame").mockImplementation(
-    rafStub.requestAnimationFrame,
-  );
-  vi.spyOn(window, "cancelAnimationFrame").mockImplementation(
-    rafStub.cancelAnimationFrame,
-  );
+  vi.spyOn(window, "requestAnimationFrame").mockImplementation(rafStub.requestAnimationFrame);
+  vi.spyOn(window, "cancelAnimationFrame").mockImplementation(rafStub.cancelAnimationFrame);
 });
 
 afterEach(() => {
@@ -22,12 +18,9 @@ afterEach(() => {
 test("starts animation frame loop", () => {
   const onAnimate = vi.fn();
 
-  const { rerender } = renderHook(
-    (isPlaying: boolean) => useAnimationFrame(isPlaying, onAnimate),
-    {
-      initialProps: true,
-    },
-  );
+  const { rerender } = renderHook((isPlaying: boolean) => useAnimationFrame(isPlaying, onAnimate), {
+    initialProps: true,
+  });
   rafStub.step();
   rafStub.step();
   rafStub.step();

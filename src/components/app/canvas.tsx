@@ -1,10 +1,5 @@
 import { cn } from "@/lib/utils";
-import {
-  CanvasHTMLAttributes,
-  useEffectEvent,
-  useLayoutEffect,
-  useRef,
-} from "react";
+import { CanvasHTMLAttributes, useEffectEvent, useLayoutEffect, useRef } from "react";
 
 interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   aspectRatio: number;
@@ -31,14 +26,7 @@ function calcSize(container: HTMLElement, aspectRatio: number) {
   }
 }
 
-export function Canvas({
-  onInit,
-  className,
-  aspectRatio,
-  style,
-  invalidate,
-  ...props
-}: Props) {
+export function Canvas({ onInit, className, aspectRatio, style, invalidate, ...props }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -75,11 +63,7 @@ export function Canvas({
   return (
     <div
       ref={containerRef}
-      className={cn(
-        "h-full w-full",
-        "flex items-center justify-center",
-        className,
-      )}
+      className={cn("h-full w-full", "flex items-center justify-center", className)}
     >
       <canvas
         ref={canvasRef}

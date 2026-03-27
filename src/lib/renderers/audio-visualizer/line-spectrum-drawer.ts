@@ -1,9 +1,5 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type {
-  AudioVisualizerConfig,
-  RendererContext,
-  Resolution,
-} from "@/lib/renderers/renderer";
+import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/renderers/renderer";
 import type { AudioVisualizerDrawer } from "./types";
 import { getGradientCoords } from "./gradient-utils";
 
@@ -16,11 +12,7 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
   #config: AudioVisualizerConfig;
   readonly #resolution: Resolution;
 
-  constructor(
-    ctx: RendererContext,
-    config: AudioVisualizerConfig,
-    resolution: Resolution,
-  ) {
+  constructor(ctx: RendererContext, config: AudioVisualizerConfig, resolution: Resolution) {
     this.#ctx = ctx;
     this.#config = config;
     this.#resolution = resolution;
@@ -77,11 +69,7 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
     // Create fill style (gradient or single color)
     let fillStyle: string | CanvasGradient;
     if (useGradient) {
-      const [x0, y0, x1, y1] = getGradientCoords(
-        gradientDirection,
-        canvasWidth,
-        canvasHeight,
-      );
+      const [x0, y0, x1, y1] = getGradientCoords(gradientDirection, canvasWidth, canvasHeight);
       const gradient = this.#ctx.createLinearGradient(x0, y0, x1, y1);
       gradient.addColorStop(0, gradientStartColor);
       gradient.addColorStop(1, gradientEndColor);
@@ -168,8 +156,7 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
       });
 
       // Calculate mirror baseline for fill
-      const mirrorBaseY =
-        position === "bottom" ? 0 : position === "top" ? canvasHeight : baseY;
+      const mirrorBaseY = position === "bottom" ? 0 : position === "top" ? canvasHeight : baseY;
 
       if (fill && stroke) {
         this.#ctx.save();
@@ -208,11 +195,7 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
     minFrequency: number,
     maxFrequency: number,
   ): number[] {
-    const {
-      frequencyData: data,
-      frequencyBinCount,
-      nyquistFrequency,
-    } = frequencyData;
+    const { frequencyData: data, frequencyBinCount, nyquistFrequency } = frequencyData;
     const result: number[] = [];
 
     const logMin = Math.log10(minFrequency);
@@ -223,20 +206,12 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
       const freqStart = Math.pow(10, logMin + i * logStep);
       const freqEnd = Math.pow(10, logMin + (i + 1) * logStep);
 
-      const binStart = Math.floor(
-        (freqStart / nyquistFrequency) * frequencyBinCount,
-      );
-      const binEnd = Math.ceil(
-        (freqEnd / nyquistFrequency) * frequencyBinCount,
-      );
+      const binStart = Math.floor((freqStart / nyquistFrequency) * frequencyBinCount);
+      const binEnd = Math.ceil((freqEnd / nyquistFrequency) * frequencyBinCount);
 
       let sum = 0;
       let count = 0;
-      for (
-        let j = Math.max(0, binStart);
-        j < Math.min(frequencyBinCount, binEnd);
-        j++
-      ) {
+      for (let j = Math.max(0, binStart); j < Math.min(frequencyBinCount, binEnd); j++) {
         sum += data[j];
         count++;
       }
@@ -310,11 +285,7 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
     this.#ctx.stroke();
   }
 
-  #drawFilledPath(
-    points: { x: number; y: number }[],
-    tension: number,
-    baseY: number,
-  ): void {
+  #drawFilledPath(points: { x: number; y: number }[], tension: number, baseY: number): void {
     if (points.length < 2) return;
 
     this.#ctx.beginPath();

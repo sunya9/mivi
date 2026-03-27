@@ -54,10 +54,7 @@ export class PianoRollRenderer extends Renderer {
 
   private noteToY(midi: number) {
     const { height } = this.config.resolution;
-    const noteHeight = Math.max(
-      height / 127,
-      this.config.pianoRollConfig.noteHeight,
-    );
+    const noteHeight = Math.max(height / 127, this.config.pianoRollConfig.noteHeight);
 
     const viewRangeTop = this.config.pianoRollConfig.viewRangeTop;
     const viewRangeBottom = this.config.pianoRollConfig.viewRangeBottom;
@@ -86,8 +83,7 @@ export class PianoRollRenderer extends Renderer {
     const playheadPosition = this.config.pianoRollConfig.playheadPosition / 100;
     const playheadX = width * playheadPosition;
 
-    const startTime =
-      currentTime - this.config.pianoRollConfig.timeWindow * playheadPosition;
+    const startTime = currentTime - this.config.pianoRollConfig.timeWindow * playheadPosition;
     const endTime = startTime + this.config.pianoRollConfig.timeWindow;
 
     const timeToX = (time: number, scale: number = 1) => {
@@ -95,10 +91,7 @@ export class PianoRollRenderer extends Renderer {
       const scaledTimeFromPlayhead = timeFromPlayhead * scale;
       const adjustedTime = currentTime + scaledTimeFromPlayhead;
 
-      return (
-        width *
-        ((adjustedTime - startTime) / this.config.pianoRollConfig.timeWindow)
-      );
+      return width * ((adjustedTime - startTime) / this.config.pianoRollConfig.timeWindow);
     };
 
     // Reverse iteration so first track in list appears on top (drawn last)
@@ -110,14 +103,10 @@ export class PianoRollRenderer extends Renderer {
       const scale = track.config.scale;
       const leftEdgeTime = currentTime + (startTime - currentTime) / scale;
       const rightEdgeTime = currentTime + (endTime - currentTime) / scale;
-      const scaledOverflow =
-        (this.config.pianoRollConfig.timeWindow * this.overflowFactor) / scale;
+      const scaledOverflow = (this.config.pianoRollConfig.timeWindow * this.overflowFactor) / scale;
 
       // Binary search to skip notes that end before the visible range
-      const startIdx = findFirstVisibleNoteIndex(
-        track.notes,
-        leftEdgeTime - scaledOverflow,
-      );
+      const startIdx = findFirstVisibleNoteIndex(track.notes, leftEdgeTime - scaledOverflow);
 
       for (let ni = startIdx; ni < track.notes.length; ni++) {
         const note = track.notes[ni];
@@ -131,13 +120,9 @@ export class PianoRollRenderer extends Renderer {
 
         const x = timeToX(noteStart, track.config.scale);
         const rawNoteWidth = timeToX(noteEnd, track.config.scale) - x;
-        const baseNoteHeight = Math.max(
-          height / 127,
-          this.config.pianoRollConfig.noteHeight,
-        );
+        const baseNoteHeight = Math.max(height / 127, this.config.pianoRollConfig.noteHeight);
         const verticalMargin = this.config.pianoRollConfig.noteVerticalMargin;
-        const noteHeight =
-          Math.max(0, baseNoteHeight - verticalMargin * 2) * track.config.scale;
+        const noteHeight = Math.max(0, baseNoteHeight - verticalMargin * 2) * track.config.scale;
 
         const noteMargin = this.config.pianoRollConfig.noteMargin;
         let noteWidth;
@@ -150,8 +135,7 @@ export class PianoRollRenderer extends Renderer {
         const y = this.noteToY(note.midi) + verticalMargin;
 
         const noteKey = note.id;
-        const isTouchingPlayhead =
-          Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
+        const isTouchingPlayhead = Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
         const wasNotTouchingPlayhead = !this.noteFlashStates.has(noteKey);
 
         // Update press state (only when press effect is enabled)
@@ -161,9 +145,7 @@ export class PianoRollRenderer extends Renderer {
               startTime: currentTime,
               isPressed: isTouchingPlayhead,
             });
-          } else if (
-            this.pressStates.get(noteKey)!.isPressed !== isTouchingPlayhead
-          ) {
+          } else if (this.pressStates.get(noteKey)!.isPressed !== isTouchingPlayhead) {
             this.pressStates.set(noteKey, {
               startTime: currentTime,
               isPressed: isTouchingPlayhead,
@@ -204,8 +186,7 @@ export class PianoRollRenderer extends Renderer {
           this.noteFlashStates.set(noteKey, {
             noteStart: currentTime,
             color: track.config.color,
-            isDurationMode:
-              this.config.pianoRollConfig.noteFlashMode === "duration",
+            isDurationMode: this.config.pianoRollConfig.noteFlashMode === "duration",
             hasCompleted: false,
             wasTouchingPlayhead: true,
           });
@@ -213,8 +194,7 @@ export class PianoRollRenderer extends Renderer {
 
         const flashState = this.noteFlashStates.get(noteKey);
         if (flashState) {
-          const fadeOutDuration =
-            this.config.pianoRollConfig.noteFlashFadeOutDuration;
+          const fadeOutDuration = this.config.pianoRollConfig.noteFlashFadeOutDuration;
           const flashDuration = this.config.pianoRollConfig.noteFlashDuration;
           const timeSinceStart = currentTime - flashState.noteStart;
 
@@ -226,20 +206,14 @@ export class PianoRollRenderer extends Renderer {
               flashState.noteStart = currentTime; // Reset fade out timer while touching
             } else {
               // Fade out
-              const fadeProgress = Math.min(
-                1,
-                timeSinceStart / fadeOutDuration,
-              );
-              intensity =
-                this.config.pianoRollConfig.noteFlashIntensity *
-                (1 - fadeProgress);
+              const fadeProgress = Math.min(1, timeSinceStart / fadeOutDuration);
+              intensity = this.config.pianoRollConfig.noteFlashIntensity * (1 - fadeProgress);
             }
           } else {
             // duration mode
             if (!flashState.hasCompleted) {
               const progress = Math.min(1, timeSinceStart / flashDuration);
-              intensity =
-                this.config.pianoRollConfig.noteFlashIntensity * (1 - progress);
+              intensity = this.config.pianoRollConfig.noteFlashIntensity * (1 - progress);
 
               if (progress >= 1) {
                 flashState.hasCompleted = true;
@@ -248,10 +222,7 @@ export class PianoRollRenderer extends Renderer {
           }
 
           if (intensity > 0) {
-            this.ctx.fillStyle = this.adjustColorBrightness(
-              track.config.color,
-              intensity,
-            );
+            this.ctx.fillStyle = this.adjustColorBrightness(track.config.color, intensity);
           }
 
           // Update touch state
@@ -333,22 +304,12 @@ export class PianoRollRenderer extends Renderer {
     this.rippleStates.forEach((state, noteKey) => {
       const rippleProgress = Math.min(
         1,
-        (currentTime - state.noteStart) /
-          this.config.pianoRollConfig.rippleDuration,
+        (currentTime - state.noteStart) / this.config.pianoRollConfig.rippleDuration,
       );
 
-      this.drawRippleEffect(
-        state.x,
-        state.y,
-        state.color,
-        rippleProgress,
-        rippleProgress,
-      );
+      this.drawRippleEffect(state.x, state.y, state.color, rippleProgress, rippleProgress);
 
-      if (
-        currentTime >=
-        state.noteStart + this.config.pianoRollConfig.rippleDuration
-      ) {
+      if (currentTime >= state.noteStart + this.config.pianoRollConfig.rippleDuration) {
         this.rippleStates.delete(noteKey);
       }
     });
@@ -376,10 +337,7 @@ export class PianoRollRenderer extends Renderer {
     const maxRipples = 1;
 
     for (let i = 0; i < maxRipples; i++) {
-      const radius = Math.max(
-        0,
-        this.config.pianoRollConfig.rippleRadius * radiusProgress,
-      );
+      const radius = Math.max(0, this.config.pianoRollConfig.rippleRadius * radiusProgress);
       const alpha = 0.4 * (1 - fadeProgress);
 
       if (alpha <= 0) return;
@@ -417,12 +375,8 @@ export class PianoRollRenderer extends Renderer {
   }
 
   private updateNoiseTexture(): void {
-    const {
-      showNoiseTexture,
-      noiseIntensity,
-      noiseGrainSize,
-      noiseColorVariance,
-    } = this.config.pianoRollConfig;
+    const { showNoiseTexture, noiseIntensity, noiseGrainSize, noiseColorVariance } =
+      this.config.pianoRollConfig;
 
     if (!showNoiseTexture) {
       this.noiseTextureRenderer.clearPatterns();

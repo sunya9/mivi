@@ -1,9 +1,5 @@
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import {
-  getDefaultRendererConfig,
-  RendererConfig,
-  RendererType,
-} from "@/lib/renderers/renderer";
+import { getDefaultRendererConfig, RendererConfig, RendererType } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
 import { defaultsDeep, merge } from "lodash-es";
 import { useMemo, useCallback } from "react";
@@ -20,13 +16,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  TabsIndicator,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator } from "@/components/ui/tabs";
 import React from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -52,12 +42,7 @@ const RENDERER_OPTIONS: RendererOption[] = [
   {
     value: "pianoRoll",
     label: "Piano Roll",
-    renderConfig: (
-      rendererConfig,
-      onUpdateRendererConfig,
-      minNote,
-      maxNote,
-    ) => (
+    renderConfig: (rendererConfig, onUpdateRendererConfig, minNote, maxNote) => (
       <PianoRollConfigPanel
         pianoRollConfig={rendererConfig.pianoRollConfig}
         onUpdateRendererConfig={onUpdateRendererConfig}
@@ -69,12 +54,7 @@ const RENDERER_OPTIONS: RendererOption[] = [
   {
     value: "comet",
     label: "Comet",
-    renderConfig: (
-      rendererConfig,
-      onUpdateRendererConfig,
-      minNote,
-      maxNote,
-    ) => (
+    renderConfig: (rendererConfig, onUpdateRendererConfig, minNote, maxNote) => (
       <CometConfigPanel
         cometConfig={rendererConfig.cometConfig}
         onUpdateRendererConfig={onUpdateRendererConfig}
@@ -95,18 +75,13 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
   );
   const onUpdateRendererConfig = useCallback(
     (partial: DeepPartial<RendererConfig>) => {
-      const newConfig: RendererConfig = merge(
-        { ...rendererConfig },
-        { ...partial },
-      );
+      const newConfig: RendererConfig = merge({ ...rendererConfig }, { ...partial });
       setRendererConfig(newConfig);
     },
     [rendererConfig, setRendererConfig],
   );
 
-  const selectedRenderer = RENDERER_OPTIONS.find(
-    (option) => option.value === rendererConfig.type,
-  );
+  const selectedRenderer = RENDERER_OPTIONS.find((option) => option.value === rendererConfig.type);
   const renderers = RENDERER_OPTIONS.map((option) => ({
     value: option.value,
     label: option.label,
@@ -127,9 +102,7 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
                 controller={({ id }) => (
                   <Select
                     value={rendererConfig.type}
-                    onValueChange={(value) =>
-                      onUpdateRendererConfig({ type: value ?? undefined })
-                    }
+                    onValueChange={(value) => onUpdateRendererConfig({ type: value ?? undefined })}
                     items={renderers}
                   >
                     <SelectTrigger id={id}>
@@ -148,9 +121,7 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
                   </Select>
                 )}
               />
-              {selectedRenderer && rendererConfig.type !== "none" && (
-                <Separator />
-              )}
+              {selectedRenderer && rendererConfig.type !== "none" && <Separator />}
               {selectedRenderer?.renderConfig(
                 rendererConfig,
                 onUpdateRendererConfig,

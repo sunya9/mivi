@@ -13,12 +13,7 @@ interface Props {
   maxNote?: number;
 }
 
-export function CometConfigPanel({
-  cometConfig,
-  onUpdateRendererConfig,
-  minNote,
-  maxNote,
-}: Props) {
+export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote, maxNote }: Props) {
   const setCometConfig = useCallback(
     (cometConfig: DeepPartial<RendererConfig["cometConfig"]>) =>
       onUpdateRendererConfig({ cometConfig }),
@@ -54,9 +49,7 @@ export function CometConfigPanel({
             max={45}
             step={1}
             aria-labelledby={labelId}
-            onValueChange={([value]) =>
-              setCometConfig({ angleRandomness: value })
-            }
+            onValueChange={([value]) => setCometConfig({ angleRandomness: value })}
           />
         )}
       />
@@ -72,9 +65,7 @@ export function CometConfigPanel({
             max={200}
             step={5}
             aria-labelledby={labelId}
-            onValueChange={([value]) =>
-              setCometConfig({ fallDistancePercent: value })
-            }
+            onValueChange={([value]) => setCometConfig({ fallDistancePercent: value })}
           />
         )}
       />
@@ -106,9 +97,7 @@ export function CometConfigPanel({
             max={2.0}
             step={0.01}
             aria-labelledby={labelId}
-            onValueChange={([value]) =>
-              setCometConfig({ fadeOutDuration: value })
-            }
+            onValueChange={([value]) => setCometConfig({ fadeOutDuration: value })}
           />
         )}
       />
@@ -141,9 +130,7 @@ export function CometConfigPanel({
             max={100}
             step={5}
             aria-labelledby={labelId}
-            onValueChange={([value]) =>
-              setCometConfig({ startPositionX: value })
-            }
+            onValueChange={([value]) => setCometConfig({ startPositionX: value })}
           />
         )}
       />
@@ -159,9 +146,7 @@ export function CometConfigPanel({
             max={100}
             step={5}
             aria-labelledby={labelId}
-            onValueChange={([value]) =>
-              setCometConfig({ startPositionY: value })
-            }
+            onValueChange={([value]) => setCometConfig({ startPositionY: value })}
           />
         )}
       />
@@ -199,11 +184,7 @@ export function CometConfigPanel({
         )}
       />
       <FormRow
-        label={
-          <span>
-            Trail Opacity: {Math.round(cometConfig.trailOpacity * 100)}%
-          </span>
-        }
+        label={<span>Trail Opacity: {Math.round(cometConfig.trailOpacity * 100)}%</span>}
         customControl
         controller={({ labelId, ref }) => (
           <Slider
@@ -231,16 +212,12 @@ export function CometConfigPanel({
             max={50}
             step={1}
             aria-labelledby={labelId}
-            onValueChange={([value]) =>
-              setCometConfig({ spacingMargin: value })
-            }
+            onValueChange={([value]) => setCometConfig({ spacingMargin: value })}
           />
         )}
       />
       <FormRow
-        label={
-          <span>Spacing Randomness: {cometConfig.spacingRandomness}px</span>
-        }
+        label={<span>Spacing Randomness: {cometConfig.spacingRandomness}px</span>}
         customControl
         controller={({ labelId, ref }) => (
           <Slider
@@ -251,9 +228,7 @@ export function CometConfigPanel({
             max={20}
             step={1}
             aria-labelledby={labelId}
-            onValueChange={([value]) =>
-              setCometConfig({ spacingRandomness: value })
-            }
+            onValueChange={([value]) => setCometConfig({ spacingRandomness: value })}
           />
         )}
       />
@@ -263,9 +238,7 @@ export function CometConfigPanel({
           <Switch
             id={id}
             checked={cometConfig.reverseStacking}
-            onCheckedChange={(checked) =>
-              setCometConfig({ reverseStacking: checked })
-            }
+            onCheckedChange={(checked) => setCometConfig({ reverseStacking: checked })}
           />
         )}
       />
@@ -274,8 +247,7 @@ export function CometConfigPanel({
         label={
           <span className="flex flex-wrap gap-x-2">
             <span>
-              View Range: {cometConfig.viewRangeBottom} -{" "}
-              {cometConfig.viewRangeTop}
+              View Range: {cometConfig.viewRangeBottom} - {cometConfig.viewRangeTop}
             </span>
             {minNote && maxNote && (
               <span className="text-muted-foreground">

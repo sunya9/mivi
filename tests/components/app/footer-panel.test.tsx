@@ -12,9 +12,7 @@ function PwaWrapper({
   children: React.ReactNode;
   pwaState?: Partial<PwaState>;
 }) {
-  return (
-    <PwaContext value={createMockPwaState(pwaState)}>{children}</PwaContext>
-  );
+  return <PwaContext value={createMockPwaState(pwaState)}>{children}</PwaContext>;
 }
 
 test("FooterPanel renders footer element", () => {
