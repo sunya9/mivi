@@ -3,10 +3,18 @@ import { Canvas } from "@/components/app/canvas";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, Volume2, VolumeX, Maximize, Minimize, X } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
-import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { cn } from "@/lib/utils";
 import { RendererConfig } from "@/lib/renderers/renderer";
-import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
+import { useAppContext } from "@/contexts/app-context";
 import { MidiTracks } from "@/lib/midi/midi";
 import { useAnimationFrame } from "@/hooks/use-animation-frame";
 import { usePanelVisibility } from "@/hooks/use-panel-visibility";
@@ -33,8 +41,12 @@ export function MidiVisualizer({
 }: Props) {
   const rendererControllerRef = useRef<RendererController>(undefined);
 
+  const { audioPlaybackStore: store } = useAppContext();
+  const { duration, volume, muted, isPlaying, position } = useSyncExternalStore(
+    store.subscribe,
+    store.getSnapshot,
+  );
   const {
-    snapshot: { duration, volume, muted, isPlaying, position },
     seek,
     togglePlay,
     setVolume,
@@ -42,7 +54,7 @@ export function MidiVisualizer({
     getPosition,
     syncFromAudioContext,
     getFrequencyData,
-  } = useAudioPlaybackStore();
+  } = store;
   const [expanded, setExpanded] = useState(false);
   // Blocks animation updates during seek (separate from isInteracting for panel visibility)
   const [isSeeking, setIsSeeking] = useState(false);

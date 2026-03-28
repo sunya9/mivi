@@ -8,12 +8,25 @@ import type {
 } from "standardized-audio-context";
 
 /** Immutable snapshot of playback state */
-interface PlaybackSnapshot {
+export interface PlaybackSnapshot {
   readonly isPlaying: boolean;
   readonly position: number;
   readonly duration: number;
   readonly volume: number;
   readonly muted: boolean;
+}
+
+export interface AudioPlaybackStore {
+  subscribe: (listener: () => void) => () => void;
+  getSnapshot: () => PlaybackSnapshot;
+  setVolume: (volume: number) => void;
+  toggleMute: () => void;
+  togglePlay: () => void;
+  seek: (time: number, commit: boolean, seamless?: boolean) => void;
+  syncFromAudioContext: () => void;
+  setAudioBuffer: (audioBuffer: AudioBuffer | undefined) => void;
+  getPosition: () => number;
+  getFrequencyData: () => FrequencyData | null;
 }
 
 const STORAGE_KEY_VOLUME = "mivi:volume";
@@ -32,7 +45,7 @@ const SEEK_SNAP_THRESHOLD_SEC = 1;
  *   (passed as callbacks to React or event listeners)
  * - Regular methods: Internal operations or methods not typically passed as callbacks
  */
-export class AudioPlaybackStore {
+export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
   readonly #audioContext: AudioContext;
   readonly #gainNode: GainNode<AudioContext>;
   readonly #analyser: AudioAnalyzer;

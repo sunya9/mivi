@@ -1,12 +1,14 @@
 import { afterEach, expect, test, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
-import { customRender } from "tests/util";
+import { customRender as customRenderBase } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { testMidiTracks, rendererConfig } from "tests/fixtures";
-import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 import { RendererController } from "@/components/app/renderer-controller";
 import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
+import { type AudioPlaybackStore, type PlaybackSnapshot } from "@/lib/player/audio-playback-store";
+import { type AppContextValue } from "@/contexts/app-context";
+import { AudioContext } from "standardized-audio-context-mock";
 
 const mockRender = vi.spyOn(RendererController.prototype, "render");
 const mockSetRendererConfig = vi.spyOn(RendererController.prototype, "setRendererConfig");
@@ -15,29 +17,47 @@ const mockSetBackgroundImageBitmap = vi.spyOn(
   "setBackgroundImageBitmap",
 );
 
-const defaultStoreMock: ReturnType<typeof useAudioPlaybackStore> = {
-  snapshot: {
-    isPlaying: false,
-    position: 0,
-    duration: 10,
-    volume: 1,
-    muted: false,
-  },
+let currentSnapshot: PlaybackSnapshot = {
+  isPlaying: false,
+  position: 0,
+  duration: 10,
+  volume: 1,
+  muted: false,
+};
+
+const mockStore = {
+  subscribe: vi.fn(() => () => {}),
+  getSnapshot: vi.fn(() => currentSnapshot),
   seek: vi.fn(),
   togglePlay: vi.fn(),
   setVolume: vi.fn(),
   toggleMute: vi.fn(),
   syncFromAudioContext: vi.fn(),
-  getPosition: () => 0,
-  getFrequencyData: () => null,
+  setAudioBuffer: vi.fn(),
+  getPosition: vi.fn(() => 0),
+  getFrequencyData: vi.fn(() => null),
+} satisfies AudioPlaybackStore;
+
+const mockAppContext: AppContextValue = {
+  audioContext: new AudioContext(),
+  audioPlaybackStore: mockStore,
 };
 
-// Mock the useAudioPlaybackStore hook
-vi.mock("@/lib/player/use-audio-playback-store", () => ({
-  useAudioPlaybackStore: vi.fn(() => defaultStoreMock),
-}));
+const defaultSnapshot: PlaybackSnapshot = { ...currentSnapshot };
+
+function mockSnapshot(overrides: Partial<PlaybackSnapshot>, opts?: { getPosition?: () => number }) {
+  currentSnapshot = { ...defaultSnapshot, ...overrides };
+  if (opts?.getPosition) {
+    vi.mocked(mockStore.getPosition).mockImplementation(opts.getPosition);
+  }
+}
+
+function customRender(children: React.ReactNode) {
+  return customRenderBase(children, { appContextValue: mockAppContext });
+}
 
 afterEach(() => {
+  currentSnapshot = { ...defaultSnapshot };
   Object.defineProperty(document, "startViewTransition", {
     value: undefined,
     writable: true,
@@ -67,7 +87,7 @@ test("handles volume control", async () => {
   volumeSlider.focus();
   await userEvent.keyboard("{arrowleft}");
 
-  expect(defaultStoreMock.setVolume).toHaveBeenLastCalledWith(0.99);
+  expect(mockStore.setVolume).toHaveBeenLastCalledWith(0.99);
 });
 
 test("handles seek control with keyboard", async () => {
@@ -81,7 +101,7 @@ test("handles seek control with keyboard", async () => {
   await userEvent.keyboard("{arrowright}");
 
   // Keyboard triggers onValueCommit with commit=true, seamless=true
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(0.1, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(0.1, true, true);
 });
 
 test("toggle play state when space key is pressed", async () => {
@@ -89,7 +109,7 @@ test("toggle play state when space key is pressed", async () => {
 
   await userEvent.keyboard("{ }");
 
-  expect(defaultStoreMock.togglePlay).toHaveBeenCalled();
+  expect(mockStore.togglePlay).toHaveBeenCalled();
 });
 
 test("toggle play state when space key is pressed while slider is focused", async () => {
@@ -104,12 +124,12 @@ test("toggle play state when space key is pressed while slider is focused", asyn
   expect(seekSlider).toHaveAttribute("type", "range");
 
   // Clear previous calls
-  vi.mocked(defaultStoreMock.togglePlay).mockClear();
+  vi.mocked(mockStore.togglePlay).mockClear();
 
   // Press space while slider is focused
   await userEvent.keyboard("{ }");
 
-  expect(defaultStoreMock.togglePlay).toHaveBeenCalled();
+  expect(mockStore.togglePlay).toHaveBeenCalled();
 });
 
 test("toggle play state when space key is pressed while volume slider is focused", async () => {
@@ -122,12 +142,12 @@ test("toggle play state when space key is pressed while volume slider is focused
   volumeSlider.focus();
 
   // Clear previous calls
-  vi.mocked(defaultStoreMock.togglePlay).mockClear();
+  vi.mocked(mockStore.togglePlay).mockClear();
 
   // Press space while slider is focused
   await userEvent.keyboard("{ }");
 
-  expect(defaultStoreMock.togglePlay).toHaveBeenCalled();
+  expect(mockStore.togglePlay).toHaveBeenCalled();
 });
 
 function findPlayer() {
@@ -243,14 +263,11 @@ test("clicking mute button calls toggleMute", async () => {
   const muteButton = screen.getByRole("button", { name: "Mute" });
   await userEvent.click(muteButton);
 
-  expect(defaultStoreMock.toggleMute).toHaveBeenCalled();
+  expect(mockStore.toggleMute).toHaveBeenCalled();
 });
 
 test("mute button shows correct state when unmuted", () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, muted: false },
-  });
+  mockSnapshot({ muted: false });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
@@ -259,10 +276,7 @@ test("mute button shows correct state when unmuted", () => {
 });
 
 test("mute button shows correct state when muted", () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, muted: true },
-  });
+  mockSnapshot({ muted: true });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
@@ -275,14 +289,11 @@ test("toggle mute when 'm' key is pressed", async () => {
 
   await userEvent.keyboard("m");
 
-  expect(defaultStoreMock.toggleMute).toHaveBeenCalled();
+  expect(mockStore.toggleMute).toHaveBeenCalled();
 });
 
 test("reveal control panel when 'm' key is pressed", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true },
-  });
+  mockSnapshot({ isPlaying: true });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
@@ -300,10 +311,7 @@ test("reveal control panel when 'm' key is pressed", async () => {
 // --- Keep panel visible tests ---
 test("panel is always visible when not playing", () => {
   // When not playing, panel should always be visible
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, isPlaying: false },
-  });
+  mockSnapshot({ isPlaying: false });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
@@ -316,10 +324,7 @@ test("panel is always visible when not playing", () => {
 
 test("panel is hidden when playing and no interaction", () => {
   // When playing with no interaction, panel should be hidden
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true },
-  });
+  mockSnapshot({ isPlaying: true });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
@@ -344,109 +349,83 @@ test("F key toggles expand", async () => {
 
 // --- Arrow key seek tests ---
 test("arrow left seeks backward 5s", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{arrowleft}");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(25, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(25, true, true);
 });
 
 test("arrow right seeks forward 5s", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{arrowright}");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(35, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(35, true, true);
 });
 
 test("arrow keys do not seek when slider is focused", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
   seekSlider.focus();
 
-  vi.mocked(defaultStoreMock.seek).mockClear();
+  vi.mocked(mockStore.seek).mockClear();
 
   await userEvent.keyboard("{arrowleft}");
 
   // seek is called via slider's onValueCommit, not by our hotkey
   // Our hotkey handler should not fire when slider is focused
   // The slider's own handler calls seek with step-based values, not ±5s
-  expect(defaultStoreMock.seek).not.toHaveBeenCalledWith(25, true, true);
+  expect(mockStore.seek).not.toHaveBeenCalledWith(25, true, true);
 });
 
 // --- J/L seek tests ---
 test("J key seeks backward 10s", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("j");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(20, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(20, true, true);
 });
 
 test("L key seeks forward 10s", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("l");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(40, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(40, true, true);
 });
 
 // --- Volume key tests ---
 test("arrow up increases volume", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, volume: 0.5 },
-  });
+  mockSnapshot({ volume: 0.5 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{arrowup}");
 
-  expect(defaultStoreMock.setVolume).toHaveBeenCalledWith(0.55);
+  expect(mockStore.setVolume).toHaveBeenCalledWith(0.55);
 });
 
 test("arrow down decreases volume", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, volume: 0.5 },
-  });
+  mockSnapshot({ volume: 0.5 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{arrowdown}");
 
-  expect(defaultStoreMock.setVolume).toHaveBeenCalledWith(0.45);
+  expect(mockStore.setVolume).toHaveBeenCalledWith(0.45);
 });
 
 test("arrow up/down do not adjust volume when slider is focused", async () => {
@@ -455,64 +434,48 @@ test("arrow up/down do not adjust volume when slider is focused", async () => {
   const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
   seekSlider.focus();
 
-  vi.mocked(defaultStoreMock.setVolume).mockClear();
+  vi.mocked(mockStore.setVolume).mockClear();
 
   await userEvent.keyboard("{arrowup}");
 
   // Our hotkey handler should not fire — let slider handle it natively
-  expect(defaultStoreMock.setVolume).not.toHaveBeenCalled();
+  expect(mockStore.setVolume).not.toHaveBeenCalled();
 });
 
 // --- Home/0/End tests ---
 test("Home key seeks to beginning", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{home}");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(0, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(0, true, true);
 });
 
 test("0 key seeks to beginning", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("0");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(0, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(0, true, true);
 });
 
 test("End key seeks to end", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{end}");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(60, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(60, true, true);
 });
 
 // --- Seek/volume shortcuts reveal control panel ---
 test("seek shortcuts reveal control panel", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true, duration: 60 },
-    getPosition: () => 30,
-  });
+  mockSnapshot({ isPlaying: true, duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
@@ -526,10 +489,7 @@ test("seek shortcuts reveal control panel", async () => {
 });
 
 test("volume shortcuts reveal control panel", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, isPlaying: true, volume: 0.5 },
-  });
+  mockSnapshot({ isPlaying: true, volume: 0.5 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
@@ -544,29 +504,21 @@ test("volume shortcuts reveal control panel", async () => {
 
 // --- Seek clamps to boundaries ---
 test("seek does not go below 0", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot },
-    getPosition: () => 3,
-  });
+  mockSnapshot({}, { getPosition: () => 3 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{arrowleft}");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(0, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(0, true, true);
 });
 
 test("seek does not exceed duration", async () => {
-  vi.mocked(useAudioPlaybackStore).mockReturnValue({
-    ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
-    getPosition: () => 58,
-  });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 58 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{arrowright}");
 
-  expect(defaultStoreMock.seek).toHaveBeenCalledWith(60, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(60, true, true);
 });
