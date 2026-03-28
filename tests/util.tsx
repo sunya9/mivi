@@ -1,14 +1,18 @@
-import { createAppContext } from "@/contexts/app-context";
+import { AppContextValue, createAppContext } from "@/contexts/app-context";
 import { renderHook, RenderHookOptions, render as renderOriginal } from "@testing-library/react";
 import { TestProviders } from "./test-providers";
 import { AudioContext } from "standardized-audio-context-mock";
 
-export function customRender(children: React.ReactNode) {
-  const audioContext = new AudioContext();
-  const appContextValue = createAppContext(audioContext);
-  return renderOriginal(
-    <TestProviders appContextValue={appContextValue}>{children}</TestProviders>,
-  );
+export function customRender(
+  children: React.ReactNode,
+  options?: { appContextValue?: AppContextValue },
+) {
+  const appContextValue = options?.appContextValue ?? createAppContext(new AudioContext());
+  return renderOriginal(children, {
+    wrapper: ({ children }) => (
+      <TestProviders appContextValue={appContextValue}>{children}</TestProviders>
+    ),
+  });
 }
 
 /**
