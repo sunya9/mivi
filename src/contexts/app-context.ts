@@ -1,6 +1,5 @@
 import { createContext, use } from "react";
 import { AudioPlaybackStoreImpl, type AudioPlaybackStore } from "@/lib/player/audio-playback-store";
-import { LocalStorageRepository } from "@/lib/storage/storage-repository";
 import type { AudioContext } from "standardized-audio-context";
 
 export interface AppContextValue {
@@ -9,7 +8,7 @@ export interface AppContextValue {
 }
 
 export function createAppContext(audioContext: AudioContext): AppContextValue {
-  const audioPlaybackStore = new AudioPlaybackStoreImpl(audioContext, new LocalStorageRepository());
+  const audioPlaybackStore = new AudioPlaybackStoreImpl(audioContext);
 
   return {
     audioContext,
