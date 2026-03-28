@@ -25,16 +25,7 @@ function getSourceNodes(appContextValue: AppContextValue) {
 function renderWithAudioBuffer() {
   const renderResult = customRenderHook(() => useAudioPlaybackStore());
   act(() => {
-    renderResult.result.current.setAudioBuffer(audioBuffer);
-  });
-  return renderResult;
-}
-
-// Helper to render hook with context access and set up audioBuffer
-function renderWithAudioBufferAndContext() {
-  const renderResult = customRenderHook(() => useAudioPlaybackStore());
-  act(() => {
-    renderResult.result.current.setAudioBuffer(audioBuffer);
+    renderResult.appContextValue.audioPlaybackStore.setAudioBuffer(audioBuffer);
   });
   return renderResult;
 }
@@ -95,7 +86,7 @@ test("should handle mute toggle", () => {
 });
 
 test("should reset playback time when audioBuffer becomes undefined via store", () => {
-  const { result } = renderWithAudioBuffer();
+  const { result, appContextValue } = renderWithAudioBuffer();
 
   // Seek to a position
   act(() => {
@@ -106,7 +97,7 @@ test("should reset playback time when audioBuffer becomes undefined via store", 
 
   // Remove audio buffer via store
   act(() => {
-    result.current.setAudioBuffer(undefined);
+    appContextValue.audioPlaybackStore.setAudioBuffer(undefined);
   });
 
   // Playback time should be reset
@@ -115,7 +106,7 @@ test("should reset playback time when audioBuffer becomes undefined via store", 
 });
 
 test("should stop playing and reset when audioBuffer becomes undefined during playback", () => {
-  const { result } = renderWithAudioBuffer();
+  const { result, appContextValue } = renderWithAudioBuffer();
 
   // Start playing and seek to a position
   act(() => {
@@ -129,7 +120,7 @@ test("should stop playing and reset when audioBuffer becomes undefined during pl
 
   // Remove audio buffer while playing via store
   act(() => {
-    result.current.setAudioBuffer(undefined);
+    appContextValue.audioPlaybackStore.setAudioBuffer(undefined);
   });
 
   // Should stop playing and reset time
@@ -242,7 +233,7 @@ test("should do nothing when play is called without audioBuffer", () => {
 });
 
 test("should create and stop source when pausing", () => {
-  const { result, appContextValue } = renderWithAudioBufferAndContext();
+  const { result, appContextValue } = renderWithAudioBuffer();
 
   // Start playing
   act(() => {
@@ -262,7 +253,7 @@ test("should create and stop source when pausing", () => {
 });
 
 test("should transition to paused state when ended event fires", () => {
-  const { result, appContextValue } = renderWithAudioBufferAndContext();
+  const { result, appContextValue } = renderWithAudioBuffer();
 
   // Start playing
   act(() => {
@@ -285,7 +276,7 @@ test("should transition to paused state when ended event fires", () => {
 });
 
 test("should not transition to paused when ended fires on old source after manual stop", () => {
-  const { result, appContextValue } = renderWithAudioBufferAndContext();
+  const { result, appContextValue } = renderWithAudioBuffer();
 
   // Start playing
   act(() => {
@@ -318,7 +309,7 @@ test("should not transition to paused when ended fires on old source after manua
 });
 
 test("should update currentTimeSec when updateCurrentTime is called during playback", () => {
-  const { result, appContextValue } = renderWithAudioBufferAndContext();
+  const { result, appContextValue } = renderWithAudioBuffer();
 
   // Start playing
   act(() => {

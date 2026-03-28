@@ -17,7 +17,6 @@ const mockSetBackgroundImageBitmap = vi.spyOn(
 
 const defaultStoreMock: ReturnType<typeof useAudioPlaybackStore> = {
   snapshot: {
-    audioBuffer: undefined,
     isPlaying: false,
     position: 0,
     duration: 10,
@@ -29,7 +28,6 @@ const defaultStoreMock: ReturnType<typeof useAudioPlaybackStore> = {
   setVolume: vi.fn(),
   toggleMute: vi.fn(),
   syncFromAudioContext: vi.fn(),
-  setAudioBuffer: vi.fn(),
   getPosition: () => 0,
   getFrequencyData: () => null,
 };
@@ -548,7 +546,7 @@ test("volume shortcuts reveal control panel", async () => {
 test("seek does not go below 0", async () => {
   vi.mocked(useAudioPlaybackStore).mockReturnValue({
     ...defaultStoreMock,
-    snapshot: { ...defaultStoreMock.snapshot, duration: 60 },
+    snapshot: { ...defaultStoreMock.snapshot },
     getPosition: () => 3,
   });
 

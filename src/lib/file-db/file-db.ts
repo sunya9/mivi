@@ -3,7 +3,7 @@ export const dbName = "mivi:file";
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open(dbName, 1);
+    const request = indexedDB.open(dbName, 2);
 
     request.onerror = () => {
       reject(new Error("Failed to open database"));
@@ -11,7 +11,11 @@ function openDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
-      if (!db.objectStoreNames.contains(storeName)) {
+      if (db.objectStoreNames.contains(storeName)) {
+        // Clear old data on version upgrade (cache-only, safe to discard)
+        const tx = (event.target as IDBOpenDBRequest).transaction!;
+        tx.objectStore(storeName).clear();
+      } else {
         db.createObjectStore(storeName);
       }
     };
@@ -22,7 +26,7 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
-export async function fetchFile(key: string) {
+export async function fetchValue<T>(key: string): Promise<T | undefined> {
   const db = await openDB();
   const transaction = db.transaction(storeName, "readonly");
   const store = transaction.objectStore(storeName);
@@ -31,27 +35,17 @@ export async function fetchFile(key: string) {
     db.close();
   };
 
-  return new Promise<File | undefined>((resolve, reject) => {
+  return new Promise<T | undefined>((resolve, reject) => {
     request.onsuccess = () => {
-      if (request.result) {
-        const file = request.result as File;
-        resolve(
-          new File([file], file.name, {
-            lastModified: file.lastModified,
-            type: file.type,
-          }),
-        );
-      } else {
-        resolve(undefined);
-      }
+      resolve(request.result as T | undefined);
     };
     request.onerror = () => {
-      reject(new Error("Failed to fetch file"));
+      reject(new Error("Failed to fetch value"));
     };
   });
 }
 
-export async function saveFile(key: string, newFile: File | undefined) {
+export async function saveValue<T>(key: string, value: T | undefined): Promise<void> {
   const db = await openDB();
   const transaction = db.transaction(storeName, "readwrite");
   const store = transaction.objectStore(storeName);
@@ -59,20 +53,17 @@ export async function saveFile(key: string, newFile: File | undefined) {
     db.close();
   };
 
-  let request: IDBRequest;
-  if (!newFile) {
-    request = store.delete(key);
-  } else {
-    request = store.put(newFile, key);
-  }
+  const request = value === undefined ? store.delete(key) : store.put(value, key);
   return new Promise<void>((resolve, reject) => {
     request.onerror = () => {
-      const message = !newFile ? "Failed to delete file" : "Failed to save file";
-      const error = new Error(message);
-      reject(error);
+      reject(new Error("Failed to save value"));
     };
     request.onsuccess = () => {
       resolve();
     };
   });
 }
+
+// Legacy aliases for existing tests
+export const fetchFile = fetchValue<File>;
+export const saveFile = saveValue<File>;

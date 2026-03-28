@@ -4,7 +4,7 @@ import { AppContext, createAppContext } from "../../contexts/app-context";
 import { Fallback } from "./fallback";
 import { Loading } from "./loading";
 import { ThemeProvider } from "next-themes";
-import { CacheProvider } from "./cache-provider";
+import { FileDbStoreProvider } from "./file-db-store-provider";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 import { PwaContext } from "@/contexts/pwa-context";
 
@@ -19,7 +19,7 @@ export function Providers({ children, audioContext }: ProvidersProps) {
 
   return (
     <ThemeProvider themes={["light", "dark"]} defaultTheme="light" attribute="class">
-      <CacheProvider>
+      <FileDbStoreProvider>
         <AppContext value={appContextValue}>
           <PwaContext value={pwaUpdateState}>
             <ErrorBoundary fallbackRender={Fallback}>
@@ -27,7 +27,7 @@ export function Providers({ children, audioContext }: ProvidersProps) {
             </ErrorBoundary>
           </PwaContext>
         </AppContext>
-      </CacheProvider>
+      </FileDbStoreProvider>
     </ThemeProvider>
   );
 }

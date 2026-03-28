@@ -3,7 +3,6 @@ import { AudioAnalyzer, type FrequencyData } from "@/lib/audio/audio-analyzer";
 
 /** Immutable snapshot of playback state */
 interface PlaybackSnapshot {
-  readonly audioBuffer: AudioBuffer | undefined;
   readonly isPlaying: boolean;
   readonly position: number;
   readonly duration: number;
@@ -76,7 +75,6 @@ export class AudioPlaybackStore {
 
   #createSnapshot(): PlaybackSnapshot {
     return {
-      audioBuffer: this.#audioBuffer,
       isPlaying: this.#source !== null,
       position: this.#position,
       duration: this.#audioBuffer?.duration ?? 0,
@@ -88,7 +86,6 @@ export class AudioPlaybackStore {
   #notifyIfChanged(): void {
     const newSnapshot = this.#createSnapshot();
     if (
-      newSnapshot.audioBuffer !== this.#snapshot.audioBuffer ||
       newSnapshot.isPlaying !== this.#snapshot.isPlaying ||
       newSnapshot.position !== this.#snapshot.position ||
       newSnapshot.duration !== this.#snapshot.duration ||

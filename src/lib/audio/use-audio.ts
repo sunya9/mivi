@@ -1,79 +1,77 @@
 import { useAppContext } from "@/contexts/app-context";
-import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
+import { useAudioFileDb } from "@/lib/file-db/file-db-store";
+import { type StoredAudioData } from "@/lib/audio/audio";
 import { AudioSource, SerializedAudio } from "@/lib/audio/audio";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useCacheContext } from "@/contexts/cache-context";
-import { useAudioPlaybackStore } from "@/lib/player/use-audio-playback-store";
 import { errorLogWithToast } from "../utils";
 
-async function createAudioBufferFromFile(audioFile: File, audioContext: AudioContext) {
-  const arrayBuffer = await audioFile.arrayBuffer();
-  return audioContext.decodeAudioData(arrayBuffer);
+function serializeAudioBuffer(buffer: AudioBuffer): StoredAudioData {
+  return {
+    channels: Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i)),
+    sampleRate: buffer.sampleRate,
+    length: buffer.length,
+    numberOfChannels: buffer.numberOfChannels,
+  };
 }
 
-const initialAudioBufferCacheKey = "initial:audio-buffer";
-export const audioDbKey = "db:audio";
+function restoreAudioBuffer(data: StoredAudioData, audioContext: AudioContext): AudioBuffer {
+  const buffer = audioContext.createBuffer(data.numberOfChannels, data.length, data.sampleRate);
+  for (let i = 0; i < data.numberOfChannels; i++) {
+    buffer.copyToChannel(new Float32Array(data.channels[i]), i);
+  }
+  return buffer;
+}
 
 export function useAudio() {
-  const { audioContext } = useAppContext();
   const {
-    snapshot: { audioBuffer },
-    setAudioBuffer,
-  } = useAudioPlaybackStore();
-  const cacheContext = useCacheContext();
-  const { file: audioFile, setFile } = useIndexedDb(audioDbKey);
-  const [isDecoding, setIsDecoding] = useState(false);
-  // Track current decode operation to handle cancellation
-  const decodeIdRef = useRef(0);
+    audioContext,
+    audioPlaybackStore: { setAudioBuffer },
+  } = useAppContext();
 
-  // Load initial audioBuffer from IndexedDB (Suspense pattern)
-  // Only runs on initial load - subsequent file changes use setAudioFile
-  if (audioFile) {
-    if (!cacheContext.caches.has(initialAudioBufferCacheKey)) {
-      throw createAudioBufferFromFile(audioFile, audioContext)
-        .catch((error) => {
-          console.error("Failed to create audio buffer from file", error);
-        })
-        .then((res) => {
-          cacheContext.setCache(initialAudioBufferCacheKey, res);
-          if (res) setAudioBuffer(res);
-          return res;
-        });
-    }
-  }
+  const { file: audioFile, decoded: storedAudio, setEntry } = useAudioFileDb();
+
+  const audioBuffer = useMemo(
+    () => (storedAudio ? restoreAudioBuffer(storedAudio, audioContext) : undefined),
+    [storedAudio, audioContext],
+  );
+  const setAudioBufferEvent = useEffectEvent(setAudioBuffer);
+
+  // Sync audioBuffer to the playback store
+  useEffect(() => {
+    setAudioBufferEvent(audioBuffer);
+  }, [audioBuffer]);
+
+  const [isDecoding, setIsDecoding] = useState(false);
+  const decodeIdRef = useRef(0);
 
   const setAudioFile = useCallback(
     async (newAudioFile: File | undefined) => {
-      if (newAudioFile) {
-        const currentDecodeId = ++decodeIdRef.current;
+      if (!newAudioFile) {
+        await setEntry(undefined);
+        return;
+      }
+      const currentDecodeId = ++decodeIdRef.current;
+      try {
         setIsDecoding(true);
-        try {
-          const audioBuffer = await createAudioBufferFromFile(newAudioFile, audioContext);
-          // Ignore result if cancelled (decodeId changed)
-          if (decodeIdRef.current !== currentDecodeId) return;
-          // Also update cache to prevent double decode if component re-renders
-          cacheContext.setCache(initialAudioBufferCacheKey, audioBuffer);
-          setAudioBuffer(audioBuffer);
-          await setFile(newAudioFile);
-        } catch (error) {
-          // Ignore error if cancelled
-          if (decodeIdRef.current !== currentDecodeId) return;
-          errorLogWithToast("Failed to set audio file", error);
-        } finally {
-          // Only update state if this is still the current decode operation
-          if (decodeIdRef.current === currentDecodeId) {
-            setIsDecoding(false);
-          }
-        }
+        const arrayBuffer = await newAudioFile.arrayBuffer();
+        const decoded = await audioContext.decodeAudioData(arrayBuffer);
+        if (decodeIdRef.current !== currentDecodeId) return;
+        await setEntry({
+          file: newAudioFile,
+          decoded: serializeAudioBuffer(decoded),
+        });
         toast.success("Audio file loaded");
-      } else {
-        cacheContext.setCache(initialAudioBufferCacheKey, undefined);
-        setAudioBuffer(undefined);
-        await setFile(undefined);
+      } catch (error) {
+        if (decodeIdRef.current !== currentDecodeId) return;
+        errorLogWithToast("Failed to set audio file", error);
+      } finally {
+        if (decodeIdRef.current === currentDecodeId) {
+          setIsDecoding(false);
+        }
       }
     },
-    [audioContext, cacheContext, setAudioBuffer, setFile],
+    [audioContext, setEntry],
   );
 
   const cancelDecode = useCallback(() => {
@@ -82,17 +80,12 @@ export function useAudio() {
   }, []);
 
   const serializedAudio: SerializedAudio | undefined = useMemo(() => {
-    if (!audioBuffer) return;
+    if (!storedAudio) return;
     return {
-      length: audioBuffer.length,
-      sampleRate: audioBuffer.sampleRate,
-      numberOfChannels: audioBuffer.numberOfChannels,
-      duration: audioBuffer.duration,
-      channels: Array.from({ length: audioBuffer.numberOfChannels }, (_, i) =>
-        audioBuffer.getChannelData(i),
-      ),
+      ...storedAudio,
+      duration: storedAudio.length / storedAudio.sampleRate,
     };
-  }, [audioBuffer]);
+  }, [storedAudio]);
 
   const audioSource: AudioSource | undefined = useMemo(() => {
     if (!serializedAudio || !audioFile) return;
