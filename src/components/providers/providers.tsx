@@ -7,14 +7,14 @@ import { ThemeProvider } from "next-themes";
 import { FileDbStoreProvider } from "./file-db-store-provider";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 import { PwaContext } from "@/contexts/pwa-context";
+import { AudioContext } from "standardized-audio-context";
 
 interface ProvidersProps {
   children: React.ReactNode;
-  audioContext: AudioContext;
 }
 
-export function Providers({ children, audioContext }: ProvidersProps) {
-  const [appContextValue] = useState(() => createAppContext(audioContext));
+export function Providers({ children }: ProvidersProps) {
+  const [appContextValue] = useState(() => createAppContext(new AudioContext()));
   const pwaUpdateState = usePwaState();
 
   return (

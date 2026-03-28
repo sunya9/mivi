@@ -5,6 +5,7 @@ import { AudioSource, SerializedAudio } from "@/lib/audio/audio";
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { errorLogWithToast } from "../utils";
+import type { AudioBuffer, AudioContext } from "standardized-audio-context";
 
 function serializeAudioBuffer(buffer: AudioBuffer): StoredAudioData {
   return {

@@ -1,6 +1,7 @@
 import { page } from "vitest/browser";
 import { TestProviders } from "./test-providers";
 import { createAppContext } from "@/contexts/app-context";
+import { AudioContext } from "standardized-audio-context";
 
 interface RenderOptions {
   viewport?: { width: number; height: number };

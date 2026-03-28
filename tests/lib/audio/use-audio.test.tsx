@@ -10,6 +10,7 @@ import { type FileDbEntry } from "@/lib/file-db/file-db-store";
 import { toast } from "sonner";
 import { Suspense } from "react";
 import { ThemeProvider } from "next-themes";
+import { AudioContext } from "standardized-audio-context-mock";
 
 vi.mock("sonner", { spy: true });
 

@@ -36,6 +36,7 @@
     "react-error-boundary": "^6.1.1",
     "react-hotkeys-hook": "^5.2.4",
     "sonner": "^2.0.7",
+    "standardized-audio-context": "^25.3.77",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2",
     "throttle-debounce": "^5.0.2"
