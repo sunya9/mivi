@@ -1,3 +1,5 @@
+import type { AnalyserNode, AudioContext } from "standardized-audio-context";
+
 /**
  * Represents frequency and time-domain data from audio analysis.
  */
@@ -31,7 +33,7 @@ const DEFAULT_MAX_DECIBELS = -30;
  * Manages frequency and time-domain data buffers for real-time audio visualization.
  */
 export class AudioAnalyzer {
-  readonly #analyser: AnalyserNode;
+  readonly #analyser: AnalyserNode<AudioContext>;
   readonly #frequencyData: Uint8Array<ArrayBuffer>;
   readonly #timeDomainData: Uint8Array<ArrayBuffer>;
   readonly #nyquistFrequency: number;
@@ -56,7 +58,7 @@ export class AudioAnalyzer {
   }
 
   /** Get the underlying AnalyserNode for connecting to audio graph */
-  get node(): AnalyserNode {
+  get node(): AnalyserNode<AudioContext> {
     return this.#analyser;
   }
 

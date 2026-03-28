@@ -5,7 +5,7 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
 import * as nodeCrypto from "node:crypto";
-import { AudioContext } from "standardized-audio-context-mock";
+import * as standardizedAudioContextMock from "standardized-audio-context-mock";
 
 vi.mock("virtual:pwa-register/react", () => ({
   useRegisterSW: vi.fn(() => ({
@@ -23,7 +23,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-vi.stubGlobal("AudioContext", AudioContext);
+vi.mock("standardized-audio-context", () => standardizedAudioContextMock);
 
 let idCounter = 0;
 

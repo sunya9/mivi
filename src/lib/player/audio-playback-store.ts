@@ -1,5 +1,11 @@
 import { type StorageRepository } from "@/lib/storage/storage-repository";
 import { AudioAnalyzer, type FrequencyData } from "@/lib/audio/audio-analyzer";
+import type {
+  AudioBuffer,
+  AudioBufferSourceNode,
+  AudioContext,
+  GainNode,
+} from "standardized-audio-context";
 
 /** Immutable snapshot of playback state */
 interface PlaybackSnapshot {
@@ -28,11 +34,11 @@ const SEEK_SNAP_THRESHOLD_SEC = 1;
  */
 export class AudioPlaybackStore {
   readonly #audioContext: AudioContext;
-  readonly #gainNode: GainNode;
+  readonly #gainNode: GainNode<AudioContext>;
   readonly #analyser: AudioAnalyzer;
   readonly #storage: StorageRepository;
   #audioBuffer: AudioBuffer | undefined = undefined;
-  #source: AudioBufferSourceNode | null = null;
+  #source: AudioBufferSourceNode<AudioContext> | null = null;
   #startedAt: number = 0;
   #position: number = 0;
   #volume: number;
