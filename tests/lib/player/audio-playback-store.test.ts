@@ -2,11 +2,10 @@ import { expect, test, vi } from "vitest";
 import { audioBuffer } from "tests/fixtures";
 import { registrar, AudioContext } from "standardized-audio-context-mock";
 import { AudioPlaybackStoreImpl } from "@/lib/player/audio-playback-store";
-import { LocalStorageRepository } from "@/lib/storage/storage-repository";
 
 function createStore() {
   const audioContext = new AudioContext();
-  const store = new AudioPlaybackStoreImpl(audioContext, new LocalStorageRepository());
+  const store = new AudioPlaybackStoreImpl(audioContext);
   return { store, audioContext };
 }
 

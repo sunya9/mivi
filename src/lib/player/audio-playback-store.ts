@@ -1,5 +1,5 @@
-import { type StorageRepository } from "@/lib/storage/storage-repository";
 import { AudioAnalyzer, type FrequencyData } from "@/lib/audio/audio-analyzer";
+import { LocalStorageRepository } from "@/lib/storage/localstorage-repository";
 import type {
   AudioBuffer,
   AudioBufferSourceNode,
@@ -49,7 +49,7 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
   readonly #audioContext: AudioContext;
   readonly #gainNode: GainNode<AudioContext>;
   readonly #analyser: AudioAnalyzer;
-  readonly #storage: StorageRepository;
+  readonly #storage: LocalStorageRepository = new LocalStorageRepository();
   #audioBuffer: AudioBuffer | undefined = undefined;
   #source: AudioBufferSourceNode<AudioContext> | null = null;
   #startedAt: number = 0;
@@ -59,16 +59,15 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
   #listeners: Set<() => void> = new Set();
   #snapshot: PlaybackSnapshot;
 
-  constructor(audioContext: AudioContext, storage: StorageRepository) {
+  constructor(audioContext: AudioContext) {
     this.#audioContext = audioContext;
     this.#gainNode = audioContext.createGain();
     this.#analyser = new AudioAnalyzer(audioContext);
     // Connect analyser -> gainNode -> destination
     this.#analyser.node.connect(this.#gainNode);
     this.#gainNode.connect(audioContext.destination);
-    this.#storage = storage;
-    this.#volume = storage.get(STORAGE_KEY_VOLUME, 1);
-    this.#muted = storage.get(STORAGE_KEY_MUTED, false);
+    this.#volume = this.#storage.get(STORAGE_KEY_VOLUME, 1);
+    this.#muted = this.#storage.get(STORAGE_KEY_MUTED, false);
     this.#applyGain();
     this.#snapshot = this.#createSnapshot();
   }
