@@ -1,5 +1,5 @@
 import { AppContext, AppContextValue } from "@/contexts/app-context";
-import { CacheProvider } from "@/components/providers/cache-provider";
+import { FileDbStoreProvider } from "@/components/providers/file-db-store-provider";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
@@ -19,13 +19,13 @@ export function TestProviders({
 }) {
   return (
     <ThemeProvider themes={["light", "dark"]} defaultTheme="light" attribute="class">
-      <CacheProvider>
+      <FileDbStoreProvider>
         <AppContext value={appContextValue}>
           <PwaContext value={pwaState}>
             <Suspense fallback={null}>{children}</Suspense>
           </PwaContext>
         </AppContext>
-      </CacheProvider>
+      </FileDbStoreProvider>
     </ThemeProvider>
   );
 }

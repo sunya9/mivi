@@ -6,6 +6,9 @@ export interface SerializedAudio {
   readonly channels: Float32Array[];
 }
 
+/** Serializable audio data for IndexedDB storage (duration is derived) */
+export type StoredAudioData = Omit<SerializedAudio, "duration">;
+
 export interface AudioSource {
   readonly name: string;
   readonly serialized: SerializedAudio;

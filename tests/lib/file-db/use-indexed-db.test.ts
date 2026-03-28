@@ -1,59 +1,77 @@
 import { expect, test, vi } from "vitest";
 import { waitFor } from "@testing-library/react";
 import { customRenderHook } from "tests/util";
-import { saveFile } from "@/lib/file-db/file-db";
-import { useIndexedDb } from "@/lib/file-db/use-indexed-db";
+import { saveValue } from "@/lib/file-db/file-db";
+import { useAudioFileDb, type FileDbEntry } from "@/lib/file-db/file-db-store";
+import { type StoredAudioData } from "@/lib/audio/audio";
 import { toast } from "sonner";
 
-const mockKey = "test-key";
-const mockFile = new File(["test content"], "test.txt", { type: "text/plain" });
+const mockFile = new File(["test content"], "test.txt", {
+  type: "text/plain",
+});
 
-test("should initialize with undefined file when no file exists", async () => {
-  const { result } = customRenderHook(() => useIndexedDb(mockKey));
+// Use a real schema key for testing
+const testKey = "db:audio" as const;
+const mockEntry: FileDbEntry<StoredAudioData> = {
+  file: mockFile,
+  decoded: {
+    channels: [new Float32Array(1)],
+    sampleRate: 44100,
+    length: 1,
+    numberOfChannels: 1,
+  },
+};
+
+test("should initialize with undefined when no entry exists", async () => {
+  const { result } = customRenderHook(() => useAudioFileDb());
   await waitFor(() => {
     expect(result.current.file).toBeUndefined();
+    expect(result.current.decoded).toBeUndefined();
   });
 });
 
-test("should initialize with cached file when available", async () => {
-  await saveFile(mockKey, mockFile);
-  const { result } = customRenderHook(() => useIndexedDb(mockKey));
+test("should initialize with cached entry when available", async () => {
+  await saveValue(testKey, mockEntry);
+  const { result } = customRenderHook(() => useAudioFileDb());
   await waitFor(() => {
     expect(result.current.file?.name).toBe(mockFile.name);
+    expect(result.current.decoded).toBeDefined();
   });
 });
 
-test("should set and save file successfully", async () => {
-  const { result } = customRenderHook(() => useIndexedDb(mockKey));
+test("should set and save entry successfully", async () => {
+  const { result } = customRenderHook(() => useAudioFileDb());
 
   await waitFor(async () => {
-    await result.current.setFile(mockFile);
+    await result.current.setEntry(mockEntry);
     expect(result.current.file).toEqual(mockFile);
+    expect(result.current.decoded).toBeDefined();
   });
 });
 
-test("should clear file when set to undefined", async () => {
-  await saveFile(mockKey, mockFile);
-  const { result } = customRenderHook(() => useIndexedDb(mockKey));
+test("should clear entry when set to undefined", async () => {
+  await saveValue(testKey, mockEntry);
+  const { result } = customRenderHook(() => useAudioFileDb());
 
   await waitFor(async () => {
-    await result.current.setFile(undefined);
+    await result.current.setEntry(undefined);
     expect(result.current.file).toBeUndefined();
+    expect(result.current.decoded).toBeUndefined();
   });
 });
 
-test("should handle saveFile error gracefully", async () => {
+test("should handle saveValue error gracefully", async () => {
   const error = new Error("Failed to save file");
-  const saveFileSpy = vi
-    .spyOn(await import("@/lib/file-db/file-db"), "saveFile")
+  const saveSpy = vi
+    .spyOn(await import("@/lib/file-db/file-db"), "saveValue")
     .mockRejectedValue(error);
   const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   const toastSpy = vi.spyOn(toast, "error");
 
-  const { result } = customRenderHook(() => useIndexedDb(mockKey));
+  const { result } = customRenderHook(() => useAudioFileDb());
 
   await waitFor(() => expect(result.current).not.toBeNull());
-  await result.current.setFile(mockFile);
+  await result.current.setEntry(mockEntry);
 
   await waitFor(() => {
     expect(consoleSpy).toHaveBeenCalledWith("Failed to save file", error);
@@ -64,5 +82,5 @@ test("should handle saveFile error gracefully", async () => {
 
   consoleSpy.mockRestore();
   toastSpy.mockRestore();
-  saveFileSpy.mockRestore();
+  saveSpy.mockRestore();
 });

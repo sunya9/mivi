@@ -21,7 +21,6 @@ export function useAudioPlaybackStore() {
     togglePlay: store.togglePlay,
     seek: store.seek,
     syncFromAudioContext: store.syncFromAudioContext,
-    setAudioBuffer: store.setAudioBuffer,
     // Getters (non-reactive, for synchronous access)
     getPosition: store.getPosition,
     getFrequencyData: store.getFrequencyData,
