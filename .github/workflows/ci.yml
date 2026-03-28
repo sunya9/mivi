@@ -76,14 +76,14 @@ jobs:
         run: pnpm test --coverage
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           report_type: coverage
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: sunya9/mivi
 
       - name: Upload test results to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: sunya9/mivi
