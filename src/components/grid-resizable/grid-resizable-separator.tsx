@@ -92,12 +92,12 @@ export function GridResizableSeparator({
         case "ArrowLeft":
         case "ArrowUp":
           e.preventDefault();
-          resizeByKeyboard(panelId, -(step ?? 20) * directionMultiplier);
+          resizeByKeyboard(panelId, -(step ?? 20) * directionMultiplier, orientation);
           break;
         case "ArrowRight":
         case "ArrowDown":
           e.preventDefault();
-          resizeByKeyboard(panelId, (step ?? 20) * directionMultiplier);
+          resizeByKeyboard(panelId, (step ?? 20) * directionMultiplier, orientation);
           break;
         case "Home":
           e.preventDefault();
@@ -105,7 +105,7 @@ export function GridResizableSeparator({
           break;
       }
     },
-    [panelId, side, resizeByKeyboard, resizeToMin],
+    [panelId, side, orientation, resizeByKeyboard, resizeToMin],
   );
 
   const panelSize = sizes[panelId] ?? 0;

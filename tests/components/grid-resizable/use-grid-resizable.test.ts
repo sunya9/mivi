@@ -64,7 +64,7 @@ describe("useGridResizable", () => {
       const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard("panel1", DEFAULT_STEP);
+        result.current.contextValue.resizeByKeyboard("panel1", DEFAULT_STEP, "horizontal");
       });
 
       expect(result.current.contextValue.sizes.panel1).toBe(300 + DEFAULT_STEP);
@@ -75,7 +75,7 @@ describe("useGridResizable", () => {
       const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard("panel1", -DEFAULT_STEP);
+        result.current.contextValue.resizeByKeyboard("panel1", -DEFAULT_STEP, "horizontal");
       });
 
       expect(result.current.contextValue.sizes.panel1).toBe(300 - DEFAULT_STEP);
@@ -85,7 +85,7 @@ describe("useGridResizable", () => {
       const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard("panel1", LARGE_STEP);
+        result.current.contextValue.resizeByKeyboard("panel1", LARGE_STEP, "horizontal");
       });
 
       expect(result.current.contextValue.sizes.panel1).toBe(300 + LARGE_STEP);
@@ -98,7 +98,7 @@ describe("useGridResizable", () => {
       const { result } = renderHook(() => useGridResizable({ id: "test", panels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard("panel1", -100);
+        result.current.contextValue.resizeByKeyboard("panel1", -100, "horizontal");
       });
 
       expect(result.current.contextValue.sizes.panel1).toBe(100);
@@ -108,7 +108,7 @@ describe("useGridResizable", () => {
       const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard("panel1", DEFAULT_STEP);
+        result.current.contextValue.resizeByKeyboard("panel1", DEFAULT_STEP, "horizontal");
       });
 
       const stored = localStorage.getItem(STORAGE_KEY_PREFIX + "test");
@@ -121,7 +121,7 @@ describe("useGridResizable", () => {
       const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard("nonexistent", 50);
+        result.current.contextValue.resizeByKeyboard("nonexistent", 50, "horizontal");
       });
 
       expect(result.current.contextValue.sizes.panel1).toBe(300);
@@ -137,7 +137,7 @@ describe("useGridResizable", () => {
       const { result } = renderHook(() => useGridResizable({ id: "test", panels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard("panel1", -200);
+        result.current.contextValue.resizeByKeyboard("panel1", -200, "horizontal");
       });
 
       expect(result.current.contextValue.sizes.panel1).toBe(200);
@@ -150,7 +150,7 @@ describe("useGridResizable", () => {
       const { result } = renderHook(() => useGridResizable({ id: "test", panels }));
 
       act(() => {
-        result.current.contextValue.resizeByKeyboard("panel1", 300);
+        result.current.contextValue.resizeByKeyboard("panel1", 300, "horizontal");
       });
 
       expect(result.current.contextValue.sizes.panel1).toBe(500);
