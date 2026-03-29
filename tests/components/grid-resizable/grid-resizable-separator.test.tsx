@@ -79,7 +79,7 @@ describe("GridResizableSeparator", () => {
       separator.focus();
       await user.keyboard("{ArrowRight}");
 
-      expect(context.resizeByKeyboard).toHaveBeenCalledWith("panel1", 20);
+      expect(context.resizeByKeyboard).toHaveBeenCalledWith("panel1", 20, "horizontal");
     });
 
     it("should decrease on ArrowLeft for before panel", async () => {
@@ -90,7 +90,7 @@ describe("GridResizableSeparator", () => {
       separator.focus();
       await user.keyboard("{ArrowLeft}");
 
-      expect(context.resizeByKeyboard).toHaveBeenCalledWith("panel1", -20);
+      expect(context.resizeByKeyboard).toHaveBeenCalledWith("panel1", -20, "horizontal");
     });
 
     it("should use large step with Shift", async () => {
@@ -101,7 +101,7 @@ describe("GridResizableSeparator", () => {
       separator.focus();
       await user.keyboard("{Shift>}{ArrowRight}{/Shift}");
 
-      expect(context.resizeByKeyboard).toHaveBeenCalledWith("panel1", 50);
+      expect(context.resizeByKeyboard).toHaveBeenCalledWith("panel1", 50, "horizontal");
     });
 
     it("should call resizeToMin on Home key", async () => {
@@ -136,7 +136,7 @@ describe("GridResizableSeparator", () => {
       await user.keyboard("{ArrowRight}");
 
       // ArrowRight on "after" panel → decrease (reversed)
-      expect(context.resizeByKeyboard).toHaveBeenCalledWith("panel1", -20);
+      expect(context.resizeByKeyboard).toHaveBeenCalledWith("panel1", -20, "horizontal");
     });
   });
 

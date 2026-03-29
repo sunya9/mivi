@@ -8,7 +8,7 @@ export interface GridResizableContextValue {
   startResize: (panelId: string, side: SeparatorSide, orientation: Orientation) => void;
   updateResize: (currentPosition: number) => void;
   endResize: () => void;
-  resizeByKeyboard: (panelId: string, delta: number) => void;
+  resizeByKeyboard: (panelId: string, delta: number, orientation: Orientation) => void;
   resizeToMin: (panelId: string) => void;
   resizeToFit: (
     panelId: string,

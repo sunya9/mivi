@@ -148,37 +148,48 @@ export function useGridResizable({ id, panels }: UseGridResizableOptions): UseGr
     [sizes, setSizes],
   );
 
+  // Clamp internal value to actual rendered size.
+  // CSS Grid may render the panel smaller than the set value
+  // (e.g., minmax(0, var(--panel-x)) shrinks when space is limited).
+  const clampToRendered = useCallback((panelId: string, orientation: Orientation) => {
+    const panel = panelElements.current.get(panelId);
+    if (!panel) return;
+
+    const rect = panel.getBoundingClientRect();
+    const actualSize = orientation === "horizontal" ? rect.width : rect.height;
+    // Skip clamp if actualSize is 0 (e.g., panel not yet laid out or in test environments)
+    if (actualSize === 0) return;
+    const internalSize = sizesRef.current[panelId];
+    if (internalSize !== undefined && actualSize < internalSize) {
+      const corrected = { ...sizesRef.current, [panelId]: Math.round(actualSize) };
+      sizesRef.current = corrected;
+      setSizesInternal(corrected);
+    }
+  }, []);
+
   const endResize = useCallback(() => {
     const state = resizeStateRef.current;
     if (state?.active) {
-      // Clamp internal value to actual rendered size.
-      // CSS Grid may render the panel smaller than the set value
-      // (e.g., minmax(0, var(--panel-x)) shrinks when space is limited).
-      const panel = panelElements.current.get(state.panelId);
-      if (panel) {
-        const rect = panel.getBoundingClientRect();
-        const actualSize = state.orientation === "horizontal" ? rect.width : rect.height;
-        const internalSize = sizesRef.current[state.panelId];
-        if (internalSize !== undefined && actualSize < internalSize) {
-          const corrected = { ...sizesRef.current, [state.panelId]: Math.round(actualSize) };
-          sizesRef.current = corrected;
-          setSizesInternal(corrected);
-        }
-      }
+      clampToRendered(state.panelId, state.orientation);
       persistLayout(sizesRef.current);
     }
     resizeStateRef.current = null;
-  }, [persistLayout]);
+  }, [clampToRendered, persistLayout]);
 
   const resizeByKeyboard = useCallback(
-    (panelId: string, delta: number) => {
+    (panelId: string, delta: number, orientation: Orientation) => {
       const currentSize = sizes[panelId];
       if (currentSize === undefined) return;
 
       setSizes({ ...sizes, [panelId]: currentSize + delta });
       persistLayout(sizesRef.current);
+      // Clamp after CSS Grid layout recalculates
+      requestAnimationFrame(() => {
+        clampToRendered(panelId, orientation);
+        persistLayout(sizesRef.current);
+      });
     },
-    [sizes, setSizes, persistLayout],
+    [sizes, setSizes, clampToRendered, persistLayout],
   );
 
   const resizeToMin = useCallback(
