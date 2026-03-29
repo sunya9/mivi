@@ -223,17 +223,14 @@ export function MidiVisualizer({
     [setExpandedAnimation],
   );
 
-  // Arrow left/right: Seek ±5s (skip when slider is focused)
+  // Arrow left/right: Seek ±5s (skip when interactive widget is focused)
   useHotkeys(
     "left,right",
     (e) => {
       const target = e.target;
       if (!(target instanceof HTMLElement)) return;
-      if (
-        target.role === "slider" ||
-        (target instanceof HTMLInputElement && target.type === "range")
-      )
-        return;
+      if (target.role === "slider" || target.role === "separator") return;
+      if (target instanceof HTMLInputElement && target.type === "range") return;
       e.preventDefault();
       const offset = e.key === "ArrowLeft" ? -5 : 5;
       const newTime = Math.max(0, Math.min(duration, getPosition() + offset));
@@ -258,17 +255,14 @@ export function MidiVisualizer({
     [duration, getPosition, invalidateSeek, showPanel],
   );
 
-  // Arrow up/down: Volume ±5% (skip when slider is focused)
+  // Arrow up/down: Volume ±5% (skip when interactive widget is focused)
   useHotkeys(
     "up,down",
     (e) => {
       const target = e.target;
       if (!(target instanceof HTMLElement)) return;
-      if (
-        target.role === "slider" ||
-        (target instanceof HTMLInputElement && target.type === "range")
-      )
-        return;
+      if (target.role === "slider" || target.role === "separator") return;
+      if (target instanceof HTMLInputElement && target.type === "range") return;
       e.preventDefault();
       const delta = e.key === "ArrowUp" ? 0.05 : -0.05;
       const newVolume = Math.max(0, Math.min(1, volume + delta));
@@ -283,6 +277,7 @@ export function MidiVisualizer({
   useHotkeys(
     "home,0",
     (e) => {
+      if (e.target instanceof HTMLElement && e.target.role === "separator") return;
       e.preventDefault();
       invalidateSeek(0, true, true);
       showPanel();
@@ -294,6 +289,7 @@ export function MidiVisualizer({
   useHotkeys(
     "end",
     (e) => {
+      if (e.target instanceof HTMLElement && e.target.role === "separator") return;
       e.preventDefault();
       invalidateSeek(duration, true, true);
       showPanel();
