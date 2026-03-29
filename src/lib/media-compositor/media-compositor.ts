@@ -1,285 +1,215 @@
-import { throttle } from "throttle-debounce";
 import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
 import { Muxer } from "@/lib/muxer/muxer";
 import { RecorderResources } from "./recorder-resources";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
-import {
-  precomputeFFTData,
-  getFrameAtTime,
-  type PrecomputedFFTData,
-} from "@/lib/audio/fft-precompute";
+import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
+import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";
 
 const frameSize = 20;
 
+type ExportPhase = "FFT" | "Audio Render" | "Audio Encode" | "Video Render" | "Video Encode";
+
 export class MediaCompositor {
-  private readonly videoEncoder: VideoEncoder;
-  private readonly audioEncoder: AudioEncoder;
-  private progress = {
-    fft: 0,
-    audio: { render: 0, encode: 0 },
-    video: { render: 0, encode: 0 },
-  };
-  private readonly canvas: OffscreenCanvas;
+  readonly #videoEncoder: VideoEncoder;
+  readonly #audioEncoder: AudioEncoder;
+  readonly #canvas: OffscreenCanvas;
+  readonly #resources: RecorderResources;
+  readonly #muxer: Muxer;
+  readonly #progress: ExportProgressTracker<ExportPhase>;
 
   constructor(
-    private readonly resources: RecorderResources,
-    private readonly muxer: Muxer,
-    private readonly onProgress: (progress: number) => void,
+    resources: RecorderResources,
+    muxer: Muxer,
+    onProgress: (progress: number, activePhase?: ActivePhase) => void,
   ) {
+    this.#resources = resources;
+    this.#muxer = muxer;
+
+    this.#progress = new ExportProgressTracker(onProgress);
+    this.#progress.addPhase({ name: "FFT", total: this.#totalVideoFrames });
+    this.#progress.addPhase({ name: "Audio Render", total: this.#totalAudioFrames });
+    this.#progress.addPhase({
+      name: "Audio Encode",
+      total: this.#totalAudioFrames,
+      getCompleted: () => this.#audioEncodeCount - this.#audioEncoder.encodeQueueSize,
+      deferTimer: true,
+    });
+    this.#progress.addPhase({ name: "Video Render", total: this.#totalVideoFrames });
+    this.#progress.addPhase({
+      name: "Video Encode",
+      total: this.#totalVideoFrames,
+      getCompleted: () => this.#videoEncodeCount - this.#videoEncoder.encodeQueueSize,
+      deferTimer: true,
+    });
+
     const onError = (error: DOMException) => {
       console.error("error on media compositor", error);
     };
-    const audioEncoder = new AudioEncoder({
-      output: (chunk, metadata) => {
-        void this.muxer.addAudioChunk(chunk, metadata);
-      },
+
+    this.#audioEncoder = new AudioEncoder({
+      output: (chunk, metadata) => void muxer.addAudioChunk(chunk, metadata),
       error: onError,
     });
-    const { serialized: serializedAudio } = this.resources.audioSource;
-
-    audioEncoder.configure({
-      codec: this.muxer.audioCodec,
-      sampleRate: serializedAudio.sampleRate,
-      numberOfChannels: serializedAudio.numberOfChannels,
+    this.#audioEncoder.configure({
+      codec: muxer.audioCodec,
+      sampleRate: this.#serializedAudio.sampleRate,
+      numberOfChannels: this.#serializedAudio.numberOfChannels,
       bitrate: 192_000,
     });
+    this.#audioEncoder.addEventListener("dequeue", this.#onDequeue);
 
-    audioEncoder.addEventListener("dequeue", this.onProgressInternal);
-
-    const videoEncoder = new VideoEncoder({
-      output: (chunk, metadata) => {
-        void this.muxer.addVideoChunk(chunk, metadata);
-      },
+    this.#videoEncoder = new VideoEncoder({
+      output: (chunk, metadata) => void muxer.addVideoChunk(chunk, metadata),
       error: onError,
     });
-
-    videoEncoder.addEventListener("dequeue", this.onProgressInternal);
-    this.canvas = new OffscreenCanvas(
-      this.rendererConfig.resolution.width,
-      this.rendererConfig.resolution.height,
+    this.#canvas = new OffscreenCanvas(
+      this.#rendererConfig.resolution.width,
+      this.#rendererConfig.resolution.height,
     );
-
-    videoEncoder.configure({
-      codec: this.muxer.videoCodec,
-      width: this.canvas.width,
-      height: this.canvas.height,
+    this.#videoEncoder.configure({
+      codec: muxer.videoCodec,
+      width: this.#canvas.width,
+      height: this.#canvas.height,
       bitrate: 10_000_000,
-      framerate: this.fps,
+      framerate: this.#fps,
     });
-
-    this.audioEncoder = audioEncoder;
-    this.videoEncoder = videoEncoder;
-  }
-  private get rendererConfig() {
-    return this.resources.rendererConfig;
+    this.#videoEncoder.addEventListener("dequeue", this.#onDequeue);
   }
 
-  private get midiTracks() {
-    return this.resources.midiTracks;
-  }
+  // Encode counters (tracks calls to encode(), not completions)
+  #audioEncodeCount = 0;
+  #videoEncodeCount = 0;
 
-  private get serializedAudio() {
-    return this.resources.audioSource.serialized;
-  }
+  #onDequeue = () => this.#progress.notify();
 
-  private get backgroundImageBitmap() {
-    return this.resources.backgroundImageBitmap;
+  get #rendererConfig() {
+    return this.#resources.rendererConfig;
   }
-
-  private get fps() {
-    return this.rendererConfig.fps;
+  get #serializedAudio() {
+    return this.#resources.audioSource.serialized;
   }
-  private get duration() {
-    return this.serializedAudio.duration;
+  get #fps() {
+    return this.#rendererConfig.fps;
   }
-
-  private get totalVideoFrames() {
-    return this.duration * this.fps;
+  get #duration() {
+    return this.#serializedAudio.duration;
   }
-
-  private get totalAudioFrames() {
-    return Math.ceil((this.serializedAudio.duration * 1000) / frameSize);
+  get #totalVideoFrames() {
+    return this.#duration * this.#fps;
+  }
+  get #totalAudioFrames() {
+    return Math.ceil((this.#duration * 1000) / frameSize);
   }
 
   async composite() {
-    await this.muxer.start();
-    this.renderAudio();
-    this.renderVideo();
+    await this.#muxer.start();
+    this.#renderAudio();
+    this.#renderVideo();
 
-    await Promise.all([this.videoEncoder.flush(), this.audioEncoder.flush()]);
-    await this.muxer.finalize();
-    const videoBlob = new Blob([this.muxer.buffer], {
-      type: this.muxer.mimeType,
-    });
-    return videoBlob;
+    // Start encode timers now that render loops are done and flush begins
+    this.#progress.startTimer("Audio Encode");
+    this.#progress.startTimer("Video Encode");
+    await Promise.all([this.#videoEncoder.flush(), this.#audioEncoder.flush()]);
+    await this.#muxer.finalize();
+    return new Blob([this.#muxer.buffer], { type: this.#muxer.mimeType });
   }
 
-  private updateProgress(type: "audio" | "video", stage: "render" | "encode") {
-    this.progress[type][stage]++;
-    this.onProgressInternal();
-  }
+  #renderAudio() {
+    const { sampleRate, numberOfChannels, channels, length } = this.#serializedAudio;
+    const samplesPerFrame = (sampleRate * frameSize) / 1000;
 
-  private renderAudio() {
-    const samplesPerFrame = (this.serializedAudio.sampleRate * frameSize) / 1000;
-    const numberOfFrames = this.totalAudioFrames;
-    for (let i = 0; i < numberOfFrames; i++) {
+    for (let i = 0; i < this.#totalAudioFrames; i++) {
       const startSample = i * samplesPerFrame;
-      const endSample = Math.min((i + 1) * samplesPerFrame, this.serializedAudio.length);
-      const timestamp = Math.floor((startSample / this.serializedAudio.sampleRate) * 1_000_000);
+      const endSample = Math.min((i + 1) * samplesPerFrame, length);
+      const timestamp = Math.floor((startSample / sampleRate) * 1_000_000);
       const frameSamples = endSample - startSample;
-      const frameData = new Float32Array(this.serializedAudio.numberOfChannels * frameSamples);
+      const frameData = new Float32Array(numberOfChannels * frameSamples);
 
-      for (let channel = 0; channel < this.serializedAudio.numberOfChannels; channel++) {
-        const sourceData = this.serializedAudio.channels[channel];
-        frameData.set(sourceData.subarray(startSample, endSample), channel * frameSamples);
+      for (let channel = 0; channel < numberOfChannels; channel++) {
+        frameData.set(channels[channel].subarray(startSample, endSample), channel * frameSamples);
       }
 
       const audioData = new AudioData({
         timestamp,
-        numberOfChannels: this.serializedAudio.numberOfChannels,
+        numberOfChannels,
         numberOfFrames: frameSamples,
-        sampleRate: this.serializedAudio.sampleRate,
+        sampleRate,
         format: "f32-planar",
         data: frameData,
       });
-      this.updateProgress("audio", "render");
 
-      this.audioEncoder.encode(audioData);
+      this.#progress.increment("Audio Render");
+      this.#audioEncoder.encode(audioData);
       audioData.close();
-      this.updateProgress("audio", "encode");
+      this.#audioEncodeCount++;
+      this.#progress.increment("Audio Encode");
     }
   }
 
-  private renderVideo() {
-    const ctx = this.canvas.getContext("2d");
+  #renderVideo() {
+    const ctx = this.#canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get context");
 
     const backgroundRenderer = new BackgroundRenderer(
       ctx,
-      this.rendererConfig,
-      this.backgroundImageBitmap,
+      this.#rendererConfig,
+      this.#resources.backgroundImageBitmap,
     );
     const audioVisualizerOverlay = new AudioVisualizerOverlay(
       ctx,
-      this.rendererConfig.audioVisualizerConfig,
-      this.rendererConfig.resolution,
+      this.#rendererConfig.audioVisualizerConfig,
+      this.#rendererConfig.resolution,
     );
-    const renderer = getRendererFromConfig(ctx, this.rendererConfig);
-    const midiOffset = this.midiTracks?.midiOffset ?? 0;
-    const tracks = this.midiTracks?.tracks ?? [];
-    const totalVideoFrames = this.totalVideoFrames;
-    const layer = this.rendererConfig.audioVisualizerLayer;
+    const renderer = getRendererFromConfig(ctx, this.#rendererConfig);
+    const midiOffset = this.#resources.midiTracks?.midiOffset ?? 0;
+    const tracks = this.#resources.midiTracks?.tracks ?? [];
+    const layer = this.#rendererConfig.audioVisualizerLayer;
 
-    // Pre-compute FFT data with temporal smoothing for smooth visualization
-    const precomputedFFT = this.precomputeAudioVisualizerData();
+    const precomputedFFT = this.#precomputeFFT();
 
-    for (let i = 0; i < totalVideoFrames; i++) {
-      const progress = i / totalVideoFrames;
-      const currentTime = progress * this.duration;
+    for (let i = 0; i < this.#totalVideoFrames; i++) {
+      const currentTime = (i / this.#totalVideoFrames) * this.#duration;
 
-      // 1. Render background
       backgroundRenderer.render();
 
-      // 2. Get frequency data for audio visualizer (from pre-computed data)
       const frequencyData = precomputedFFT ? getFrameAtTime(precomputedFFT, currentTime) : null;
 
-      // 3. Render audio visualizer in back layer (under MIDI)
-      if (layer === "back") {
-        audioVisualizerOverlay.render(frequencyData);
-      }
-
-      // 4. Render MIDI visualizer
+      if (layer === "back") audioVisualizerOverlay.render(frequencyData);
       renderer.render(tracks, currentTime + midiOffset);
+      if (layer === "front") audioVisualizerOverlay.render(frequencyData);
 
-      // 5. Render audio visualizer in front layer (over MIDI)
-      if (layer === "front") {
-        audioVisualizerOverlay.render(frequencyData);
-      }
+      this.#progress.increment("Video Render");
 
-      this.updateProgress("video", "render");
-
-      const frame = new VideoFrame(this.canvas, {
-        timestamp: currentTime * 1000000,
-        duration: (1 / this.fps) * 1000000,
+      const frame = new VideoFrame(this.#canvas, {
+        timestamp: currentTime * 1_000_000,
+        duration: (1 / this.#fps) * 1_000_000,
       });
-
-      const keyFrame = i % 60 === 0;
-
-      this.videoEncoder.encode(frame, { keyFrame });
+      this.#videoEncoder.encode(frame, { keyFrame: i % 60 === 0 });
       frame.close();
-      this.updateProgress("video", "encode");
+      this.#videoEncodeCount++;
+      this.#progress.increment("Video Encode");
     }
   }
 
-  /**
-   * Pre-compute FFT data for all frames with temporal smoothing.
-   * This eliminates flickering by applying smoothing across frames.
-   */
-  private precomputeAudioVisualizerData(): PrecomputedFFTData | null {
-    const { audioVisualizerConfig } = this.rendererConfig;
+  #precomputeFFT() {
+    const { audioVisualizerConfig } = this.#rendererConfig;
     if (audioVisualizerConfig.style === "none") {
-      // Skip FFT precomputation, immediately report full progress
-      this.progress.fft = this.totalVideoFrames;
-      this.onProgressInternal();
+      this.#progress.complete("FFT");
       return null;
     }
 
-    console.log("[MediaCompositor] Pre-computing FFT data for audio visualizer...");
-    const data = precomputeFFTData(this.serializedAudio, this.fps, {
+    return precomputeFFTData(this.#serializedAudio, this.#fps, {
       fftSize: audioVisualizerConfig.fftSize,
       smoothingTimeConstant: audioVisualizerConfig.smoothingTimeConstant,
-      onProgress: (current) => {
-        this.progress.fft = current;
-        this.onProgressInternal();
-      },
+      onProgress: (current) => this.#progress.set("FFT", current),
     });
-    console.log(`[MediaCompositor] Pre-computed ${data.frames.length} FFT frames`);
-    return data;
   }
-
-  private get progressTotal() {
-    // 5 stages: FFT + audio render + audio encode + video render + video encode
-    return this.totalVideoFrames + (this.totalAudioFrames + this.totalVideoFrames) * 2;
-  }
-
-  private onProgressInternal = () => {
-    const audioQueueSize = this.audioEncoder.encodeQueueSize;
-    const videoQueueSize = this.videoEncoder.encodeQueueSize;
-
-    const totalProgress =
-      this.progress.fft +
-      this.progress.audio.render +
-      this.progress.audio.encode +
-      this.progress.video.render +
-      this.progress.video.encode;
-
-    const queueSize = audioQueueSize + videoQueueSize;
-    const progress = (totalProgress - queueSize) / this.progressTotal;
-    this.onProgressThrottled(progress);
-  };
-
-  private onProgressThrottled = throttle(500, (progress: number) => {
-    console.log(
-      `Progress: ${progress.toFixed(2)}`,
-      `Total: ${this.progressTotal}`,
-      `FFT: ${this.progress.fft}`,
-      `Audio Render: ${this.progress.audio.render}`,
-      `Audio Encode: ${this.progress.audio.encode}`,
-      `Video Render: ${this.progress.video.render}`,
-      `Video Encode: ${this.progress.video.encode}`,
-    );
-    this.onProgress(progress);
-  });
 
   [Symbol.dispose](): void {
-    this.videoEncoder.removeEventListener("dequeue", this.onProgressInternal);
-    this.audioEncoder.removeEventListener("dequeue", this.onProgressInternal);
-    if (this.audioEncoder.state !== "closed") {
-      this.audioEncoder.close();
-    }
-    if (this.videoEncoder.state !== "closed") {
-      this.videoEncoder.close();
-    }
+    this.#videoEncoder.removeEventListener("dequeue", this.#onDequeue);
+    this.#audioEncoder.removeEventListener("dequeue", this.#onDequeue);
+    if (this.#audioEncoder.state !== "closed") this.#audioEncoder.close();
+    if (this.#videoEncoder.state !== "closed") this.#videoEncoder.close();
   }
 }
