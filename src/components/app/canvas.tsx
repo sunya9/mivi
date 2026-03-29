@@ -4,7 +4,7 @@ import { CanvasHTMLAttributes, useEffectEvent, useLayoutEffect, useRef } from "r
 interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
   aspectRatio: number;
   onInit: (ctx: CanvasRenderingContext2D) => void;
-  invalidate: () => void;
+  invalidate: (usePrecomputed: boolean) => void;
 }
 
 function calcSize(container: HTMLElement, aspectRatio: number) {
@@ -50,7 +50,7 @@ export function Canvas({ onInit, className, aspectRatio, style, invalidate, ...p
       if (!size) return;
       canvas.width = size.width * window.devicePixelRatio;
       canvas.height = size.height * window.devicePixelRatio;
-      onInvalidate();
+      onInvalidate(true);
     };
 
     const observer = new ResizeObserver(resizeCanvas);
