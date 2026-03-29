@@ -171,11 +171,12 @@
 @utility grid-main-layout {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: auto 1fr;
-  grid-template-areas: "visualizer" "content";
-  --side-margin: calc((100dvw - min(100dvw, --spacing(384))) / 2);
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-areas: "header" "visualizer" "content" "nav";
   @media (min-width: theme(--breakpoint-md)) {
+    --side-margin: calc((100dvw - min(100dvw, --spacing(384))) / 2);
     grid-template-areas:
+      "header header header header header header header"
       ". track-list sep-h1 visualizer sep-h2 style ."
       ". track-list sep-h1 sep-v sep-h2 style ."
       ". track-list sep-h1 config sep-h2 style ."
@@ -183,13 +184,13 @@
     grid-template-columns:
       var(--side-margin)
       minmax(0, var(--panel-track-list)) 1px
-      minmax(320px, var(--panel-center)) 1px
+      minmax(320px, 1fr) 1px
       minmax(0, var(--panel-style))
       var(--side-margin);
 
     grid-template-rows:
-      minmax(0, var(--panel-visualizer))
-      1px minmax(0, var(--panel-config)) auto;
+      auto var(--panel-visualizer)
+      1px 1fr auto;
   }
 }
 

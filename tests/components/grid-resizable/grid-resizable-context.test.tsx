@@ -15,7 +15,7 @@ test("should throw error when used outside provider", () => {
 
 test("should return context value when used within provider", () => {
   const mockContextValue: GridResizableContextValue = {
-    sizes: { panel1: 1, panel2: 1 },
+    sizes: { panel1: 300, panel2: 400 },
     panelConfigs: new Map(),
     startResize: () => {},
     updateResize: () => {},
@@ -23,7 +23,10 @@ test("should return context value when used within provider", () => {
     resizeByKeyboard: () => {},
     resizeToMin: () => {},
     resizeToFit: () => {},
-    getContainerRef: () => null,
+    registerPanel: () => {},
+    unregisterPanel: () => {},
+    registerSeparator: () => {},
+    unregisterSeparator: () => {},
   };
 
   const wrapper = ({ children }: { children: ReactNode }) => (

@@ -1,27 +1,28 @@
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { useGridResizableContext } from "./grid-resizable-context";
-import { LARGE_KEYBOARD_STEP } from "./use-grid-resizable";
-import type { Orientation } from "./types";
+import { LARGE_STEP } from "./use-grid-resizable";
+import type { Orientation, PanelSize, SeparatorSide } from "./types";
 
 interface GridResizableSeparatorProps {
   id: string;
   orientation: Orientation;
-  controls: [string, string];
+  /** The panel this separator resizes */
+  panelId: string;
+  /** Which side of the separator the panel is on */
+  side: SeparatorSide;
   className?: string;
-  /** Callback to get optimal size for the target panel on double-click */
-  getOptimalSizeForFit?: () => number | null;
-  /** Which panel to resize to fit on double-click (defaults to beforeId) */
-  fitTargetPanel?: string;
+  /** Callback to get optimal size for the panel on double-click. Receives current sizes. */
+  getOptimalSizeForFit?: (sizes: Record<string, PanelSize>) => number | undefined;
 }
 
 export function GridResizableSeparator({
   id,
   orientation,
-  controls,
+  panelId,
+  side,
   className,
   getOptimalSizeForFit,
-  fitTargetPanel,
 }: GridResizableSeparatorProps) {
   const {
     sizes,
@@ -31,9 +32,20 @@ export function GridResizableSeparator({
     resizeByKeyboard,
     resizeToMin,
     resizeToFit,
+    registerSeparator,
+    unregisterSeparator,
   } = useGridResizableContext();
 
-  const [beforeId, afterId] = controls;
+  const refCallback = useCallback(
+    (element: HTMLDivElement | null) => {
+      if (element) {
+        registerSeparator(id, element, orientation);
+      } else {
+        unregisterSeparator(id);
+      }
+    },
+    [id, orientation, registerSeparator, unregisterSeparator],
+  );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
@@ -42,9 +54,9 @@ export function GridResizableSeparator({
       e.preventDefault();
       e.target.setPointerCapture(e.pointerId);
 
-      startResize(id, orientation, controls);
+      startResize(panelId, side, orientation);
     },
-    [orientation, controls, id, startResize],
+    [orientation, panelId, side, startResize],
   );
 
   const handlePointerMove = useCallback(
@@ -55,89 +67,63 @@ export function GridResizableSeparator({
     [orientation, updateResize],
   );
 
-  const handlePointerUp = useCallback(
-    (e: React.PointerEvent) => {
-      if (e.target instanceof HTMLElement) {
-        e.target.releasePointerCapture(e.pointerId);
-      }
-      endResize();
-    },
-    [endResize],
-  );
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    if (e.target instanceof HTMLElement) {
+      e.target.releasePointerCapture(e.pointerId);
+    }
+  }, []);
 
-  const handlePointerCancel = useCallback(
-    (e: React.PointerEvent) => {
-      if (e.target instanceof HTMLElement) {
-        e.target.releasePointerCapture(e.pointerId);
-      }
-      endResize();
-    },
-    [endResize],
-  );
+  const handleLostPointerCapture = useCallback(() => {
+    endResize();
+  }, [endResize]);
 
   const handleDoubleClick = useCallback(() => {
     if (!getOptimalSizeForFit) return;
-
-    const targetPanel = fitTargetPanel ?? beforeId;
-    resizeToFit(id, orientation, controls, targetPanel, getOptimalSizeForFit);
-  }, [getOptimalSizeForFit, fitTargetPanel, beforeId, id, orientation, controls, resizeToFit]);
+    resizeToFit(panelId, getOptimalSizeForFit);
+  }, [getOptimalSizeForFit, panelId, resizeToFit]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      const step = e.shiftKey ? LARGE_KEYBOARD_STEP : undefined;
+      const step = e.shiftKey ? LARGE_STEP : undefined;
+      // For "after" panels, arrow directions are reversed
+      const directionMultiplier = side === "before" ? 1 : -1;
 
       switch (e.key) {
         case "ArrowLeft":
         case "ArrowUp":
           e.preventDefault();
-          resizeByKeyboard(orientation, controls, -1, step);
+          resizeByKeyboard(panelId, -(step ?? 20) * directionMultiplier);
           break;
         case "ArrowRight":
         case "ArrowDown":
           e.preventDefault();
-          resizeByKeyboard(orientation, controls, 1, step);
+          resizeByKeyboard(panelId, (step ?? 20) * directionMultiplier);
           break;
         case "Home":
           e.preventDefault();
-          if (resizeToMin) {
-            resizeToMin(controls, beforeId);
-          }
-          break;
-        case "End":
-          e.preventDefault();
-          if (resizeToMin) {
-            resizeToMin(controls, afterId);
-          }
+          resizeToMin(panelId);
           break;
       }
     },
-    [orientation, controls, resizeByKeyboard, resizeToMin, beforeId, afterId],
+    [panelId, side, resizeByKeyboard, resizeToMin],
   );
 
-  const valueNow = useMemo(() => {
-    const beforeSize = sizes[beforeId] ?? 1;
-    const afterSize = sizes[afterId] ?? 1;
-    const total = beforeSize + afterSize;
-    return Math.round((beforeSize / total) * 100);
-  }, [sizes, beforeId, afterId]);
-
+  const panelSize = sizes[panelId] ?? 0;
   // aria-orientation is opposite of separator orientation
-  // horizontal separator controls vertical split (and vice versa)
   const ariaOrientation = orientation === "horizontal" ? "vertical" : "horizontal";
 
   return (
     <div
+      ref={refCallback}
       data-slot="grid-resizable-separator"
       data-separator-id={id}
       data-orientation={orientation}
       role="separator"
       tabIndex={0}
       aria-orientation={ariaOrientation}
-      aria-controls={`${beforeId} ${afterId}`}
-      aria-valuenow={valueNow}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-label={`Resize ${beforeId} and ${afterId} panels`}
+      aria-controls={panelId}
+      aria-valuenow={Math.round(panelSize)}
+      aria-label={`Resize ${panelId} panel`}
       className={cn(
         "hidden md:block", // Hidden on mobile, visible on desktop
         "group relative z-10 touch-none",
@@ -151,7 +137,7 @@ export function GridResizableSeparator({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerCancel}
+      onLostPointerCapture={handleLostPointerCapture}
       onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
     >

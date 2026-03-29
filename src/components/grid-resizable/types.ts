@@ -1,24 +1,20 @@
-/** Panel size value (numeric) */
+/** Panel size in pixels */
 export type PanelSize = number;
-
-/** Panel size unit */
-export type PanelSizeUnit = "fr" | "px";
 
 /** Panel orientation */
 export type Orientation = "horizontal" | "vertical";
+
+/** Which side of the separator the controlled panel is on */
+export type SeparatorSide = "before" | "after";
 
 /** Individual panel configuration */
 export interface PanelConfig {
   id: string;
   defaultSize: PanelSize;
-  /** Size unit: 'fr' (relative) or 'px' (absolute). Default: 'fr' */
-  sizeUnit?: PanelSizeUnit;
   constraints?: {
     minSize?: PanelSize;
     maxSize?: PanelSize;
   };
-  /** For px panels with aspect ratio: callback to get optimal size based on current dimensions */
-  getOptimalSize?: () => number | null;
 }
 
 /** Layout state (for persistence) */

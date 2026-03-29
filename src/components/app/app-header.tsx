@@ -53,7 +53,7 @@ export function AppHeader({ className, recordingState, toggleRecording }: Props)
       {recordingState.type === "recording" && (
         <Progress
           aria-label="Export progress"
-          className="absolute bottom-0 left-0 z-10 h-1 w-full animate-in rounded-none duration-300 fade-in"
+          className="absolute bottom-0 left-0 z-20 h-1 w-full animate-in rounded-none duration-300 fade-in"
           value={recordingState.progress * 100}
         />
       )}
