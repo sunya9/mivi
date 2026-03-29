@@ -42,26 +42,10 @@ export function precomputeFFTData(
 
   const { sampleRate, numberOfChannels, duration, channels, length } = serializedAudio;
 
-  console.log("[precomputeFFTData] Input:", {
-    sampleRate,
-    numberOfChannels,
-    duration,
-    length,
-    channelsLength: channels.length,
-    firstChannelLength: channels[0]?.length,
-  });
-
   const totalFrames = Math.ceil(duration * fps);
   const samplesPerFrame = Math.floor(sampleRate / fps);
   const frequencyBinCount = fftSize / 2;
   const nyquistFrequency = sampleRate / 2;
-
-  console.log("[precomputeFFTData] Calculated:", {
-    totalFrames,
-    samplesPerFrame,
-    frequencyBinCount,
-    nyquistFrequency,
-  });
 
   const frames: FrequencyData[] = [];
 
@@ -96,28 +80,8 @@ export function precomputeFFTData(
       nyquistFrequency,
     });
 
-    if (frameIndex === 0) {
-      console.log("[precomputeFFTData] First frame:", {
-        startSample,
-        endSample,
-        samplesExtracted: Math.min(fftSize, endSample - startSample),
-        sampleRange: [samples[0], samples[Math.floor(fftSize / 2)], samples[fftSize - 1]],
-        frequencyDataSample: Array.from(frequencyData.slice(0, 10)),
-      });
-    }
-
-    // Log progress every 100 frames
-    if (frameIndex % 100 === 0) {
-      console.log(`[precomputeFFTData] Progress: ${frameIndex}/${totalFrames} frames`);
-    }
-
-    // Report progress to callback
     options.onProgress?.(frameIndex + 1, totalFrames);
   }
-
-  console.log("[precomputeFFTData] Complete:", {
-    totalFramesGenerated: frames.length,
-  });
 
   // Apply smoothing between frames (simulating smoothingTimeConstant)
   if (smoothingTimeConstant > 0) {
