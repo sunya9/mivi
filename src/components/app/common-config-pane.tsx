@@ -20,7 +20,6 @@ import {
 } from "@/lib/renderers/renderer";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
-import { InfoTooltip } from "@/components/common/info-tooltip";
 import { DeepPartial } from "@/lib/type-utils";
 import { Slider } from "@/components/ui/slider";
 import { FileButton } from "@/components/common/file-button";
@@ -231,14 +230,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
           )}
         />
         <FormRow
-          label={
-            <span className="inline-flex items-center gap-2">
-              FPS
-              <InfoTooltip>
-                <p>Not reflected in preview</p>
-              </InfoTooltip>
-            </span>
-          }
+          label={<span>FPS</span>}
           controller={({ id }) => (
             <Select
               value={rendererConfig.fps.toString()}

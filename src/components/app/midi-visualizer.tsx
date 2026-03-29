@@ -17,6 +17,7 @@ import { RendererConfig } from "@/lib/renderers/renderer";
 import { useAppContext } from "@/contexts/app-context";
 import { MidiTracks } from "@/lib/midi/midi";
 import { useAnimationFrame } from "@/hooks/use-animation-frame";
+import { useFpsCounter } from "@/hooks/use-fps-counter";
 import { usePanelVisibility } from "@/hooks/use-panel-visibility";
 import { RendererController } from "./renderer-controller";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -71,6 +72,7 @@ export function MidiVisualizer({
     handleMouseMove,
     handleTouchReveal,
   } = usePanelVisibility({ isPlaying });
+  const { fps: actualFps, tick: fpsTick, reset: fpsReset } = useFpsCounter();
   const tracks = useMemo(() => midiTracks?.tracks || [], [midiTracks]);
   const midiOffset = useMemo(() => midiTracks?.midiOffset ?? 0, [midiTracks]);
   const invalidate = useCallback(
@@ -138,9 +140,15 @@ export function MidiVisualizer({
     if (!isPlaying || isSeeking) return;
     syncFromAudioContext();
     invalidate(false);
-  }, [isPlaying, isSeeking, syncFromAudioContext, invalidate]);
+    fpsTick();
+  }, [isPlaying, isSeeking, syncFromAudioContext, invalidate, fpsTick]);
 
-  useAnimationFrame(isPlaying, onAnimate);
+  const fpsResetEvent = useEffectEvent(fpsReset);
+  useEffect(() => {
+    if (!isPlaying) fpsResetEvent();
+  }, [isPlaying]);
+
+  useAnimationFrame(isPlaying, onAnimate, rendererConfig.fps);
 
   const handleContainerClick = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
@@ -439,6 +447,7 @@ export function MidiVisualizer({
                 <span className="flex-1 text-white tabular-nums">
                   {formatTime(position)} / {formatTime(duration)}
                 </span>
+                <span className="text-xs text-white/60 tabular-nums">{actualFps} fps</span>
                 <Button
                   variant="ghost-secondary"
                   onClick={toggleExpanded}

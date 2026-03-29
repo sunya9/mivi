@@ -88,3 +88,64 @@ test("does not respond to visibilitychange when not playing", () => {
   expect(onAnimate).not.toHaveBeenCalled();
   hiddenSpy.mockRestore();
 });
+
+test("throttles to 30fps when fps is specified", () => {
+  const onAnimate = vi.fn();
+
+  // 30fps = ~33.3ms interval, RafStub steps at ~16.67ms (60fps)
+  renderHook(() => useAnimationFrame(true, onAnimate, 30));
+
+  // Step 1: ~16.67ms - first call always fires
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(1);
+
+  // Step 2: ~33.3ms - not enough time since last call (need 33.3ms)
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(1);
+
+  // Step 3: ~50.0ms - enough elapsed, fires
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(2);
+
+  // Step 4: ~66.7ms - not enough
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(2);
+
+  // Step 5: ~83.3ms - fires
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(3);
+});
+
+test("throttles to 24fps when fps is specified", () => {
+  const onAnimate = vi.fn();
+
+  // 24fps = ~41.67ms interval
+  renderHook(() => useAnimationFrame(true, onAnimate, 24));
+
+  // Step 1: ~16.67ms - first call
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(1);
+
+  // Step 2: ~33.3ms - skip (16.67ms elapsed < 41.67ms)
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(1);
+
+  // Step 3: ~50.0ms - skip (33.3ms elapsed < 41.67ms)
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(1);
+
+  // Step 4: ~66.7ms - fires (50ms elapsed > 41.67ms)
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(2);
+});
+
+test("does not throttle at 60fps (matches RAF rate)", () => {
+  const onAnimate = vi.fn();
+
+  renderHook(() => useAnimationFrame(true, onAnimate, 60));
+
+  rafStub.step();
+  rafStub.step();
+  rafStub.step();
+  expect(onAnimate).toHaveBeenCalledTimes(3);
+});

@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useRef } from "react";
 
-export function useAnimationFrame(isPlaying: boolean, onAnimate: () => void) {
+export function useAnimationFrame(isPlaying: boolean, onAnimate: () => void, fps?: number) {
   const animationFrameRef = useRef<number | null>(null);
   const onAnimateEffect = useEffectEvent(onAnimate);
   useEffect(() => {
@@ -12,7 +12,16 @@ export function useAnimationFrame(isPlaying: boolean, onAnimate: () => void) {
       return;
     }
 
-    const loop = () => {
+    const frameInterval = fps ? 1000 / fps : 0;
+    let nextFireTime = 0;
+
+    const loop = (timestamp: number) => {
+      if (frameInterval > 0 && nextFireTime > 0 && timestamp + 1 < nextFireTime) {
+        animationFrameRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      // Advance by exact interval to preserve fractional accumulation
+      nextFireTime = (nextFireTime || timestamp) + frameInterval;
       onAnimateEffect();
       animationFrameRef.current = requestAnimationFrame(loop);
     };
@@ -32,5 +41,5 @@ export function useAnimationFrame(isPlaying: boolean, onAnimate: () => void) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [isPlaying]);
+  }, [isPlaying, fps]);
 }
