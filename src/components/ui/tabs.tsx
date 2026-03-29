@@ -22,7 +22,7 @@ const tabsListVariants = cva(
         default: "bg-muted",
         line: "gap-1 bg-transparent",
         "line-indicator":
-          "relative justify-start group-data-[orientation=horizontal]/tabs:border-b",
+          "relative justify-start group-data-[orientation=horizontal]/tabs:border-b rounded-none",
       },
     },
     defaultVariants: {
