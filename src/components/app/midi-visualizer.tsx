@@ -371,7 +371,7 @@ export function MidiVisualizer({
             <div className="flex flex-col gap-1 [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-controls]">
               <Slider
                 aria-label="Seek position"
-                max={duration}
+                max={duration || Infinity}
                 value={[position]}
                 step={0.1}
                 onPointerDown={() => {
