@@ -8,59 +8,62 @@ interface NoiseTextureConfig {
 }
 
 export class NoiseTextureRenderer {
-  private patternLight: CanvasPattern | null = null;
-  private patternDark: CanvasPattern | null = null;
-  private cachedIntensity: number = 0;
-  private cachedGrainSize: number = 0;
-  private cachedColorVariance: number = 0;
+  #patternLight: CanvasPattern | null = null;
+  #patternDark: CanvasPattern | null = null;
+  #cachedIntensity: number = 0;
+  #cachedGrainSize: number = 0;
+  #cachedColorVariance: number = 0;
+  #ctx: RendererContext;
 
-  constructor(private ctx: RendererContext) {}
+  constructor(ctx: RendererContext) {
+    this.#ctx = ctx;
+  }
 
   updatePatterns(config: NoiseTextureConfig): void {
     const { intensity, grainSize, colorVariance } = config;
 
     if (
-      this.cachedIntensity !== intensity ||
-      this.cachedGrainSize !== grainSize ||
-      this.cachedColorVariance !== colorVariance ||
-      this.patternLight === null ||
-      this.patternDark === null
+      this.#cachedIntensity !== intensity ||
+      this.#cachedGrainSize !== grainSize ||
+      this.#cachedColorVariance !== colorVariance ||
+      this.#patternLight === null ||
+      this.#patternDark === null
     ) {
-      this.patternLight = this.generatePattern(intensity, grainSize, colorVariance, false);
-      this.patternDark = this.generatePattern(intensity, grainSize, colorVariance, true);
-      this.cachedIntensity = intensity;
-      this.cachedGrainSize = grainSize;
-      this.cachedColorVariance = colorVariance;
+      this.#patternLight = this.#generatePattern(intensity, grainSize, colorVariance, false);
+      this.#patternDark = this.#generatePattern(intensity, grainSize, colorVariance, true);
+      this.#cachedIntensity = intensity;
+      this.#cachedGrainSize = grainSize;
+      this.#cachedColorVariance = colorVariance;
     }
   }
 
   clearPatterns(): void {
-    this.patternLight = null;
-    this.patternDark = null;
-    this.cachedIntensity = 0;
-    this.cachedGrainSize = 0;
-    this.cachedColorVariance = 0;
+    this.#patternLight = null;
+    this.#patternDark = null;
+    this.#cachedIntensity = 0;
+    this.#cachedGrainSize = 0;
+    this.#cachedColorVariance = 0;
   }
 
   apply(noteColor: string, noteX: number, noteY: number, noteSeed: number): void {
-    const luminance = this.getColorLuminance(noteColor);
-    const pattern = luminance > 0.5 ? this.patternDark : this.patternLight;
+    const luminance = this.#getColorLuminance(noteColor);
+    const pattern = luminance > 0.5 ? this.#patternDark : this.#patternLight;
 
     if (!pattern) return;
 
-    this.ctx.save();
-    this.ctx.globalCompositeOperation = "source-atop";
+    this.#ctx.save();
+    this.#ctx.globalCompositeOperation = "source-atop";
 
     const uniqueOffsetX = seededRandom(noteSeed) * 256;
     const uniqueOffsetY = seededRandom(noteSeed + 12345) * 256;
 
     pattern.setTransform(new DOMMatrix().translate(noteX + uniqueOffsetX, noteY + uniqueOffsetY));
-    this.ctx.fillStyle = pattern;
-    this.ctx.fill();
-    this.ctx.restore();
+    this.#ctx.fillStyle = pattern;
+    this.#ctx.fill();
+    this.#ctx.restore();
   }
 
-  private generatePattern(
+  #generatePattern(
     intensity: number,
     grainSize: number,
     colorVariance: number,
@@ -92,10 +95,10 @@ export class NoiseTextureRenderer {
     }
 
     ctx.putImageData(imageData, 0, 0);
-    return this.ctx.createPattern(canvas, "repeat");
+    return this.#ctx.createPattern(canvas, "repeat");
   }
 
-  private getColorLuminance(hexColor: string): number {
+  #getColorLuminance(hexColor: string): number {
     const r = parseInt(hexColor.slice(1, 3), 16) / 255;
     const g = parseInt(hexColor.slice(3, 5), 16) / 255;
     const b = parseInt(hexColor.slice(5, 7), 16) / 255;

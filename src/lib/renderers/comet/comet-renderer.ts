@@ -20,9 +20,9 @@ interface CometTrail {
 }
 
 export class CometRenderer extends Renderer {
-  private activeComets = new Map<number, CometParticle>();
-  private lastCurrentTime: number = 0;
-  private cometAngleOffsets = new Map<number, number>();
+  #activeComets = new Map<number, CometParticle>();
+  #lastCurrentTime: number = 0;
+  #cometAngleOffsets = new Map<number, number>();
 
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -32,11 +32,11 @@ export class CometRenderer extends Renderer {
   }
 
   render(tracks: MidiTrack[], currentTime: number) {
-    if (currentTime < this.lastCurrentTime) {
-      this.activeComets.clear();
-      this.cometAngleOffsets.clear();
+    if (currentTime < this.#lastCurrentTime) {
+      this.#activeComets.clear();
+      this.#cometAngleOffsets.clear();
     }
-    this.lastCurrentTime = currentTime;
+    this.#lastCurrentTime = currentTime;
 
     // Background is now rendered by RendererController
 
@@ -61,18 +61,18 @@ export class CometRenderer extends Renderer {
         if (
           currentTime >= note.time &&
           currentTime <= note.time + note.duration &&
-          !this.activeComets.has(cometKey) &&
+          !this.#activeComets.has(cometKey) &&
           isNoteInViewRange(note.midi)
         ) {
           // Calculate angle offset for this comet if not exists
-          if (!this.cometAngleOffsets.has(cometKey)) {
+          if (!this.#cometAngleOffsets.has(cometKey)) {
             // Create deterministic angle offset based on note properties
             const pseudoRandomAngle = ((note.time * 54321 + note.midi * 98765) % 1000) / 1000 - 0.5;
             const randomAngleOffset = pseudoRandomAngle * 2 * cometConfig.angleRandomness;
-            this.cometAngleOffsets.set(cometKey, randomAngleOffset);
+            this.#cometAngleOffsets.set(cometKey, randomAngleOffset);
           }
 
-          const angleOffset = this.cometAngleOffsets.get(cometKey)!;
+          const angleOffset = this.#cometAngleOffsets.get(cometKey)!;
 
           // Calculate comet position based on MIDI note
           const noteRange = cometConfig.viewRangeTop - cometConfig.viewRangeBottom;
@@ -116,7 +116,7 @@ export class CometRenderer extends Renderer {
             baseStartY + normalizedMidi * height * 0.2 + spacingOffsetY + randomOffsetY;
 
           // Create comet particle with proper duration timing
-          this.activeComets.set(cometKey, {
+          this.#activeComets.set(cometKey, {
             x: startX,
             y: startY,
             startTime: note.time,
@@ -132,7 +132,7 @@ export class CometRenderer extends Renderer {
     });
 
     // Update and render active comets
-    this.activeComets.forEach((comet, key) => {
+    this.#activeComets.forEach((comet, key) => {
       // Skip if comet hasn't started yet
       if (currentTime < comet.startTime) return;
 
@@ -146,7 +146,7 @@ export class CometRenderer extends Renderer {
           (currentTime - comet.endTime) / cometConfig.fadeOutDuration,
         );
         if (fadeProgress >= 1.0) {
-          this.activeComets.delete(key);
+          this.#activeComets.delete(key);
           return;
         }
       }
@@ -165,17 +165,17 @@ export class CometRenderer extends Renderer {
       const currentY = comet.y + Math.sin(angleRad) * distance;
 
       // Calculate trail positions based on current time (deterministic)
-      const trail = this.calculateCometTrail(comet, currentTime);
+      const trail = this.#calculateCometTrail(comet, currentTime);
 
       // Render trail
-      this.renderCometTrail(trail);
+      this.#renderCometTrail(trail);
 
       // Render comet
-      this.renderComet(currentX, currentY, comet, progress, currentTime);
+      this.#renderComet(currentX, currentY, comet, progress, currentTime);
     });
   }
 
-  private calculateCometTrail(comet: CometParticle, currentTime: number): CometTrail {
+  #calculateCometTrail(comet: CometParticle, currentTime: number): CometTrail {
     const { cometConfig } = this.config;
     const { width, height } = this.config.resolution;
     const positions: Array<{ x: number; y: number; timestamp: number }> = [];
@@ -238,7 +238,7 @@ export class CometRenderer extends Renderer {
     };
   }
 
-  private renderCometTrail(trail: CometTrail | undefined) {
+  #renderCometTrail(trail: CometTrail | undefined) {
     if (!trail || trail.positions.length < 2) return;
 
     const { cometConfig } = this.config;
@@ -302,13 +302,7 @@ export class CometRenderer extends Renderer {
     this.ctx.restore();
   }
 
-  private renderComet(
-    x: number,
-    y: number,
-    comet: CometParticle,
-    progress: number,
-    currentTime: number,
-  ) {
+  #renderComet(x: number, y: number, comet: CometParticle, progress: number, currentTime: number) {
     const { cometConfig } = this.config;
 
     this.ctx.save();

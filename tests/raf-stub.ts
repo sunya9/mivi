@@ -2,31 +2,31 @@ import { vi } from "vitest";
 
 // https://duglaser.dev/articles/DAlWhCgc9camewosk12x
 export class RafStub {
-  private index = 0;
-  private time = 0;
-  private que: { fn: FrameRequestCallback; index: number }[] = [];
+  #index = 0;
+  #time = 0;
+  #que: { fn: FrameRequestCallback; index: number }[] = [];
 
-  private readonly duration: number = 1000 / 60;
+  readonly #duration: number = 1000 / 60;
 
   readonly requestAnimationFrame = vi.fn((fn: FrameRequestCallback) => {
-    this.que.push({ fn, index: this.index });
-    this.index += 1;
-    return this.index;
+    this.#que.push({ fn, index: this.#index });
+    this.#index += 1;
+    return this.#index;
   });
 
   readonly step = () => {
-    const q = this.que.shift();
-    this.time += this.duration;
-    q?.fn(this.time);
+    const q = this.#que.shift();
+    this.#time += this.#duration;
+    q?.fn(this.#time);
   };
 
   readonly cancelAnimationFrame = vi.fn(() => (id: number) => {
-    this.que = this.que.filter((q) => q.index !== id);
+    this.#que = this.#que.filter((q) => q.index !== id);
   });
 
   reset = () => {
-    this.que = [];
-    this.index = 0;
-    this.time = 0;
+    this.#que = [];
+    this.#index = 0;
+    this.#time = 0;
   };
 }

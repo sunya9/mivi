@@ -5,11 +5,11 @@ import { NoiseTextureRenderer } from "./noise-texture-renderer";
 import { RoughRectDrawer } from "./rough-rect-drawer";
 
 export class PianoRollRenderer extends Renderer {
-  private readonly overflowFactor = 0.5;
+  readonly #overflowFactor = 0.5;
 
-  private lastCurrentTime: number = 0;
+  #lastCurrentTime: number = 0;
 
-  private rippleStates = new Map<
+  #rippleStates = new Map<
     number,
     {
       noteStart: number;
@@ -20,7 +20,7 @@ export class PianoRollRenderer extends Renderer {
     }
   >();
 
-  private noteFlashStates = new Map<
+  #noteFlashStates = new Map<
     number,
     {
       noteStart: number;
@@ -31,7 +31,7 @@ export class PianoRollRenderer extends Renderer {
     }
   >();
 
-  private pressStates = new Map<
+  #pressStates = new Map<
     number,
     {
       startTime: number;
@@ -39,20 +39,20 @@ export class PianoRollRenderer extends Renderer {
     }
   >();
 
-  private noiseTextureRenderer: NoiseTextureRenderer;
-  private roughRectDrawer: RoughRectDrawer;
-  private rgbCache = new Map<string, [number, number, number]>();
+  #noiseTextureRenderer: NoiseTextureRenderer;
+  #roughRectDrawer: RoughRectDrawer;
+  #rgbCache = new Map<string, [number, number, number]>();
 
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
     config: RendererConfig,
   ) {
     super(ctx, config);
-    this.noiseTextureRenderer = new NoiseTextureRenderer(ctx);
-    this.roughRectDrawer = new RoughRectDrawer(ctx);
+    this.#noiseTextureRenderer = new NoiseTextureRenderer(ctx);
+    this.#roughRectDrawer = new RoughRectDrawer(ctx);
   }
 
-  private noteToY(midi: number) {
+  #noteToY(midi: number) {
     const { height } = this.config.resolution;
     const noteHeight = Math.max(height / 127, this.config.pianoRollConfig.noteHeight);
 
@@ -63,15 +63,15 @@ export class PianoRollRenderer extends Renderer {
     return height * ((viewRangeTop - midi) / viewRangeSize) - noteHeight / 2;
   }
   render(tracks: MidiTrack[], currentTime: number) {
-    if (currentTime < this.lastCurrentTime) {
-      this.rippleStates.clear();
-      this.noteFlashStates.clear();
-      this.pressStates.clear();
+    if (currentTime < this.#lastCurrentTime) {
+      this.#rippleStates.clear();
+      this.#noteFlashStates.clear();
+      this.#pressStates.clear();
     }
-    this.lastCurrentTime = currentTime;
+    this.#lastCurrentTime = currentTime;
 
     // Background is now rendered by RendererController
-    this.updateNoiseTexture();
+    this.#updateNoiseTexture();
     const { width, height } = this.config.resolution;
 
     const isNoteInViewRange = (midi: number) => {
@@ -103,7 +103,8 @@ export class PianoRollRenderer extends Renderer {
       const scale = track.config.scale;
       const leftEdgeTime = currentTime + (startTime - currentTime) / scale;
       const rightEdgeTime = currentTime + (endTime - currentTime) / scale;
-      const scaledOverflow = (this.config.pianoRollConfig.timeWindow * this.overflowFactor) / scale;
+      const scaledOverflow =
+        (this.config.pianoRollConfig.timeWindow * this.#overflowFactor) / scale;
 
       // Binary search to skip notes that end before the visible range
       const startIdx = findFirstVisibleNoteIndex(track.notes, leftEdgeTime - scaledOverflow);
@@ -132,21 +133,21 @@ export class PianoRollRenderer extends Renderer {
           noteWidth = Math.max(0, rawNoteWidth - noteMargin * 2);
         }
 
-        const y = this.noteToY(note.midi) + verticalMargin;
+        const y = this.#noteToY(note.midi) + verticalMargin;
 
         const noteKey = note.id;
         const isTouchingPlayhead = Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
-        const wasNotTouchingPlayhead = !this.noteFlashStates.has(noteKey);
+        const wasNotTouchingPlayhead = !this.#noteFlashStates.has(noteKey);
 
         // Update press state (only when press effect is enabled)
         if (this.config.pianoRollConfig.showNotePressEffect) {
-          if (!this.pressStates.has(noteKey)) {
-            this.pressStates.set(noteKey, {
+          if (!this.#pressStates.has(noteKey)) {
+            this.#pressStates.set(noteKey, {
               startTime: currentTime,
               isPressed: isTouchingPlayhead,
             });
-          } else if (this.pressStates.get(noteKey)!.isPressed !== isTouchingPlayhead) {
-            this.pressStates.set(noteKey, {
+          } else if (this.#pressStates.get(noteKey)!.isPressed !== isTouchingPlayhead) {
+            this.#pressStates.set(noteKey, {
               startTime: currentTime,
               isPressed: isTouchingPlayhead,
             });
@@ -160,7 +161,7 @@ export class PianoRollRenderer extends Renderer {
         // Calculate press offset with animation
         let pressOffset = 0;
         if (this.config.pianoRollConfig.showNotePressEffect) {
-          const pressState = this.pressStates.get(noteKey)!;
+          const pressState = this.#pressStates.get(noteKey)!;
           const pressProgress = Math.min(
             1,
             (currentTime - pressState.startTime) /
@@ -174,7 +175,7 @@ export class PianoRollRenderer extends Renderer {
 
           // Clean up completed release animations
           if (!pressState.isPressed && pressProgress >= 1) {
-            this.pressStates.delete(noteKey);
+            this.#pressStates.delete(noteKey);
           }
         }
 
@@ -183,7 +184,7 @@ export class PianoRollRenderer extends Renderer {
           isTouchingPlayhead &&
           wasNotTouchingPlayhead
         ) {
-          this.noteFlashStates.set(noteKey, {
+          this.#noteFlashStates.set(noteKey, {
             noteStart: currentTime,
             color: track.config.color,
             isDurationMode: this.config.pianoRollConfig.noteFlashMode === "duration",
@@ -192,7 +193,7 @@ export class PianoRollRenderer extends Renderer {
           });
         }
 
-        const flashState = this.noteFlashStates.get(noteKey);
+        const flashState = this.#noteFlashStates.get(noteKey);
         if (flashState) {
           const fadeOutDuration = this.config.pianoRollConfig.noteFlashFadeOutDuration;
           const flashDuration = this.config.pianoRollConfig.noteFlashDuration;
@@ -222,7 +223,7 @@ export class PianoRollRenderer extends Renderer {
           }
 
           if (intensity > 0) {
-            this.ctx.fillStyle = this.adjustColorBrightness(track.config.color, intensity);
+            this.ctx.fillStyle = this.#adjustColorBrightness(track.config.color, intensity);
           }
 
           // Update touch state
@@ -235,13 +236,13 @@ export class PianoRollRenderer extends Renderer {
 
           // Remove effect if fade out is complete
           if (!isTouchingPlayhead && timeSinceStart >= fadeOutDuration) {
-            this.noteFlashStates.delete(noteKey);
+            this.#noteFlashStates.delete(noteKey);
           }
         }
 
         if (this.config.pianoRollConfig.showRoughEdge) {
           const roughSeed = note.time * 1000 + note.midi;
-          this.roughRectDrawer.draw(
+          this.#roughRectDrawer.draw(
             x + noteMargin,
             y - pressOffset,
             noteWidth,
@@ -265,7 +266,7 @@ export class PianoRollRenderer extends Renderer {
 
         if (this.config.pianoRollConfig.showNoiseTexture) {
           const noteSeed = note.time * 1000 + note.midi;
-          this.noiseTextureRenderer.apply(
+          this.#noiseTextureRenderer.apply(
             track.config.color,
             x + noteMargin,
             y - pressOffset,
@@ -282,9 +283,9 @@ export class PianoRollRenderer extends Renderer {
           this.config.pianoRollConfig.showRippleEffect &&
           isTouchingPlayhead &&
           wasNotTouchingPlayhead &&
-          !this.rippleStates.has(noteKey)
+          !this.#rippleStates.has(noteKey)
         ) {
-          this.rippleStates.set(noteKey, {
+          this.#rippleStates.set(noteKey, {
             noteStart: noteStart,
             noteEnd: noteEnd,
             x: playheadX,
@@ -301,16 +302,16 @@ export class PianoRollRenderer extends Renderer {
       this.ctx.shadowOffsetY = 0;
     }
 
-    this.rippleStates.forEach((state, noteKey) => {
+    this.#rippleStates.forEach((state, noteKey) => {
       const rippleProgress = Math.min(
         1,
         (currentTime - state.noteStart) / this.config.pianoRollConfig.rippleDuration,
       );
 
-      this.drawRippleEffect(state.x, state.y, state.color, rippleProgress, rippleProgress);
+      this.#drawRippleEffect(state.x, state.y, state.color, rippleProgress, rippleProgress);
 
       if (currentTime >= state.noteStart + this.config.pianoRollConfig.rippleDuration) {
-        this.rippleStates.delete(noteKey);
+        this.#rippleStates.delete(noteKey);
       }
     });
 
@@ -327,7 +328,7 @@ export class PianoRollRenderer extends Renderer {
     }
   }
 
-  private drawRippleEffect(
+  #drawRippleEffect(
     x: number,
     y: number,
     color: string,
@@ -355,35 +356,35 @@ export class PianoRollRenderer extends Renderer {
     }
   }
 
-  private parseRgb(color: string): [number, number, number] {
-    let rgb = this.rgbCache.get(color);
+  #parseRgb(color: string): [number, number, number] {
+    let rgb = this.#rgbCache.get(color);
     if (!rgb) {
       rgb = [
         parseInt(color.slice(1, 3), 16),
         parseInt(color.slice(3, 5), 16),
         parseInt(color.slice(5, 7), 16),
       ];
-      this.rgbCache.set(color, rgb);
+      this.#rgbCache.set(color, rgb);
     }
     return rgb;
   }
 
-  private adjustColorBrightness(color: string, intensity: number): string {
-    const [r, g, b] = this.parseRgb(color);
+  #adjustColorBrightness(color: string, intensity: number): string {
+    const [r, g, b] = this.#parseRgb(color);
     const brightenValue = intensity * 255;
     return `rgb(${Math.min(255, r + brightenValue)}, ${Math.min(255, g + brightenValue)}, ${Math.min(255, b + brightenValue)})`;
   }
 
-  private updateNoiseTexture(): void {
+  #updateNoiseTexture(): void {
     const { showNoiseTexture, noiseIntensity, noiseGrainSize, noiseColorVariance } =
       this.config.pianoRollConfig;
 
     if (!showNoiseTexture) {
-      this.noiseTextureRenderer.clearPatterns();
+      this.#noiseTextureRenderer.clearPatterns();
       return;
     }
 
-    this.noiseTextureRenderer.updatePatterns({
+    this.#noiseTextureRenderer.updatePatterns({
       intensity: noiseIntensity,
       grainSize: noiseGrainSize,
       colorVariance: noiseColorVariance,

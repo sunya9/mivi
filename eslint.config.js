@@ -49,6 +49,22 @@ export default defineConfig(
         },
       ],
       "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true }],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "PropertyDefinition[accessibility='private']",
+          message: "Use ES hard private (#field) instead of TypeScript 'private' keyword.",
+        },
+        {
+          selector: "MethodDefinition[accessibility='private']",
+          message: "Use ES hard private (#method) instead of TypeScript 'private' keyword.",
+        },
+        {
+          selector: "TSParameterProperty[accessibility='private']",
+          message:
+            "Use ES hard private (#field) instead of TypeScript 'private' in constructor parameters.",
+        },
+      ],
     },
   },
   {
