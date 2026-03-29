@@ -85,25 +85,15 @@ export class ExportProgressTracker<T extends string> {
   #report = () => {
     const totalDone = this.#phases.reduce((sum, p) => sum + this.#getPhaseCompleted(p), 0);
     const progress = this.#totalWork > 0 ? totalDone / this.#totalWork : 0;
-    this.#throttledLog(progress);
+    this.#throttledReport(progress);
   };
 
-  #throttledLog = throttle(500, (progress: number) => {
+  #throttledReport = throttle(500, (progress: number) => {
     const active = this.#phases.filter((p) => {
       const done = this.#getPhaseCompleted(p);
       return done > 0 && done < p.total;
     });
 
-    const details = active
-      .map((p) => {
-        const done = this.#getPhaseCompleted(p);
-        const pct = ((done / p.total) * 100).toFixed(1);
-        const eta = this.#getEta(p.name, done, p.total);
-        return `${p.name}: ${pct}% (ETA ${eta})`;
-      })
-      .join(" | ");
-
-    // Pick the most relevant active phase (last one = furthest in pipeline)
     const lastActive = active.at(-1);
     const activePhase: ActivePhase | undefined = lastActive
       ? {
@@ -112,10 +102,6 @@ export class ExportProgressTracker<T extends string> {
         }
       : undefined;
 
-    console.log(
-      `Export ${(progress * 100).toFixed(1)}%`,
-      details ? `[${details}]` : "[Finalizing]",
-    );
     this.#onProgress(progress, activePhase);
   });
 
