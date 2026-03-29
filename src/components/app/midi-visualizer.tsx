@@ -74,7 +74,7 @@ export function MidiVisualizer({
   const tracks = useMemo(() => midiTracks?.tracks || [], [midiTracks]);
   const midiOffset = useMemo(() => midiTracks?.midiOffset ?? 0, [midiTracks]);
   const invalidate = useCallback(
-    (usePrecomputed: boolean = false) => {
+    (usePrecomputed: boolean) => {
       const currentPosition = getPosition();
       // Get frequency data: from real-time analyser during playback, or pre-computed during seek
       let frequencyData = getFrequencyData();
@@ -113,9 +113,13 @@ export function MidiVisualizer({
 
   // Re-render when midiTracks changes (e.g., color presets)
   useEffect(() => {
-    // Use pre-computed FFT data for immediate preview when not playing
     invalidateEffect(true);
   }, [midiTracks?.tracks]);
+
+  // Re-render when audio is loaded to show FFT preview at position 0
+  useEffect(() => {
+    invalidateEffect(true);
+  }, [serializedAudio]);
 
   const handleInit = useCallback((ctx: CanvasRenderingContext2D) => {
     rendererControllerRef.current = new RendererController(ctx);
@@ -133,7 +137,7 @@ export function MidiVisualizer({
   const onAnimate = useCallback(() => {
     if (!isPlaying || isSeeking) return;
     syncFromAudioContext();
-    invalidate();
+    invalidate(false);
   }, [isPlaying, isSeeking, syncFromAudioContext, invalidate]);
 
   useAnimationFrame(isPlaying, onAnimate);

@@ -144,11 +144,12 @@ function computeFrequencyData(
   const frequencyBinCount = fftSize / 2;
   const frequencyData: Uint8Array<ArrayBuffer> = new Uint8Array(frequencyBinCount);
 
-  // Apply Hann window
+  // Apply Blackman window (matches AnalyserNode's window function)
   const real = new Float32Array(fftSize);
   const imag = new Float32Array(fftSize);
   for (let i = 0; i < fftSize; i++) {
-    const window = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftSize - 1)));
+    const a = (2 * Math.PI * i) / (fftSize - 1);
+    const window = 0.42 - 0.5 * Math.cos(a) + 0.08 * Math.cos(2 * a);
     real[i] = samples[i] * window;
     imag[i] = 0;
   }
