@@ -1,28 +1,23 @@
 import { createContext, useContext } from "react";
-import type { Orientation, PanelConfig, PanelSize } from "./types";
+import type { Orientation, PanelConfig, PanelSize, SeparatorSide } from "./types";
 
 /** Context value */
 export interface GridResizableContextValue {
   sizes: Record<string, PanelSize>;
   panelConfigs: Map<string, PanelConfig>;
-  startResize: (separatorId: string, orientation: Orientation, controls: [string, string]) => void;
+  startResize: (panelId: string, side: SeparatorSide, orientation: Orientation) => void;
   updateResize: (currentPosition: number) => void;
   endResize: () => void;
-  resizeByKeyboard: (
-    orientation: Orientation,
-    controls: [string, string],
-    direction: 1 | -1,
-    step?: number,
-  ) => void;
-  resizeToMin: (controls: [string, string], shrinkPanelId: string) => void;
+  resizeByKeyboard: (panelId: string, delta: number) => void;
+  resizeToMin: (panelId: string) => void;
   resizeToFit: (
-    separatorId: string,
-    orientation: Orientation,
-    controls: [string, string],
-    targetPanelId: string,
-    getOptimalSize: () => number | null,
+    panelId: string,
+    getOptimalSize: (sizes: Record<string, PanelSize>) => number | undefined,
   ) => void;
-  getContainerRef: () => HTMLDivElement | null;
+  registerPanel: (id: string, element: HTMLElement) => void;
+  unregisterPanel: (id: string) => void;
+  registerSeparator: (id: string, element: HTMLElement, orientation: Orientation) => void;
+  unregisterSeparator: (id: string) => void;
 }
 
 export const GridResizableContext = createContext<GridResizableContextValue | null>(null);

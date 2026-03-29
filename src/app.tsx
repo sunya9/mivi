@@ -1,5 +1,6 @@
-import { useState, useCallback, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { Toaster } from "@/components/ui/sonner";
+import { useVisualizerFit } from "@/hooks/use-visualizer-fit";
 import {
   GridResizablePanelGroup,
   GridResizablePanel,
@@ -54,170 +55,146 @@ export function App() {
   // Settings dialog state
   const [settingsTab, setSettingsTab] = useState<SettingsTabValue | undefined>(undefined);
 
-  // Ref to the visualizer container for measuring dimensions
-  const visualizerContainerRef = useRef<HTMLDivElement>(null);
-
-  const getVisualizerOptimalHeight = useCallback((): number | null => {
-    const container = visualizerContainerRef.current;
-    if (!container) return null;
-
-    const rect = container.getBoundingClientRect();
-    const aspectRatio = rendererConfig.resolution.height / rendererConfig.resolution.width;
-
-    return rect.width * aspectRatio;
-  }, [rendererConfig.resolution.height, rendererConfig.resolution.width]);
-
-  // Get the actual width of the canvas (for fitting center column to canvas)
-  const getCenterOptimalWidth = useCallback((): number | null => {
-    const container = visualizerContainerRef.current;
-    if (!container) return null;
-
-    return container.getBoundingClientRect().width;
-  }, []);
+  const {
+    containerRef: visualizerContainerRef,
+    getVisualizerOptimalHeight,
+    getCenterFitSize,
+  } = useVisualizerFit(rendererConfig.resolution);
 
   const panels = useMemo<PanelConfig[]>(
     () => [
-      { id: "track-list", defaultSize: 1000, constraints: { minSize: 300 } },
-      { id: "center", defaultSize: 1000, constraints: { minSize: 320 } },
-      {
-        id: "visualizer",
-        defaultSize: 400,
-        sizeUnit: "px",
-        constraints: { minSize: 100 },
-        getOptimalSize: getVisualizerOptimalHeight,
-      },
-      { id: "config", defaultSize: 1500 },
-      { id: "style", defaultSize: 1000, constraints: { minSize: 300 } },
+      { id: "track-list", defaultSize: 300, constraints: { minSize: 200 } },
+      { id: "visualizer", defaultSize: 400, constraints: { minSize: 200 } },
+      { id: "style", defaultSize: 300, constraints: { minSize: 200 } },
     ],
-    [getVisualizerOptimalHeight],
+    [],
   );
 
   return (
-    <div
-      className="grid max-h-dvh min-h-dvh grid-rows-[auto_1fr_auto] overflow-hidden md:grid-rows-[auto_1fr]"
+    <GridResizablePanelGroup
+      id="main-layout"
+      panels={panels}
+      className="mx-auto grid-main-layout max-h-dvh min-h-dvh overflow-hidden"
       onDrop={handleDrop}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
     >
       {DragDropOverlay}
-      <AppHeader toggleRecording={toggleRecording} recordingState={recordingState} />
-      <GridResizablePanelGroup
-        id="main-layout"
-        panels={panels}
-        className="mx-auto grid-main-layout min-h-0"
+      <AppHeader
+        toggleRecording={toggleRecording}
+        recordingState={recordingState}
+        className="area-[header]"
+      />
+      <GridResizablePanel
+        panelId="visualizer"
+        className={cn("max-h-[calc(100dvh/3)] area-[visualizer] md:max-h-none", {
+          "hidden md:block": mobileTab === "settings",
+        })}
       >
-        <GridResizablePanel
-          panelId="visualizer"
-          className={cn("max-h-[calc(100dvh/3)] area-[visualizer] md:max-h-none", {
-            "hidden md:block": mobileTab === "settings",
-          })}
-        >
-          <MidiVisualizer
-            rendererConfig={rendererConfig}
+        <MidiVisualizer
+          rendererConfig={rendererConfig}
+          midiTracks={midiTracks}
+          backgroundImageBitmap={backgroundImageBitmap}
+          serializedAudio={serializedAudio}
+          containerRef={visualizerContainerRef}
+        />
+      </GridResizablePanel>
+      <GridResizablePanel
+        panelId="track-list"
+        className={cn(
+          "area-[content] md:block md:area-[track-list]",
+          mobileTab === "tracks" ? "block" : "hidden",
+        )}
+      >
+        <ScrollArea className="@container h-full w-full">
+          <TrackListPane
+            key={midiTracks?.instanceKey}
             midiTracks={midiTracks}
-            backgroundImageBitmap={backgroundImageBitmap}
-            serializedAudio={serializedAudio}
-            containerRef={visualizerContainerRef}
+            setMidiTracks={setMidiTracks}
+            midiFilename={midiTracks?.name}
+            onChangeMidiFile={setMidiFile}
           />
-        </GridResizablePanel>
-        <GridResizablePanel
-          panelId="track-list"
-          className={cn(
-            "area-[content] md:block md:area-[track-list]",
-            mobileTab === "tracks" ? "block" : "hidden",
-          )}
-        >
-          <ScrollArea className="@container h-full w-full">
-            <TrackListPane
-              key={midiTracks?.instanceKey}
-              midiTracks={midiTracks}
-              setMidiTracks={setMidiTracks}
-              midiFilename={midiTracks?.name}
-              onChangeMidiFile={setMidiFile}
-            />
-          </ScrollArea>
-        </GridResizablePanel>
+        </ScrollArea>
+      </GridResizablePanel>
 
-        <GridResizableSeparator
-          id="sep-h1"
-          orientation="horizontal"
-          controls={["track-list", "center"]}
-          className="area-[sep-h1]"
-          getOptimalSizeForFit={getCenterOptimalWidth}
-          fitTargetPanel="center"
-        />
+      <GridResizableSeparator
+        id="sep-h1"
+        orientation="horizontal"
+        panelId="track-list"
+        side="before"
+        className="area-[sep-h1]"
+        getOptimalSizeForFit={(sizes) => getCenterFitSize("track-list", sizes)}
+      />
 
-        <GridResizableSeparator
-          id="sep-v"
-          orientation="vertical"
-          controls={["visualizer", "config"]}
-          className="area-[sep-v]"
-          getOptimalSizeForFit={getVisualizerOptimalHeight}
-          fitTargetPanel="visualizer"
-        />
+      <GridResizableSeparator
+        id="sep-v"
+        orientation="vertical"
+        panelId="visualizer"
+        side="before"
+        className="area-[sep-v]"
+        getOptimalSizeForFit={getVisualizerOptimalHeight}
+      />
 
-        <GridResizablePanel
-          panelId="config"
-          className={cn(
-            "area-[content] md:block md:area-[config]",
-            mobileTab === "visualizer" ? "block" : "hidden",
-          )}
-        >
-          <ScrollArea className="h-full w-full">
-            <CommonConfigPane
-              rendererConfig={rendererConfig}
-              onUpdateRendererConfig={onUpdateRendererConfig}
-              audioFilename={audioFile?.name}
-              onChangeAudioFile={setAudioFile}
-              isAudioDecoding={isDecoding}
-              onCancelAudioDecode={cancelDecode}
-              backgroundImageFilename={backgroundImageFile?.name}
-              onChangeBackgroundImage={setBackgroundImageFile}
-            />
-          </ScrollArea>
-        </GridResizablePanel>
+      <GridResizablePanel
+        panelId="config"
+        className={cn(
+          "area-[content] md:block md:area-[config]",
+          mobileTab === "visualizer" ? "block" : "hidden",
+        )}
+      >
+        <ScrollArea className="h-full w-full">
+          <CommonConfigPane
+            rendererConfig={rendererConfig}
+            onUpdateRendererConfig={onUpdateRendererConfig}
+            audioFilename={audioFile?.name}
+            onChangeAudioFile={setAudioFile}
+            isAudioDecoding={isDecoding}
+            onCancelAudioDecode={cancelDecode}
+            backgroundImageFilename={backgroundImageFile?.name}
+            onChangeBackgroundImage={setBackgroundImageFile}
+          />
+        </ScrollArea>
+      </GridResizablePanel>
 
-        <GridResizableSeparator
-          id="sep-h2"
-          orientation="horizontal"
-          controls={["center", "style"]}
-          className="area-[sep-h2]"
-          getOptimalSizeForFit={getCenterOptimalWidth}
-          fitTargetPanel="center"
-        />
+      <GridResizableSeparator
+        id="sep-h2"
+        orientation="horizontal"
+        panelId="style"
+        side="after"
+        className="area-[sep-h2]"
+        getOptimalSizeForFit={(sizes) => getCenterFitSize("style", sizes)}
+      />
 
-        <GridResizablePanel
-          panelId="style"
-          className={cn(
-            "area-[content] md:block md:area-[style]",
-            mobileTab === "style" ? "block" : "hidden",
-          )}
-        >
-          {VisualizerStyle}
-        </GridResizablePanel>
+      <GridResizablePanel
+        panelId="style"
+        className={cn(
+          "area-[content] md:block md:area-[style]",
+          mobileTab === "style" ? "block" : "hidden",
+        )}
+      >
+        {VisualizerStyle}
+      </GridResizablePanel>
 
-        <GridResizablePanel panelId="about" className="hidden area-[about] md:block md:border-t">
-          <FooterPanel onOpenSettings={() => setSettingsTab("general")} />
-        </GridResizablePanel>
+      <GridResizablePanel panelId="about" className="hidden area-[about] md:block md:border-t">
+        <FooterPanel onOpenSettings={() => setSettingsTab("general")} />
+      </GridResizablePanel>
 
-        <GridResizablePanel
-          panelId="settings"
-          className={cn("area-[content] md:hidden", mobileTab === "settings" ? "block" : "hidden")}
-        >
-          <ScrollArea className="h-full w-full px-6 py-4">
-            <SettingsContent />
-          </ScrollArea>
-        </GridResizablePanel>
-      </GridResizablePanelGroup>
-
+      <GridResizablePanel
+        panelId="settings"
+        className={cn("area-[content] md:hidden", mobileTab === "settings" ? "block" : "hidden")}
+      >
+        <ScrollArea className="h-full w-full px-6 py-4">
+          <SettingsContent />
+        </ScrollArea>
+      </GridResizablePanel>
       <MobileBottomNav
-        className="flex-none md:hidden"
+        className="area-[nav] md:hidden"
         value={mobileTab}
         onValueChange={setMobileTab}
       />
       <SettingsDialog tab={settingsTab} onTabChange={setSettingsTab} />
       <Toaster position="top-center" />
       {ConfirmDialog}
-    </div>
+    </GridResizablePanelGroup>
   );
 }
