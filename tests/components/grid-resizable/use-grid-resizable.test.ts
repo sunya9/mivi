@@ -276,6 +276,284 @@ describe("useGridResizable", () => {
     });
   });
 
+  describe("element registration", () => {
+    it("should register and unregister panel elements", () => {
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
+
+      const element = document.createElement("div");
+
+      act(() => {
+        result.current.contextValue.registerPanel("panel1", element);
+      });
+
+      // Verify registration works by using startResize (which reads panelElements)
+      act(() => {
+        result.current.contextValue.startResize("panel1", "before", "horizontal");
+      });
+
+      // If panel was registered, startResize should have set the resize state
+      // (endResize will persist, confirming resize was active)
+      act(() => {
+        result.current.contextValue.endResize();
+      });
+
+      const stored = localStorage.getItem(STORAGE_KEY_PREFIX + "test");
+      expect(stored).not.toBeNull();
+
+      // Unregister
+      act(() => {
+        result.current.contextValue.unregisterPanel("panel1");
+      });
+    });
+
+    it("should register and unregister separator elements", () => {
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
+
+      const element = document.createElement("div");
+
+      act(() => {
+        result.current.contextValue.registerSeparator("sep1", element, "horizontal");
+      });
+
+      act(() => {
+        result.current.contextValue.unregisterSeparator("sep1");
+      });
+
+      // No error thrown means registration/unregistration works
+      expect(true).toBe(true);
+    });
+  });
+
+  describe("startResize and updateResize", () => {
+    it("should not start resize if panel is not registered", () => {
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
+
+      act(() => {
+        result.current.contextValue.startResize("panel1", "before", "horizontal");
+      });
+
+      // updateResize should be a no-op since resize didn't start
+      act(() => {
+        result.current.contextValue.updateResize(500);
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBe(300);
+    });
+
+    it("should resize before panel based on mouse position", () => {
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
+
+      const panel = document.createElement("div");
+      panel.getBoundingClientRect = () => ({
+        left: 100,
+        right: 400,
+        top: 0,
+        bottom: 300,
+        width: 300,
+        height: 300,
+        x: 100,
+        y: 0,
+        toJSON: () => ({}),
+      });
+
+      act(() => {
+        result.current.contextValue.registerPanel("panel1", panel);
+      });
+
+      act(() => {
+        result.current.contextValue.startResize("panel1", "before", "horizontal");
+      });
+
+      // fixedEdge = left = 100, mousePos = 350 → newSize = 250
+      act(() => {
+        result.current.contextValue.updateResize(350);
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBe(250);
+    });
+
+    it("should resize after panel based on mouse position", () => {
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
+
+      const panel = document.createElement("div");
+      panel.getBoundingClientRect = () => ({
+        left: 100,
+        right: 400,
+        top: 0,
+        bottom: 300,
+        width: 300,
+        height: 300,
+        x: 100,
+        y: 0,
+        toJSON: () => ({}),
+      });
+
+      act(() => {
+        result.current.contextValue.registerPanel("panel1", panel);
+      });
+
+      act(() => {
+        result.current.contextValue.startResize("panel1", "after", "horizontal");
+      });
+
+      // fixedEdge = right = 400, mousePos = 300 → newSize = 100
+      act(() => {
+        result.current.contextValue.updateResize(300);
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBe(100);
+    });
+
+    it("should resize vertical panel using top/bottom edges", () => {
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
+
+      const panel = document.createElement("div");
+      panel.getBoundingClientRect = () => ({
+        left: 0,
+        right: 300,
+        top: 50,
+        bottom: 450,
+        width: 300,
+        height: 400,
+        x: 0,
+        y: 50,
+        toJSON: () => ({}),
+      });
+
+      act(() => {
+        result.current.contextValue.registerPanel("panel1", panel);
+      });
+
+      act(() => {
+        result.current.contextValue.startResize("panel1", "before", "vertical");
+      });
+
+      // fixedEdge = top = 50, mousePos = 250 → newSize = 200
+      act(() => {
+        result.current.contextValue.updateResize(250);
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBe(200);
+    });
+
+    it("should not update if resize is not active", () => {
+      const { result } = renderHook(() => useGridResizable({ id: "test", panels: defaultPanels }));
+
+      act(() => {
+        result.current.contextValue.updateResize(500);
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBe(300);
+    });
+  });
+
+  describe("endResize", () => {
+    it("should persist layout on end", () => {
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test-end", panels: defaultPanels }),
+      );
+
+      const panel = document.createElement("div");
+      panel.getBoundingClientRect = () => ({
+        left: 100,
+        right: 400,
+        top: 0,
+        bottom: 300,
+        width: 300,
+        height: 300,
+        x: 100,
+        y: 0,
+        toJSON: () => ({}),
+      });
+
+      act(() => {
+        result.current.contextValue.registerPanel("panel1", panel);
+      });
+
+      act(() => {
+        result.current.contextValue.startResize("panel1", "before", "horizontal");
+      });
+
+      act(() => {
+        result.current.contextValue.updateResize(350);
+      });
+
+      act(() => {
+        result.current.contextValue.endResize();
+      });
+
+      const stored = localStorage.getItem(STORAGE_KEY_PREFIX + "test-end");
+      expect(stored).not.toBeNull();
+      const parsed = JSON.parse(stored!) as { sizes: Record<string, number> };
+      expect(parsed.sizes.panel1).toBe(250);
+    });
+
+    it("should not persist if resize was not active", () => {
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test-no-resize", panels: defaultPanels }),
+      );
+
+      act(() => {
+        result.current.contextValue.endResize();
+      });
+
+      const stored = localStorage.getItem(STORAGE_KEY_PREFIX + "test-no-resize");
+      expect(stored).toBeNull();
+    });
+
+    it("should clamp to rendered size if panel is smaller than internal value", () => {
+      const { result } = renderHook(() =>
+        useGridResizable({ id: "test-clamp", panels: defaultPanels }),
+      );
+
+      const panel = document.createElement("div");
+      // Initial getBoundingClientRect for startResize
+      panel.getBoundingClientRect = () => ({
+        left: 0,
+        right: 300,
+        top: 0,
+        bottom: 300,
+        width: 300,
+        height: 300,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      });
+
+      act(() => {
+        result.current.contextValue.registerPanel("panel1", panel);
+      });
+
+      act(() => {
+        result.current.contextValue.startResize("panel1", "before", "horizontal");
+      });
+
+      // Drag to 800px
+      act(() => {
+        result.current.contextValue.updateResize(800);
+      });
+
+      // But CSS Grid renders it at only 500px
+      panel.getBoundingClientRect = () => ({
+        left: 0,
+        right: 500,
+        top: 0,
+        bottom: 300,
+        width: 500,
+        height: 300,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      });
+
+      act(() => {
+        result.current.contextValue.endResize();
+      });
+
+      expect(result.current.contextValue.sizes.panel1).toBe(500);
+    });
+  });
+
   describe("exported constants", () => {
     it("should export DEFAULT_STEP as 20", () => {
       expect(DEFAULT_STEP).toBe(20);
