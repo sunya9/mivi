@@ -6,6 +6,7 @@ import {
 } from "@/lib/media-compositor/recording-status";
 import { toast } from "sonner";
 import { runWorker } from "./run-worker";
+import type { ActivePhase } from "./export-progress-tracker";
 import { errorLogWithToast } from "../utils";
 import type { MidiTracks } from "@/lib/midi/midi";
 import type { AudioSource } from "@/lib/audio/audio";
@@ -47,8 +48,10 @@ export function useRecorder(resources: {
       abortControllerRef.current = abortController;
       const signal = abortController.signal;
       setRecordingState(new RecordingState(0));
-      const onProgress = (progress: number) => {
-        setRecordingState(progress < 1 ? new RecordingState(progress) : new ReadyState());
+      const onProgress = (progress: number, activePhase?: ActivePhase) => {
+        setRecordingState(
+          progress < 1 ? new RecordingState(progress, activePhase) : new ReadyState(),
+        );
       };
       toast("Exporting...");
 

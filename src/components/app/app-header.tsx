@@ -35,6 +35,11 @@ export function AppHeader({ className, recordingState, toggleRecording }: Props)
           </p>
         </div>
         <div className="flex items-center gap-2 md:ml-auto">
+          {recordingState.type === "recording" && recordingState.activePhase && (
+            <span className="hidden text-muted-foreground md:inline md:text-xs">
+              {recordingState.activePhase.name} — {recordingState.activePhase.eta}
+            </span>
+          )}
           <Button
             onClick={handleToggleRecording}
             className="h-8 px-3 md:h-9 md:px-4 [html:active-view-transition-type(export-button-change)_&]:[view-transition-name:export-button]"
@@ -53,7 +58,7 @@ export function AppHeader({ className, recordingState, toggleRecording }: Props)
       {recordingState.type === "recording" && (
         <Progress
           aria-label="Export progress"
-          className="absolute bottom-0 left-0 z-20 h-1 w-full animate-in rounded-none duration-300 fade-in"
+          className="absolute bottom-0 left-0 z-20 w-full animate-in rounded-none duration-300 fade-in *:data-[slot=progress-track]:h-0.5"
           value={recordingState.progress * 100}
         />
       )}

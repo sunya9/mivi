@@ -1,15 +1,16 @@
 import { proxy, releaseProxy, wrap } from "comlink";
 import RecorderWorker from "./recorder.worker?worker";
 import { RecorderResources } from "./recorder-resources";
+import type { ActivePhase } from "./export-progress-tracker";
 
 export function runWorker(
   resources: RecorderResources,
-  onChangeRecordingStatus: (progress: number) => void,
+  onChangeRecordingStatus: (progress: number, activePhase?: ActivePhase) => void,
   signal: AbortSignal,
 ) {
-  const onProgress = proxy((progress: number) => {
+  const onProgress = proxy((progress: number, activePhase?: ActivePhase) => {
     if (signal.aborted) return;
-    onChangeRecordingStatus(progress);
+    onChangeRecordingStatus(progress, activePhase);
   });
   const rawWorker = new RecorderWorker();
   const worker = wrap<typeof import("./recorder.worker")>(rawWorker);
