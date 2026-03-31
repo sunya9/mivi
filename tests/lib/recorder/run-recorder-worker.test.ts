@@ -1,4 +1,4 @@
-import { runWorker } from "@/lib/media-compositor/run-worker";
+import { runRecorder } from "@/lib/media-compositor/run-recorder-worker";
 import { createEndpoint, releaseProxy, wrap } from "comlink";
 import { resources } from "tests/fixtures";
 import { expect, test, vi } from "vitest";
@@ -14,7 +14,7 @@ test("worker is completed", async () => {
     [createEndpoint]: vi.fn(),
     [releaseProxy]: vi.fn(),
   }));
-  const p = runWorker(resources, () => {}, new AbortSignal());
+  const p = runRecorder(resources, () => {}, new AbortSignal());
   await expect(p).resolves.toBeDefined();
 });
 
@@ -25,7 +25,7 @@ test("worker is failed", async () => {
     [createEndpoint]: vi.fn(),
     [releaseProxy]: vi.fn(),
   }));
-  const p = runWorker(resources, () => {}, new AbortSignal());
+  const p = runRecorder(resources, () => {}, new AbortSignal());
   await expect(p).rejects.toThrow(error);
 });
 
@@ -45,7 +45,7 @@ test("worker is aborted", async () => {
     [releaseProxy]: vi.fn(),
   }));
   const onprogress = vi.fn();
-  const p = runWorker(resources, onprogress, controller.signal);
+  const p = runRecorder(resources, onprogress, controller.signal);
   workerOnProgress(0.1);
   expect(onprogress).toHaveBeenCalledExactlyOnceWith(0.1, undefined);
   controller.abort(error);
