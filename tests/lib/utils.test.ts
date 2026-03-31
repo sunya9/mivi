@@ -3,8 +3,6 @@ import { cn, formatTime, resetConfig, errorLogWithToast } from "@/lib/utils";
 import { saveFile } from "@/lib/file-db/file-db";
 import { toast } from "sonner";
 
-vi.mock("sonner", { spy: true });
-
 describe("cn", () => {
   it("should merge class names correctly", () => {
     expect(cn("class1", "class2")).toBe("class1 class2");

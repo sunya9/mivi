@@ -10,8 +10,6 @@ import { AudioContext } from "standardized-audio-context-mock";
 import type { StoredAudioData } from "@/lib/audio/audio";
 import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
 
-vi.mock("sonner", { spy: true });
-
 vi.mock("@/lib/audio/run-decode-worker", { spy: true });
 
 // Create a mock stored audio entry

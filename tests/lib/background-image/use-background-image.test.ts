@@ -5,8 +5,6 @@ import { useBackgroundImage } from "@/lib/background-image/use-background-image"
 import { customRenderHook } from "tests/util";
 import { toast } from "sonner";
 
-vi.mock("sonner", { spy: true });
-
 const mockImage = new File(["test"], "test.png", { type: "image/png" });
 
 test("should initialize with empty background image", async () => {

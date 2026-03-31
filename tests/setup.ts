@@ -24,6 +24,7 @@ afterEach(() => {
 });
 
 vi.mock("standardized-audio-context", () => standardizedAudioContextMock);
+vi.mock("sonner", { spy: true });
 
 let idCounter = 0;
 

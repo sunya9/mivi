@@ -7,7 +7,6 @@ import { testMidiTracks, rendererConfig } from "tests/fixtures";
 import { runRecorder } from "@/lib/media-compositor/run-recorder-worker";
 
 vi.mock("@/lib/media-compositor/run-recorder-worker", { spy: true });
-vi.mock("sonner", { spy: true });
 
 const mockAudioSource: AudioSource = {
   name: "test.mp3",

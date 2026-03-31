@@ -7,8 +7,6 @@ import { MidiTracks } from "@/lib/midi/midi";
 import { toast } from "sonner";
 import { customRenderHook } from "tests/util";
 
-vi.mock("sonner", { spy: true });
-
 function TestComponent() {
   const { setMidiFile, midiTracks, ConfirmDialog } = useMidi();
   return (
