@@ -4,15 +4,7 @@ import type { ReactNode } from "react";
 import { Tabs as TabsPrimitive } from "@base-ui/react";
 import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 
-export type MobileTabValue = "tracks" | "visualizer" | "style" | "settings";
-
-interface TabConfig {
-  value: MobileTabValue;
-  label: string;
-  icon: () => ReactNode;
-}
-
-const tabs: TabConfig[] = [
+const tabs = [
   {
     value: "tracks",
     label: "Tracks",
@@ -28,8 +20,18 @@ const tabs: TabConfig[] = [
     label: "Style",
     icon: () => <Palette className="size-5" />,
   },
-  { value: "settings", label: "Settings", icon: SettingsIcon },
-] as const;
+  {
+    value: "settings",
+    label: "Settings",
+    icon: SettingsIcon,
+  },
+] as const satisfies readonly {
+  value: string;
+  label: string;
+  icon: () => ReactNode;
+}[];
+
+export type MobileTabValue = (typeof tabs)[number]["value"];
 
 function SettingsIcon() {
   const {
