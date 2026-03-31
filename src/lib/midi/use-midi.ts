@@ -1,11 +1,11 @@
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { getDefaultTrackConfig, MidiTrack, MidiTracks, TrackConfig } from "@/lib/midi/midi";
+import { getDefaultTrackConfig, MidiTrack, MidiTracks } from "@/lib/midi/midi";
 import { hashArrayBuffer } from "@/lib/hash";
 import { Midi } from "@tonejs/midi";
-import { defaultsDeep } from "lodash-es";
 import { useMemo, useCallback } from "react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
 import { toast } from "sonner";
+import { toMerged } from "es-toolkit";
 
 const defaultTrackConfig = getDefaultTrackConfig("");
 
@@ -44,7 +44,7 @@ function overwriteMidiTracks(midiTracks: MidiTracks | undefined) {
   if (!midiTracks) return;
   let noteId = 0;
   const tracks: MidiTrack[] = midiTracks.tracks.map((track) => {
-    const config: TrackConfig = defaultsDeep(track.config, defaultTrackConfig);
+    const config = toMerged(defaultTrackConfig, track.config);
     return {
       ...track,
       notes: track.notes.map((note) => ({

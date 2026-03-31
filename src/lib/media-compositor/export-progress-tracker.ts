@@ -1,4 +1,4 @@
-import { throttle } from "throttle-debounce";
+import { throttle } from "es-toolkit";
 
 interface PhaseConfig<T extends string> {
   name: T;
@@ -88,7 +88,7 @@ export class ExportProgressTracker<T extends string> {
     this.#throttledReport(progress);
   };
 
-  #throttledReport = throttle(500, (progress: number) => {
+  #throttledReport = throttle((progress: number) => {
     const active = this.#phases.filter((p) => {
       const done = this.#getPhaseCompleted(p);
       return done > 0 && done < p.total;
@@ -103,7 +103,7 @@ export class ExportProgressTracker<T extends string> {
       : undefined;
 
     this.#onProgress(progress, activePhase);
-  });
+  }, 500);
 
   #getEta(phaseName: T, done: number, total: number): string {
     if (total === 0 || done === 0) return "--";

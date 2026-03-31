@@ -1,7 +1,7 @@
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { getDefaultRendererConfig, RendererConfig, RendererType } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
-import { defaultsDeep, merge } from "lodash-es";
+import { merge, toMerged } from "es-toolkit";
 import { useMemo, useCallback } from "react";
 import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
@@ -69,8 +69,8 @@ export function useRendererConfig(minNote?: number, maxNote?: number) {
   const [storedRendererConfig, setRendererConfig] =
     useLocalStorage<RendererConfig>("mivi:renderer-config");
   // add new default config always
-  const rendererConfig: RendererConfig = useMemo(
-    () => defaultsDeep(storedRendererConfig, defaultConfig) as RendererConfig,
+  const rendererConfig = useMemo(
+    () => toMerged(defaultConfig, storedRendererConfig || {}),
     [storedRendererConfig],
   );
   const onUpdateRendererConfig = useCallback(
