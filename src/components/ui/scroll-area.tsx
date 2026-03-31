@@ -7,7 +7,7 @@ interface Props extends ScrollAreaPrimitive.Root.Props {
 }
 
 function ScrollArea({ className, children, orientation, ...props }: Props) {
-  const isVertical = orientation === "vertical";
+  const isVertical = !orientation || orientation === "vertical";
   const isHorizontal = orientation === "horizontal";
   return (
     <ScrollAreaPrimitive.Root
