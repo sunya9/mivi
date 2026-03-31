@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { cn, formatTime, resetConfig, errorLogWithToast } from "@/lib/utils";
-import { saveFile } from "@/lib/file-db/file-db";
+import { saveValue } from "@/lib/file-db/file-db";
 import { toast } from "sonner";
 
 describe("cn", () => {
@@ -28,7 +28,7 @@ describe("resetConfig", () => {
 
   it("delete all configuration", async () => {
     // store mock file
-    await saveFile("test", new File([], "test"));
+    await saveValue("test", new File([], "test"));
     localStorage.setItem("test", "test");
 
     const databasesBefore = await indexedDB.databases();

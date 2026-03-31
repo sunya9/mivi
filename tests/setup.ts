@@ -4,6 +4,7 @@ import "vitest-canvas-mock";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
+import { closeDb } from "@/lib/file-db/file-db";
 import * as nodeCrypto from "node:crypto";
 import * as standardizedAudioContextMock from "standardized-audio-context-mock";
 
@@ -20,6 +21,7 @@ afterEach(() => {
   cleanup();
   localStorage.clear();
   indexedDB = new IDBFactory();
+  closeDb();
   vi.clearAllMocks();
 });
 

@@ -1,39 +1,35 @@
 import { expect, test } from "vitest";
-import { saveFile, fetchFile, fetchValue, dbName, storeName } from "@/lib/file-db/file-db";
+import { saveValue, fetchValue, dbName, storeName } from "@/lib/file-db/file-db";
 
-test("should save and fetch file successfully", async () => {
-  const key = "test-key";
-  const file = new File(["test content"], "test.txt", { type: "text/plain" });
-
-  await saveFile(key, file);
-  const result = await fetchFile(key);
-  expect(result?.name).toEqual(file.name);
+test("should save and fetch a value", async () => {
+  await saveValue("key", { name: "test", count: 42 });
+  const result = await fetchValue<{ name: string; count: number }>("key");
+  expect(result).toEqual({ name: "test", count: 42 });
 });
 
-test("return empty if file not found", async () => {
-  const key = "test-key";
-  const result = await fetchFile(key);
+test("should return undefined for non-existent key", async () => {
+  const result = await fetchValue("non-existent");
   expect(result).toBeUndefined();
 });
 
-test("should delete file when saveFile is called with undefined", async () => {
-  const key = "delete-test-key";
-  const file = new File(["test content"], "test.txt", { type: "text/plain" });
+test("should delete value when saving undefined", async () => {
+  await saveValue("to-delete", "hello");
+  expect(await fetchValue("to-delete")).toBe("hello");
 
-  await saveFile(key, file);
-  const saved = await fetchFile(key);
-  expect(saved?.name).toEqual(file.name);
+  await saveValue("to-delete", undefined);
+  expect(await fetchValue("to-delete")).toBeUndefined();
+});
 
-  await saveFile(key, undefined);
-  const deleted = await fetchFile(key);
-  expect(deleted).toBeUndefined();
+test("should overwrite existing value", async () => {
+  await saveValue("overwrite", "first");
+  await saveValue("overwrite", "second");
+  expect(await fetchValue("overwrite")).toBe("second");
 });
 
 test("should clear legacy data on version upgrade", async () => {
   const key = "legacy-key";
-  const legacyFile = new File(["old"], "old.txt", { type: "text/plain" });
 
-  // Simulate legacy DB (version 1) with raw File stored directly
+  // Simulate legacy DB (version 1) with data stored directly
   const legacyDb = await new Promise<IDBDatabase>((resolve, reject) => {
     const request = indexedDB.open(dbName, 1);
     request.onerror = () => reject(new Error("Failed to open legacy DB"));
@@ -48,7 +44,7 @@ test("should clear legacy data on version upgrade", async () => {
   await new Promise<void>((resolve, reject) => {
     const tx = legacyDb.transaction(storeName, "readwrite");
     const store = tx.objectStore(storeName);
-    const request = store.put(legacyFile, key);
+    const request = store.put("legacy-data", key);
     request.onsuccess = () => resolve();
     request.onerror = () => reject(new Error("Failed to save legacy data"));
     tx.oncomplete = () => legacyDb.close();

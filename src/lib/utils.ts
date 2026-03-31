@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
+import { closeDb } from "@/lib/file-db/file-db";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -13,6 +14,9 @@ export function formatTime(timeInSeconds: number): string {
 }
 
 export async function resetConfig() {
+  // Close cached DB connection before deleting databases
+  closeDb();
+
   // delete indexedDB databases
   const databases = await indexedDB.databases();
   const promises = databases

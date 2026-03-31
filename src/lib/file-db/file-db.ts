@@ -1,10 +1,18 @@
 export const storeName = "key-value";
 export const dbName = "mivi:file";
 
+let cachedDb: IDBDatabase | null = null;
+
+/** Close and release the cached DB connection. */
+export function closeDb() {
+  cachedDb?.close();
+  cachedDb = null;
+}
+
 function openDB(): Promise<IDBDatabase> {
+  if (cachedDb) return Promise.resolve(cachedDb);
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, 2);
-
     request.onerror = () => {
       reject(new Error("Failed to open database"));
     };
@@ -21,7 +29,10 @@ function openDB(): Promise<IDBDatabase> {
     };
 
     request.onsuccess = (event) => {
-      resolve((event.target as IDBOpenDBRequest).result);
+      const db = (event.target as IDBOpenDBRequest).result;
+      cachedDb = db;
+
+      resolve(db);
     };
   });
 }
@@ -31,9 +42,6 @@ export async function fetchValue<T>(key: string): Promise<T | undefined> {
   const transaction = db.transaction(storeName, "readonly");
   const store = transaction.objectStore(storeName);
   const request = store.get(key);
-  transaction.oncomplete = () => {
-    db.close();
-  };
 
   return new Promise<T | undefined>((resolve, reject) => {
     request.onsuccess = () => {
@@ -49,9 +57,6 @@ export async function saveValue<T>(key: string, value: T | undefined): Promise<v
   const db = await openDB();
   const transaction = db.transaction(storeName, "readwrite");
   const store = transaction.objectStore(storeName);
-  transaction.oncomplete = () => {
-    db.close();
-  };
 
   const request = value === undefined ? store.delete(key) : store.put(value, key);
   return new Promise<void>((resolve, reject) => {
@@ -63,7 +68,3 @@ export async function saveValue<T>(key: string, value: T | undefined): Promise<v
     };
   });
 }
-
-// Legacy aliases for existing tests
-export const fetchFile = fetchValue<File>;
-export const saveFile = saveValue<File>;
