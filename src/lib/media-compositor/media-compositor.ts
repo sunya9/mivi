@@ -52,7 +52,7 @@ export class MediaCompositor {
       error: onError,
     });
     this.#audioEncoder.configure({
-      codec: muxer.audioCodec,
+      codec: muxer.config.audioCodec,
       sampleRate: this.#serializedAudio.sampleRate,
       numberOfChannels: this.#serializedAudio.numberOfChannels,
       bitrate: 192_000,
@@ -68,7 +68,7 @@ export class MediaCompositor {
       this.#rendererConfig.resolution.height,
     );
     this.#videoEncoder.configure({
-      codec: muxer.videoCodec,
+      codec: muxer.config.videoCodec,
       width: this.#canvas.width,
       height: this.#canvas.height,
       bitrate: 10_000_000,
@@ -112,7 +112,7 @@ export class MediaCompositor {
     this.#progress.startTimer("Video Encode");
     await Promise.all([this.#videoEncoder.flush(), this.#audioEncoder.flush()]);
     await this.#muxer.finalize();
-    return new Blob([this.#muxer.buffer], { type: this.#muxer.mimeType });
+    return new Blob([this.#muxer.buffer], { type: this.#muxer.config.mimeType });
   }
 
   #renderAudio() {

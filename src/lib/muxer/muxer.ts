@@ -14,7 +14,17 @@ import {
 } from "mediabunny";
 import { VideoFormat } from "../renderers/renderer";
 
+interface Config {
+  outputFormat: OutputFormat;
+  videoCodecId: VideoCodec;
+  audioCodecId: AudioCodec;
+  videoCodec: string;
+  audioCodec: string;
+  mimeType: string;
+}
+
 export interface Muxer {
+  config: Config;
   addVideoChunk(chunk: EncodedVideoChunk, metadata?: EncodedVideoChunkMetadata): Promise<void>;
   addAudioChunk(chunk: EncodedAudioChunk, metadata?: EncodedAudioChunkMetadata): Promise<void>;
 
@@ -22,24 +32,11 @@ export interface Muxer {
 
   finalize(): Promise<void>;
   get buffer(): ArrayBuffer;
-  get videoCodec(): string;
-  get audioCodec(): string;
-  get mimeType(): string;
 }
 
-const FORMAT_CONFIGS: Record<
-  VideoFormat,
-  {
-    createOutputFormat: () => OutputFormat;
-    videoCodecId: VideoCodec;
-    audioCodecId: AudioCodec;
-    videoCodec: string;
-    audioCodec: string;
-    mimeType: string;
-  }
-> = {
+const FORMAT_CONFIGS: Record<VideoFormat, Config> = {
   webm: {
-    createOutputFormat: () => new WebMOutputFormat(),
+    outputFormat: new WebMOutputFormat(),
     videoCodecId: "vp9" as const,
     audioCodecId: "opus" as const,
     videoCodec: "vp09.00.41.08",
@@ -47,7 +44,7 @@ const FORMAT_CONFIGS: Record<
     mimeType: "video/webm",
   },
   mp4: {
-    createOutputFormat: () => new Mp4OutputFormat({ fastStart: "in-memory" }),
+    outputFormat: new Mp4OutputFormat({ fastStart: "in-memory" }),
     videoCodecId: "avc" as const,
     audioCodecId: "aac" as const,
     videoCodec: "avc1.42E029",
@@ -65,40 +62,22 @@ export class MuxerImpl implements Muxer {
   readonly #output: Output<OutputFormat, BufferTarget>;
   readonly #videoSource: EncodedVideoPacketSource;
   readonly #audioSource: EncodedAudioPacketSource;
-  readonly #videoCodec: string;
-  readonly #audioCodec: string;
-  readonly #mimeType: string;
-
+  readonly config: Config;
   constructor(options: MuxerOptions) {
     const config = FORMAT_CONFIGS[options.format];
-
+    this.config = config;
     this.#output = new Output({
-      format: config.createOutputFormat(),
+      format: config.outputFormat,
       target: new BufferTarget(),
     });
 
     this.#videoSource = new EncodedVideoPacketSource(config.videoCodecId);
     this.#audioSource = new EncodedAudioPacketSource(config.audioCodecId);
-    this.#videoCodec = config.videoCodec;
-    this.#audioCodec = config.audioCodec;
-    this.#mimeType = config.mimeType;
 
     this.#output.addVideoTrack(this.#videoSource, {
       frameRate: options.frameRate,
     });
     this.#output.addAudioTrack(this.#audioSource);
-  }
-
-  get videoCodec() {
-    return this.#videoCodec;
-  }
-
-  get audioCodec() {
-    return this.#audioCodec;
-  }
-
-  get mimeType() {
-    return this.#mimeType;
   }
 
   async addVideoChunk(
