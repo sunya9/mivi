@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { cn, formatTime, resetConfig, errorLogWithToast } from "@/lib/utils";
+import { describe, it, expect, beforeEach, vi, test } from "vitest";
+import { cn, formatTime, resetConfig, errorLogWithToast, startViewTransition } from "@/lib/utils";
 import { saveValue } from "@/lib/file-db/file-db";
 import { toast } from "sonner";
 
@@ -76,5 +76,49 @@ describe("errorLogWithToast", () => {
     expect(toast.error).toHaveBeenCalledExactlyOnceWith(message, {
       description: undefined,
     });
+  });
+});
+
+describe("startViewTransition", () => {
+  test("calls document.startViewTransition when available", () => {
+    document.startViewTransition = vi.fn();
+    const callback = vi.fn();
+
+    startViewTransition(callback);
+
+    expect(document.startViewTransition).toHaveBeenCalledOnce();
+    const arg = vi.mocked(document.startViewTransition).mock.calls[0][0] as {
+      update: () => void;
+    };
+    arg.update();
+    expect(callback).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  test("passes types option to startViewTransition", () => {
+    document.startViewTransition = vi.fn();
+    const callback = vi.fn();
+
+    startViewTransition(callback, { types: ["my-transition"] });
+
+    expect(document.startViewTransition).toHaveBeenCalledOnce();
+    const arg = vi.mocked(document.startViewTransition).mock.calls[0][0] as {
+      update: () => void;
+      types: string[];
+    };
+    expect(arg.types).toEqual(["my-transition"]);
+    arg.update();
+    expect(callback).toHaveBeenCalledExactlyOnceWith();
+  });
+
+  test("calls callback directly when startViewTransition is not available", () => {
+    Object.defineProperty(document, "startViewTransition", {
+      value: undefined,
+      writable: true,
+    });
+    const callback = vi.fn();
+
+    startViewTransition(callback);
+
+    expect(callback).toHaveBeenCalledExactlyOnceWith();
   });
 });

@@ -13,6 +13,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { cn } from "@/lib/utils";
+import { startViewTransition } from "@/lib/utils";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { useAppContext } from "@/contexts/app-context";
 import { MidiTracks } from "@/lib/midi/midi";
@@ -167,16 +168,7 @@ export function MidiVisualizer({
     [handleTouchReveal, togglePlay],
   );
   const setExpandedAnimation = useCallback((expanded: React.SetStateAction<boolean>) => {
-    if (!document.startViewTransition) {
-      setExpanded(expanded);
-      return;
-    }
-    document.startViewTransition({
-      update: () => {
-        setExpanded(expanded);
-      },
-      types: ["canvas-expand"],
-    });
+    startViewTransition(() => setExpanded(expanded), { types: ["canvas-expand"] });
   }, []);
   const toggleExpanded = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {

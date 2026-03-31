@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { RecordingStatus } from "@/lib/media-compositor/recording-status";
 import { Spinner } from "@/components/ui/spinner";
+import { startViewTransition } from "@/lib/utils";
 
 interface Props {
   className?: string;
@@ -12,16 +13,7 @@ interface Props {
 }
 export function AppHeader({ className, recordingState, toggleRecording }: Props) {
   const handleToggleRecording = useCallback(() => {
-    if (!document.startViewTransition) {
-      toggleRecording();
-      return;
-    }
-    document.startViewTransition({
-      update: () => {
-        toggleRecording();
-      },
-      types: ["export-button-change"],
-    });
+    startViewTransition(toggleRecording, { types: ["export-button-change"] });
   }, [toggleRecording]);
 
   return (
