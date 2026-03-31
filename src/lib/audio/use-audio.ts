@@ -6,15 +6,7 @@ import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } fro
 import { toast } from "sonner";
 import { errorLogWithToast } from "../utils";
 import type { AudioBuffer, AudioContext } from "standardized-audio-context";
-
-function serializeAudioBuffer(buffer: AudioBuffer): StoredAudioData {
-  return {
-    channels: Array.from({ length: buffer.numberOfChannels }, (_, i) => buffer.getChannelData(i)),
-    sampleRate: buffer.sampleRate,
-    length: buffer.length,
-    numberOfChannels: buffer.numberOfChannels,
-  };
-}
+import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
 
 function restoreAudioBuffer(data: StoredAudioData, audioContext: AudioContext): AudioBuffer {
   const buffer = audioContext.createBuffer(data.numberOfChannels, data.length, data.sampleRate);
@@ -44,40 +36,42 @@ export function useAudio() {
   }, [audioBuffer]);
 
   const [isDecoding, setIsDecoding] = useState(false);
-  const decodeIdRef = useRef(0);
+  const abortControllerRef = useRef<AbortController>(null);
 
   const setAudioFile = useCallback(
     async (newAudioFile: File | undefined) => {
+      abortControllerRef.current?.abort();
+
       if (!newAudioFile) {
         await setEntry(undefined);
         return;
       }
-      const currentDecodeId = ++decodeIdRef.current;
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       try {
         setIsDecoding(true);
-        const arrayBuffer = await newAudioFile.arrayBuffer();
-        const decoded = await audioContext.decodeAudioData(arrayBuffer);
-        if (decodeIdRef.current !== currentDecodeId) return;
-        await setEntry({
-          file: newAudioFile,
-          decoded: serializeAudioBuffer(decoded),
-        });
+        const decoded = await runDecodeWorker(newAudioFile, controller.signal);
+        await setEntry({ file: newAudioFile, decoded });
         toast.success("Audio file loaded");
       } catch (error) {
-        if (decodeIdRef.current !== currentDecodeId) return;
+        if (controller.signal.aborted) return;
         errorLogWithToast("Failed to set audio file", error);
       } finally {
-        if (decodeIdRef.current === currentDecodeId) {
+        if (!controller.signal.aborted) {
           setIsDecoding(false);
         }
       }
     },
-    [audioContext, setEntry],
+    [setEntry],
   );
 
   const cancelDecode = useCallback(() => {
-    decodeIdRef.current++;
+    if (!abortControllerRef.current) return;
+    abortControllerRef.current.abort();
     setIsDecoding(false);
+    toast.info("Audio loading cancelled");
   }, []);
 
   const serializedAudio: SerializedAudio | undefined = useMemo(() => {

@@ -30,3 +30,9 @@ export function customRenderHook<T, P>(hook: (props: P) => T, options?: RenderHo
   });
   return { ...result, appContextValue };
 }
+
+export async function fetchFixtureAsFile(path: string, name: string, type: string): Promise<File> {
+  return fetch(path)
+    .then((res) => res.blob())
+    .then((blob) => new File([blob], name, { type }));
+}
