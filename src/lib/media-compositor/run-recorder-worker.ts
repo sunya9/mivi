@@ -3,7 +3,7 @@ import RecorderWorker from "./recorder.worker?worker";
 import { RecorderResources } from "./recorder-resources";
 import type { ActivePhase } from "./export-progress-tracker";
 
-export function runWorker(
+export function runRecorder(
   resources: RecorderResources,
   onChangeRecordingStatus: (progress: number, activePhase?: ActivePhase) => void,
   signal: AbortSignal,

@@ -5,7 +5,7 @@ import {
   RecordingState,
 } from "@/lib/media-compositor/recording-status";
 import { toast } from "sonner";
-import { runWorker } from "./run-worker";
+import { runRecorder } from "./run-recorder-worker";
 import type { ActivePhase } from "./export-progress-tracker";
 import { errorLogWithToast } from "../utils";
 import type { MidiTracks } from "@/lib/midi/midi";
@@ -55,7 +55,7 @@ export function useRecorder(resources: {
       };
       toast("Exporting...");
 
-      return runWorker(
+      return runRecorder(
         {
           ...resources,
           midiTracks,
