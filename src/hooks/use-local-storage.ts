@@ -1,6 +1,6 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useCallback, useState } from "react";
 
-const loadValue = <T>(key: string): T | undefined => {
+function loadValue<T>(key: string): T | undefined {
   try {
     const rawValue = localStorage.getItem(key);
     if (rawValue) {
@@ -10,20 +10,23 @@ const loadValue = <T>(key: string): T | undefined => {
   } catch (e) {
     console.error("parse error", e);
   }
-};
+}
 
 export function useLocalStorage<T>(
   key: string,
 ): [T | undefined, Dispatch<SetStateAction<T | undefined>>] {
-  const [value, setValue] = useState<T | undefined>(() => loadValue<T>(key));
-  useEffect(() => {
-    if (!value) {
-      localStorage.removeItem(key);
-    } else {
-      const json = JSON.stringify(value);
-      localStorage.setItem(key, json);
-    }
-  }, [key, value]);
-
+  const [value, setValueInternal] = useState<T | undefined>(() => loadValue<T>(key));
+  const setValue: Dispatch<SetStateAction<T | undefined>> = useCallback(
+    (newValue) => {
+      if (!newValue) {
+        localStorage.removeItem(key);
+      } else {
+        const json = JSON.stringify(newValue);
+        localStorage.setItem(key, json);
+      }
+      setValueInternal(newValue);
+    },
+    [key],
+  );
   return [value, setValue];
 }
