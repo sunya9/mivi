@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { cn } from "@/lib/utils";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 
@@ -11,7 +11,7 @@ interface ColorPickerInputProps {
   disabled?: boolean;
 }
 
-function normalizeColor(input: string): string | null {
+function normalizeColor(input: string): string | undefined {
   let color = input.trim().toLowerCase();
 
   // Add hash if missing
@@ -28,8 +28,6 @@ function normalizeColor(input: string): string | null {
   if (/^#[0-9a-f]{6}$/.test(color)) {
     return color;
   }
-
-  return null;
 }
 
 export function ColorPickerInput({
@@ -45,11 +43,6 @@ export function ColorPickerInput({
   const colorPickerId = `${textInputId}-color-picker`;
 
   const [inputValue, setInputValue] = useState(value);
-
-  // Sync with external value changes
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
 
   const handleNativePickerChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,7 +88,7 @@ export function ColorPickerInput({
   );
 
   const normalizedInputColor = normalizeColor(inputValue);
-  const isInvalid = normalizedInputColor === null;
+  const isInvalid = !normalizedInputColor;
   // Show preview of valid input color, fallback to committed value
   const previewColor = normalizedInputColor ?? value;
 
