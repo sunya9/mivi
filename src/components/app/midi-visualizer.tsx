@@ -2,6 +2,7 @@ import { formatTime } from "@/lib/utils";
 import { Canvas } from "@/components/app/canvas";
 import { Button } from "@/components/ui/button";
 import { Pause, Play, Volume2, VolumeX, Maximize, Minimize, X } from "lucide-react";
+import { PlayIcon } from "@/components/app/play-icon";
 import { Slider } from "@/components/ui/slider";
 import {
   useCallback,
@@ -350,11 +351,7 @@ export function MidiVisualizer({
             invalidate={invalidate}
             onInit={handleInit}
           />
-          <PlayIcon
-            isPlaying={displayedIsPlaying}
-            showInteractive={false}
-            onTogglePlay={togglePlay}
-          />
+          <PlayIcon isPlaying={displayedIsPlaying} />
           <div
             onClick={(e) => e.stopPropagation()}
             className={cn(
@@ -455,101 +452,5 @@ export function MidiVisualizer({
         </div>
       </div>
     </div>
-  );
-}
-
-interface PlayIconProps {
-  isPlaying: boolean;
-  showInteractive?: boolean;
-  onTogglePlay?: () => void;
-}
-
-function PlayIcon({ isPlaying, showInteractive, onTogglePlay }: PlayIconProps) {
-  const isPlayingRef = useRef(isPlaying);
-  const isAnimatingRef = useRef(false);
-  const animationRef = useRef<HTMLDivElement>(null);
-  const interactiveRef = useRef<HTMLDivElement>(null);
-
-  // Handle play state changes - trigger animation feedback
-  useEffect(() => {
-    if (isPlayingRef.current === isPlaying) {
-      return;
-    }
-
-    isAnimatingRef.current = true;
-
-    // Hide interactive layer during animation
-    if (interactiveRef.current) {
-      interactiveRef.current.style.opacity = "0";
-      interactiveRef.current.style.pointerEvents = "none";
-    }
-
-    // Play animation feedback
-    const animation = animationRef.current?.animate(
-      [
-        { opacity: 1, transform: "scale(0.8)" },
-        { opacity: 0, transform: "scale(1)" },
-      ],
-      { duration: 500, fill: "forwards" },
-    );
-
-    // Show interactive layer after animation completes
-    void animation?.finished.then(() => {
-      isAnimatingRef.current = false;
-      if (showInteractive && interactiveRef.current) {
-        interactiveRef.current.style.opacity = "1";
-        interactiveRef.current.style.pointerEvents = "auto";
-      }
-    });
-
-    isPlayingRef.current = isPlaying;
-  }, [isPlaying, showInteractive]);
-
-  // Handle showInteractive changes (when not animating)
-  useEffect(() => {
-    if (isAnimatingRef.current) return;
-    if (interactiveRef.current) {
-      interactiveRef.current.style.opacity = showInteractive ? "1" : "0";
-      interactiveRef.current.style.pointerEvents = showInteractive ? "auto" : "none";
-    }
-  }, [showInteractive]);
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      onTogglePlay?.();
-    },
-    [onTogglePlay],
-  );
-
-  return (
-    <>
-      {/* Animation feedback: shows briefly on state change */}
-      <div
-        ref={animationRef}
-        className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0"
-      >
-        <span className="rounded-full bg-black/50 p-4 text-white">
-          {/* Show icon representing the action that just happened */}
-          {isPlaying ? (
-            <Play strokeWidth={0.5} className="size-12" />
-          ) : (
-            <Pause strokeWidth={0.5} className="size-12" />
-          )}
-        </span>
-      </div>
-
-      {/* Interactive button: shown when panel is visible during playback */}
-      <div
-        ref={interactiveRef}
-        onClick={handleClick}
-        className="pointer-events-none absolute inset-0 flex cursor-pointer items-center justify-center opacity-0"
-      >
-        <span className="rounded-full bg-black/50 p-4 text-white">
-          {/* Show icon representing the action that can be performed */}
-          <Pause strokeWidth={0.5} className="size-12" />
-        </span>
-      </div>
-    </>
   );
 }
