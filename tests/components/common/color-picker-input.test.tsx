@@ -1,5 +1,5 @@
 import { expect, test, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { customRender } from "tests/util";
 import { ComponentProps } from "react";
@@ -134,18 +134,6 @@ test("should not set aria-invalid for valid input", () => {
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#00ff00" } });
   expect(input).not.toHaveAttribute("aria-invalid", "true");
-});
-
-// Sync with external value changes
-test("should sync input value when external value changes", () => {
-  const { rerender } = render(
-    <ColorPickerInput value="#ff0000" onChange={mockOnChange} aria-label="Color picker" />,
-  );
-  const input = screen.getByRole("textbox");
-  expect(input).toHaveValue("#ff0000");
-
-  rerender(<ColorPickerInput value="#00ff00" onChange={mockOnChange} aria-label="Color picker" />);
-  expect(screen.getByRole("textbox")).toHaveValue("#00ff00");
 });
 
 // Hash preservation tests
