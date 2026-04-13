@@ -26,6 +26,27 @@ import { useHotkeys } from "react-hotkeys-hook";
 import { SerializedAudio } from "@/lib/audio/audio";
 import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
 
+// ARIA widget roles where Space has a native interaction (activate, toggle, type, etc.).
+// "slider" is intentionally excluded so Space toggles playback even when a slider is focused.
+const INTERACTIVE_ROLES = new Set([
+  "button",
+  "checkbox",
+  "combobox",
+  "link",
+  "listbox",
+  "menuitem",
+  "menuitemcheckbox",
+  "menuitemradio",
+  "option",
+  "radio",
+  "searchbox",
+  "spinbutton",
+  "switch",
+  "tab",
+  "textbox",
+  "treeitem",
+]);
+
 interface Props {
   rendererConfig: RendererConfig;
   midiTracks?: MidiTracks;
@@ -179,21 +200,25 @@ export function MidiVisualizer({
     [setExpandedAnimation],
   );
 
-  // Space: Play/Pause (allow on body and slider elements)
+  // Space: Play/Pause (blocked on interactive widgets except sliders)
   useHotkeys(
     "space",
     (e) => {
-      const target = e.target;
-      if (e.repeat || !(target instanceof HTMLElement)) return;
-      const isBody = target instanceof HTMLBodyElement;
-      const isSlider =
-        target.role === "slider" || (target instanceof HTMLInputElement && target.type === "range");
-      if (!isBody && !isSlider) return;
+      if (e.repeat) return;
       e.preventDefault();
       togglePlay();
     },
     {
       enableOnFormTags: ["input"],
+      ignoreEventWhen: (e) => {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return true;
+        // Native interactive elements (implicit roles are not reflected in target.role)
+        if (target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement) return true;
+        if (target instanceof HTMLInputElement && target.type !== "range") return true;
+        // Custom widgets with explicit ARIA roles (e.g., base-ui div[role="button"])
+        return INTERACTIVE_ROLES.has(target.role ?? "");
+      },
     },
     [togglePlay],
   );
@@ -213,7 +238,6 @@ export function MidiVisualizer({
       toggleMute();
       showPanel();
     },
-    { enableOnFormTags: ["slider"] },
     [toggleMute, showPanel],
   );
 
@@ -228,21 +252,27 @@ export function MidiVisualizer({
     [setExpandedAnimation],
   );
 
+  const isInteractiveWidgetFocused = useCallback((e: KeyboardEvent) => {
+    const target = e.target;
+    return (
+      !(target instanceof HTMLElement) ||
+      target.role === "separator" ||
+      (target instanceof HTMLInputElement && target.type === "range")
+    );
+  }, []);
+
   // Arrow left/right: Seek ±5s (skip when interactive widget is focused)
   useHotkeys(
     "left,right",
     (e) => {
-      const target = e.target;
-      if (!(target instanceof HTMLElement)) return;
-      if (target.role === "slider" || target.role === "separator") return;
-      if (target instanceof HTMLInputElement && target.type === "range") return;
-      e.preventDefault();
-      const offset = e.key === "ArrowLeft" ? -5 : 5;
+      const offset = e.key === "ArrowLeft" ? -0.1 : 0.1;
       const newTime = Math.max(0, Math.min(duration, getPosition() + offset));
       invalidateSeek(newTime, true, true);
       showPanel();
     },
-    { enableOnFormTags: ["input"] },
+    {
+      ignoreEventWhen: isInteractiveWidgetFocused,
+    },
     [duration, getPosition, invalidateSeek, showPanel],
   );
 
@@ -251,7 +281,6 @@ export function MidiVisualizer({
     "j,l",
     (e) => {
       if (e.repeat) return;
-      e.preventDefault();
       const offset = e.key === "j" || e.key === "J" ? -10 : 10;
       const newTime = Math.max(0, Math.min(duration, getPosition() + offset));
       invalidateSeek(newTime, true, true);
@@ -260,32 +289,30 @@ export function MidiVisualizer({
     [duration, getPosition, invalidateSeek, showPanel],
   );
 
-  // Arrow up/down: Volume ±5% (skip when interactive widget is focused)
+  // Arrow up/down: Volume ±1% (skip when interactive widget is focused)
   useHotkeys(
     "up,down",
     (e) => {
-      const target = e.target;
-      if (!(target instanceof HTMLElement)) return;
-      if (target.role === "slider" || target.role === "separator") return;
-      if (target instanceof HTMLInputElement && target.type === "range") return;
-      e.preventDefault();
-      const delta = e.key === "ArrowUp" ? 0.05 : -0.05;
+      const delta = e.key === "ArrowUp" ? 0.01 : -0.01;
       const newVolume = Math.max(0, Math.min(1, volume + delta));
       setVolume(newVolume);
       showPanel();
     },
-    { enableOnFormTags: ["input"] },
+    {
+      ignoreEventWhen: isInteractiveWidgetFocused,
+    },
     [volume, setVolume, showPanel],
   );
 
   // Home/0: Jump to beginning
   useHotkeys(
     "home,0",
-    (e) => {
-      if (e.target instanceof HTMLElement && e.target.role === "separator") return;
-      e.preventDefault();
+    () => {
       invalidateSeek(0, true, true);
       showPanel();
+    },
+    {
+      ignoreEventWhen: isInteractiveWidgetFocused,
     },
     [invalidateSeek, showPanel],
   );
@@ -293,11 +320,13 @@ export function MidiVisualizer({
   // End: Jump to end
   useHotkeys(
     "end",
-    (e) => {
-      if (e.target instanceof HTMLElement && e.target.role === "separator") return;
-      e.preventDefault();
+    () => {
       invalidateSeek(duration, true, true);
       showPanel();
+    },
+    {
+      preventDefault: true,
+      ignoreEventWhen: isInteractiveWidgetFocused,
     },
     [duration, invalidateSeek, showPanel],
   );

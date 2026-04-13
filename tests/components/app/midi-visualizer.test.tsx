@@ -94,9 +94,7 @@ test("handles seek control with keyboard", async () => {
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
-  // Focus slider via tab (no pointer interaction)
-  await userEvent.tab();
-  expect(seekSlider).toHaveFocus();
+  seekSlider.focus();
 
   await userEvent.keyboard("{arrowright}");
 
@@ -348,24 +346,24 @@ test("F key toggles expand", async () => {
 });
 
 // --- Arrow key seek tests ---
-test("arrow left seeks backward 5s", async () => {
+test("arrow left seeks backward 0.1s", async () => {
   mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{arrowleft}");
 
-  expect(mockStore.seek).toHaveBeenCalledWith(25, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(29.9, true, true);
 });
 
-test("arrow right seeks forward 5s", async () => {
+test("arrow right seeks forward 0.1s", async () => {
   mockSnapshot({ duration: 60 }, { getPosition: () => 30 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
   await userEvent.keyboard("{arrowright}");
 
-  expect(mockStore.seek).toHaveBeenCalledWith(35, true, true);
+  expect(mockStore.seek).toHaveBeenCalledWith(30.1, true, true);
 });
 
 test("arrow keys do not seek when slider is focused", async () => {
@@ -415,7 +413,7 @@ test("arrow up increases volume", async () => {
 
   await userEvent.keyboard("{arrowup}");
 
-  expect(mockStore.setVolume).toHaveBeenCalledWith(0.55);
+  expect(mockStore.setVolume).toHaveBeenCalledWith(0.51);
 });
 
 test("arrow down decreases volume", async () => {
@@ -425,7 +423,7 @@ test("arrow down decreases volume", async () => {
 
   await userEvent.keyboard("{arrowdown}");
 
-  expect(mockStore.setVolume).toHaveBeenCalledWith(0.45);
+  expect(mockStore.setVolume).toHaveBeenCalledWith(0.49);
 });
 
 test("arrow up/down do not adjust volume when slider is focused", async () => {
@@ -504,7 +502,7 @@ test("volume shortcuts reveal control panel", async () => {
 
 // --- Seek clamps to boundaries ---
 test("seek does not go below 0", async () => {
-  mockSnapshot({}, { getPosition: () => 3 });
+  mockSnapshot({}, { getPosition: () => 0.05 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 
@@ -514,7 +512,7 @@ test("seek does not go below 0", async () => {
 });
 
 test("seek does not exceed duration", async () => {
-  mockSnapshot({ duration: 60 }, { getPosition: () => 58 });
+  mockSnapshot({ duration: 60 }, { getPosition: () => 59.95 });
 
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
 

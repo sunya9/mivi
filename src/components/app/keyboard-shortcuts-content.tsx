@@ -21,8 +21,8 @@ const shortcutGroups: ShortcutGroup[] = [
   {
     label: "Seeking",
     shortcuts: [
-      { key: "←", description: "Seek backward 5s" },
-      { key: "→", description: "Seek forward 5s" },
+      { key: "←", description: "Seek backward 0.1s" },
+      { key: "→", description: "Seek forward 0.1s" },
       { key: "J", description: "Seek backward 10s" },
       { key: "L", description: "Seek forward 10s" },
       { key: "Home / 0", description: "Jump to beginning" },
