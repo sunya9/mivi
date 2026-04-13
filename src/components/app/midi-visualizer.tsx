@@ -401,7 +401,7 @@ export function MidiVisualizer({
                   endInteraction();
                   setIsSeeking(false);
                 }}
-                className="px-1 **:data-[slot=slider-track]:bg-muted/30"
+                className="**:data-[slot=slider-track]:bg-muted/30"
               />
               <div className="flex items-center gap-2">
                 <Button
@@ -431,7 +431,7 @@ export function MidiVisualizer({
                     endInteraction();
                   }}
                   aria-label="Volume"
-                  className="basis-24"
+                  className="basis-24 **:data-[slot=slider-track]:bg-muted/30"
                 />
                 <span className="flex-1 text-white tabular-nums">
                   {formatTime(position)} / {formatTime(duration)}

@@ -49,6 +49,7 @@ function Slider({
       value={value}
       min={min}
       max={max}
+      thumbAlignment="edge-client-only"
       onValueChange={(v, details) => {
         onValueChange?.(
           toArray(v).map((n) => roundToStep(n, step)),
@@ -77,7 +78,7 @@ function Slider({
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
-            className="block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] select-none hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+            className="block size-4 shrink-0 rounded-full border border-primary bg-white shadow-sm ring-ring/50 transition-[color,box-shadow] select-none hover:ring-4 disabled:pointer-events-none disabled:opacity-50 has-focus-visible:ring-4 has-focus-visible:outline-hidden"
           />
         ))}
       </SliderPrimitive.Control>
