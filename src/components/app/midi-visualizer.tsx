@@ -381,100 +381,102 @@ export function MidiVisualizer({
             onInit={handleInit}
           />
           <PlayIcon isPlaying={displayedIsPlaying} />
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className={cn(
-              "absolute right-0 bottom-0 left-0 bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
-              "hover:translate-y-0",
-              {
-                "pointer-events-auto translate-y-0": panelVisible,
-                "pointer-events-none translate-y-full": !panelVisible,
-              },
-              "light",
-            )}
-            aria-label="Midi Visualizer Controls"
-          >
-            <div className="flex flex-col gap-1 [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-controls]">
-              <Slider
-                aria-label="Seek position"
-                max={duration || Infinity}
-                value={[position]}
-                step={0.1}
-                onPointerDown={() => {
-                  // Capture playing state and stop playback immediately at pointer-down
-                  setWasPlayingBeforeSeek(isPlaying);
-                  startInteraction();
-                  setIsSeeking(true);
-                  // Stop playback at current position (don't commit so we can resume later)
-                  invalidateSeek(position, false);
-                }}
-                onValueChange={([value], { reason }) => {
-                  if (reason === "track-press" || reason === "drag") {
-                    // Seek to new position (playback already stopped at pointer-down)
-                    invalidateSeek(value, false);
-                  }
-                  // keyboard: handled only in onValueCommit (seamless)
-                }}
-                onValueCommitted={([value], { reason }) => {
-                  if (reason === "keyboard") {
-                    // Keyboard: seamless seek
-                    invalidateSeek(value, true, true);
-                  } else {
-                    // pointer-down or drag: commit seek and resume if was playing
-                    invalidateSeek(value, true, false);
-                    if (wasPlayingBeforeSeek) {
-                      togglePlay();
-                    }
-                  }
-                  setWasPlayingBeforeSeek(false);
-                  endInteraction();
-                  setIsSeeking(false);
-                }}
-                className="**:data-[slot=slider-track]:bg-muted/30"
-              />
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={togglePlay}
-                  variant="ghost-secondary"
-                  aria-label={displayedIsPlaying ? "Pause" : "Play"}
-                >
-                  {displayedIsPlaying ? <Pause /> : <Play />}
-                </Button>
-                <Button
-                  variant="ghost-secondary"
-                  onClick={toggleMute}
-                  aria-pressed={muted}
-                  aria-label={muted ? "Unmute" : "Mute"}
-                >
-                  {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-                </Button>
+          <div className="pointer-events-none absolute right-0 bottom-0 left-0 overflow-hidden [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-controls]">
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className={cn(
+                "bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
+                "hover:translate-y-0",
+                {
+                  "pointer-events-auto translate-y-0": panelVisible,
+                  "translate-y-full": !panelVisible,
+                },
+                "light",
+              )}
+              aria-label="Midi Visualizer Controls"
+            >
+              <div className="flex flex-col gap-1">
                 <Slider
-                  value={[volume]}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  onPointerDown={startInteraction}
-                  onValueChange={([value]) => setVolume(value)}
-                  onValueCommitted={([value]) => {
-                    setVolume(value);
-                    endInteraction();
+                  aria-label="Seek position"
+                  max={duration || Infinity}
+                  value={[position]}
+                  step={0.1}
+                  onPointerDown={() => {
+                    // Capture playing state and stop playback immediately at pointer-down
+                    setWasPlayingBeforeSeek(isPlaying);
+                    startInteraction();
+                    setIsSeeking(true);
+                    // Stop playback at current position (don't commit so we can resume later)
+                    invalidateSeek(position, false);
                   }}
-                  aria-label="Volume"
-                  className="basis-24 **:data-[slot=slider-track]:bg-muted/30"
+                  onValueChange={([value], { reason }) => {
+                    if (reason === "track-press" || reason === "drag") {
+                      // Seek to new position (playback already stopped at pointer-down)
+                      invalidateSeek(value, false);
+                    }
+                    // keyboard: handled only in onValueCommit (seamless)
+                  }}
+                  onValueCommitted={([value], { reason }) => {
+                    if (reason === "keyboard") {
+                      // Keyboard: seamless seek
+                      invalidateSeek(value, true, true);
+                    } else {
+                      // pointer-down or drag: commit seek and resume if was playing
+                      invalidateSeek(value, true, false);
+                      if (wasPlayingBeforeSeek) {
+                        togglePlay();
+                      }
+                    }
+                    setWasPlayingBeforeSeek(false);
+                    endInteraction();
+                    setIsSeeking(false);
+                  }}
+                  className="**:data-[slot=slider-track]:bg-muted/30"
                 />
-                <span className="flex-1 text-white tabular-nums">
-                  {formatTime(position)} / {formatTime(duration)}
-                </span>
-                <span className="text-xs text-white/60 tabular-nums">{actualFps} fps</span>
-                <Button
-                  variant="ghost-secondary"
-                  onClick={toggleExpanded}
-                  className="hidden md:block"
-                  aria-haspopup="dialog"
-                  aria-label={expanded ? "Minimize" : "Maximize"}
-                >
-                  {expanded ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={togglePlay}
+                    variant="ghost-secondary"
+                    aria-label={displayedIsPlaying ? "Pause" : "Play"}
+                  >
+                    {displayedIsPlaying ? <Pause /> : <Play />}
+                  </Button>
+                  <Button
+                    variant="ghost-secondary"
+                    onClick={toggleMute}
+                    aria-pressed={muted}
+                    aria-label={muted ? "Unmute" : "Mute"}
+                  >
+                    {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+                  </Button>
+                  <Slider
+                    value={[volume]}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onPointerDown={startInteraction}
+                    onValueChange={([value]) => setVolume(value)}
+                    onValueCommitted={([value]) => {
+                      setVolume(value);
+                      endInteraction();
+                    }}
+                    aria-label="Volume"
+                    className="basis-24 **:data-[slot=slider-track]:bg-muted/30"
+                  />
+                  <span className="flex-1 text-white tabular-nums">
+                    {formatTime(position)} / {formatTime(duration)}
+                  </span>
+                  <span className="text-xs text-white/60 tabular-nums">{actualFps} fps</span>
+                  <Button
+                    variant="ghost-secondary"
+                    onClick={toggleExpanded}
+                    className="hidden md:block"
+                    aria-haspopup="dialog"
+                    aria-label={expanded ? "Minimize" : "Maximize"}
+                  >
+                    {expanded ? <Minimize className="size-4" /> : <Maximize className="size-4" />}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
