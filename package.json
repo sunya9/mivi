@@ -94,7 +94,6 @@
       "sharp"
     ],
     "overrides": {
-      "undici@<6.24.0": ">=6.24",
       "serialize-javascript@<7.0.5": ">=7.0"
     }
   }
