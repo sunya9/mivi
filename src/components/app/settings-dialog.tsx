@@ -78,10 +78,7 @@ function SettingsDialogContent({
       <DialogDescription className="sr-only">
         Application settings and information
       </DialogDescription>
-      <SidebarProvider
-        className="min-h-0 items-start"
-        style={{ "--sidebar-width": "12rem" } as React.CSSProperties}
-      >
+      <SidebarProvider className="min-h-0 items-start" style={{ "--sidebar-width": "12rem" }}>
         <Sidebar collapsible="none" className="hidden md:flex">
           <SidebarContent>
             <SidebarGroup>
