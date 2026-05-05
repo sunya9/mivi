@@ -5,7 +5,7 @@ export interface MidiNote extends NoteJSON {
   id: number;
 }
 
-export interface TrackConfig {
+interface TrackConfig {
   visible: boolean;
   color: string;
   opacity: number;
