@@ -74,9 +74,9 @@ export const resolutions: Resolution[] = [
 export type RendererType = "none" | "pianoRoll" | "comet";
 
 // Audio Visualizer Types
-export type AudioVisualizerFFTSize = 512 | 1024 | 2048 | 4096;
-export type AudioVisualizerPosition = "bottom" | "top" | "center";
-export type AudioVisualizerBarStyle = "rounded" | "sharp";
+type AudioVisualizerFFTSize = 512 | 1024 | 2048 | 4096;
+type AudioVisualizerPosition = "bottom" | "top" | "center";
+type AudioVisualizerBarStyle = "rounded" | "sharp";
 export type AudioVisualizerStyle = "none" | "bars" | "lineSpectrum" | "circular";
 export type GradientDirection =
   | "to-right"
@@ -136,7 +136,7 @@ export const noteFlashModeOptions = [
   label: string;
 }[];
 
-export interface LineSpectrumConfig {
+interface LineSpectrumConfig {
   lineWidth: number;
   tension: number;
   stroke: boolean;
@@ -170,7 +170,7 @@ export interface AudioVisualizerConfig {
   lineSpectrumConfig: LineSpectrumConfig;
 }
 
-export type AudioVisualizerLayer = "front" | "back";
+type AudioVisualizerLayer = "front" | "back";
 
 export const fpsOptions = [
   { value: 24, label: "24 fps" },
