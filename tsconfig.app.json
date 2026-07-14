@@ -3,7 +3,7 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2023",
     "useDefineForClassFields": true,
-    "lib": ["ES2023", "DOM", "DOM.Iterable", "WebWorker"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable", "WebWorker", "ESNext.Disposable"],
     "module": "ESNext",
     "skipLibCheck": true,
 
@@ -22,9 +22,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "tests/*": ["./tests/*"]
+      "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "tests", "types"]
+  "include": ["src", "types"]
 }
