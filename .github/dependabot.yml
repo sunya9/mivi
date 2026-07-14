@@ -6,6 +6,8 @@
 version: 2
 updates:
   - package-ecosystem: "npm"
+    cooldown:
+      default-days: 1
     directory: "/"
     schedule:
       interval: "weekly"
