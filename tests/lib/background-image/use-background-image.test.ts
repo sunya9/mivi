@@ -32,6 +32,9 @@ test("should load background image from IndexedDB on mount", async () => {
 });
 
 test("should manipulate background image", async () => {
+  const bitmap = await createImageBitmap(new OffscreenCanvas(1, 1));
+  vi.stubGlobal("createImageBitmap", vi.fn().mockResolvedValue(bitmap));
+
   const { result } = customRenderHook(() => useBackgroundImage());
   await waitFor(async () => {
     await result.current.setBackgroundImageFile(mockImage);

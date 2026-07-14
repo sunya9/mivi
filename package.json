@@ -62,7 +62,7 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "eslint-plugin-testing-library": "^7.16.2",
     "fake-indexeddb": "^6.2.5",
-    "happy-dom": "^20.9.0",
+    "happy-dom": "^20.10.6",
     "knip": "^6.14.2",
     "lefthook": "^2.1.9",
     "oxfmt": "^0.52.0",
