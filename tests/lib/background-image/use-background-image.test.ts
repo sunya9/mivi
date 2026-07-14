@@ -42,6 +42,7 @@ test("should manipulate background image", async () => {
 
   expect(result.current.backgroundImageFile).toBe(mockImage);
   expect(result.current.backgroundImageBitmap).toEqual(expect.any(ImageBitmap));
+  expect(createImageBitmap).toHaveBeenCalledExactlyOnceWith(mockImage);
 
   await act(() => result.current.setBackgroundImageFile(undefined));
   expect(result.current.backgroundImageFile).toBeUndefined();
