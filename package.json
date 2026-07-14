@@ -84,17 +84,5 @@
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@10.33.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@tailwindcss/oxide",
-      "esbuild",
-      "lefthook",
-      "msw",
-      "sharp"
-    ],
-    "overrides": {
-      "serialize-javascript@<7.0.5": ">=7.0"
-    }
-  }
+  "packageManager": "pnpm@11.13.0"
 }
