@@ -242,9 +242,7 @@ test("should call render when backgroundImageBitmap changes", async () => {
 
   const initialCallCount = mockRender.mock.calls.length;
 
-  // Create a mock ImageBitmap
-  const imgEl = document.createElement("img");
-  const mockImageBitmap = await createImageBitmap(imgEl);
+  const mockImageBitmap = await createImageBitmap(new OffscreenCanvas(100, 100));
 
   rerender(
     <MidiVisualizer rendererConfig={rendererConfig} backgroundImageBitmap={mockImageBitmap} />,

@@ -9,7 +9,7 @@ import {
 import { expect, test, vi } from "vitest";
 
 function prepareImage(width: number, height: number) {
-  return window.createImageBitmap(new Blob([], { type: "image/png" }), 0, 0, width, height);
+  return window.createImageBitmap(new OffscreenCanvas(width, height));
 }
 
 function prepareTestRenderer(options?: {
@@ -256,13 +256,7 @@ test("should render with cover when imgRatio > canvasRatio (no fraction)", async
   canvas.width = 100;
   canvas.height = 100;
   const ctx = canvas.getContext("2d")!;
-  const imageBitmap = await window.createImageBitmap(
-    new Blob([], { type: "image/png" }),
-    0,
-    0,
-    200,
-    100,
-  );
+  const imageBitmap = await prepareImage(200, 100);
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "cover";
   config.resolution = { width: 100, height: 100, label: "100×100" };
@@ -280,13 +274,7 @@ test("should render with contain when imgRatio > canvasRatio (no fraction)", asy
   canvas.width = 100;
   canvas.height = 100;
   const ctx = canvas.getContext("2d")!;
-  const imageBitmap = await window.createImageBitmap(
-    new Blob([], { type: "image/png" }),
-    0,
-    0,
-    200,
-    100,
-  );
+  const imageBitmap = await prepareImage(200, 100);
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "contain";
   config.resolution = { width: 100, height: 100, label: "100×100" };
