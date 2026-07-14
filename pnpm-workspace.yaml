@@ -1,0 +1,6 @@
+allowBuilds:
+  "@tailwindcss/oxide": true
+  esbuild: true
+  lefthook: true
+  msw: true
+  sharp: true
