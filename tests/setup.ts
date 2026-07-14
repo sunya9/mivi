@@ -5,7 +5,7 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import { IDBFactory } from "fake-indexeddb";
 import { closeDb } from "@/lib/file-db/file-db";
-import * as nodeCrypto from "node:crypto";
+import { webcrypto } from "node:crypto";
 import * as standardizedAudioContextMock from "standardized-audio-context-mock";
 
 vi.mock("virtual:pwa-register/react", () => ({
@@ -36,13 +36,7 @@ vi.stubGlobal("crypto", {
     idCounter++;
     return result;
   },
-  subtle: {
-    digest: async (algorithm: string, data: ArrayBuffer) => {
-      const hash = nodeCrypto.createHash(algorithm.toLowerCase().replace("-", ""));
-      hash.update(Buffer.from(data));
-      return Promise.resolve(hash.digest().buffer);
-    },
-  },
+  subtle: webcrypto.subtle,
 });
 
 // https://github.com/radix-ui/primitives/issues/1822
