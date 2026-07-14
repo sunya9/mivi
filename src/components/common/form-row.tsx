@@ -20,9 +20,7 @@ export function FormRow({ label, controller, customControl = false }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const handleClick = useCallback(() => {
     const container = containerRef.current;
-    container
-      ?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
-      ?.focus({ focusVisible: true } as FocusOptions);
+    container?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus({ focusVisible: true });
   }, []);
 
   if (customControl) {
