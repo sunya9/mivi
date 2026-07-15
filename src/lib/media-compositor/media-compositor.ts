@@ -7,6 +7,7 @@ import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
 import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";
 
 const frameSize = 20;
+const maxEncodeQueueSize = 6;
 
 type ExportPhase = "FFT" | "Audio Render" | "Audio Encode" | "Video Render" | "Video Encode";
 
@@ -105,7 +106,7 @@ export class MediaCompositor {
   async composite() {
     await this.#muxer.start();
     this.#renderAudio();
-    this.#renderVideo();
+    await this.#renderVideo();
 
     // Start encode timers now that render loops are done and flush begins
     this.#progress.startTimer("Audio Encode");
@@ -147,7 +148,7 @@ export class MediaCompositor {
     }
   }
 
-  #renderVideo() {
+  async #renderVideo() {
     const ctx = this.#canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get context");
 
@@ -189,6 +190,15 @@ export class MediaCompositor {
       frame.close();
       this.#videoEncodeCount++;
       this.#progress.increment("Video Encode");
+
+      // --- Backpressure control logic ---
+      // If the encoder's queue size exceeds the threshold,
+      // pause the loop (yield) until the GPU processes some frames and emits a 'dequeue' event.
+      if (this.#videoEncoder.encodeQueueSize > maxEncodeQueueSize) {
+        await new Promise<void>((resolve) => {
+          this.#videoEncoder.addEventListener("dequeue", () => resolve(), { once: true });
+        });
+      }
     }
   }
 
