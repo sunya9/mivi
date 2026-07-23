@@ -3,6 +3,14 @@ import type { Download } from "playwright";
 declare module "vitest/browser" {
   interface BrowserCommands {
     waitForDownload: () => Promise<Download>;
+    getHeapUsage: () => Promise<{
+      usedSize: number;
+      totalSize: number;
+      embedderHeapUsedSize?: number;
+      backingStorageSize?: number;
+    }>;
+    startHeapPolling: () => Promise<void>;
+    stopHeapPolling: () => Promise<{ usedSize: number; backingStorageSize: number }>;
   }
 }
 
