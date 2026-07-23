@@ -40,45 +40,24 @@ export function precomputeFFTData(
     maxDecibels = DEFAULT_MAX_DECIBELS,
   } = options;
 
-  const { sampleRate, numberOfChannels, duration, channels, length } = serializedAudio;
+  const { sampleRate, duration } = serializedAudio;
 
   const totalFrames = Math.ceil(duration * fps);
   const samplesPerFrame = Math.floor(sampleRate / fps);
-  const frequencyBinCount = fftSize / 2;
-  const nyquistFrequency = sampleRate / 2;
 
   const frames: FrequencyData[] = [];
 
   // Process audio frame by frame directly from serialized channels
   for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
-    const startSample = frameIndex * samplesPerFrame;
-    const endSample = Math.min(startSample + fftSize, length);
-
-    // Extract samples for this frame (mono mix from all channels, s16 → -1..1)
-    const samples = new Float32Array(fftSize);
-    for (let channel = 0; channel < numberOfChannels; channel++) {
-      const channelData = channels[channel];
-      for (let i = 0; i < Math.min(fftSize, endSample - startSample); i++) {
-        samples[i] += channelData[startSample + i] / (32768 * numberOfChannels);
-      }
-    }
-
-    // Compute FFT using pure JavaScript DFT
-    const frequencyData = computeFrequencyData(samples, fftSize, minDecibels, maxDecibels);
-
-    // Create time domain data (simplified - just the samples normalized to 0-255)
-    const timeDomainData: Uint8Array<ArrayBuffer> = new Uint8Array(frequencyBinCount);
-    for (let i = 0; i < frequencyBinCount && i < fftSize; i++) {
-      // Convert -1..1 to 0..255
-      timeDomainData[i] = Math.round((samples[i] + 1) * 127.5);
-    }
-
-    frames.push({
-      frequencyBinCount,
-      frequencyData,
-      timeDomainData,
-      nyquistFrequency,
-    });
+    frames.push(
+      computeFFTFrame(
+        serializedAudio,
+        frameIndex * samplesPerFrame,
+        fftSize,
+        minDecibels,
+        maxDecibels,
+      ),
+    );
 
     options.onProgress?.(frameIndex + 1, totalFrames);
   }
@@ -92,6 +71,48 @@ export function precomputeFFTData(
     frames,
     fps,
     duration,
+  };
+}
+
+/**
+ * Compute the frequency/time-domain analysis for one frame starting at the
+ * given sample position. Shared by export precomputation and seek-time lookup
+ * so a frame's analysis result is identical in both paths.
+ */
+function computeFFTFrame(
+  serializedAudio: SerializedAudio,
+  startSample: number,
+  fftSize: number,
+  minDecibels: number,
+  maxDecibels: number,
+): FrequencyData {
+  const { sampleRate, numberOfChannels, channels, length } = serializedAudio;
+  const frequencyBinCount = fftSize / 2;
+  const endSample = Math.min(startSample + fftSize, length);
+
+  // Extract samples for this frame (mono mix from all channels, s16 → -1..1)
+  const samples = new Float32Array(fftSize);
+  for (let channel = 0; channel < numberOfChannels; channel++) {
+    const channelData = channels[channel];
+    for (let i = 0; i < Math.min(fftSize, endSample - startSample); i++) {
+      samples[i] += channelData[startSample + i] / (32768 * numberOfChannels);
+    }
+  }
+
+  const frequencyData = computeFrequencyData(samples, fftSize, minDecibels, maxDecibels);
+
+  // Create time domain data (simplified - just the samples normalized to 0-255)
+  const timeDomainData: Uint8Array<ArrayBuffer> = new Uint8Array(frequencyBinCount);
+  for (let i = 0; i < frequencyBinCount && i < fftSize; i++) {
+    // Convert -1..1 to 0..255
+    timeDomainData[i] = Math.round((samples[i] + 1) * 127.5);
+  }
+
+  return {
+    frequencyBinCount,
+    frequencyData,
+    timeDomainData,
+    nyquistFrequency: sampleRate / 2,
   };
 }
 
@@ -245,42 +266,13 @@ export function computeFFTAtTime(
     maxDecibels = DEFAULT_MAX_DECIBELS,
   } = options;
 
-  const { sampleRate, numberOfChannels, duration, channels, length } = serializedAudio;
+  const { sampleRate, duration } = serializedAudio;
 
   // Validate time
   if (time < 0 || time > duration) {
     return null;
   }
 
-  const frequencyBinCount = fftSize / 2;
-  const nyquistFrequency = sampleRate / 2;
-
-  // Calculate the sample position for this time
   const startSample = Math.floor(time * sampleRate);
-  const endSample = Math.min(startSample + fftSize, length);
-
-  // Extract samples (mono mix from all channels, s16 → -1..1)
-  const samples = new Float32Array(fftSize);
-  for (let channel = 0; channel < numberOfChannels; channel++) {
-    const channelData = channels[channel];
-    for (let i = 0; i < Math.min(fftSize, endSample - startSample); i++) {
-      samples[i] += channelData[startSample + i] / (32768 * numberOfChannels);
-    }
-  }
-
-  // Compute FFT
-  const frequencyData = computeFrequencyData(samples, fftSize, minDecibels, maxDecibels);
-
-  // Create time domain data
-  const timeDomainData: Uint8Array<ArrayBuffer> = new Uint8Array(frequencyBinCount);
-  for (let i = 0; i < frequencyBinCount && i < fftSize; i++) {
-    timeDomainData[i] = Math.round((samples[i] + 1) * 127.5);
-  }
-
-  return {
-    frequencyBinCount,
-    frequencyData,
-    timeDomainData,
-    nyquistFrequency,
-  };
+  return computeFFTFrame(serializedAudio, startSample, fftSize, minDecibels, maxDecibels);
 }
