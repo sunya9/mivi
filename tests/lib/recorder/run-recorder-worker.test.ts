@@ -10,7 +10,7 @@ vi.mock("comlink", async (importOriginal) => ({
 
 test("worker is completed", async () => {
   vi.mocked(wrap).mockImplementationOnce(() => ({
-    startRecording: vi.fn().mockResolvedValue(new Blob()),
+    startRecording: vi.fn().mockResolvedValue(new File([], "export.webm")),
     [createEndpoint]: vi.fn(),
     [releaseProxy]: vi.fn(),
   }));

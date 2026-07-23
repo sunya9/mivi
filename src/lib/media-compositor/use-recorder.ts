@@ -64,9 +64,9 @@ export function useRecorder(resources: {
         onProgress,
         signal,
       )
-        .then((blob) => {
+        .then((file) => {
           if (signal.aborted) return;
-          const url = URL.createObjectURL(blob);
+          const url = URL.createObjectURL(file);
           const a = document.createElement("a");
           a.href = url;
           const exportName = midiTracks?.name ?? audioSource.name ?? "audio";

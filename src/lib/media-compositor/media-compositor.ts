@@ -114,7 +114,6 @@ export class MediaCompositor {
     this.#progress.startTimer("Video Encode");
     await Promise.all([this.#videoEncoder.flush(), this.#audioEncoder.flush()]);
     await this.#muxer.finalize();
-    return new Blob([this.#muxer.buffer], { type: this.#muxer.config.mimeType });
   }
 
   #renderAudio() {
