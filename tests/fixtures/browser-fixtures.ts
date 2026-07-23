@@ -8,10 +8,10 @@ export function createTestSerializedAudio(): SerializedAudio {
   const sampleRate = 44100;
   const duration = 0.5;
   const length = Math.floor(sampleRate * duration);
-  const channels = [new Float32Array(length), new Float32Array(length)];
+  const channels = [new Int16Array(length), new Int16Array(length)];
 
   for (let i = 0; i < length; i++) {
-    channels[0][i] = Math.sin((i / sampleRate) * 440 * 2 * Math.PI) * 0.5;
+    channels[0][i] = Math.round(Math.sin((i / sampleRate) * 440 * 2 * Math.PI) * 16384);
     channels[1][i] = channels[0][i];
   }
 

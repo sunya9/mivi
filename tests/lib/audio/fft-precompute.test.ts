@@ -13,9 +13,9 @@ function createMockSerializedAudio(overrides: Partial<SerializedAudio> = {}): Se
   const duration = 1; // 1 second
   const length = sampleRate * duration;
   // Generate a simple sine wave for realistic test data
-  const channel = new Float32Array(length);
+  const channel = new Int16Array(length);
   for (let i = 0; i < length; i++) {
-    channel[i] = Math.sin((2 * Math.PI * 440 * i) / sampleRate);
+    channel[i] = Math.round(Math.sin((2 * Math.PI * 440 * i) / sampleRate) * 32767);
   }
 
   return {
@@ -135,11 +135,11 @@ describe("computeFFTAtTime", () => {
     const sampleRate = 44100;
     const duration = 1;
     const length = sampleRate * duration;
-    const channel1 = new Float32Array(length);
-    const channel2 = new Float32Array(length);
+    const channel1 = new Int16Array(length);
+    const channel2 = new Int16Array(length);
     for (let i = 0; i < length; i++) {
-      channel1[i] = Math.sin((2 * Math.PI * 440 * i) / sampleRate);
-      channel2[i] = Math.sin((2 * Math.PI * 880 * i) / sampleRate);
+      channel1[i] = Math.round(Math.sin((2 * Math.PI * 440 * i) / sampleRate) * 32767);
+      channel2[i] = Math.round(Math.sin((2 * Math.PI * 880 * i) / sampleRate) * 32767);
     }
 
     const audio: SerializedAudio = {
@@ -169,7 +169,7 @@ describe("precomputeFFTData", () => {
     const sampleRate = 44100;
     const duration = 1.5;
     const length = Math.floor(sampleRate * duration);
-    const channel = new Float32Array(length).fill(0);
+    const channel = new Int16Array(length);
 
     const audio: SerializedAudio = {
       sampleRate,
@@ -267,9 +267,9 @@ describe("precomputeFFTData", () => {
     const sampleRate = 44100;
     const duration = 0.1;
     const length = Math.floor(sampleRate * duration);
-    const channel = new Float32Array(length);
+    const channel = new Int16Array(length);
     for (let i = 0; i < length; i++) {
-      channel[i] = Math.sin((2 * Math.PI * 440 * i) / sampleRate);
+      channel[i] = Math.round(Math.sin((2 * Math.PI * 440 * i) / sampleRate) * 32767);
     }
 
     const audio: SerializedAudio = {

@@ -177,12 +177,20 @@ export default defineConfig(({ mode }) => ({
           name: "e2e",
           setupFiles: ["./tests/browser.setup.ts"],
           browser: {
-            commands: { waitForDownload },
+            commands: { waitForDownload, getHeapUsage, startHeapPolling, stopHeapPolling },
             screenshotFailures: false,
             enabled: true,
             provider: playwright(),
             // https://vitest.dev/guide/browser/playwright
-            instances: [{ browser: "chromium" }],
+            instances: [
+              {
+                browser: "chromium",
+                launch: {
+                  // Expose gc() and unquantized performance.memory for memory benchmarks
+                  args: ["--js-flags=--expose-gc", "--enable-precise-memory-info"],
+                },
+              },
+            ],
             headless: true,
             viewport: {
               width: 1024,
@@ -224,6 +232,51 @@ export default defineConfig(({ mode }) => ({
 }));
 
 const waitForDownload: BrowserCommand<[]> = (ctx) => ctx.page.waitForEvent("download");
+
+// V8 heap usage via CDP: unlike performance.memory, backingStorageSize covers
+// ArrayBuffer backing stores, which is where muxer buffers and PCM data live
+const getHeapUsage: BrowserCommand<[]> = async (ctx) => {
+  const session = await ctx.page.context().newCDPSession(ctx.page);
+  try {
+    await session.send("HeapProfiler.collectGarbage");
+    return await session.send("Runtime.getHeapUsage");
+  } finally {
+    await session.detach();
+  }
+};
+
+interface HeapPoller {
+  timer: NodeJS.Timeout;
+  session: { send(method: string): Promise<unknown>; detach(): Promise<void> };
+  peak: { usedSize: number; backingStorageSize: number };
+}
+let heapPoller: HeapPoller | null = null;
+
+const startHeapPolling: BrowserCommand<[]> = async (ctx) => {
+  const session = await ctx.page.context().newCDPSession(ctx.page);
+  const peak = { usedSize: 0, backingStorageSize: 0 };
+  // No collectGarbage here: peak must observe memory as the page actually sees it
+  const timer = setInterval(() => {
+    session
+      .send("Runtime.getHeapUsage")
+      .then((usage) => {
+        const u = usage as { usedSize: number; backingStorageSize?: number };
+        peak.usedSize = Math.max(peak.usedSize, u.usedSize);
+        peak.backingStorageSize = Math.max(peak.backingStorageSize, u.backingStorageSize ?? 0);
+      })
+      .catch(() => {});
+  }, 100);
+  heapPoller = { timer, session, peak };
+};
+
+const stopHeapPolling: BrowserCommand<[]> = async () => {
+  if (!heapPoller) throw new Error("startHeapPolling was not called");
+  const { timer, session, peak } = heapPoller;
+  heapPoller = null;
+  clearInterval(timer);
+  await session.detach();
+  return peak;
+};
 
 function devBranchTitlePlugin(): PluginOption {
   return {

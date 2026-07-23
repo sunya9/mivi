@@ -8,6 +8,7 @@ import type { FileDbEntry } from "@/lib/file-db/file-db-store";
 import { toast } from "sonner";
 import { AudioContext } from "standardized-audio-context-mock";
 import type { StoredAudioData } from "@/lib/audio/audio";
+import { floatToInt16 } from "@/lib/audio/pcm";
 import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
 
 vi.mock("@/lib/audio/run-decode-worker", { spy: true });
@@ -17,7 +18,7 @@ const mockAudioContext = new AudioContext();
 const mockAudioBuffer = mockAudioContext.createBuffer(2, 44100, 44100);
 const mockStoredAudio: StoredAudioData = {
   channels: Array.from({ length: mockAudioBuffer.numberOfChannels }, (_, i) =>
-    mockAudioBuffer.getChannelData(i),
+    floatToInt16(mockAudioBuffer.getChannelData(i)),
   ),
   sampleRate: mockAudioBuffer.sampleRate,
   length: mockAudioBuffer.length,
@@ -44,6 +45,24 @@ test("audioBuffer is defined when entry exists in indexedDb", async () => {
     expect(result.current.audioBuffer).toBeDefined();
     expect(result.current.serializedAudio).toBeDefined();
     expect(result.current.audioFile).toBeDefined();
+  });
+});
+
+test("normalizes legacy Float32Array entries from indexedDb", async () => {
+  const legacyEntry = {
+    file: audioFile,
+    decoded: {
+      ...mockStoredAudio,
+      channels: Array.from({ length: mockAudioBuffer.numberOfChannels }, (_, i) =>
+        mockAudioBuffer.getChannelData(i),
+      ),
+    },
+  } as unknown as FileDbEntry<StoredAudioData>;
+  await saveValue("db:audio", legacyEntry);
+  const { result } = customRenderHook(() => useAudio());
+  await waitFor(() => {
+    expect(result.current.audioBuffer).toBeDefined();
+    expect(result.current.serializedAudio?.channels[0]).toBeInstanceOf(Int16Array);
   });
 });
 

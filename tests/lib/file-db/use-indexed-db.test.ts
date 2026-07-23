@@ -15,7 +15,7 @@ const testKey = "db:audio" as const;
 const mockEntry: FileDbEntry<StoredAudioData> = {
   file: mockFile,
   decoded: {
-    channels: [new Float32Array(1)],
+    channels: [new Int16Array(1)],
     sampleRate: 44100,
     length: 1,
     numberOfChannels: 1,

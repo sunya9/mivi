@@ -6,37 +6,42 @@ import {
   createTestMidiTracks,
 } from "tests/fixtures/browser-fixtures";
 import { MuxerImpl } from "@/lib/muxer/muxer";
+import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 
-test("composite() with WebM muxer returns a valid WebM Blob", async () => {
-  const resources = createTestRecorderResources("webm");
+async function compositeToFile(resources: RecorderResources, onProgress: (p: number) => void) {
+  const opfsFile = await createOpfsExportFile(`test-export.${resources.rendererConfig.format}`);
   const muxer = new MuxerImpl({
     format: resources.rendererConfig.format,
     frameRate: resources.rendererConfig.fps,
+    writable: opfsFile.target,
   });
+  using compositor = new MediaCompositor(resources, muxer, onProgress);
+  await compositor.composite();
+  const file = await opfsFile.getFile();
+  await opfsFile.remove();
+  return file;
+}
+
+test("composite() with WebM muxer writes a valid WebM file", async () => {
+  const resources = createTestRecorderResources("webm");
   const onProgress = vi.fn();
 
-  using compositor = new MediaCompositor(resources, muxer, onProgress);
-  const blob = await compositor.composite();
+  const file = await compositeToFile(resources, onProgress);
 
-  expect(blob).toBeInstanceOf(Blob);
-  expect(blob.type).toBe("video/webm");
-  expect(blob.size).toBeGreaterThan(0);
+  expect(file).toBeInstanceOf(File);
+  expect(file.size).toBeGreaterThan(0);
 });
 
-// TODO?: composite() with MP4 muxer returns a valid MP4 Blob
+// TODO?: composite() with MP4 muxer writes a valid MP4 file
 
 test("onProgress is called with progress value", async () => {
   const resources = createTestRecorderResources("webm");
-  const muxer = new MuxerImpl({
-    format: resources.rendererConfig.format,
-    frameRate: resources.rendererConfig.fps,
-  });
   const progressValues: number[] = [];
   const onProgress = (p: number) => progressValues.push(p);
 
-  using compositor = new MediaCompositor(resources, muxer, onProgress);
-  await compositor.composite();
+  await compositeToFile(resources, onProgress);
 
   // onProgress is throttled at 500ms, so short tests may not capture all updates
   expect(progressValues.length).toBeGreaterThan(0);
@@ -48,15 +53,10 @@ test("progress completes when audio visualizer is disabled", async () => {
   // Ensure audio visualizer is disabled (default)
   expect(resources.rendererConfig.audioVisualizerConfig.style).toBe("none");
 
-  const muxer = new MuxerImpl({
-    format: resources.rendererConfig.format,
-    frameRate: resources.rendererConfig.fps,
-  });
   const progressValues: number[] = [];
   const onProgress = (p: number) => progressValues.push(p);
 
-  using compositor = new MediaCompositor(resources, muxer, onProgress);
-  await compositor.composite();
+  await compositeToFile(resources, onProgress);
 
   // Progress should complete successfully
   // Note: onProgress is throttled at 500ms, so we may not see all intermediate values
@@ -83,15 +83,10 @@ test("progress completes when audio visualizer is enabled", async () => {
     },
   };
 
-  const muxer = new MuxerImpl({
-    format: resources.rendererConfig.format,
-    frameRate: resources.rendererConfig.fps,
-  });
   const progressValues: number[] = [];
   const onProgress = (p: number) => progressValues.push(p);
 
-  using compositor = new MediaCompositor(resources, muxer, onProgress);
-  await compositor.composite();
+  await compositeToFile(resources, onProgress);
 
   // With audio visualizer enabled, FFT phase should be processed
   // and progress should complete successfully
