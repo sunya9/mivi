@@ -54,12 +54,12 @@ export function precomputeFFTData(
     const startSample = frameIndex * samplesPerFrame;
     const endSample = Math.min(startSample + fftSize, length);
 
-    // Extract samples for this frame (mono mix from all channels)
+    // Extract samples for this frame (mono mix from all channels, s16 → -1..1)
     const samples = new Float32Array(fftSize);
     for (let channel = 0; channel < numberOfChannels; channel++) {
       const channelData = channels[channel];
       for (let i = 0; i < Math.min(fftSize, endSample - startSample); i++) {
-        samples[i] += channelData[startSample + i] / numberOfChannels;
+        samples[i] += channelData[startSample + i] / (32768 * numberOfChannels);
       }
     }
 
@@ -259,12 +259,12 @@ export function computeFFTAtTime(
   const startSample = Math.floor(time * sampleRate);
   const endSample = Math.min(startSample + fftSize, length);
 
-  // Extract samples (mono mix from all channels)
+  // Extract samples (mono mix from all channels, s16 → -1..1)
   const samples = new Float32Array(fftSize);
   for (let channel = 0; channel < numberOfChannels; channel++) {
     const channelData = channels[channel];
     for (let i = 0; i < Math.min(fftSize, endSample - startSample); i++) {
-      samples[i] += channelData[startSample + i] / numberOfChannels;
+      samples[i] += channelData[startSample + i] / (32768 * numberOfChannels);
     }
   }
 

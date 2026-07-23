@@ -20,14 +20,14 @@ export async function decodeAudio(file: File): Promise<StoredAudioData> {
     ]);
     const sink = new AudioSampleSink(audioTrack);
 
-    const channelChunks: Float32Array[][] = Array.from({ length: numberOfChannels }, () => []);
+    const channelChunks: Int16Array[][] = Array.from({ length: numberOfChannels }, () => []);
     let totalFrames = 0;
 
     for await (const sample of sink.samples()) {
       for (let ch = 0; ch < numberOfChannels; ch++) {
-        const byteLength = sample.allocationSize({ planeIndex: ch, format: "f32-planar" });
-        const data = new Float32Array(byteLength / 4);
-        sample.copyTo(data, { planeIndex: ch, format: "f32-planar" });
+        const byteLength = sample.allocationSize({ planeIndex: ch, format: "s16-planar" });
+        const data = new Int16Array(byteLength / 2);
+        sample.copyTo(data, { planeIndex: ch, format: "s16-planar" });
         channelChunks[ch].push(data);
       }
       totalFrames += sample.numberOfFrames;
@@ -35,7 +35,7 @@ export async function decodeAudio(file: File): Promise<StoredAudioData> {
     }
 
     const channels = channelChunks.map((chunks) => {
-      const merged = new Float32Array(totalFrames);
+      const merged = new Int16Array(totalFrames);
       let offset = 0;
       for (const chunk of chunks) {
         merged.set(chunk, offset);

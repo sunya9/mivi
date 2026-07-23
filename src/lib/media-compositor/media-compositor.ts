@@ -125,7 +125,7 @@ export class MediaCompositor {
       const endSample = Math.min((i + 1) * samplesPerFrame, length);
       const timestamp = Math.floor((startSample / sampleRate) * 1_000_000);
       const frameSamples = endSample - startSample;
-      const frameData = new Float32Array(numberOfChannels * frameSamples);
+      const frameData = new Int16Array(numberOfChannels * frameSamples);
 
       for (let channel = 0; channel < numberOfChannels; channel++) {
         frameData.set(channels[channel].subarray(startSample, endSample), channel * frameSamples);
@@ -136,7 +136,7 @@ export class MediaCompositor {
         numberOfChannels,
         numberOfFrames: frameSamples,
         sampleRate,
-        format: "f32-planar",
+        format: "s16-planar",
         data: frameData,
       });
 
