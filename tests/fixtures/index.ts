@@ -144,7 +144,7 @@ const resources: RecorderResources = {
   audioSource: {
     name: "test.mp3",
     serialized: {
-      channels: [new Float32Array(1), new Float32Array(1)],
+      channels: [new Int16Array(1), new Int16Array(1)],
       duration: 1,
       length: 1,
       sampleRate: 44100,

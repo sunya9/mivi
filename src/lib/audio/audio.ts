@@ -3,7 +3,9 @@ export interface SerializedAudio {
   readonly sampleRate: number;
   readonly numberOfChannels: number;
   readonly duration: number;
-  readonly channels: Float32Array[];
+  // 16-bit PCM: halves resident memory vs f32 with no audible cost, since both
+  // the decode source and the encode destination are lossy formats
+  readonly channels: Int16Array[];
 }
 
 /** Serializable audio data for IndexedDB storage (duration is derived) */

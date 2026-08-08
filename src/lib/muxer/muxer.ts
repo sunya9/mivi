@@ -4,7 +4,8 @@ import {
   Output,
   WebMOutputFormat,
   Mp4OutputFormat,
-  BufferTarget,
+  StreamTarget,
+  StreamTargetChunk,
   EncodedVideoPacketSource,
   EncodedAudioPacketSource,
   EncodedPacket,
@@ -31,7 +32,6 @@ export interface Muxer {
   start(): Promise<void>;
 
   finalize(): Promise<void>;
-  get buffer(): ArrayBuffer;
 }
 
 const FORMAT_CONFIGS: Record<VideoFormat, Config> = {
@@ -44,7 +44,10 @@ const FORMAT_CONFIGS: Record<VideoFormat, Config> = {
     mimeType: "video/webm",
   },
   mp4: {
-    outputFormat: new Mp4OutputFormat({ fastStart: "in-memory" }),
+    // fastStart "in-memory" would buffer the whole file in RAM and defeat
+    // streaming. moov lands at the end instead, which positioned writes
+    // handle fine on a seekable target like OPFS.
+    outputFormat: new Mp4OutputFormat({ fastStart: false }),
     videoCodecId: "avc" as const,
     audioCodecId: "aac" as const,
     videoCodec: "avc1.42E029",
@@ -56,10 +59,11 @@ const FORMAT_CONFIGS: Record<VideoFormat, Config> = {
 interface MuxerOptions {
   format: VideoFormat;
   frameRate: number;
+  writable: WritableStream<StreamTargetChunk>;
 }
 
 export class MuxerImpl implements Muxer {
-  readonly #output: Output<OutputFormat, BufferTarget>;
+  readonly #output: Output<OutputFormat, StreamTarget>;
   readonly #videoSource: EncodedVideoPacketSource;
   readonly #audioSource: EncodedAudioPacketSource;
   readonly config: Config;
@@ -68,7 +72,7 @@ export class MuxerImpl implements Muxer {
     this.config = config;
     this.#output = new Output({
       format: config.outputFormat,
-      target: new BufferTarget(),
+      target: new StreamTarget(options.writable),
     });
 
     this.#videoSource = new EncodedVideoPacketSource(config.videoCodecId);
@@ -102,13 +106,5 @@ export class MuxerImpl implements Muxer {
 
   async finalize(): Promise<void> {
     await this.#output.finalize();
-  }
-
-  get buffer(): ArrayBuffer {
-    const buffer = this.#output.target.buffer;
-    if (!buffer) {
-      throw new Error("Buffer not available - output not finalized");
-    }
-    return buffer;
   }
 }
