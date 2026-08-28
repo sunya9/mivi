@@ -7,7 +7,8 @@ import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
 
 type Props = ComponentProps<typeof AudioVisualizerConfigPanel>;
-const onUpdateRendererConfig: Props["onUpdateRendererConfig"] = vi.fn();
+const onUpdateRendererConfig: Props["onUpdateRendererConfig"] =
+  vi.fn<Props["onUpdateRendererConfig"]>();
 const audioVisualizerConfig = rendererConfig.audioVisualizerConfig;
 
 function renderPane(overrideProps?: Partial<Props>) {

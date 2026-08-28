@@ -16,7 +16,7 @@ afterEach(() => {
 });
 
 test("starts animation frame loop", () => {
-  const onAnimate = vi.fn();
+  const onAnimate = vi.fn<() => void>();
 
   const { rerender } = renderHook((isPlaying: boolean) => useAnimationFrame(isPlaying, onAnimate), {
     initialProps: true,
@@ -32,7 +32,7 @@ test("starts animation frame loop", () => {
 });
 
 test("not called when not playing", () => {
-  const onAnimate = vi.fn();
+  const onAnimate = vi.fn<() => void>();
   renderHook(() => useAnimationFrame(false, onAnimate));
   rafStub.step();
   rafStub.step();
@@ -43,7 +43,7 @@ test("not called when not playing", () => {
 });
 
 test("calls onAnimate when tab becomes visible", () => {
-  const onAnimate = vi.fn();
+  const onAnimate = vi.fn<() => void>();
   const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
 
   renderHook(() => useAnimationFrame(true, onAnimate));
@@ -60,7 +60,7 @@ test("calls onAnimate when tab becomes visible", () => {
 });
 
 test("does not call onAnimate when tab becomes hidden", () => {
-  const onAnimate = vi.fn();
+  const onAnimate = vi.fn<() => void>();
   const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
 
   renderHook(() => useAnimationFrame(true, onAnimate));
@@ -78,7 +78,7 @@ test("does not call onAnimate when tab becomes hidden", () => {
 });
 
 test("does not respond to visibilitychange when not playing", () => {
-  const onAnimate = vi.fn();
+  const onAnimate = vi.fn<() => void>();
   const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
 
   renderHook(() => useAnimationFrame(false, onAnimate));
@@ -90,7 +90,7 @@ test("does not respond to visibilitychange when not playing", () => {
 });
 
 test("throttles to 30fps when fps is specified", () => {
-  const onAnimate = vi.fn();
+  const onAnimate = vi.fn<() => void>();
 
   // 30fps = ~33.3ms interval, RafStub steps at ~16.67ms (60fps)
   renderHook(() => useAnimationFrame(true, onAnimate, 30));
@@ -117,7 +117,7 @@ test("throttles to 30fps when fps is specified", () => {
 });
 
 test("throttles to 24fps when fps is specified", () => {
-  const onAnimate = vi.fn();
+  const onAnimate = vi.fn<() => void>();
 
   // 24fps = ~41.67ms interval
   renderHook(() => useAnimationFrame(true, onAnimate, 24));
@@ -140,7 +140,7 @@ test("throttles to 24fps when fps is specified", () => {
 });
 
 test("does not throttle at 60fps (matches RAF rate)", () => {
-  const onAnimate = vi.fn();
+  const onAnimate = vi.fn<() => void>();
 
   renderHook(() => useAnimationFrame(true, onAnimate, 60));
 

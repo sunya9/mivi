@@ -24,7 +24,7 @@ function renderTestComponent() {
 }
 
 vi.mock("@/lib/colors/tailwind-colors", () => ({
-  getRandomTailwindColor: vi.fn(() => "#000000"),
+  getRandomTailwindColor: vi.fn<() => string>(() => "#000000"),
 }));
 
 test("returns initial state", () => {

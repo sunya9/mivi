@@ -81,8 +81,8 @@ describe("errorLogWithToast", () => {
 
 describe("startViewTransition", () => {
   test("calls document.startViewTransition when available", () => {
-    document.startViewTransition = vi.fn();
-    const callback = vi.fn();
+    document.startViewTransition = vi.fn<Document["startViewTransition"]>();
+    const callback = vi.fn<() => void>();
 
     startViewTransition(callback);
 
@@ -95,8 +95,8 @@ describe("startViewTransition", () => {
   });
 
   test("passes types option to startViewTransition", () => {
-    document.startViewTransition = vi.fn();
-    const callback = vi.fn();
+    document.startViewTransition = vi.fn<Document["startViewTransition"]>();
+    const callback = vi.fn<() => void>();
 
     startViewTransition(callback, { types: ["my-transition"] });
 
@@ -115,7 +115,7 @@ describe("startViewTransition", () => {
       value: undefined,
       writable: true,
     });
-    const callback = vi.fn();
+    const callback = vi.fn<() => void>();
 
     startViewTransition(callback);
 

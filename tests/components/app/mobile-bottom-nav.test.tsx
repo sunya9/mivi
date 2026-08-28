@@ -1,7 +1,7 @@
 import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MobileBottomNav } from "@/components/app/mobile-bottom-nav";
+import { MobileBottomNav, type MobileTabValue } from "@/components/app/mobile-bottom-nav";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { createMockPwaState } from "../../pwa-mock";
 
@@ -18,7 +18,7 @@ function PwaWrapper({
 test("MobileBottomNav renders all four tabs", () => {
   render(
     <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
+      <MobileBottomNav value="tracks" onValueChange={vi.fn<(value: MobileTabValue) => void>()} />
     </PwaWrapper>,
   );
 
@@ -31,7 +31,10 @@ test("MobileBottomNav renders all four tabs", () => {
 test("MobileBottomNav highlights the active tab", () => {
   render(
     <PwaWrapper>
-      <MobileBottomNav value="visualizer" onValueChange={vi.fn()} />
+      <MobileBottomNav
+        value="visualizer"
+        onValueChange={vi.fn<(value: MobileTabValue) => void>()}
+      />
     </PwaWrapper>,
   );
 
@@ -41,7 +44,7 @@ test("MobileBottomNav highlights the active tab", () => {
 
 test("MobileBottomNav calls onValueChange when tab is clicked", async () => {
   const user = userEvent.setup();
-  const onValueChange = vi.fn();
+  const onValueChange = vi.fn<(value: MobileTabValue) => void>();
 
   render(
     <PwaWrapper>
@@ -57,7 +60,11 @@ test("MobileBottomNav calls onValueChange when tab is clicked", async () => {
 test("MobileBottomNav applies custom className", () => {
   const { container } = render(
     <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} className="custom-class" />
+      <MobileBottomNav
+        value="tracks"
+        onValueChange={vi.fn<(value: MobileTabValue) => void>()}
+        className="custom-class"
+      />
     </PwaWrapper>,
   );
 
@@ -68,7 +75,7 @@ test("MobileBottomNav applies custom className", () => {
 test("MobileBottomNav shows tracks tab as active by default when value is tracks", () => {
   render(
     <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
+      <MobileBottomNav value="tracks" onValueChange={vi.fn<(value: MobileTabValue) => void>()} />
     </PwaWrapper>,
   );
 
@@ -78,7 +85,7 @@ test("MobileBottomNav shows tracks tab as active by default when value is tracks
 
 test("MobileBottomNav calls onValueChange with correct value for each tab", async () => {
   const user = userEvent.setup();
-  const onValueChange = vi.fn();
+  const onValueChange = vi.fn<(value: MobileTabValue) => void>();
 
   render(
     <PwaWrapper>
@@ -99,7 +106,7 @@ test("MobileBottomNav calls onValueChange with correct value for each tab", asyn
 test("MobileBottomNav renders icons for each tab", () => {
   render(
     <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
+      <MobileBottomNav value="tracks" onValueChange={vi.fn<(value: MobileTabValue) => void>()} />
     </PwaWrapper>,
   );
 
@@ -109,8 +116,10 @@ test("MobileBottomNav renders icons for each tab", () => {
 
 test("MobileBottomNav does not show indicator when needRefresh is false", () => {
   render(
-    <PwaWrapper pwaState={{ needRefresh: [false, vi.fn()] }}>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
+    <PwaWrapper
+      pwaState={{ needRefresh: [false, vi.fn<React.Dispatch<React.SetStateAction<boolean>>>()] }}
+    >
+      <MobileBottomNav value="tracks" onValueChange={vi.fn<(value: MobileTabValue) => void>()} />
     </PwaWrapper>,
   );
 
@@ -120,8 +129,10 @@ test("MobileBottomNav does not show indicator when needRefresh is false", () => 
 
 test("MobileBottomNav shows indicator on Settings tab when needRefresh is true", () => {
   render(
-    <PwaWrapper pwaState={{ needRefresh: [true, vi.fn()] }}>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
+    <PwaWrapper
+      pwaState={{ needRefresh: [true, vi.fn<React.Dispatch<React.SetStateAction<boolean>>>()] }}
+    >
+      <MobileBottomNav value="tracks" onValueChange={vi.fn<(value: MobileTabValue) => void>()} />
     </PwaWrapper>,
   );
 
@@ -131,8 +142,10 @@ test("MobileBottomNav shows indicator on Settings tab when needRefresh is true",
 
 test("MobileBottomNav shows indicator only on Settings tab icon", () => {
   render(
-    <PwaWrapper pwaState={{ needRefresh: [true, vi.fn()] }}>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
+    <PwaWrapper
+      pwaState={{ needRefresh: [true, vi.fn<React.Dispatch<React.SetStateAction<boolean>>>()] }}
+    >
+      <MobileBottomNav value="tracks" onValueChange={vi.fn<(value: MobileTabValue) => void>()} />
     </PwaWrapper>,
   );
 

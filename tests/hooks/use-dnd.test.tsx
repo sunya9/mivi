@@ -11,15 +11,15 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-const onDropMidi = vi.fn();
-const onDropAudio = vi.fn();
-const onDropImage = vi.fn();
+const onDropMidi = vi.fn<(file: File) => Promise<void>>();
+const onDropAudio = vi.fn<(file: File) => Promise<void>>();
+const onDropImage = vi.fn<(file: File) => Promise<void>>();
 
 function createDragEvent(files: File[]): DragEvent<HTMLDivElement> {
   const dt = new DataTransfer();
   files.forEach((file) => dt.items.add(file));
   return {
-    preventDefault: vi.fn(),
+    preventDefault: vi.fn<() => void>(),
     dataTransfer: { files: dt.files },
   } as unknown as DragEvent<HTMLDivElement>;
 }
@@ -177,7 +177,7 @@ test("handles multiple files drop", async () => {
 
 test("handles MIDI file drop error", async () => {
   const error = new Error("Failed to load MIDI file");
-  const onDropMidi = vi.fn().mockRejectedValue(error);
+  const onDropMidi = vi.fn<(file: File) => Promise<void>>().mockRejectedValue(error);
 
   const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
@@ -195,7 +195,7 @@ test("handles MIDI file drop error", async () => {
 
 test("handles audio file drop error", async () => {
   const error = new Error("Failed to load audio file");
-  const onDropAudio = vi.fn().mockRejectedValue(error);
+  const onDropAudio = vi.fn<(file: File) => Promise<void>>().mockRejectedValue(error);
   const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.mp3", { type: "audio/mpeg" });
@@ -212,7 +212,7 @@ test("handles audio file drop error", async () => {
 
 test("handles image file drop error", async () => {
   const error = new Error("Failed to load image file");
-  const onDropImage = vi.fn().mockRejectedValue(error);
+  const onDropImage = vi.fn<(file: File) => Promise<void>>().mockRejectedValue(error);
   const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
 
   const file = new File([""], "test.png", { type: "image/png" });

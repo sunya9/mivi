@@ -9,7 +9,8 @@ import { SortableContext } from "@dnd-kit/sortable";
 
 const mockTrack: MidiTrack = testMidiTracks.tracks[0];
 
-const mockOnUpdateTrackConfig = vi.fn();
+const mockOnUpdateTrackConfig =
+  vi.fn<(index: number, config: Partial<MidiTrack["config"]>) => void>();
 
 // Wrapper component for dnd-kit context
 function renderWithDndContext(ui: React.ReactElement, trackId: string = mockTrack.id) {

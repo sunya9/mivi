@@ -9,6 +9,8 @@ import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
 import { type AudioPlaybackStore, type PlaybackSnapshot } from "@/lib/player/audio-playback-store";
 import { type AppContextValue } from "@/contexts/app-context";
 import { AudioContext } from "standardized-audio-context-mock";
+import type { AudioBuffer } from "standardized-audio-context";
+import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 
 const mockRender = vi.spyOn(RendererController.prototype, "render");
 const mockSetRendererConfig = vi.spyOn(RendererController.prototype, "setRendererConfig");
@@ -26,16 +28,16 @@ let currentSnapshot: PlaybackSnapshot = {
 };
 
 const mockStore = {
-  subscribe: vi.fn(() => () => {}),
-  getSnapshot: vi.fn(() => currentSnapshot),
-  seek: vi.fn(),
-  togglePlay: vi.fn(),
-  setVolume: vi.fn(),
-  toggleMute: vi.fn(),
-  syncFromAudioContext: vi.fn(),
-  setAudioBuffer: vi.fn(),
-  getPosition: vi.fn(() => 0),
-  getFrequencyData: vi.fn(() => null),
+  subscribe: vi.fn<(listener: () => void) => () => void>(() => () => {}),
+  getSnapshot: vi.fn<() => PlaybackSnapshot>(() => currentSnapshot),
+  seek: vi.fn<(time: number, commit: boolean, seamless?: boolean) => void>(),
+  togglePlay: vi.fn<() => void>(),
+  setVolume: vi.fn<(volume: number) => void>(),
+  toggleMute: vi.fn<() => void>(),
+  syncFromAudioContext: vi.fn<() => void>(),
+  setAudioBuffer: vi.fn<(audioBuffer: AudioBuffer | undefined) => void>(),
+  getPosition: vi.fn<() => number>(() => 0),
+  getFrequencyData: vi.fn<() => FrequencyData | null>(() => null),
 } satisfies AudioPlaybackStore;
 
 const mockAppContext: AppContextValue = {
@@ -167,7 +169,7 @@ test("should expand when expand button is clicked", async () => {
 });
 
 test("should call View Transitions API when expanding", async () => {
-  document.startViewTransition = vi.fn();
+  document.startViewTransition = vi.fn<typeof document.startViewTransition>();
   customRender(<MidiVisualizer rendererConfig={rendererConfig} />);
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);

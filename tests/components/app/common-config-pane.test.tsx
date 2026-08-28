@@ -1,15 +1,16 @@
 import { expect, test, vi } from "vitest";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { CommonConfigPane } from "@/components/app/common-config-pane";
-import { resolutions } from "@/lib/renderers/renderer";
+import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
+import { DeepPartial } from "@/lib/type-utils";
 import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { rendererConfig } from "tests/fixtures";
 import { ComponentProps } from "react";
 
-const mockOnChangeAudioFile = vi.fn();
-const mockOnUpdateRendererConfig = vi.fn();
-const mockOnChangeBackgroundImage = vi.fn();
+const mockOnChangeAudioFile = vi.fn<(file: File | undefined) => void>();
+const mockOnUpdateRendererConfig = vi.fn<(partial: DeepPartial<RendererConfig>) => void>();
+const mockOnChangeBackgroundImage = vi.fn<(file: File | undefined) => void>();
 
 function renderCommonConfigPane(props: Partial<ComponentProps<typeof CommonConfigPane>> = {}) {
   return customRender(

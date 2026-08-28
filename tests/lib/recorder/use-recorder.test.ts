@@ -172,7 +172,7 @@ test("should abort recording when toggling during recording", async () => {
 });
 
 test("should handle errors during recording", async () => {
-  console.error = vi.fn();
+  console.error = vi.fn<(...data: unknown[]) => void>();
   const error = new Error("Recording failed");
   vi.mocked(runRecorder).mockImplementationOnce(
     () =>

@@ -24,7 +24,7 @@ test("calls resetConfig when reset button is clicked", async () => {
 });
 
 test("calls resetErrorBoundary when Reload app button is clicked", async () => {
-  const resetErrorBoundary = vi.fn();
+  const resetErrorBoundary = vi.fn<() => void>();
   render(<Fallback error={new Error("Test error")} resetErrorBoundary={resetErrorBoundary} />);
   await userEvent.click(screen.getByText("Reload app"));
   expect(resetErrorBoundary).toHaveBeenCalledTimes(1);

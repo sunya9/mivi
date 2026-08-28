@@ -40,7 +40,7 @@ test("removes item from localStorage when value is undefined", () => {
 
 test("handles JSON parse errors gracefully", () => {
   localStorage.setItem("test-key", "{aaa");
-  console.error = vi.fn();
+  console.error = vi.fn<(...data: unknown[]) => void>();
   const { result } = renderHook(() => useLocalStorage<string>("test-key"));
   expect(result.current[0]).toBeUndefined();
   expect(console.error).toHaveBeenCalledTimes(1);

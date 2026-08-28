@@ -40,8 +40,8 @@ test("should not render when style is none", () => {
   };
   const overlay = new AudioVisualizerOverlay(ctx, config, defaultResolution);
 
-  ctx.save = vi.fn();
-  ctx.restore = vi.fn();
+  ctx.save = vi.fn<() => void>();
+  ctx.restore = vi.fn<() => void>();
 
   overlay.render(createFrequencyData());
 
@@ -57,8 +57,8 @@ test("should not render when frequencyData is null", () => {
   };
   const overlay = new AudioVisualizerOverlay(ctx, config, defaultResolution);
 
-  ctx.save = vi.fn();
-  ctx.restore = vi.fn();
+  ctx.save = vi.fn<() => void>();
+  ctx.restore = vi.fn<() => void>();
 
   overlay.render(null);
 
@@ -74,8 +74,8 @@ test("should call save and restore when rendering bars", () => {
   };
   const overlay = new AudioVisualizerOverlay(ctx, config, defaultResolution);
 
-  ctx.save = vi.fn();
-  ctx.restore = vi.fn();
+  ctx.save = vi.fn<() => void>();
+  ctx.restore = vi.fn<() => void>();
 
   overlay.render(createFrequencyData());
 
@@ -91,8 +91,8 @@ test("should call save and restore when rendering lineSpectrum", () => {
   };
   const overlay = new AudioVisualizerOverlay(ctx, config, defaultResolution);
 
-  ctx.save = vi.fn();
-  ctx.restore = vi.fn();
+  ctx.save = vi.fn<() => void>();
+  ctx.restore = vi.fn<() => void>();
 
   overlay.render(createFrequencyData());
 
@@ -108,8 +108,8 @@ test("should call save and restore when rendering circular", () => {
   };
   const overlay = new AudioVisualizerOverlay(ctx, config, defaultResolution);
 
-  ctx.save = vi.fn();
-  ctx.restore = vi.fn();
+  ctx.save = vi.fn<() => void>();
+  ctx.restore = vi.fn<() => void>();
 
   overlay.render(createFrequencyData());
 
@@ -131,8 +131,8 @@ test("setConfig should update config and propagate to drawers", () => {
   };
   overlay.setConfig(newConfig);
 
-  ctx.save = vi.fn();
-  ctx.restore = vi.fn();
+  ctx.save = vi.fn<() => void>();
+  ctx.restore = vi.fn<() => void>();
 
   overlay.render(createFrequencyData());
 

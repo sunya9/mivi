@@ -5,7 +5,7 @@ import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
 
-const mockSetFile = vi.fn();
+const mockSetFile = vi.fn<(file: File | undefined) => void>();
 
 function renderFileButton(props: Partial<ComponentProps<typeof FileButton>> = {}) {
   return customRender(
@@ -62,7 +62,7 @@ test("should show loading state when loading is true", () => {
 });
 
 test("should call onCancel when cancel button is clicked during loading", async () => {
-  const mockOnCancel = vi.fn();
+  const mockOnCancel = vi.fn<() => void>();
   renderFileButton({ loading: true, onCancel: mockOnCancel });
   const cancelButton = screen.getByRole("button", { name: "Cancel" });
   await userEvent.click(cancelButton);

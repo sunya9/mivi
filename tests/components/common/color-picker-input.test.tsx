@@ -4,7 +4,7 @@ import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { customRender } from "tests/util";
 import { ComponentProps } from "react";
 
-const mockOnChange = vi.fn();
+const mockOnChange = vi.fn<(value: string) => void>();
 
 beforeEach(() => {
   mockOnChange.mockClear();

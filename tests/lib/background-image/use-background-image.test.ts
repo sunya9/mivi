@@ -52,7 +52,7 @@ test("should manipulate background image", async () => {
 
 test("should handle errors when setting background image", async () => {
   const error = new Error("Failed to load image");
-  console.error = vi.fn();
+  console.error = vi.fn<(...data: unknown[]) => void>();
   vi.stubGlobal("createImageBitmap", vi.fn().mockRejectedValue(error));
 
   const { result } = customRenderHook(() => useBackgroundImage());

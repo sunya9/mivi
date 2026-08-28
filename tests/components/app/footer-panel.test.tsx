@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { FooterPanel } from "@/components/app/footer-panel";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { createMockPwaState } from "../../pwa-mock";
+import type { SetStateAction } from "react";
 
 function PwaWrapper({
   children,
@@ -27,7 +28,9 @@ test("FooterPanel renders footer element", () => {
 
 test("FooterPanel does not show Update badge when needRefresh is false", () => {
   render(
-    <PwaWrapper pwaState={{ needRefresh: [false, vi.fn()] }}>
+    <PwaWrapper
+      pwaState={{ needRefresh: [false, vi.fn<(value: SetStateAction<boolean>) => void>()] }}
+    >
       <FooterPanel />
     </PwaWrapper>,
   );
@@ -37,7 +40,9 @@ test("FooterPanel does not show Update badge when needRefresh is false", () => {
 
 test("FooterPanel shows Update badge when needRefresh is true", () => {
   render(
-    <PwaWrapper pwaState={{ needRefresh: [true, vi.fn()] }}>
+    <PwaWrapper
+      pwaState={{ needRefresh: [true, vi.fn<(value: SetStateAction<boolean>) => void>()] }}
+    >
       <FooterPanel />
     </PwaWrapper>,
   );
@@ -47,12 +52,12 @@ test("FooterPanel shows Update badge when needRefresh is true", () => {
 
 test("FooterPanel calls updateServiceWorker when Update badge is clicked", async () => {
   const user = userEvent.setup();
-  const updateServiceWorker = vi.fn();
+  const updateServiceWorker = vi.fn<(reloadPage?: boolean) => Promise<void>>();
 
   render(
     <PwaWrapper
       pwaState={{
-        needRefresh: [true, vi.fn()],
+        needRefresh: [true, vi.fn<(value: SetStateAction<boolean>) => void>()],
         updateServiceWorker,
       }}
     >
@@ -89,7 +94,7 @@ test("FooterPanel shows Install button when canInstall is true", () => {
 
 test("FooterPanel calls installPwa when Install button is clicked", async () => {
   const user = userEvent.setup();
-  const installPwa = vi.fn();
+  const installPwa = vi.fn<() => Promise<boolean>>();
 
   render(
     <PwaWrapper
@@ -112,7 +117,7 @@ test("FooterPanel shows both buttons when needRefresh and canInstall are true", 
   render(
     <PwaWrapper
       pwaState={{
-        needRefresh: [true, vi.fn()],
+        needRefresh: [true, vi.fn<(value: SetStateAction<boolean>) => void>()],
         canInstall: true,
       }}
     >
@@ -128,7 +133,7 @@ test("FooterPanel shows neither button when both are false", () => {
   render(
     <PwaWrapper
       pwaState={{
-        needRefresh: [false, vi.fn()],
+        needRefresh: [false, vi.fn<(value: SetStateAction<boolean>) => void>()],
         canInstall: false,
       }}
     >
@@ -152,7 +157,7 @@ test("FooterPanel renders Settings button", () => {
 
 test("FooterPanel calls onOpenSettings when Settings button is clicked", async () => {
   const user = userEvent.setup();
-  const onOpenSettings = vi.fn();
+  const onOpenSettings = vi.fn<() => void>();
 
   render(
     <PwaWrapper>

@@ -3,16 +3,17 @@ import "fake-indexeddb/auto";
 import "vitest-canvas-mock";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
+import type { Dispatch, SetStateAction } from "react";
 import { IDBFactory } from "fake-indexeddb";
 import { closeDb } from "@/lib/file-db/file-db";
 import { webcrypto } from "node:crypto";
 import * as standardizedAudioContextMock from "standardized-audio-context-mock";
 
 vi.mock("virtual:pwa-register/react", () => ({
-  useRegisterSW: vi.fn(() => ({
-    needRefresh: [false, vi.fn()],
-    offlineReady: [false, vi.fn()],
-    updateServiceWorker: vi.fn(),
+  useRegisterSW: vi.fn<typeof import("virtual:pwa-register/react").useRegisterSW>(() => ({
+    needRefresh: [false, vi.fn<Dispatch<SetStateAction<boolean>>>()],
+    offlineReady: [false, vi.fn<Dispatch<SetStateAction<boolean>>>()],
+    updateServiceWorker: vi.fn<(reloadPage?: boolean) => Promise<void>>(),
   })),
 }));
 
@@ -40,7 +41,9 @@ vi.stubGlobal("crypto", {
 });
 
 // https://github.com/radix-ui/primitives/issues/1822
-window.HTMLElement.prototype.hasPointerCapture = vi.fn();
-window.HTMLElement.prototype.setPointerCapture = vi.fn();
-window.HTMLElement.prototype.releasePointerCapture = vi.fn();
-window.HTMLElement.prototype.getAnimations = vi.fn(() => []);
+window.HTMLElement.prototype.hasPointerCapture = vi.fn<(pointerId: number) => boolean>();
+window.HTMLElement.prototype.setPointerCapture = vi.fn<(pointerId: number) => void>();
+window.HTMLElement.prototype.releasePointerCapture = vi.fn<(pointerId: number) => void>();
+window.HTMLElement.prototype.getAnimations = vi.fn<(options?: GetAnimationsOptions) => Animation[]>(
+  () => [],
+);

@@ -1,36 +1,65 @@
 import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { SettingsDialog, SettingsContent } from "@/components/app/settings-dialog";
+import {
+  SettingsDialog,
+  SettingsContent,
+  type SettingsTabValue,
+} from "@/components/app/settings-dialog";
 
 test("SettingsDialog renders when open is true", () => {
-  render(<SettingsDialog tab="general" onTabChange={vi.fn()} />);
+  render(
+    <SettingsDialog
+      tab="general"
+      onTabChange={vi.fn<(tab: SettingsTabValue | undefined) => void>()}
+    />,
+  );
 
   expect(screen.getByRole("dialog")).toBeVisible();
 });
 
 test("SettingsDialog does not render content when tab is undefined", () => {
-  render(<SettingsDialog tab={undefined} onTabChange={vi.fn()} />);
+  render(
+    <SettingsDialog
+      tab={undefined}
+      onTabChange={vi.fn<(tab: SettingsTabValue | undefined) => void>()}
+    />,
+  );
 
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
 
 test("SettingsDialog shows General content when tab is general", () => {
-  render(<SettingsDialog tab="general" onTabChange={vi.fn()} />);
+  render(
+    <SettingsDialog
+      tab="general"
+      onTabChange={vi.fn<(tab: SettingsTabValue | undefined) => void>()}
+    />,
+  );
 
   // Theme heading should be visible in General tab
   expect(screen.getByText("Theme")).toBeVisible();
 });
 
 test("SettingsDialog shows About content when tab is about", () => {
-  render(<SettingsDialog tab="about" onTabChange={vi.fn()} />);
+  render(
+    <SettingsDialog
+      tab="about"
+      onTabChange={vi.fn<(tab: SettingsTabValue | undefined) => void>()}
+    />,
+  );
 
   // About content should be visible
   expect(screen.getByText(/MiVi is a web application/)).toBeVisible();
 });
 
 test("SettingsDialog shows Shortcuts content when tab is shortcuts", () => {
-  render(<SettingsDialog tab="shortcuts" onTabChange={vi.fn()} />);
+  render(
+    <SettingsDialog
+      tab="shortcuts"
+      onTabChange={vi.fn<(tab: SettingsTabValue | undefined) => void>()}
+    />,
+  );
 
   expect(screen.getByText("Keyboard Shortcuts")).toBeVisible();
   expect(screen.getByText("Play / Pause")).toBeVisible();
@@ -38,7 +67,7 @@ test("SettingsDialog shows Shortcuts content when tab is shortcuts", () => {
 
 test("SettingsDialog calls onTabChange with undefined when dialog closes", async () => {
   const user = userEvent.setup();
-  const onTabChange = vi.fn();
+  const onTabChange = vi.fn<(tab: SettingsTabValue | undefined) => void>();
 
   render(<SettingsDialog tab="general" onTabChange={onTabChange} />);
 
@@ -49,7 +78,12 @@ test("SettingsDialog calls onTabChange with undefined when dialog closes", async
 });
 
 test("SettingsDialog renders sidebar navigation items", () => {
-  render(<SettingsDialog tab="general" onTabChange={vi.fn()} />);
+  render(
+    <SettingsDialog
+      tab="general"
+      onTabChange={vi.fn<(tab: SettingsTabValue | undefined) => void>()}
+    />,
+  );
 
   // Sidebar should have navigation buttons
   const sidebar = document.querySelector('[data-slot="sidebar"]');
@@ -61,7 +95,7 @@ test("SettingsDialog renders sidebar navigation items", () => {
 
 test("SettingsDialog switches to About content when About sidebar item is clicked", async () => {
   const user = userEvent.setup();
-  const onTabChange = vi.fn();
+  const onTabChange = vi.fn<(tab: SettingsTabValue | undefined) => void>();
 
   const { rerender } = render(<SettingsDialog tab="general" onTabChange={onTabChange} />);
 
@@ -83,7 +117,7 @@ test("SettingsDialog switches to About content when About sidebar item is clicke
 
 test("SettingsDialog switches to Shortcuts content when Shortcuts sidebar item is clicked", async () => {
   const user = userEvent.setup();
-  const onTabChange = vi.fn();
+  const onTabChange = vi.fn<(tab: SettingsTabValue | undefined) => void>();
 
   const { rerender } = render(<SettingsDialog tab="general" onTabChange={onTabChange} />);
 
@@ -105,7 +139,12 @@ test("SettingsDialog switches to Shortcuts content when Shortcuts sidebar item i
 });
 
 test("SettingsDialog has accessible title and description", () => {
-  render(<SettingsDialog tab="general" onTabChange={vi.fn()} />);
+  render(
+    <SettingsDialog
+      tab="general"
+      onTabChange={vi.fn<(tab: SettingsTabValue | undefined) => void>()}
+    />,
+  );
 
   expect(screen.getByText("Settings")).toBeVisible();
   expect(screen.getByText("Application settings and information")).toBeVisible();
@@ -147,7 +186,7 @@ test("SettingsContent switches to About tab when clicked", async () => {
 const slashKeyMap = [{ code: "Slash", key: "/" }];
 
 test("SettingsDialog opens with shortcuts tab when Shift+/ is pressed", async () => {
-  const onTabChange = vi.fn();
+  const onTabChange = vi.fn<(tab: SettingsTabValue | undefined) => void>();
 
   render(<SettingsDialog tab={undefined} onTabChange={onTabChange} />);
 
@@ -157,7 +196,7 @@ test("SettingsDialog opens with shortcuts tab when Shift+/ is pressed", async ()
 });
 
 test("SettingsDialog keyboard shortcut works when dialog is already open", async () => {
-  const onTabChange = vi.fn();
+  const onTabChange = vi.fn<(tab: SettingsTabValue | undefined) => void>();
 
   render(<SettingsDialog tab="general" onTabChange={onTabChange} />);
 

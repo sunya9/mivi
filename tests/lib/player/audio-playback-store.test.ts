@@ -211,7 +211,7 @@ test("should update position when syncFromAudioContext is called during playback
 
 test("should notify subscribers on state changes", () => {
   const { store } = createStoreWithAudioBuffer();
-  const listener = vi.fn();
+  const listener = vi.fn<() => void>();
   store.subscribe(listener);
 
   store.togglePlay();
@@ -220,7 +220,7 @@ test("should notify subscribers on state changes", () => {
 
 test("should unsubscribe correctly", () => {
   const { store } = createStoreWithAudioBuffer();
-  const listener = vi.fn();
+  const listener = vi.fn<() => void>();
   const unsubscribe = store.subscribe(listener);
 
   unsubscribe();

@@ -4,10 +4,10 @@ import { TrackListPane } from "@/components/app/track-list-pane";
 import { testMidiTracks } from "tests/fixtures";
 import { MidiTracks } from "@/lib/midi/midi";
 import userEvent from "@testing-library/user-event";
-import { ComponentProps } from "react";
+import { ComponentProps, Dispatch, SetStateAction } from "react";
 
-const mockSetMidiTracks = vi.fn();
-const mockOnChangeMidiFile = vi.fn();
+const mockSetMidiTracks = vi.fn<Dispatch<SetStateAction<MidiTracks | undefined>>>();
+const mockOnChangeMidiFile = vi.fn<(file: File | undefined) => void>();
 
 function renderTrackListPane(props: Partial<ComponentProps<typeof TrackListPane>> = {}) {
   return render(
