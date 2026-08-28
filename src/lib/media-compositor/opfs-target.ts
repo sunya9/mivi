@@ -14,7 +14,7 @@ export async function createOpfsExportFile(fileName: string): Promise<OpfsExport
   const target = new WritableStream<StreamTargetChunk>({
     write: (chunk) => writable.write(chunk),
     close: () => writable.close(),
-    abort: () => writable.abort(),
+    abort: (reason) => writable.abort(reason),
   });
 
   return {

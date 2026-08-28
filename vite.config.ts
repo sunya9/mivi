@@ -251,6 +251,11 @@ interface HeapPoller {
 let heapPoller: HeapPoller | null = null;
 
 const startHeapPolling: BrowserCommand<[]> = async (ctx) => {
+  if (heapPoller) {
+    clearInterval(heapPoller.timer);
+    await heapPoller.session.detach().catch(() => {});
+    heapPoller = null;
+  }
   const session = await ctx.page.context().newCDPSession(ctx.page);
   const peak = { usedSize: 0, backingStorageSize: 0 };
   const timer = setInterval(() => {
