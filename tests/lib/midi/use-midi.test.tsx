@@ -73,7 +73,7 @@ test("handles MIDI file loading errors", async () => {
   });
 
   await act(async () => {
-    await expect(result.current.setMidiFile(mockMidiFile)).rejects.toThrow();
+    await expect(result.current.setMidiFile(mockMidiFile)).rejects.toThrow("Bad MIDI file.");
   });
   expect(result.current.midiTracks).toBeUndefined();
 });

@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "react", "unicorn"],
+  "jsPlugins": ["eslint-plugin-testing-library"],
   "categories": {
     "correctness": "error",
     "perf": "error"
@@ -19,7 +20,39 @@
       {
         "allowConstantExport": true
       }
+    ],
+    "typescript/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": {
+          "attributes": false
+        }
+      }
+    ],
+    "typescript/only-throw-error": [
+      "error",
+      {
+        "allow": ["Promise"]
+      }
+    ],
+    "typescript/prefer-promise-reject-errors": [
+      "error",
+      {
+        "allowThrowingAny": true
+      }
+    ],
+    "typescript/unbound-method": "off",
+    "no-unused-vars": [
+      "error",
+      {
+        "ignoreRestSiblings": true
+      }
     ]
+  },
+  "settings": {
+    "vitest": {
+      "typecheck": true
+    }
   },
   "overrides": [
     {
@@ -31,8 +64,35 @@
     {
       "files": ["tests/**"],
       "plugins": ["vitest"],
+      "globals": {
+        "indexedDB": "writable"
+      },
       "rules": {
-        "typescript/unbound-method": "off"
+        "vitest/require-mock-type-parameters": "off",
+        "testing-library/await-async-events": ["error", { "eventModule": "userEvent" }],
+        "testing-library/await-async-queries": "error",
+        "testing-library/await-async-utils": "error",
+        "testing-library/no-await-sync-events": ["error", { "eventModules": ["fire-event"] }],
+        "testing-library/no-await-sync-queries": "error",
+        "testing-library/no-container": "error",
+        "testing-library/no-debugging-utils": "warn",
+        "testing-library/no-dom-import": ["error", "react"],
+        "testing-library/no-global-regexp-flag-in-query": "error",
+        "testing-library/no-promise-in-fire-event": "error",
+        "testing-library/no-render-in-lifecycle": "error",
+        "testing-library/no-wait-for-multiple-assertions": "error",
+        "testing-library/no-wait-for-side-effects": "error",
+        "testing-library/no-wait-for-snapshot": "error",
+        "testing-library/prefer-find-by": "error",
+        "testing-library/prefer-presence-queries": "error",
+        "testing-library/prefer-query-by-disappearance": "error",
+        "testing-library/prefer-screen-queries": "error"
+      }
+    },
+    {
+      "files": ["tests/vrt/**", "tests/bench/**"],
+      "rules": {
+        "testing-library/prefer-screen-queries": "off"
       }
     }
   ],
