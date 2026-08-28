@@ -7,13 +7,21 @@ import { toast } from "sonner";
 import { errorLogWithToast } from "../utils";
 import type { AudioBuffer, AudioContext } from "standardized-audio-context";
 import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
+import { floatToInt16, int16ToFloat } from "@/lib/audio/pcm";
 
 function restoreAudioBuffer(data: StoredAudioData, audioContext: AudioContext): AudioBuffer {
   const buffer = audioContext.createBuffer(data.numberOfChannels, data.length, data.sampleRate);
   for (let i = 0; i < data.numberOfChannels; i++) {
-    buffer.copyToChannel(new Float32Array(data.channels[i]), i);
+    buffer.copyToChannel(int16ToFloat(data.channels[i]), i);
   }
   return buffer;
+}
+
+function normalizeStoredAudio(data: StoredAudioData): StoredAudioData {
+  const channels = (data.channels as (Int16Array | Float32Array)[]).map((channel) =>
+    channel instanceof Int16Array ? channel : floatToInt16(channel),
+  );
+  return { ...data, channels };
 }
 
 export function useAudio() {
@@ -22,7 +30,12 @@ export function useAudio() {
     audioPlaybackStore: { setAudioBuffer },
   } = useAppContext();
 
-  const { file: audioFile, decoded: storedAudio, setEntry } = useAudioFileDb();
+  const { file: audioFile, decoded: rawStoredAudio, setEntry } = useAudioFileDb();
+
+  const storedAudio = useMemo(
+    () => (rawStoredAudio ? normalizeStoredAudio(rawStoredAudio) : undefined),
+    [rawStoredAudio],
+  );
 
   const audioBuffer = useMemo(
     () => (storedAudio ? restoreAudioBuffer(storedAudio, audioContext) : undefined),

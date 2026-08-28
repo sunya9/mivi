@@ -18,6 +18,7 @@ export class MediaCompositor {
   readonly #resources: RecorderResources;
   readonly #muxer: Muxer;
   readonly #progress: ExportProgressTracker<ExportPhase>;
+  readonly #abort = new AbortController();
 
   constructor(
     resources: RecorderResources,
@@ -44,12 +45,10 @@ export class MediaCompositor {
       deferTimer: true,
     });
 
-    const onError = (error: DOMException) => {
-      console.error("error on media compositor", error);
-    };
+    const onError = (error: unknown) => this.#abort.abort(error);
 
     this.#audioEncoder = new AudioEncoder({
-      output: (chunk, metadata) => void muxer.addAudioChunk(chunk, metadata),
+      output: (chunk, metadata) => void muxer.addAudioChunk(chunk, metadata).catch(onError),
       error: onError,
     });
     this.#audioEncoder.configure({
@@ -61,7 +60,7 @@ export class MediaCompositor {
     this.#audioEncoder.addEventListener("dequeue", this.#onDequeue);
 
     this.#videoEncoder = new VideoEncoder({
-      output: (chunk, metadata) => void muxer.addVideoChunk(chunk, metadata),
+      output: (chunk, metadata) => void muxer.addVideoChunk(chunk, metadata).catch(onError),
       error: onError,
     });
     this.#canvas = new OffscreenCanvas(
@@ -113,7 +112,6 @@ export class MediaCompositor {
     this.#progress.startTimer("Video Encode");
     await Promise.all([this.#videoEncoder.flush(), this.#audioEncoder.flush()]);
     await this.#muxer.finalize();
-    return new Blob([this.#muxer.buffer], { type: this.#muxer.config.mimeType });
   }
 
   #renderAudio() {
@@ -125,7 +123,7 @@ export class MediaCompositor {
       const endSample = Math.min((i + 1) * samplesPerFrame, length);
       const timestamp = Math.floor((startSample / sampleRate) * 1_000_000);
       const frameSamples = endSample - startSample;
-      const frameData = new Float32Array(numberOfChannels * frameSamples);
+      const frameData = new Int16Array(numberOfChannels * frameSamples);
 
       for (let channel = 0; channel < numberOfChannels; channel++) {
         frameData.set(channels[channel].subarray(startSample, endSample), channel * frameSamples);
@@ -136,7 +134,7 @@ export class MediaCompositor {
         numberOfChannels,
         numberOfFrames: frameSamples,
         sampleRate,
-        format: "f32-planar",
+        format: "s16-planar",
         data: frameData,
       });
 
@@ -195,11 +193,26 @@ export class MediaCompositor {
       // If the encoder's queue size exceeds the threshold,
       // pause the loop (yield) until the GPU processes some frames and emits a 'dequeue' event.
       if (this.#videoEncoder.encodeQueueSize > maxEncodeQueueSize) {
-        await new Promise<void>((resolve) => {
-          this.#videoEncoder.addEventListener("dequeue", () => resolve(), { once: true });
-        });
+        await this.#nextDequeue();
       }
     }
+  }
+
+  #nextDequeue(): Promise<void> {
+    const { signal } = this.#abort;
+    return new Promise<void>((resolve, reject) => {
+      signal.throwIfAborted();
+      const onAbort = () => reject(signal.reason as Error);
+      signal.addEventListener("abort", onAbort, { once: true });
+      this.#videoEncoder.addEventListener(
+        "dequeue",
+        () => {
+          signal.removeEventListener("abort", onAbort);
+          resolve();
+        },
+        { once: true, signal },
+      );
+    });
   }
 
   #precomputeFFT() {

@@ -8,8 +8,8 @@ test("worker completes successfully", async () => {
   const result = await runDecodeWorker(audioFile, abortcontroller.signal);
   expect(result.length).toBe(217728);
   expect(result.numberOfChannels).toBe(2);
-  expect(result.channels[0]).toBeInstanceOf(Float32Array);
-  expect(result.channels[1]).toBeInstanceOf(Float32Array);
+  expect(result.channels[0]).toBeInstanceOf(Int16Array);
+  expect(result.channels[1]).toBeInstanceOf(Int16Array);
   expect(result.sampleRate).toBe(48000);
 });
 

@@ -3,7 +3,7 @@ export interface SerializedAudio {
   readonly sampleRate: number;
   readonly numberOfChannels: number;
   readonly duration: number;
-  readonly channels: Float32Array[];
+  readonly channels: Int16Array[];
 }
 
 /** Serializable audio data for IndexedDB storage (duration is derived) */

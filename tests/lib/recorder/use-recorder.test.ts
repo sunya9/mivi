@@ -15,7 +15,7 @@ const mockAudioSource: AudioSource = {
     sampleRate: 44100,
     numberOfChannels: 2,
     duration: 10,
-    channels: [new Float32Array(100), new Float32Array(100)],
+    channels: [new Int16Array(100), new Int16Array(100)],
   },
 };
 
@@ -82,7 +82,7 @@ test("should allow recording without MIDI when renderer type is none and audio v
     },
   });
   vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+    () => new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0)),
   );
 
   await act(async () => {
@@ -128,7 +128,7 @@ test("should show error when renderer type is none and audio visualizer is also 
 test("should start recording when all required files are present", async () => {
   const { result } = renderHook(() => useRecorder(mockProps));
   vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+    () => new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0)),
   );
   await act(async () => {
     await result.current.toggleRecording();
@@ -148,7 +148,8 @@ test("should start recording when all required files are present", async () => {
 test("should abort recording when toggling during recording", async () => {
   const { result } = renderHook(() => useRecorder(mockProps));
   vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 10)),
+    () =>
+      new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 10)),
   );
 
   // Start recording
@@ -175,7 +176,7 @@ test("should handle errors during recording", async () => {
   const error = new Error("Recording failed");
   vi.mocked(runRecorder).mockImplementationOnce(
     () =>
-      new Promise<Blob>((_, reject) =>
+      new Promise<File>((_, reject) =>
         setTimeout(() => {
           reject(error);
         }, 0),
@@ -199,7 +200,7 @@ test("should handle errors during recording", async () => {
 
 test("should show 'Exporting...' toast when starting export", async () => {
   vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+    () => new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0)),
   );
   const { result } = renderHook(() => useRecorder(mockProps));
 
@@ -212,7 +213,7 @@ test("should show 'Exporting...' toast when starting export", async () => {
 
 test("should show success toast when export completes", async () => {
   vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<Blob>((resolve) => setTimeout(() => resolve(new Blob()), 0)),
+    () => new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0)),
   );
   const { result } = renderHook(() => useRecorder(mockProps));
 
