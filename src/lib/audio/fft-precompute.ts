@@ -74,11 +74,6 @@ export function precomputeFFTData(
   };
 }
 
-/**
- * Compute the frequency/time-domain analysis for one frame starting at the
- * given sample position. Shared by export precomputation and seek-time lookup
- * so a frame's analysis result is identical in both paths.
- */
 function computeFFTFrame(
   serializedAudio: SerializedAudio,
   startSample: number,
@@ -90,7 +85,7 @@ function computeFFTFrame(
   const frequencyBinCount = fftSize / 2;
   const endSample = Math.min(startSample + fftSize, length);
 
-  // Extract samples for this frame (mono mix from all channels, s16 → -1..1)
+  // Extract samples for this frame (mono mix from all channels)
   const samples = new Float32Array(fftSize);
   for (let channel = 0; channel < numberOfChannels; channel++) {
     const channelData = channels[channel];

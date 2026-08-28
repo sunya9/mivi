@@ -233,8 +233,6 @@ export default defineConfig(({ mode }) => ({
 
 const waitForDownload: BrowserCommand<[]> = (ctx) => ctx.page.waitForEvent("download");
 
-// V8 heap usage via CDP: unlike performance.memory, backingStorageSize covers
-// ArrayBuffer backing stores, which is where muxer buffers and PCM data live
 const getHeapUsage: BrowserCommand<[]> = async (ctx) => {
   const session = await ctx.page.context().newCDPSession(ctx.page);
   try {
@@ -255,7 +253,6 @@ let heapPoller: HeapPoller | null = null;
 const startHeapPolling: BrowserCommand<[]> = async (ctx) => {
   const session = await ctx.page.context().newCDPSession(ctx.page);
   const peak = { usedSize: 0, backingStorageSize: 0 };
-  // No collectGarbage here: peak must observe memory as the page actually sees it
   const timer = setInterval(() => {
     session
       .send("Runtime.getHeapUsage")

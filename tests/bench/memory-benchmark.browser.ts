@@ -74,8 +74,6 @@ function createBenchResources(): RecorderResources {
   };
 }
 
-// Reproduces the pre-OPFS behavior (BufferTarget + Blob copy) with the current
-// MuxerImpl, so the comparison arm survives without keeping the old code
 function createInMemoryTarget() {
   const parts: StreamTargetChunk[] = [];
   let size = 0;
@@ -97,10 +95,6 @@ function createInMemoryTarget() {
 
 const MB = 2 ** 20;
 
-// usedSize is the V8-managed heap; backingStorageSize is where ArrayBuffer
-// contents (PCM, muxer buffers) actually live.
-// Multiple GC passes: encoder/frame objects sit in Blink-V8 cycles that a
-// single collection round does not fully release
 async function snapshotMB(): Promise<number> {
   let result = Infinity;
   for (let i = 0; i < 3; i++) {
@@ -132,8 +126,6 @@ async function measureExport(
 
   expect(result.output.size).toBeGreaterThan(0);
   const outputMB = result.output.size / MB;
-  // GC'd snapshot with the output still referenced, mirroring the app holding
-  // it while the object URL is in flight
   const retainedMB = await snapshotMB();
   const cleanup = result.cleanup;
   // eslint-disable-next-line no-useless-assignment -- release the output reference so releasedMB measures post-GC state
@@ -181,8 +173,6 @@ function runOpfs(): Promise<BenchResult> {
   });
 }
 
-// Deltas against each run's own baseline: absolute values drift across runs as
-// the shared V8 isolate grows, so only baseline-relative numbers are comparable
 function report(label: string, r: BenchResult) {
   const fmt = (n: number) => n.toFixed(1).padStart(7);
   console.log(
@@ -194,7 +184,6 @@ function report(label: string, r: BenchResult) {
   );
 }
 
-// Not a regression test but a comparison harness; run via `pnpm bench:memory`
 test.skipIf(!import.meta.env.VITE_BENCH)(
   "memory benchmark: in-memory vs OPFS stream target",
   { timeout: 600_000 },

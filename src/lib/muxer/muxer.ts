@@ -44,9 +44,6 @@ const FORMAT_CONFIGS: Record<VideoFormat, Config> = {
     mimeType: "video/webm",
   },
   mp4: {
-    // fastStart "in-memory" would buffer the whole file in RAM and defeat
-    // streaming. moov lands at the end instead, which positioned writes
-    // handle fine on a seekable target like OPFS.
     outputFormat: new Mp4OutputFormat({ fastStart: false }),
     videoCodecId: "avc" as const,
     audioCodecId: "aac" as const,

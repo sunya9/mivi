@@ -10,8 +10,6 @@ export async function startRecording(
   onProgress: (progress: number, activePhase?: ActivePhase) => void,
 ) {
   const format = resources.rendererConfig.format;
-  // Fixed name: each export truncates the previous file, so the OPFS staging
-  // area is self-cleaning without tracking download completion
   const opfsFile = await createOpfsExportFile(`export.${format}`);
   const muxer = new MuxerImpl({
     format,
@@ -20,8 +18,6 @@ export async function startRecording(
   });
   using mediaCompositor = new MediaCompositor(resources, muxer, onProgress);
   await mediaCompositor.composite();
-  // The returned File only references disk; the main thread can hand it to
-  // URL.createObjectURL without loading the content into memory
   return await opfsFile.getFile();
 }
 

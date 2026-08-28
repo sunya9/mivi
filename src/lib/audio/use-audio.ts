@@ -17,8 +17,6 @@ function restoreAudioBuffer(data: StoredAudioData, audioContext: AudioContext): 
   return buffer;
 }
 
-// IndexedDB entries stored before the Int16Array migration hold Float32Array
-// channels; convert on read instead of migrating the database
 function normalizeStoredAudio(data: StoredAudioData): StoredAudioData {
   const channels = (data.channels as (Int16Array | Float32Array)[]).map((channel) =>
     channel instanceof Int16Array ? channel : floatToInt16(channel),

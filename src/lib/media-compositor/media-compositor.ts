@@ -18,8 +18,6 @@ export class MediaCompositor {
   readonly #resources: RecorderResources;
   readonly #muxer: Muxer;
   readonly #progress: ExportProgressTracker<ExportPhase>;
-  // Single failure channel: encoder and muxer/disk errors abort here so the
-  // backpressure wait cannot hang on an encoder that will never dequeue again
   readonly #abort = new AbortController();
 
   constructor(
@@ -203,8 +201,6 @@ export class MediaCompositor {
   #nextDequeue(): Promise<void> {
     const { signal } = this.#abort;
     return new Promise<void>((resolve, reject) => {
-      // Race against the failure channel: a closed encoder never fires
-      // "dequeue" again, so waiting on it alone would hang forever
       signal.throwIfAborted();
       const onAbort = () => reject(signal.reason as Error);
       signal.addEventListener("abort", onAbort, { once: true });
