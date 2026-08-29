@@ -3,40 +3,34 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { HueRandomizeDialog } from "@/components/app/hue-randomize-dialog";
 import { customRender } from "tests/util";
+import { ComponentProps } from "react";
+
+type DialogProps = ComponentProps<typeof HueRandomizeDialog>;
+
+function renderDialog(props: Partial<DialogProps> = {}) {
+  const onOpenChange = vi.fn<DialogProps["onOpenChange"]>();
+  const onConfirm = vi.fn<DialogProps["onConfirm"]>();
+  customRender(
+    <HueRandomizeDialog open={true} onOpenChange={onOpenChange} onConfirm={onConfirm} {...props} />,
+  );
+  return { onOpenChange, onConfirm };
+}
 
 test("renders dialog when open is true", () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   expect(screen.getByRole("dialog")).toBeInTheDocument();
   expect(screen.getByText("Randomize Hue")).toBeInTheDocument();
 });
 
 test("does not render dialog when open is false", () => {
-  customRender(
-    <HueRandomizeDialog
-      open={false}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog({ open: false });
 
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
 
 test("displays default saturation and lightness values when no localStorage value", () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   expect(screen.getByText("100%")).toBeInTheDocument();
   expect(screen.getByText("50%")).toBeInTheDocument();
@@ -44,26 +38,14 @@ test("displays default saturation and lightness values when no localStorage valu
 
 test("displays localStorage values when available", () => {
   localStorage.setItem("mivi:hue-randomize-sl", JSON.stringify({ s: 80, l: 70 }));
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   expect(screen.getByText("80%")).toBeInTheDocument();
   expect(screen.getByText("70%")).toBeInTheDocument();
 });
 
 test("renders 8 preview color swatches", () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   const dialog = screen.getByRole("dialog");
   const swatches = within(dialog)
@@ -73,13 +55,7 @@ test("renders 8 preview color swatches", () => {
 });
 
 test("renders all preset buttons", () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   expect(screen.getByRole("button", { name: /vivid/i })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /pastel/i })).toBeInTheDocument();
@@ -88,13 +64,7 @@ test("renders all preset buttons", () => {
 });
 
 test("clicking vivid preset updates values to s=100, l=60", async () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /vivid/i }));
 
@@ -103,13 +73,7 @@ test("clicking vivid preset updates values to s=100, l=60", async () => {
 });
 
 test("clicking pastel preset updates values to s=80, l=80", async () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /pastel/i }));
 
@@ -119,13 +83,7 @@ test("clicking pastel preset updates values to s=80, l=80", async () => {
 });
 
 test("clicking dark preset updates values to s=80, l=30", async () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /dark/i }));
 
@@ -134,13 +92,7 @@ test("clicking dark preset updates values to s=80, l=30", async () => {
 });
 
 test("clicking muted preset updates values to s=40, l=60", async () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /muted/i }));
 
@@ -149,12 +101,7 @@ test("clicking muted preset updates values to s=40, l=60", async () => {
 });
 
 test("Apply button calls onConfirm with current values and saves to localStorage", async () => {
-  const onConfirm = vi.fn<(saturation: number, lightness: number) => void>();
-  const onOpenChange = vi.fn<(open: boolean) => void>();
-
-  customRender(
-    <HueRandomizeDialog open={true} onOpenChange={onOpenChange} onConfirm={onConfirm} />,
-  );
+  const { onOpenChange, onConfirm } = renderDialog();
 
   // Click vivid preset to get known values (s=100, l=60)
   await userEvent.click(screen.getByRole("button", { name: /vivid/i }));
@@ -166,12 +113,7 @@ test("Apply button calls onConfirm with current values and saves to localStorage
 });
 
 test("Cancel button closes dialog without calling onConfirm or saving", async () => {
-  const onConfirm = vi.fn<(saturation: number, lightness: number) => void>();
-  const onOpenChange = vi.fn<(open: boolean) => void>();
-
-  customRender(
-    <HueRandomizeDialog open={true} onOpenChange={onOpenChange} onConfirm={onConfirm} />,
-  );
+  const { onOpenChange, onConfirm } = renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /cancel/i }));
 
@@ -181,13 +123,7 @@ test("Cancel button closes dialog without calling onConfirm or saving", async ()
 });
 
 test("renders saturation and lightness sliders with correct labels", () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   expect(screen.getByText("Saturation")).toBeInTheDocument();
   expect(screen.getByText("Lightness")).toBeInTheDocument();
@@ -195,13 +131,7 @@ test("renders saturation and lightness sliders with correct labels", () => {
 });
 
 test("clicking label focuses the corresponding slider", async () => {
-  customRender(
-    <HueRandomizeDialog
-      open={true}
-      onOpenChange={vi.fn<(open: boolean) => void>()}
-      onConfirm={vi.fn<(saturation: number, lightness: number) => void>()}
-    />,
-  );
+  renderDialog();
 
   const saturationLabel = screen.getByText("Saturation");
   const saturationGroup = screen.getByRole("group", { name: "Saturation" });
