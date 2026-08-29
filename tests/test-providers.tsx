@@ -1,7 +1,7 @@
 import { AppContext, AppContextValue } from "@/contexts/app-context";
 import { FileDbStoreProvider } from "@/components/providers/file-db-store-provider";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Suspense } from "react";
 import { createMockPwaState } from "./pwa-mock";
 
@@ -18,7 +18,7 @@ export function TestProviders({
   pwaState?: PwaState;
 }) {
   return (
-    <ThemeProvider themes={["light", "dark"]} defaultTheme="light" attribute="class">
+    <ThemeProvider defaultTheme="light">
       <FileDbStoreProvider>
         <AppContext value={appContextValue}>
           <PwaContext value={pwaState}>

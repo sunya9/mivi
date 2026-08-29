@@ -2,14 +2,22 @@ import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SettingsDialog, SettingsContent } from "@/components/app/settings-dialog";
+import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ComponentProps } from "react";
 
 type Props = ComponentProps<typeof SettingsDialog>;
+
+function LightThemeWrapper({ children }: { children: React.ReactNode }) {
+  return <ThemeProvider defaultTheme="light">{children}</ThemeProvider>;
+}
 
 function renderDialog(props: Partial<Props> = {}) {
   const onTabChange = vi.fn<Props["onTabChange"]>();
   const { rerender } = render(
     <SettingsDialog tab="general" onTabChange={onTabChange} {...props} />,
+    {
+      wrapper: LightThemeWrapper,
+    },
   );
   return { onTabChange, rerender };
 }
@@ -119,27 +127,27 @@ test("SettingsDialog has accessible title and description", () => {
 // SettingsContent tests (for mobile inline settings)
 
 test("SettingsContent renders General and About tabs", () => {
-  render(<SettingsContent />);
+  render(<SettingsContent />, { wrapper: LightThemeWrapper });
 
   expect(screen.getByRole("tab", { name: "General" })).toBeVisible();
   expect(screen.getByRole("tab", { name: "About" })).toBeVisible();
 });
 
 test("SettingsContent does not render Shortcuts tab", () => {
-  render(<SettingsContent />);
+  render(<SettingsContent />, { wrapper: LightThemeWrapper });
 
   expect(screen.queryByRole("tab", { name: "Shortcuts" })).not.toBeInTheDocument();
 });
 
 test("SettingsContent shows General content by default", () => {
-  render(<SettingsContent />);
+  render(<SettingsContent />, { wrapper: LightThemeWrapper });
 
   expect(screen.getByText("Theme")).toBeVisible();
 });
 
 test("SettingsContent switches to About tab when clicked", async () => {
   const user = userEvent.setup();
-  render(<SettingsContent />);
+  render(<SettingsContent />, { wrapper: LightThemeWrapper });
 
   const aboutTab = screen.getByRole("tab", { name: "About" });
   await user.click(aboutTab);
