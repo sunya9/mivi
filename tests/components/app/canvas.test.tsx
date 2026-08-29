@@ -3,13 +3,17 @@ import { Canvas } from "@/components/app/canvas";
 import { afterEach, expect, test, vi } from "vitest";
 import { ComponentProps } from "react";
 
-const mockOnInit = vi.fn();
-const mockInvalidate = vi.fn();
-const defaultProps: ComponentProps<typeof Canvas> = {
-  aspectRatio: 1,
-  onInit: mockOnInit,
-  invalidate: mockInvalidate,
-};
+type Props = ComponentProps<typeof Canvas>;
+
+function renderCanvas(props: Partial<Props> = {}) {
+  const onInit = vi.fn<Props["onInit"]>();
+  const invalidate = vi.fn<Props["invalidate"]>();
+  const baseProps: Props = { aspectRatio: 1, onInit, invalidate };
+  const view = render(<Canvas {...baseProps} {...props} />);
+  const rerenderCanvas = (next: Partial<Props>) =>
+    view.rerender(<Canvas {...baseProps} {...props} {...next} />);
+  return { ...view, rerenderCanvas, onInit, invalidate };
+}
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -39,22 +43,21 @@ function stubResizeObserver() {
 }
 
 test("should render canvas with correct aspect ratio", () => {
-  render(<Canvas {...defaultProps} aspectRatio={2} />);
+  renderCanvas({ aspectRatio: 2 });
   const canvas = findCanvas();
   expect(canvas).toBeInTheDocument();
   expect(canvas).toHaveStyle({ aspectRatio: "2" });
 });
 
 test("should call onInit with canvas context", () => {
-  render(<Canvas {...defaultProps} />);
-  expect(mockOnInit).toHaveBeenCalledExactlyOnceWith(expect.any(CanvasRenderingContext2D));
+  const { onInit } = renderCanvas();
+  expect(onInit).toHaveBeenCalledExactlyOnceWith(expect.any(CanvasRenderingContext2D));
 });
 
 test("should call invalidate when container is resized", () => {
   stubResizeObserver();
 
-  const invalidate = vi.fn();
-  const { container } = render(<Canvas {...defaultProps} invalidate={invalidate} />);
+  const { container, invalidate } = renderCanvas();
   mockContainerSize(container.firstElementChild!, 300);
 
   invalidate.mockClear();
@@ -66,15 +69,12 @@ test("should call invalidate when container is resized", () => {
 });
 
 test("should update canvas dimensions when aspectRatio changes", () => {
-  const invalidate = vi.fn();
-  const { container, rerender } = render(
-    <Canvas {...defaultProps} aspectRatio={1} invalidate={invalidate} />,
-  );
+  const { container, rerenderCanvas, invalidate } = renderCanvas();
   mockContainerSize(container.firstElementChild!, 200);
 
   invalidate.mockClear();
 
-  rerender(<Canvas {...defaultProps} aspectRatio={0.5} invalidate={invalidate} />);
+  rerenderCanvas({ aspectRatio: 0.5 });
 
   expect(invalidate).toHaveBeenCalled();
   const canvas = findCanvas();
@@ -85,8 +85,7 @@ test("should update canvas dimensions when aspectRatio changes", () => {
 });
 
 test("should apply custom className to container", () => {
-  const customClassName = "custom-class";
-  const { container } = render(<Canvas {...defaultProps} className={customClassName} />);
+  const { container } = renderCanvas({ className: "custom-class" });
 
-  expect(container.firstElementChild).toHaveClass(customClassName);
+  expect(container.firstElementChild).toHaveClass("custom-class");
 });

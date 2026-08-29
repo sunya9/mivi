@@ -8,9 +8,9 @@ export class RafStub {
 
   readonly #duration: number = 1000 / 60;
 
-  readonly requestAnimationFrame = vi.fn((fn: FrameRequestCallback) => {
-    this.#que.push({ fn, index: this.#index });
+  readonly requestAnimationFrame = vi.fn<(fn: FrameRequestCallback) => number>((fn) => {
     this.#index += 1;
+    this.#que.push({ fn, index: this.#index });
     return this.#index;
   });
 
@@ -20,7 +20,7 @@ export class RafStub {
     q?.fn(this.#time);
   };
 
-  readonly cancelAnimationFrame = vi.fn(() => (id: number) => {
+  readonly cancelAnimationFrame = vi.fn<(id: number) => void>((id) => {
     this.#que = this.#que.filter((q) => q.index !== id);
   });
 

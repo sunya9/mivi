@@ -6,7 +6,7 @@ function createBeforeInstallPromptEvent(
   overrides: Partial<Pick<BeforeInstallPromptEvent, "prompt" | "userChoice">> = {},
 ): BeforeInstallPromptEvent {
   return Object.assign(new Event("beforeinstallprompt"), {
-    prompt: vi.fn(),
+    prompt: vi.fn<() => Promise<void>>(),
     platforms: [] as string[],
     userChoice: Promise.resolve({
       outcome: "accepted" as const,

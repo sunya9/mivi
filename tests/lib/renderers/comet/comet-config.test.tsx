@@ -6,7 +6,8 @@ import { testMidiTracks, rendererConfig } from "tests/fixtures";
 import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
 type Props = ComponentProps<typeof CometConfigPanel>;
-const onUpdateRendererConfig: Props["onUpdateRendererConfig"] = vi.fn();
+const onUpdateRendererConfig: Props["onUpdateRendererConfig"] =
+  vi.fn<Props["onUpdateRendererConfig"]>();
 const cometConfig = rendererConfig.cometConfig;
 function renderPane(overrideProps?: Props) {
   customRender(

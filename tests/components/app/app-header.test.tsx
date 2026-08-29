@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { AppHeader } from "@/components/app/app-header";
 import { ReadyState, RecordingState } from "@/lib/media-compositor/recording-status";
 
-const mockToggleRecording = vi.fn();
+const mockToggleRecording = vi.fn<() => void>();
 
 const defaultProps = {
   recordingState: new ReadyState(),

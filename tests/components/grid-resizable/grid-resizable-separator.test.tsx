@@ -9,30 +9,36 @@ import {
 import { GridResizablePanelGroup } from "@/components/grid-resizable/grid-resizable-panel-group";
 import { GridResizablePanel } from "@/components/grid-resizable/grid-resizable-panel";
 import type { PanelConfig } from "@/components/grid-resizable/types";
+import type { ComponentProps } from "react";
 
-const createMockContext = (
-  overrides?: Partial<GridResizableContextValue>,
-): GridResizableContextValue => ({
+type SeparatorProps = ComponentProps<typeof GridResizableSeparator>;
+
+const createMockContext = (): GridResizableContextValue => ({
   sizes: { panel1: 300 },
   panelConfigs: new Map([["panel1", { id: "panel1", defaultSize: 300 }]]),
-  startResize: vi.fn(),
-  updateResize: vi.fn(),
-  endResize: vi.fn(),
-  resizeByKeyboard: vi.fn(),
-  resizeToMin: vi.fn(),
-  resizeToFit: vi.fn(),
-  registerPanel: vi.fn(),
-  unregisterPanel: vi.fn(),
-  registerSeparator: vi.fn(),
-  unregisterSeparator: vi.fn(),
-  ...overrides,
+  startResize: vi.fn<GridResizableContextValue["startResize"]>(),
+  updateResize: vi.fn<GridResizableContextValue["updateResize"]>(),
+  endResize: vi.fn<GridResizableContextValue["endResize"]>(),
+  resizeByKeyboard: vi.fn<GridResizableContextValue["resizeByKeyboard"]>(),
+  resizeToMin: vi.fn<GridResizableContextValue["resizeToMin"]>(),
+  resizeToFit: vi.fn<GridResizableContextValue["resizeToFit"]>(),
+  registerPanel: vi.fn<GridResizableContextValue["registerPanel"]>(),
+  unregisterPanel: vi.fn<GridResizableContextValue["unregisterPanel"]>(),
+  registerSeparator: vi.fn<GridResizableContextValue["registerSeparator"]>(),
+  unregisterSeparator: vi.fn<GridResizableContextValue["unregisterSeparator"]>(),
 });
 
-function renderSeparator(contextOverrides?: Partial<GridResizableContextValue>) {
-  const context = createMockContext(contextOverrides);
+function renderSeparator(props?: Partial<SeparatorProps>) {
+  const context = createMockContext();
   render(
     <GridResizableContext.Provider value={context}>
-      <GridResizableSeparator id="sep1" orientation="horizontal" panelId="panel1" side="before" />
+      <GridResizableSeparator
+        id="sep1"
+        orientation="horizontal"
+        panelId="panel1"
+        side="before"
+        {...props}
+      />
     </GridResizableContext.Provider>,
   );
   return context;
@@ -119,17 +125,7 @@ describe("GridResizableSeparator", () => {
   describe("keyboard interaction (after panel)", () => {
     it("should reverse direction for after panel", async () => {
       const user = userEvent.setup();
-      const context = createMockContext();
-      render(
-        <GridResizableContext.Provider value={context}>
-          <GridResizableSeparator
-            id="sep1"
-            orientation="horizontal"
-            panelId="panel1"
-            side="after"
-          />
-        </GridResizableContext.Provider>,
-      );
+      const context = renderSeparator({ side: "after" });
 
       const separator = screen.getByRole("separator");
       separator.focus();
@@ -147,12 +143,7 @@ describe("GridResizableSeparator", () => {
     });
 
     it("should have correct aria-orientation for vertical separator", () => {
-      const context = createMockContext();
-      render(
-        <GridResizableContext.Provider value={context}>
-          <GridResizableSeparator id="sep1" orientation="vertical" panelId="panel1" side="before" />
-        </GridResizableContext.Provider>,
-      );
+      renderSeparator({ orientation: "vertical" });
       expect(screen.getByRole("separator")).toHaveAttribute("aria-orientation", "horizontal");
     });
   });
@@ -171,7 +162,7 @@ describe("GridResizableSeparator", () => {
       renderSeparator();
       const separator = screen.getByRole("separator");
 
-      const releasePointerCapture = vi.fn();
+      const releasePointerCapture = vi.fn<(pointerId: number) => void>();
       separator.releasePointerCapture = releasePointerCapture;
 
       fireEvent.pointerUp(separator, { pointerId: 1 });
@@ -183,20 +174,10 @@ describe("GridResizableSeparator", () => {
   describe("double click interaction", () => {
     it("should call resizeToFit on double click when getOptimalSizeForFit is provided", async () => {
       const user = userEvent.setup();
-      const context = createMockContext();
-      const getOptimalSizeForFit = vi.fn(() => 200);
-
-      render(
-        <GridResizableContext.Provider value={context}>
-          <GridResizableSeparator
-            id="sep1"
-            orientation="horizontal"
-            panelId="panel1"
-            side="before"
-            getOptimalSizeForFit={getOptimalSizeForFit}
-          />
-        </GridResizableContext.Provider>,
+      const getOptimalSizeForFit = vi.fn<NonNullable<SeparatorProps["getOptimalSizeForFit"]>>(
+        () => 200,
       );
+      const context = renderSeparator({ getOptimalSizeForFit });
 
       const separator = screen.getByRole("separator");
       await user.dblClick(separator);

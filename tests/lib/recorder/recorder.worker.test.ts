@@ -5,18 +5,19 @@ import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
 import { resources } from "tests/fixtures";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
+import type { ActivePhase } from "@/lib/media-compositor/export-progress-tracker";
 import type { StreamTargetChunk } from "mediabunny";
 
 vi.mock("@/lib/muxer/muxer");
 vi.mock("@/lib/media-compositor/media-compositor");
 vi.mock("@/lib/media-compositor/opfs-target");
 
-const mockOnProgress = vi.fn();
+const mockOnProgress = vi.fn<(progress: number, activePhase?: ActivePhase) => void>();
 const mockFile = new File(["test"], "export.webm", { type: "video/webm" });
 const mockOpfsFile = {
   target: new WritableStream<StreamTargetChunk>(),
-  getFile: vi.fn().mockResolvedValue(mockFile),
-  remove: vi.fn(),
+  getFile: vi.fn<() => Promise<File>>().mockResolvedValue(mockFile),
+  remove: vi.fn<() => Promise<void>>(),
 };
 vi.mocked(createOpfsExportFile).mockResolvedValue(mockOpfsFile);
 
@@ -50,7 +51,7 @@ test("should create MuxerImpl with webm format", async () => {
 });
 
 test("should return the OPFS-backed file after compositing", async () => {
-  MediaCompositor.prototype.composite = vi.fn().mockResolvedValue(undefined);
+  MediaCompositor.prototype.composite = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
   const result = await startRecording(resources, mockOnProgress);
 
   expect(MediaCompositor.prototype.composite).toHaveBeenCalledOnce();

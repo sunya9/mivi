@@ -4,23 +4,22 @@ import userEvent from "@testing-library/user-event";
 import { MobileBottomNav } from "@/components/app/mobile-bottom-nav";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { createMockPwaState } from "../../pwa-mock";
+import { ComponentProps } from "react";
 
-function PwaWrapper({
-  children,
-  pwaState,
-}: {
-  children: React.ReactNode;
-  pwaState?: Partial<PwaState>;
-}) {
-  return <PwaContext value={createMockPwaState(pwaState)}>{children}</PwaContext>;
+type Props = ComponentProps<typeof MobileBottomNav>;
+
+function renderNav(props: Partial<Props> = {}, pwaState?: Partial<PwaState>) {
+  const onValueChange = vi.fn<Props["onValueChange"]>();
+  const { container } = render(
+    <PwaContext value={createMockPwaState(pwaState)}>
+      <MobileBottomNav value="tracks" onValueChange={onValueChange} {...props} />
+    </PwaContext>,
+  );
+  return { onValueChange, container };
 }
 
 test("MobileBottomNav renders all four tabs", () => {
-  render(
-    <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
-    </PwaWrapper>,
-  );
+  renderNav();
 
   expect(screen.getByText("Tracks")).toBeInTheDocument();
   expect(screen.getByText("Audio/Bg")).toBeInTheDocument();
@@ -29,11 +28,7 @@ test("MobileBottomNav renders all four tabs", () => {
 });
 
 test("MobileBottomNav highlights the active tab", () => {
-  render(
-    <PwaWrapper>
-      <MobileBottomNav value="visualizer" onValueChange={vi.fn()} />
-    </PwaWrapper>,
-  );
+  renderNav({ value: "visualizer" });
 
   const audioBgTab = screen.getByRole("tab", { name: /audio\/bg/i });
   expect(audioBgTab).toHaveAttribute("data-active");
@@ -41,13 +36,7 @@ test("MobileBottomNav highlights the active tab", () => {
 
 test("MobileBottomNav calls onValueChange when tab is clicked", async () => {
   const user = userEvent.setup();
-  const onValueChange = vi.fn();
-
-  render(
-    <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={onValueChange} />
-    </PwaWrapper>,
-  );
+  const { onValueChange } = renderNav();
 
   await user.click(screen.getByRole("tab", { name: /style/i }));
 
@@ -55,22 +44,14 @@ test("MobileBottomNav calls onValueChange when tab is clicked", async () => {
 });
 
 test("MobileBottomNav applies custom className", () => {
-  const { container } = render(
-    <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} className="custom-class" />
-    </PwaWrapper>,
-  );
+  const { container } = renderNav({ className: "custom-class" });
 
   const nav = container.firstChild;
   expect(nav).toHaveClass("custom-class");
 });
 
 test("MobileBottomNav shows tracks tab as active by default when value is tracks", () => {
-  render(
-    <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
-    </PwaWrapper>,
-  );
+  renderNav();
 
   const tracksTab = screen.getByRole("tab", { name: /tracks/i });
   expect(tracksTab).toHaveAttribute("data-active");
@@ -78,13 +59,7 @@ test("MobileBottomNav shows tracks tab as active by default when value is tracks
 
 test("MobileBottomNav calls onValueChange with correct value for each tab", async () => {
   const user = userEvent.setup();
-  const onValueChange = vi.fn();
-
-  render(
-    <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={onValueChange} />
-    </PwaWrapper>,
-  );
+  const { onValueChange } = renderNav();
 
   await user.click(screen.getByRole("tab", { name: /audio\/bg/i }));
   expect(onValueChange).toHaveBeenLastCalledWith("visualizer");
@@ -97,44 +72,28 @@ test("MobileBottomNav calls onValueChange with correct value for each tab", asyn
 });
 
 test("MobileBottomNav renders icons for each tab", () => {
-  render(
-    <PwaWrapper>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
-    </PwaWrapper>,
-  );
+  renderNav();
 
   const svgIcons = document.querySelectorAll("svg");
   expect(svgIcons).toHaveLength(4);
 });
 
 test("MobileBottomNav does not show indicator when needRefresh is false", () => {
-  render(
-    <PwaWrapper pwaState={{ needRefresh: [false, vi.fn()] }}>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
-    </PwaWrapper>,
-  );
+  renderNav({}, { needRefresh: [false, vi.fn<PwaState["needRefresh"][1]>()] });
 
   const pingIndicator = document.querySelector(".animate-ping");
   expect(pingIndicator).not.toBeInTheDocument();
 });
 
 test("MobileBottomNav shows indicator on Settings tab when needRefresh is true", () => {
-  render(
-    <PwaWrapper pwaState={{ needRefresh: [true, vi.fn()] }}>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
-    </PwaWrapper>,
-  );
+  renderNav({}, { needRefresh: [true, vi.fn<PwaState["needRefresh"][1]>()] });
 
   const pingIndicator = document.querySelector(".animate-ping");
   expect(pingIndicator).toBeInTheDocument();
 });
 
 test("MobileBottomNav shows indicator only on Settings tab icon", () => {
-  render(
-    <PwaWrapper pwaState={{ needRefresh: [true, vi.fn()] }}>
-      <MobileBottomNav value="tracks" onValueChange={vi.fn()} />
-    </PwaWrapper>,
-  );
+  renderNav({}, { needRefresh: [true, vi.fn<PwaState["needRefresh"][1]>()] });
 
   const pingIndicators = document.querySelectorAll(".animate-ping");
   expect(pingIndicators).toHaveLength(1);

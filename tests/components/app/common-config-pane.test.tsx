@@ -7,11 +7,13 @@ import userEvent from "@testing-library/user-event";
 import { rendererConfig } from "tests/fixtures";
 import { ComponentProps } from "react";
 
-const mockOnChangeAudioFile = vi.fn();
-const mockOnUpdateRendererConfig = vi.fn();
-const mockOnChangeBackgroundImage = vi.fn();
+type Props = ComponentProps<typeof CommonConfigPane>;
 
-function renderCommonConfigPane(props: Partial<ComponentProps<typeof CommonConfigPane>> = {}) {
+const mockOnChangeAudioFile = vi.fn<Props["onChangeAudioFile"]>();
+const mockOnUpdateRendererConfig = vi.fn<Props["onUpdateRendererConfig"]>();
+const mockOnChangeBackgroundImage = vi.fn<Props["onChangeBackgroundImage"]>();
+
+function renderCommonConfigPane(props: Partial<Props> = {}) {
   return customRender(
     <CommonConfigPane
       rendererConfig={rendererConfig}

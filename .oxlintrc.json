@@ -68,7 +68,6 @@
         "indexedDB": "writable"
       },
       "rules": {
-        "vitest/require-mock-type-parameters": "off",
         "testing-library/await-async-events": ["error", { "eventModule": "userEvent" }],
         "testing-library/await-async-queries": "error",
         "testing-library/await-async-utils": "error",

@@ -26,7 +26,7 @@ async function compositeToFile(resources: RecorderResources, onProgress: (p: num
 
 test("composite() with WebM muxer writes a valid WebM file", async () => {
   const resources = createTestRecorderResources("webm");
-  const onProgress = vi.fn();
+  const onProgress = vi.fn<(p: number) => void>();
 
   const file = await compositeToFile(resources, onProgress);
 
