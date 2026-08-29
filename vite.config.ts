@@ -1,8 +1,6 @@
 /// <reference types="vitest" />
 import { execFileSync } from "child_process";
-import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
-import { defineConfig, PluginOption, transformWithOxc } from "vite";
+import { defineConfig, PluginOption } from "vite";
 import { configDefaults } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import Unfonts from "unplugin-fonts/vite";
@@ -119,7 +117,6 @@ export default defineConfig(({ mode }) => ({
       uploadToken: process.env.CODECOV_TOKEN,
     }),
     devBranchTitlePlugin(),
-    inlineThemeInitPlugin(),
   ],
   build: {
     rolldownOptions: {
@@ -282,23 +279,6 @@ const stopHeapPolling: BrowserCommand<[]> = async () => {
   await session.detach();
   return peak;
 };
-
-// Inline src/lib/theme-init.ts (type-stripped) so the theme applies before first paint
-function inlineThemeInitPlugin(): PluginOption {
-  return {
-    name: "inline-theme-init",
-    async transformIndexHtml() {
-      const filename = fileURLToPath(new URL("./src/lib/theme-init.ts", import.meta.url));
-      const { code } = await transformWithOxc(readFileSync(filename, "utf-8"), filename);
-      if (/^\s*(import|export)\b/m.test(code)) {
-        throw new Error(
-          "theme-init.ts must stay import/export-free to be inlined as a classic script",
-        );
-      }
-      return [{ tag: "script", children: code, injectTo: "head" }];
-    },
-  };
-}
 
 function devBranchTitlePlugin(): PluginOption {
   return {
