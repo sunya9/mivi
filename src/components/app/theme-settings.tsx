@@ -1,4 +1,4 @@
-import { useTheme } from "next-themes";
+import { Theme, useTheme } from "@/contexts/theme-context";
 import { Item, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item";
 import {
   Select,
@@ -8,11 +8,11 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-const themes = [
+const themes: { value: Theme; label: string }[] = [
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
   { value: "system", label: "System" },
-] as const;
+];
 
 export function ThemeSettings() {
   const { theme, setTheme } = useTheme();
@@ -28,8 +28,8 @@ export function ThemeSettings() {
         <ItemActions>
           <Select
             value={theme}
-            onValueChange={(value) => value && setTheme(value)}
-            items={[...themes]}
+            onValueChange={(value: Theme | null) => value && setTheme(value)}
+            items={themes}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select theme" />

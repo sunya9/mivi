@@ -3,7 +3,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { AppContext, createAppContext } from "../../contexts/app-context";
 import { Fallback } from "./fallback";
 import { Loading } from "./loading";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "./theme-provider";
 import { FileDbStoreProvider } from "./file-db-store-provider";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 import { PwaContext } from "@/contexts/pwa-context";
@@ -18,7 +18,7 @@ export function Providers({ children }: ProvidersProps) {
   const pwaUpdateState = usePwaState();
 
   return (
-    <ThemeProvider themes={["light", "dark"]} defaultTheme="light" attribute="class">
+    <ThemeProvider defaultTheme="light">
       <FileDbStoreProvider>
         <AppContext value={appContextValue}>
           <PwaContext value={pwaUpdateState}>

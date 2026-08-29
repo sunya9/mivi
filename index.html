@@ -22,6 +22,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="oklch(0.5823 0.1411 327.2)" />
     <title>MiVi: MIDI Visualizer</title>
+    <!-- Apply theme before first paint to avoid flashing the wrong theme -->
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("theme");
+          var resolved =
+            theme === "dark" ||
+            (theme === "system" && matchMedia("(prefers-color-scheme: dark)").matches)
+              ? "dark"
+              : "light";
+          document.documentElement.classList.add(resolved);
+          document.documentElement.style.colorScheme = resolved;
+        } catch (e) {
+          /* ignore */
+        }
+      })();
+    </script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
