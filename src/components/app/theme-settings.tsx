@@ -12,7 +12,7 @@ const themes: { value: Theme; label: string }[] = [
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
   { value: "system", label: "System" },
-];
+] as const;
 
 export function ThemeSettings() {
   const { theme, setTheme } = useTheme();
@@ -26,11 +26,7 @@ export function ThemeSettings() {
           <ItemDescription>Select the color theme for the application.</ItemDescription>
         </ItemContent>
         <ItemActions>
-          <Select
-            value={theme}
-            onValueChange={(value: Theme | null) => value && setTheme(value)}
-            items={themes}
-          >
+          <Select value={theme} onValueChange={(value) => value && setTheme(value)} items={themes}>
             <SelectTrigger>
               <SelectValue placeholder="Select theme" />
             </SelectTrigger>
