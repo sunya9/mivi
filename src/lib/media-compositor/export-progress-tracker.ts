@@ -120,8 +120,11 @@ export class ExportProgressTracker<T extends string> {
     const progressed = done - timer.baseline;
     if (progressed <= 0 || elapsed <= 0) return "--";
     const eta = (total - done) / (progressed / elapsed);
-    const min = Math.floor(eta / 60);
-    const sec = Math.floor(eta % 60);
+    // Ceil so the countdown never shows 0s while work remains
+    const totalSec = Math.ceil(eta);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    if (min === 0) return `${sec}s`;
     return `${min}m${sec.toString().padStart(2, "0")}s`;
   }
 }
