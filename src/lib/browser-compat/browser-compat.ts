@@ -8,5 +8,6 @@ export function checkBrowserApis(): BrowserApiStatus[] {
     { name: "VideoEncoder", supported: "VideoEncoder" in window },
     { name: "AudioEncoder", supported: "AudioEncoder" in window },
     { name: "OffscreenCanvas", supported: "OffscreenCanvas" in window },
+    { name: "FileSystemWritableFileStream", supported: "FileSystemWritableFileStream" in window },
   ];
 }
