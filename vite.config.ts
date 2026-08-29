@@ -166,6 +166,7 @@ export default defineConfig(({ mode }) => ({
       {
         extends: true,
         test: {
+          include: ["./tests/**/*.test.?(c|m)[jt]s?(x)"],
           name: "unit",
           environment: "happy-dom",
           setupFiles: ["./tests/setup.ts", "@vitest/web-worker"],
@@ -197,7 +198,7 @@ export default defineConfig(({ mode }) => ({
               height: 768,
             },
           },
-          include: ["**/*.browser.?(c|m)[jt]s?(x)"],
+          include: ["./tests/**/*.browser.?(c|m)[jt]s?(x)"],
         },
       },
       {
