@@ -10,37 +10,33 @@ vi.mock("comlink", async (importOriginal) => ({
   wrap: vi.fn<typeof wrap>(),
 }));
 
-test("worker is completed", async () => {
-  vi.mocked(wrap).mockImplementationOnce(() => ({
-    startRecording: vi
-      .fn<
+function createWorkerStub() {
+  return {
+    startRecording:
+      vi.fn<
         (
           resources: RecorderResources,
           onProgress: (progress: number, activePhase?: ActivePhase) => void,
         ) => Promise<File>
-      >()
-      .mockResolvedValue(new File([], "export.webm")),
+      >(),
     [createEndpoint]: vi.fn<() => Promise<MessagePort>>(),
     [releaseProxy]: vi.fn<() => void>(),
-  }));
+  };
+}
+
+test("worker is completed", async () => {
+  const workerStub = createWorkerStub();
+  workerStub.startRecording.mockResolvedValue(new File([], "export.webm"));
+  vi.mocked(wrap).mockImplementationOnce(() => workerStub);
   const p = runRecorder(resources, () => {}, new AbortSignal());
   await expect(p).resolves.toBeDefined();
 });
 
 test("worker is failed", async () => {
   const error = new Error("test error");
-  vi.mocked(wrap).mockImplementationOnce(() => ({
-    startRecording: vi
-      .fn<
-        (
-          resources: RecorderResources,
-          onProgress: (progress: number, activePhase?: ActivePhase) => void,
-        ) => Promise<File>
-      >()
-      .mockRejectedValue(error),
-    [createEndpoint]: vi.fn<() => Promise<MessagePort>>(),
-    [releaseProxy]: vi.fn<() => void>(),
-  }));
+  const workerStub = createWorkerStub();
+  workerStub.startRecording.mockRejectedValue(error);
+  vi.mocked(wrap).mockImplementationOnce(() => workerStub);
   const p = runRecorder(resources, () => {}, new AbortSignal());
   await expect(p).rejects.toThrow(error);
 });
@@ -50,23 +46,14 @@ test("worker is aborted", async () => {
   const error = new Error("abort error");
   console.error = vi.fn<(...args: unknown[]) => void>();
   let workerOnProgress: (progress: number) => void = undefined!;
-  vi.mocked(wrap).mockImplementationOnce(() => ({
-    startRecording: vi
-      .fn<
-        (
-          resources: RecorderResources,
-          onProgress: (progress: number, activePhase?: ActivePhase) => void,
-        ) => Promise<File>
-      >()
-      .mockImplementation(
-        (_, onProgress: (progress: number) => void) =>
-          new Promise(() => {
-            workerOnProgress = onProgress;
-          }),
-      ),
-    [createEndpoint]: vi.fn<() => Promise<MessagePort>>(),
-    [releaseProxy]: vi.fn<() => void>(),
-  }));
+  const workerStub = createWorkerStub();
+  workerStub.startRecording.mockImplementation(
+    (_, onProgress: (progress: number) => void) =>
+      new Promise(() => {
+        workerOnProgress = onProgress;
+      }),
+  );
+  vi.mocked(wrap).mockImplementationOnce(() => workerStub);
   const onprogress = vi.fn<(progress: number, activePhase?: ActivePhase) => void>();
   const p = runRecorder(resources, onprogress, controller.signal);
   workerOnProgress(0.1);

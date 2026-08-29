@@ -3,9 +3,11 @@ import { Canvas } from "@/components/app/canvas";
 import { afterEach, expect, test, vi } from "vitest";
 import { ComponentProps } from "react";
 
-const mockOnInit = vi.fn<(ctx: CanvasRenderingContext2D) => void>();
-const mockInvalidate = vi.fn<(usePrecomputed: boolean) => void>();
-const defaultProps: ComponentProps<typeof Canvas> = {
+type Props = ComponentProps<typeof Canvas>;
+
+const mockOnInit = vi.fn<Props["onInit"]>();
+const mockInvalidate = vi.fn<Props["invalidate"]>();
+const defaultProps: Props = {
   aspectRatio: 1,
   onInit: mockOnInit,
   invalidate: mockInvalidate,
@@ -53,7 +55,7 @@ test("should call onInit with canvas context", () => {
 test("should call invalidate when container is resized", () => {
   stubResizeObserver();
 
-  const invalidate = vi.fn<(usePrecomputed: boolean) => void>();
+  const invalidate = vi.fn<Props["invalidate"]>();
   const { container } = render(<Canvas {...defaultProps} invalidate={invalidate} />);
   mockContainerSize(container.firstElementChild!, 300);
 
@@ -66,7 +68,7 @@ test("should call invalidate when container is resized", () => {
 });
 
 test("should update canvas dimensions when aspectRatio changes", () => {
-  const invalidate = vi.fn<(usePrecomputed: boolean) => void>();
+  const invalidate = vi.fn<Props["invalidate"]>();
   const { container, rerender } = render(
     <Canvas {...defaultProps} aspectRatio={1} invalidate={invalidate} />,
   );

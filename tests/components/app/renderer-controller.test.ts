@@ -14,6 +14,10 @@ import { test, expect, vi, beforeEach, Mock } from "vitest";
 
 const mockSetConfig = vi.fn<(config: RendererConfig) => void>();
 
+function createMidiDrawMock(impl?: (tracks: MidiTrack[], currentTime: number) => void) {
+  return vi.fn<(tracks: MidiTrack[], currentTime: number) => void>(impl);
+}
+
 vi.mock("@/lib/renderers/get-renderer", () => ({
   getRendererFromConfig: vi.fn<
     (
@@ -24,7 +28,7 @@ vi.mock("@/lib/renderers/get-renderer", () => ({
       setConfig: Mock<(config: RendererConfig) => void>;
     }
   >(() => ({
-    render: vi.fn<(tracks: MidiTrack[], currentTime: number) => void>(),
+    render: createMidiDrawMock(),
     setConfig: mockSetConfig,
   })),
 }));
@@ -83,7 +87,7 @@ beforeEach(() => {
   mockGetRendererFromConfig = getRendererFromConfig as Mock;
   mockGetRendererFromConfig.mockReset();
   mockGetRendererFromConfig.mockReturnValue({
-    render: vi.fn<(tracks: MidiTrack[], currentTime: number) => void>(),
+    render: createMidiDrawMock(),
     setConfig: mockSetConfig,
   });
   mockSetConfig.mockClear();
@@ -152,7 +156,7 @@ test("should not create renderer when setting bitmap without config", () => {
 });
 
 test("should call renderer.render when renderer exists", () => {
-  const mockRender = vi.fn<(tracks: MidiTrack[], currentTime: number) => void>();
+  const mockRender = createMidiDrawMock();
   mockGetRendererFromConfig.mockReturnValue({ render: mockRender });
 
   const controller = new RendererController(ctx);
@@ -257,7 +261,7 @@ test("should render in correct order: background -> back visualizer -> midi -> f
   mockAudioVisualizerOverlayRender.mockImplementation(() => {
     callOrder.push("audioVisualizer");
   });
-  const mockMidiRender = vi.fn<(tracks: MidiTrack[], currentTime: number) => void>(() => {
+  const mockMidiRender = createMidiDrawMock(() => {
     callOrder.push("midi");
   });
   mockGetRendererFromConfig.mockReturnValue({ render: mockMidiRender });
@@ -284,7 +288,7 @@ test("should render in correct order: background -> midi -> front visualizer", (
   mockAudioVisualizerOverlayRender.mockImplementation(() => {
     callOrder.push("audioVisualizer");
   });
-  const mockMidiRender = vi.fn<(tracks: MidiTrack[], currentTime: number) => void>(() => {
+  const mockMidiRender = createMidiDrawMock(() => {
     callOrder.push("midi");
   });
   mockGetRendererFromConfig.mockReturnValue({ render: mockMidiRender });

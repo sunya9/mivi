@@ -15,12 +15,18 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test("starts animation frame loop", () => {
-  const onAnimate = vi.fn<() => void>();
+function renderAnimationFrame(isPlaying: boolean, fps?: number) {
+  const onAnimate = vi.fn<Parameters<typeof useAnimationFrame>[1]>();
+  const { rerender } = renderHook(
+    (playing: boolean) => useAnimationFrame(playing, onAnimate, fps),
+    { initialProps: isPlaying },
+  );
+  return { onAnimate, rerender };
+}
 
-  const { rerender } = renderHook((isPlaying: boolean) => useAnimationFrame(isPlaying, onAnimate), {
-    initialProps: true,
-  });
+test("starts animation frame loop", () => {
+  const { onAnimate, rerender } = renderAnimationFrame(true);
+
   rafStub.step();
   rafStub.step();
   rafStub.step();
@@ -32,8 +38,7 @@ test("starts animation frame loop", () => {
 });
 
 test("not called when not playing", () => {
-  const onAnimate = vi.fn<() => void>();
-  renderHook(() => useAnimationFrame(false, onAnimate));
+  const { onAnimate } = renderAnimationFrame(false);
   rafStub.step();
   rafStub.step();
   rafStub.step();
@@ -43,10 +48,9 @@ test("not called when not playing", () => {
 });
 
 test("calls onAnimate when tab becomes visible", () => {
-  const onAnimate = vi.fn<() => void>();
   const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
 
-  renderHook(() => useAnimationFrame(true, onAnimate));
+  const { onAnimate } = renderAnimationFrame(true);
 
   // Initial RAF call
   rafStub.step();
@@ -60,10 +64,9 @@ test("calls onAnimate when tab becomes visible", () => {
 });
 
 test("does not call onAnimate when tab becomes hidden", () => {
-  const onAnimate = vi.fn<() => void>();
   const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
 
-  renderHook(() => useAnimationFrame(true, onAnimate));
+  const { onAnimate } = renderAnimationFrame(true);
 
   rafStub.step();
   expect(onAnimate).toHaveBeenCalledTimes(1);
@@ -78,10 +81,9 @@ test("does not call onAnimate when tab becomes hidden", () => {
 });
 
 test("does not respond to visibilitychange when not playing", () => {
-  const onAnimate = vi.fn<() => void>();
   const hiddenSpy = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
 
-  renderHook(() => useAnimationFrame(false, onAnimate));
+  const { onAnimate } = renderAnimationFrame(false);
 
   document.dispatchEvent(new Event("visibilitychange"));
 
@@ -90,10 +92,8 @@ test("does not respond to visibilitychange when not playing", () => {
 });
 
 test("throttles to 30fps when fps is specified", () => {
-  const onAnimate = vi.fn<() => void>();
-
   // 30fps = ~33.3ms interval, RafStub steps at ~16.67ms (60fps)
-  renderHook(() => useAnimationFrame(true, onAnimate, 30));
+  const { onAnimate } = renderAnimationFrame(true, 30);
 
   // Step 1: ~16.67ms - first call always fires
   rafStub.step();
@@ -117,10 +117,8 @@ test("throttles to 30fps when fps is specified", () => {
 });
 
 test("throttles to 24fps when fps is specified", () => {
-  const onAnimate = vi.fn<() => void>();
-
   // 24fps = ~41.67ms interval
-  renderHook(() => useAnimationFrame(true, onAnimate, 24));
+  const { onAnimate } = renderAnimationFrame(true, 24);
 
   // Step 1: ~16.67ms - first call
   rafStub.step();
@@ -140,9 +138,7 @@ test("throttles to 24fps when fps is specified", () => {
 });
 
 test("does not throttle at 60fps (matches RAF rate)", () => {
-  const onAnimate = vi.fn<() => void>();
-
-  renderHook(() => useAnimationFrame(true, onAnimate, 60));
+  const { onAnimate } = renderAnimationFrame(true, 60);
 
   rafStub.step();
   rafStub.step();

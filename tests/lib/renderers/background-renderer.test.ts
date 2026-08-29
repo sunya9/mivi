@@ -33,6 +33,10 @@ function prepareTestRenderer(options?: {
     label: `${canvas.width}×${canvas.height}`,
   };
   const context = canvas.getContext("2d")!;
+  context.clearRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
+  context.fillRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
+  context.drawImage =
+    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   const renderer = new BackgroundRenderer(context, config, options?.backgroundImageBitmap);
 
   return { context, renderer };
@@ -46,11 +50,7 @@ test("should render", () => {
     },
   });
 
-  context.clearRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   context.fillStyle = "";
-  context.fillRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
   renderer.render();
   expect(context.clearRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
   expect(context.fillStyle).toBe("#00ff00");
@@ -88,8 +88,6 @@ test.each([
     },
   });
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
@@ -148,8 +146,6 @@ test.each([
     },
   });
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
@@ -199,8 +195,6 @@ test("should render with no-repeat", async () => {
     },
   });
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
@@ -226,7 +220,6 @@ test.each(patternParameters)("should render with pattern: $repeat", async ({ rep
   context.createPattern = vi
     .fn<(image: CanvasImageSource, repetition: string | null) => CanvasPattern | null>()
     .mockReturnValue({ setTransform: mockSetTransform });
-  context.fillRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
   renderer.render();
 
   expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(imageBitmap, pattern);
@@ -244,8 +237,6 @@ test("should render with opacity", async () => {
     rendererConfig: config,
   });
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   context.save = vi.fn<() => void>();
   context.restore = vi.fn<() => void>();
   context.globalAlpha = 1;
@@ -259,41 +250,33 @@ test("should render with opacity", async () => {
 });
 
 test("should render with cover when imgRatio > canvasRatio (no fraction)", async () => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 100;
-  canvas.height = 100;
-  const ctx = canvas.getContext("2d")!;
   const imageBitmap = await prepareImage(200, 100);
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "cover";
-  config.resolution = { width: 100, height: 100, label: "100×100" };
-  const renderer = new BackgroundRenderer(ctx, config, imageBitmap);
+  const { context, renderer } = prepareTestRenderer({
+    canvasSize: { width: 100, height: 100 },
+    backgroundImageBitmap: imageBitmap,
+    rendererConfig: config,
+  });
 
-  ctx.clearRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
-  ctx.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
-  expect(ctx.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, -50, 0, 200, 100);
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, -50, 0, 200, 100);
 });
 
 test("should render with contain when imgRatio > canvasRatio (no fraction)", async () => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 100;
-  canvas.height = 100;
-  const ctx = canvas.getContext("2d")!;
   const imageBitmap = await prepareImage(200, 100);
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "contain";
-  config.resolution = { width: 100, height: 100, label: "100×100" };
-  const renderer = new BackgroundRenderer(ctx, config, imageBitmap);
+  const { context, renderer } = prepareTestRenderer({
+    canvasSize: { width: 100, height: 100 },
+    backgroundImageBitmap: imageBitmap,
+    rendererConfig: config,
+  });
 
-  ctx.clearRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
-  ctx.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
-  expect(ctx.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 0, 25, 100, 50);
+  expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 0, 25, 100, 50);
 });
 
 test("should render with contain when canvasRatio > imgRatio (no fraction)", async () => {
@@ -307,8 +290,6 @@ test("should render with contain when canvasRatio > imgRatio (no fraction)", asy
     },
   });
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 75, 0, 50, 100);
@@ -325,8 +306,6 @@ test("should render with fit: auto (original image size)", async () => {
     },
   });
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   // auto: draw at original size, centered
@@ -351,8 +330,6 @@ test("should render with fit: auto and position: top-left", async () => {
     },
   });
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 0, 0, 80, 40);
@@ -369,8 +346,6 @@ test("should render with fit: auto when image is larger than canvas", async () =
     },
   });
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   // auto: draw at original size even if larger, centered
@@ -418,7 +393,6 @@ test("should handle null pattern", async () => {
   context.createPattern = vi
     .fn<(image: CanvasImageSource, repetition: string | null) => CanvasPattern | null>()
     .mockReturnValue(null);
-  context.fillRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
   renderer.render();
 
   expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(imageBitmap, "repeat");
@@ -439,9 +413,7 @@ test("setConfig should update config", () => {
   };
   renderer.setConfig(newConfig);
 
-  context.clearRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
   context.fillStyle = "";
-  context.fillRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
   renderer.render();
 
   expect(context.fillStyle).toBe("#ff0000");
@@ -453,8 +425,6 @@ test("setBackgroundImageBitmap should update backgroundImageBitmap", async () =>
   const imageBitmap = await prepareImage(150, 150);
   renderer.setBackgroundImageBitmap(imageBitmap);
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   expect(context.drawImage).toHaveBeenCalled();
@@ -468,8 +438,6 @@ test("setBackgroundImageBitmap with undefined should clear backgroundImageBitmap
 
   renderer.setBackgroundImageBitmap(undefined);
 
-  context.drawImage =
-    vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
   renderer.render();
 
   expect(context.drawImage).not.toHaveBeenCalled();

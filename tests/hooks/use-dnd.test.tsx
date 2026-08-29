@@ -11,9 +11,18 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-const onDropMidi = vi.fn<(file: File) => Promise<void>>();
-const onDropAudio = vi.fn<(file: File) => Promise<void>>();
-const onDropImage = vi.fn<(file: File) => Promise<void>>();
+type DndProps = Parameters<typeof useDnd>[0];
+
+function renderDnd(overrides?: Partial<DndProps>) {
+  const props: DndProps = {
+    onDropMidi: vi.fn<DndProps["onDropMidi"]>(),
+    onDropAudio: vi.fn<DndProps["onDropAudio"]>(),
+    onDropImage: vi.fn<DndProps["onDropImage"]>(),
+    ...overrides,
+  };
+  const { result } = renderHook(() => useDnd(props));
+  return { result, ...props };
+}
 
 function createDragEvent(files: File[]): DragEvent<HTMLDivElement> {
   const dt = new DataTransfer();
@@ -25,7 +34,7 @@ function createDragEvent(files: File[]): DragEvent<HTMLDivElement> {
 }
 
 test("renders overlay component when dragging", () => {
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result } = renderDnd();
 
   const event = createDragEvent([]);
   act(() => {
@@ -42,14 +51,14 @@ test("renders overlay component when dragging", () => {
 });
 
 test("does not render overlay component when not dragging", () => {
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result } = renderDnd();
 
   const { container } = render(result.current.DragDropOverlay);
   expect(container).toBeEmptyDOMElement();
 });
 
 test("removes overlay component after drag leave", () => {
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result } = renderDnd();
 
   const dragOverEvent = createDragEvent([]);
   act(() => {
@@ -69,7 +78,7 @@ test("removes overlay component after drag leave", () => {
 });
 
 test("handles MIDI file drop", async () => {
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result, onDropMidi } = renderDnd();
 
   const file = new File([""], "test.mid", { type: "audio/midi" });
   const event = createDragEvent([file]);
@@ -81,7 +90,7 @@ test("handles MIDI file drop", async () => {
 });
 
 test("handles audio file drop", async () => {
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result, onDropAudio } = renderDnd();
 
   const file = new File([""], "test.mp3", { type: "audio/mpeg" });
   const event = createDragEvent([file]);
@@ -94,7 +103,7 @@ test("handles audio file drop", async () => {
 });
 
 test("handles image file drop", async () => {
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result, onDropImage } = renderDnd();
 
   const file = new File([""], "test.png", { type: "image/png" });
   const event = createDragEvent([file]);
@@ -107,7 +116,7 @@ test("handles image file drop", async () => {
 });
 
 test("handles unsupported file type", async () => {
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result, onDropMidi, onDropAudio, onDropImage } = renderDnd();
 
   const file = new File([""], "test.txt", { type: "text/plain" });
   const event = createDragEvent([file]);
@@ -123,13 +132,7 @@ test("handles unsupported file type", async () => {
 });
 
 test("handles drag over event", () => {
-  const { result } = renderHook(() =>
-    useDnd({
-      onDropMidi,
-      onDropAudio,
-      onDropImage,
-    }),
-  );
+  const { result } = renderDnd();
 
   const event = createDragEvent([]);
 
@@ -141,13 +144,7 @@ test("handles drag over event", () => {
 });
 
 test("handles drag leave event", () => {
-  const { result } = renderHook(() =>
-    useDnd({
-      onDropMidi,
-      onDropAudio,
-      onDropImage,
-    }),
-  );
+  const { result } = renderDnd();
 
   const event = createDragEvent([]);
 
@@ -159,7 +156,7 @@ test("handles drag leave event", () => {
 });
 
 test("handles multiple files drop", async () => {
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result, onDropMidi, onDropAudio, onDropImage } = renderDnd();
 
   const midiFile = new File([""], "test.mid", { type: "audio/midi" });
   const audioFile = new File([""], "test.mp3", { type: "audio/mpeg" });
@@ -177,9 +174,9 @@ test("handles multiple files drop", async () => {
 
 test("handles MIDI file drop error", async () => {
   const error = new Error("Failed to load MIDI file");
-  const onDropMidi = vi.fn<(file: File) => Promise<void>>().mockRejectedValue(error);
+  const onDropMidi = vi.fn<DndProps["onDropMidi"]>().mockRejectedValue(error);
 
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const { result } = renderDnd({ onDropMidi });
 
   const file = new File([""], "test.mid", { type: "audio/midi" });
   const event = createDragEvent([file]);
@@ -195,8 +192,8 @@ test("handles MIDI file drop error", async () => {
 
 test("handles audio file drop error", async () => {
   const error = new Error("Failed to load audio file");
-  const onDropAudio = vi.fn<(file: File) => Promise<void>>().mockRejectedValue(error);
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const onDropAudio = vi.fn<DndProps["onDropAudio"]>().mockRejectedValue(error);
+  const { result } = renderDnd({ onDropAudio });
 
   const file = new File([""], "test.mp3", { type: "audio/mpeg" });
   const event = createDragEvent([file]);
@@ -212,8 +209,8 @@ test("handles audio file drop error", async () => {
 
 test("handles image file drop error", async () => {
   const error = new Error("Failed to load image file");
-  const onDropImage = vi.fn<(file: File) => Promise<void>>().mockRejectedValue(error);
-  const { result } = renderHook(() => useDnd({ onDropMidi, onDropAudio, onDropImage }));
+  const onDropImage = vi.fn<DndProps["onDropImage"]>().mockRejectedValue(error);
+  const { result } = renderDnd({ onDropImage });
 
   const file = new File([""], "test.png", { type: "image/png" });
   const event = createDragEvent([file]);
