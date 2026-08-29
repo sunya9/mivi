@@ -1,9 +1,7 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "tags": ["-lintignore"],
-  "entry": ["pwa-assets.config.ts", "types/*.d.ts"],
   "ignoreIssues": {
     "src/components/ui/**": ["exports", "types"]
-  },
-  "ignoreBinaries": ["only-allow"]
+  }
 }
