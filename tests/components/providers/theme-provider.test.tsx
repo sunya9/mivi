@@ -111,10 +111,11 @@ test("stops following OS preference after switching to a fixed theme", () => {
 });
 
 test("useTheme throws outside ThemeProvider", () => {
-  vi.spyOn(console, "error").mockImplementation(() => {});
+  const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   expect(() => render(<ProbeWithoutProvider />)).toThrow(
     "useTheme must be used within a ThemeProvider",
   );
+  consoleErrorSpy.mockRestore();
 });
 
 function ProbeWithoutProvider() {
