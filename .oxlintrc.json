@@ -13,7 +13,6 @@
   },
   "ignorePatterns": ["dist", "dev-dist", "coverage"],
   "rules": {
-    "react/react-in-jsx-scope": "off",
     "react-hooks/exhaustive-deps": "warn",
     "react/only-export-components": [
       "error",
@@ -40,13 +39,6 @@
       {
         "allowThrowingAny": true
       }
-    ],
-    "typescript/unbound-method": "off",
-    "no-unused-vars": [
-      "error",
-      {
-        "ignoreRestSiblings": true
-      }
     ]
   },
   "settings": {
@@ -62,12 +54,29 @@
       }
     },
     {
+      "files": ["src/**/*.worker.ts"],
+      "rules": {
+        "no-restricted-globals": [
+          "error",
+          {
+            "name": "window",
+            "message": "Not available in Web Workers."
+          },
+          {
+            "name": "document",
+            "message": "Not available in Web Workers."
+          }
+        ]
+      }
+    },
+    {
       "files": ["tests/**"],
       "plugins": ["vitest"],
       "globals": {
         "indexedDB": "writable"
       },
       "rules": {
+        "typescript/unbound-method": "off",
         "testing-library/await-async-events": ["error", { "eventModule": "userEvent" }],
         "testing-library/await-async-queries": "error",
         "testing-library/await-async-utils": "error",
