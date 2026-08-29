@@ -5,8 +5,12 @@ interface PhaseConfig<T extends string> {
   total: number;
   /** Return actual completed count (may differ from reported count due to async queues) */
   getCompleted?: () => number;
-  /** If true, timer won't auto-start on increment/set. Call startTimer() explicitly. */
-  deferTimer?: boolean;
+}
+
+interface PhaseTimer {
+  start: number;
+  /** Completed count when the timer started; ETA is derived from progress made since then */
+  baseline: number;
 }
 
 export interface ActivePhase {
@@ -20,7 +24,7 @@ export interface ActivePhase {
 export class ExportProgressTracker<T extends string> {
   #phases: PhaseConfig<T>[] = [];
   #counts = new Map<T, number>();
-  #phaseStartTimes = new Map<T, number>();
+  #timers = new Map<T, PhaseTimer>();
   #onProgress: (progress: number, activePhase?: ActivePhase) => void;
 
   constructor(onProgress: (progress: number, activePhase?: ActivePhase) => void) {
@@ -30,11 +34,6 @@ export class ExportProgressTracker<T extends string> {
   addPhase(phase: PhaseConfig<T>) {
     this.#phases.push(phase);
     this.#counts.set(phase.name, 0);
-  }
-
-  /** Explicitly start the timer for a phase (for deferred phases) */
-  startTimer(phaseName: T) {
-    this.#phaseStartTimes.set(phaseName, performance.now());
   }
 
   /** Increment progress for a phase by 1 */
@@ -67,10 +66,13 @@ export class ExportProgressTracker<T extends string> {
   }
 
   #autoStartTimer(phaseName: T) {
-    if (this.#phaseStartTimes.has(phaseName)) return;
+    if (this.#timers.has(phaseName)) return;
     const phase = this.#phases.find((p) => p.name === phaseName);
-    if (phase?.deferTimer) return;
-    this.#phaseStartTimes.set(phaseName, performance.now());
+    if (!phase) return;
+    this.#timers.set(phaseName, {
+      start: performance.now(),
+      baseline: this.#getPhaseCompleted(phase),
+    });
   }
 
   get #totalWork() {
@@ -83,6 +85,11 @@ export class ExportProgressTracker<T extends string> {
   }
 
   #report = () => {
+    for (const phase of this.#phases) {
+      if (!this.#timers.has(phase.name) && this.#getPhaseCompleted(phase) > 0) {
+        this.#autoStartTimer(phase.name);
+      }
+    }
     const totalDone = this.#phases.reduce((sum, p) => sum + this.#getPhaseCompleted(p), 0);
     const progress = this.#totalWork > 0 ? totalDone / this.#totalWork : 0;
     this.#throttledReport(progress);
@@ -107,11 +114,12 @@ export class ExportProgressTracker<T extends string> {
 
   #getEta(phaseName: T, done: number, total: number): string {
     if (total === 0 || done === 0) return "--";
-    const startTime = this.#phaseStartTimes.get(phaseName);
-    if (startTime === undefined) return "--";
-    const elapsed = (performance.now() - startTime) / 1000;
-    const ratio = done / total;
-    const eta = (elapsed / ratio) * (1 - ratio);
+    const timer = this.#timers.get(phaseName);
+    if (timer === undefined) return "--";
+    const elapsed = (performance.now() - timer.start) / 1000;
+    const progressed = done - timer.baseline;
+    if (progressed <= 0 || elapsed <= 0) return "--";
+    const eta = (total - done) / (progressed / elapsed);
     const min = Math.floor(eta / 60);
     const sec = Math.floor(eta % 60);
     return `${min}m${sec.toString().padStart(2, "0")}s`;

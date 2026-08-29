@@ -85,27 +85,41 @@ test("getCompleted overrides internal count", () => {
   expect(onProgress).toHaveBeenCalledWith(0.5, expect.objectContaining({ name: "encode" }));
 });
 
-test("deferTimer prevents auto-start until startTimer is called", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "mux", total: 10, deferTimer: true });
+test("getCompleted phase auto-starts its timer when progress is first observed", () => {
+  const { onProgress } = setup();
+  let externalCount = 0;
+  const tracker = new ExportProgressTracker(onProgress);
+  tracker.addPhase({ name: "encode", total: 10, getCompleted: () => externalCount });
 
-  tracker.set("mux", 5);
+  externalCount = 1;
+  tracker.notify();
   flush();
 
-  // ETA should be "--" because timer was not started
-  expect(onProgress).toHaveBeenCalledWith(0.5, expect.objectContaining({ name: "mux", eta: "--" }));
-
-  onProgress.mockClear();
-
-  // Now start timer and advance
-  tracker.startTimer("mux");
   vi.advanceTimersByTime(2000);
-  tracker.set("mux", 8);
+  externalCount = 5;
+  tracker.notify();
   flush();
 
-  // ETA should be computed now (not "--")
+  // Timer started at first observation (count 1); 4 units in 2.5s → 5 remaining ≈ 3.1s
   const call = onProgress.mock.calls.at(-1);
-  expect(call?.[1]?.eta).not.toBe("--");
+  expect(call?.[1]?.eta).toBe("0m03s");
+});
+
+test("eta stays -- until progress advances past the first observation", () => {
+  const { onProgress } = setup();
+  let externalCount = 0;
+  const tracker = new ExportProgressTracker(onProgress);
+  tracker.addPhase({ name: "encode", total: 10, getCompleted: () => externalCount });
+
+  externalCount = 3;
+  tracker.notify();
+  flush();
+
+  // No progress observed since the timer started, so rate is unknown
+  expect(onProgress).toHaveBeenCalledWith(
+    0.3,
+    expect.objectContaining({ name: "encode", eta: "--" }),
+  );
 });
 
 test("eta format is NmSSs", () => {

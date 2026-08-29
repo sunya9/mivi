@@ -35,14 +35,12 @@ export class MediaCompositor {
       name: "Audio Encode",
       total: this.#totalAudioFrames,
       getCompleted: () => this.#audioEncodeCount - this.#audioEncoder.encodeQueueSize,
-      deferTimer: true,
     });
     this.#progress.addPhase({ name: "Video Render", total: this.#totalVideoFrames });
     this.#progress.addPhase({
       name: "Video Encode",
       total: this.#totalVideoFrames,
       getCompleted: () => this.#videoEncodeCount - this.#videoEncoder.encodeQueueSize,
-      deferTimer: true,
     });
 
     const onError = (error: unknown) => this.#abort.abort(error);
@@ -96,7 +94,7 @@ export class MediaCompositor {
     return this.#serializedAudio.duration;
   }
   get #totalVideoFrames() {
-    return this.#duration * this.#fps;
+    return Math.ceil(this.#duration * this.#fps);
   }
   get #totalAudioFrames() {
     return Math.ceil((this.#duration * 1000) / frameSize);
@@ -107,9 +105,6 @@ export class MediaCompositor {
     this.#renderAudio();
     await this.#renderVideo();
 
-    // Start encode timers now that render loops are done and flush begins
-    this.#progress.startTimer("Audio Encode");
-    this.#progress.startTimer("Video Encode");
     await Promise.all([this.#videoEncoder.flush(), this.#audioEncoder.flush()]);
     await this.#muxer.finalize();
   }
@@ -168,7 +163,7 @@ export class MediaCompositor {
     const precomputedFFT = this.#precomputeFFT();
 
     for (let i = 0; i < this.#totalVideoFrames; i++) {
-      const currentTime = (i / this.#totalVideoFrames) * this.#duration;
+      const currentTime = i / this.#fps;
 
       backgroundRenderer.render();
 
