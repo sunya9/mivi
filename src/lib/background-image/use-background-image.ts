@@ -1,6 +1,6 @@
 import { useBackgroundImageFileDb } from "@/lib/file-db/file-db-store";
 import { useCallback } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { errorLogWithToast } from "../utils";
 
 export function useBackgroundImage() {
@@ -19,7 +19,7 @@ export function useBackgroundImage() {
       try {
         const bitmap = await createImageBitmap(newFile);
         await setEntry({ file: newFile, decoded: bitmap });
-        toast.success("Image file loaded");
+        toast.add({ title: "Image file loaded", type: "success" });
       } catch (error) {
         errorLogWithToast("Failed to load background image", error);
       }

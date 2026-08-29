@@ -3,11 +3,11 @@ import { useAudioFileDb } from "@/lib/file-db/file-db-store";
 import { type StoredAudioData } from "@/lib/audio/audio";
 import { AudioSource, SerializedAudio } from "@/lib/audio/audio";
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 import { errorLogWithToast } from "../utils";
 import type { AudioBuffer, AudioContext } from "standardized-audio-context";
 import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
 import { floatToInt16, int16ToFloat } from "@/lib/audio/pcm";
+import { toast } from "@/components/ui/toast";
 
 function restoreAudioBuffer(data: StoredAudioData, audioContext: AudioContext): AudioBuffer {
   const buffer = audioContext.createBuffer(data.numberOfChannels, data.length, data.sampleRate);
@@ -67,7 +67,7 @@ export function useAudio() {
         setIsDecoding(true);
         const decoded = await runDecodeWorker(newAudioFile, controller.signal);
         await setEntry({ file: newAudioFile, decoded });
-        toast.success("Audio file loaded");
+        toast.add({ title: "Audio file loaded", type: "success" });
       } catch (error) {
         if (controller.signal.aborted) return;
         errorLogWithToast("Failed to set audio file", error);
@@ -84,7 +84,7 @@ export function useAudio() {
     if (!abortControllerRef.current) return;
     abortControllerRef.current.abort();
     setIsDecoding(false);
-    toast.info("Audio loading cancelled");
+    toast.add({ title: "Audio loading cancelled", type: "info" });
   }, []);
 
   const serializedAudio: SerializedAudio | undefined = useMemo(() => {

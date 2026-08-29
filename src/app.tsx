@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toast";
 import { useVisualizerFit } from "@/hooks/use-visualizer-fit";
 import {
   GridResizablePanelGroup,
@@ -193,7 +193,7 @@ export function App() {
         onValueChange={setMobileTab}
       />
       <SettingsDialog tab={settingsTab} onTabChange={setSettingsTab} />
-      <Toaster position="top-center" />
+      <Toaster />
       {ConfirmDialog}
     </GridResizablePanelGroup>
   );

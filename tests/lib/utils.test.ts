@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi, test } from "vitest";
 import { cn, formatTime, resetConfig, errorLogWithToast, startViewTransition } from "@/lib/utils";
 import { saveValue } from "@/lib/file-db/file-db";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 describe("cn", () => {
   it("should merge class names correctly", () => {
@@ -52,8 +52,10 @@ describe("errorLogWithToast", () => {
     errorLogWithToast(message);
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(message);
-    expect(toast.error).toHaveBeenCalledExactlyOnceWith(message, {
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+      title: message,
       description: undefined,
+      type: "error",
     });
   });
 
@@ -63,8 +65,10 @@ describe("errorLogWithToast", () => {
     errorLogWithToast(message, error);
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(message, error);
-    expect(toast.error).toHaveBeenCalledExactlyOnceWith(message, {
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+      title: message,
       description: error.message,
+      type: "error",
     });
   });
 
@@ -73,8 +77,10 @@ describe("errorLogWithToast", () => {
     errorLogWithToast(message, undefined);
 
     expect(console.error).toHaveBeenCalledExactlyOnceWith(message);
-    expect(toast.error).toHaveBeenCalledExactlyOnceWith(message, {
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+      title: message,
       description: undefined,
+      type: "error",
     });
   });
 });

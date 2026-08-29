@@ -1,7 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
-import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 import { closeDb } from "@/lib/file-db/file-db";
+import { toast } from "@/components/ui/toast";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -55,7 +55,5 @@ export function startViewTransition(callback: () => void, options?: { types?: st
 export function errorLogWithToast(message: string, error?: unknown) {
   console.error(...[message, error].filter(Boolean));
   const description = error instanceof Error ? error.message : undefined;
-  toast.error(message, {
-    description,
-  });
+  toast.add({ title: message, description, type: "error" });
 }

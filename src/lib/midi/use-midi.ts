@@ -4,7 +4,7 @@ import { hashArrayBuffer } from "@/lib/hash";
 import { Midi } from "@tonejs/midi";
 import { useMemo, useCallback } from "react";
 import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { toMerged } from "es-toolkit";
 
 const defaultTrackConfig = getDefaultTrackConfig("");
@@ -103,7 +103,7 @@ export function useMidi() {
         // Load and set the new MIDI file (pass hash and arrayBuffer to avoid recomputing)
         const newMidiTracks = await loadMidi(midiFile, arrayBuffer, newHash);
         setMidiTracks(newMidiTracks);
-        toast.success("MIDI file loaded");
+        toast.add({ title: "MIDI file loaded", type: "success" });
       }
     },
     [confirm, midiTracks, setMidiTracks],

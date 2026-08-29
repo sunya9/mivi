@@ -4,7 +4,7 @@ import { customPageRender } from "./browser.util";
 import { commands, userEvent } from "vitest/browser";
 import { fireEvent } from "@testing-library/react";
 import "@/index.css";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -64,10 +64,10 @@ test("complete happy path on mobile", async () => {
   const webmOption = screen.getByRole("option", { name: "WebM (VP9)" });
   await webmOption.click();
 
-  expect(screen.getByRole("list")).toBeInTheDocument();
+  expect(screen.getByText("Audio file loaded")).toBeInTheDocument();
   // Dismiss all programmatically shown toast notifications
-  toast.dismiss();
-  await expect.element(screen.getByRole("list")).not.toBeInTheDocument();
+  toast.close();
+  await expect.element(screen.getByText("Audio file loaded")).not.toBeInTheDocument();
 
   const downloadPromise = commands.waitForDownload();
   await screen.getByRole("button", { name: "Start export" }).click();

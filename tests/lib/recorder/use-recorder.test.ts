@@ -1,6 +1,6 @@
 import { test, expect, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
 import { AudioSource } from "@/lib/audio/audio";
 import { testMidiTracks, rendererConfig } from "tests/fixtures";
@@ -44,8 +44,10 @@ test("should show error toast when trying to start recording without audio file"
     await result.current.toggleRecording();
   });
 
-  expect(toast.error).toHaveBeenCalledExactlyOnceWith("Please select an audio file.", {
+  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+    title: "Please select an audio file.",
     description: undefined,
+    type: "error",
   });
 });
 
@@ -61,8 +63,10 @@ test("should show error toast when trying to start recording without MIDI file",
     await result.current.toggleRecording();
   });
 
-  expect(toast.error).toHaveBeenCalledExactlyOnceWith("Please select a MIDI file.", {
+  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+    title: "Please select a MIDI file.",
     description: undefined,
+    type: "error",
   });
 });
 
@@ -119,10 +123,11 @@ test("should show error when renderer type is none and audio visualizer is also 
     await result.current.toggleRecording();
   });
 
-  expect(toast.error).toHaveBeenCalledExactlyOnceWith(
-    "Please enable audio visualizer or select a MIDI visualization style.",
-    { description: undefined },
-  );
+  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+    title: "Please enable audio visualizer or select a MIDI visualization style.",
+    description: undefined,
+    type: "error",
+  });
 });
 
 test("should start recording when all required files are present", async () => {
@@ -171,6 +176,32 @@ test("should abort recording when toggling during recording", async () => {
   });
 });
 
+test("should show info toast instead of error when cancelling export", async () => {
+  const { result } = renderHook(() => useRecorder(mockProps));
+  vi.mocked(runRecorder).mockImplementationOnce(
+    (_resources, _onProgress, signal) =>
+      new Promise<File>((_, reject) => {
+        signal.addEventListener("abort", () => reject(signal.reason));
+      }),
+  );
+
+  let start: Promise<void> | undefined;
+  act(() => {
+    start = result.current.toggleRecording();
+  });
+  expect(result.current.recordingState.type).toBe("recording");
+
+  await act(async () => {
+    return result.current.toggleRecording();
+  });
+
+  await waitFor(async () => {
+    await expect(start).resolves.toBeUndefined();
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith({ title: "Export cancelled", type: "info" });
+    expect(result.current.recordingState.type).toBe("ready");
+  });
+});
+
 test("should handle errors during recording", async () => {
   console.error = vi.fn<(...data: unknown[]) => void>();
   const error = new Error("Recording failed");
@@ -193,22 +224,13 @@ test("should handle errors during recording", async () => {
     await expect(start).resolves.toBeUndefined();
     expect(result.current.recordingState.type).toBe("ready");
     expect(runRecorder).toHaveBeenCalledTimes(1);
-    expect(toast.error).toHaveBeenCalledTimes(1);
+    expect(toast.add).toHaveBeenCalledWith({
+      title: "Failed during recording",
+      description: error.message,
+      type: "error",
+    });
     expect(console.error).toBeCalledWith("Failed during recording", error);
   });
-});
-
-test("should show 'Exporting...' toast when starting export", async () => {
-  vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0)),
-  );
-  const { result } = renderHook(() => useRecorder(mockProps));
-
-  await act(async () => {
-    await result.current.toggleRecording();
-  });
-
-  expect(toast).toHaveBeenCalledWith("Exporting...");
 });
 
 test("should show success toast when export completes", async () => {
@@ -222,6 +244,6 @@ test("should show success toast when export completes", async () => {
   });
 
   await waitFor(() => {
-    expect(toast.success).toHaveBeenCalledWith("Export completed");
+    expect(toast.add).toHaveBeenCalledWith({ title: "Export completed", type: "success" });
   });
 });
