@@ -1,8 +1,8 @@
+import { SerializedAudio } from "@/lib/audio/audio";
+import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MidiTracks } from "@/lib/midi/midi";
 import { RendererConfig, VideoFormat } from "@/lib/renderers/renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
-import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
-import { SerializedAudio } from "@/lib/audio/audio";
 
 export function createTestSerializedAudio(): SerializedAudio {
   const sampleRate = 44100;

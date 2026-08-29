@@ -1,15 +1,16 @@
-import { afterEach, expect, test, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
-import { MidiVisualizer } from "@/components/app/midi-visualizer";
-import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
-import { testMidiTracks, rendererConfig } from "tests/fixtures";
-import { RendererController } from "@/components/app/renderer-controller";
-import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
-import { type AudioPlaybackStore, type PlaybackSnapshot } from "@/lib/player/audio-playback-store";
-import { type AppContextValue } from "@/contexts/app-context";
-import { AudioContext } from "standardized-audio-context-mock";
 import { type ComponentProps } from "react";
+import { AudioContext } from "standardized-audio-context-mock";
+import { testMidiTracks, rendererConfig } from "tests/fixtures";
+import { customRender } from "tests/util";
+import { afterEach, expect, test, vi } from "vitest";
+
+import { MidiVisualizer } from "@/components/app/midi-visualizer";
+import { RendererController } from "@/components/app/renderer-controller";
+import { type AppContextValue } from "@/contexts/app-context";
+import { type AudioPlaybackStore, type PlaybackSnapshot } from "@/lib/player/audio-playback-store";
+import { RendererConfig, resolutions } from "@/lib/renderers/renderer";
 
 const mockRender = vi.spyOn(RendererController.prototype, "render");
 const mockSetRendererConfig = vi.spyOn(RendererController.prototype, "setRendererConfig");

@@ -1,5 +1,7 @@
 import { useCallback } from "react";
+
 import { cn } from "@/lib/utils";
+
 import { useGridResizableContext } from "./grid-resizable-context";
 
 interface GridResizablePanelProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "render"> {

@@ -1,9 +1,10 @@
-import { test, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useDnd } from "@/hooks/use-dnd";
-import type { DragEvent } from "react";
-import { errorLogWithToast } from "@/lib/error-toast";
 import { render } from "@testing-library/react";
+import type { DragEvent } from "react";
+import { test, expect, vi, beforeEach } from "vitest";
+
+import { useDnd } from "@/hooks/use-dnd";
+import { errorLogWithToast } from "@/lib/error-toast";
 
 vi.mock("@/lib/error-toast", { spy: true });
 

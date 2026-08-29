@@ -1,6 +1,7 @@
-import { test, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { test, expect, vi } from "vitest";
+
 import { AppHeader } from "@/components/app/app-header";
 import { ReadyState, RecordingState } from "@/lib/media-compositor/recording-status";
 

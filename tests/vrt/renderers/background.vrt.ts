@@ -1,5 +1,6 @@
 import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
+
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import type { Resolution } from "@/lib/renderers/renderer";

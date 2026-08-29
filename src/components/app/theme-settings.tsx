@@ -1,4 +1,3 @@
-import { Theme, useTheme } from "@/contexts/theme-context";
 import { Item, ItemContent, ItemTitle, ItemDescription, ItemActions } from "@/components/ui/item";
 import {
   Select,
@@ -7,6 +6,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Theme, useTheme } from "@/contexts/theme-context";
 
 const themes: { value: Theme; label: string }[] = [
   { value: "light", label: "Light" },

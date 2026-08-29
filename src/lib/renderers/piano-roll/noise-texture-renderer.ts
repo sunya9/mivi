@@ -1,5 +1,6 @@
-import { RendererContext } from "../renderer";
 import { seededRandom } from "@/lib/seeded-random";
+
+import { RendererContext } from "../renderer";
 
 interface NoiseTextureConfig {
   intensity: number;

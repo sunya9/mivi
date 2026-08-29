@@ -1,5 +1,6 @@
-import { expect, test } from "vitest";
 import { renderHook } from "@testing-library/react";
+import { expect, test } from "vitest";
+
 import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 
 test("throws error when used outside PwaContext.Provider", () => {

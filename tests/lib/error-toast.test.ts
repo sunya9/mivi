@@ -1,6 +1,7 @@
 import { expect, beforeEach, vi, test } from "vitest";
-import { errorLogWithToast } from "@/lib/error-toast";
+
 import { toast } from "@/components/ui/toast";
+import { errorLogWithToast } from "@/lib/error-toast";
 
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});

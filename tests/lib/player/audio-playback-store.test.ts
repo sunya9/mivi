@@ -1,6 +1,7 @@
-import { expect, test, vi } from "vitest";
-import { audioBuffer } from "tests/fixtures";
 import { registrar, AudioContext } from "standardized-audio-context-mock";
+import { audioBuffer } from "tests/fixtures";
+import { expect, test, vi } from "vitest";
+
 import { AudioPlaybackStoreImpl } from "@/lib/player/audio-playback-store";
 
 function createStore() {

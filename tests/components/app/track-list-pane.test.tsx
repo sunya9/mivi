@@ -1,10 +1,11 @@
-import { expect, test, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { TrackListPane } from "@/components/app/track-list-pane";
-import { testMidiTracks } from "tests/fixtures";
-import { MidiTracks } from "@/lib/midi/midi";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps, Dispatch, SetStateAction } from "react";
+import { testMidiTracks } from "tests/fixtures";
+import { expect, test, vi } from "vitest";
+
+import { TrackListPane } from "@/components/app/track-list-pane";
+import { MidiTracks } from "@/lib/midi/midi";
 
 const mockSetMidiTracks = vi.fn<Dispatch<SetStateAction<MidiTracks | undefined>>>();
 const mockOnChangeMidiFile = vi.fn<(file: File | undefined) => void>();

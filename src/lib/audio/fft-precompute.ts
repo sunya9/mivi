@@ -1,5 +1,5 @@
-import type { FrequencyData, FFTSize } from "./audio-analyzer";
 import type { SerializedAudio } from "./audio";
+import type { FrequencyData, FFTSize } from "./audio-analyzer";
 
 export interface PrecomputedFFTData {
   /** Pre-computed frequency data for each frame */

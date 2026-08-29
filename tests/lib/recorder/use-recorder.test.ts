@@ -1,10 +1,11 @@
-import { test, expect, vi } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
-import { toast } from "@/components/ui/toast";
-import { useRecorder } from "@/lib/media-compositor/use-recorder";
-import { AudioSource } from "@/lib/audio/audio";
 import { testMidiTracks, rendererConfig } from "tests/fixtures";
+import { test, expect, vi } from "vitest";
+
+import { toast } from "@/components/ui/toast";
+import { AudioSource } from "@/lib/audio/audio";
 import { runRecorder } from "@/lib/media-compositor/run-recorder-worker";
+import { useRecorder } from "@/lib/media-compositor/use-recorder";
 
 vi.mock("@/lib/media-compositor/run-recorder-worker", { spy: true });
 

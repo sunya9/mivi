@@ -1,11 +1,6 @@
-import { FormRow } from "@/components/common/form-row";
-import {
-  AudioVisualizerConfig,
-  RendererConfig,
-  audioVisualizerStyleOptions,
-} from "@/lib/renderers/renderer";
-import { DeepPartial } from "@/lib/type-utils";
 import { useCallback } from "react";
+
+import { FormRow } from "@/components/common/form-row";
 import {
   Select,
   SelectTrigger,
@@ -13,11 +8,18 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { GeneralSettings } from "./audio-visualizer/general-settings";
-import { BarSettings } from "./audio-visualizer/bar-settings";
-import { LineSpectrumSettings } from "./audio-visualizer/line-spectrum-settings";
-import { ColorSettings } from "./audio-visualizer/color-settings";
+import {
+  AudioVisualizerConfig,
+  RendererConfig,
+  audioVisualizerStyleOptions,
+} from "@/lib/renderers/renderer";
+import { DeepPartial } from "@/lib/type-utils";
+
 import { AnalyzerSettings } from "./audio-visualizer/analyzer-settings";
+import { BarSettings } from "./audio-visualizer/bar-settings";
+import { ColorSettings } from "./audio-visualizer/color-settings";
+import { GeneralSettings } from "./audio-visualizer/general-settings";
+import { LineSpectrumSettings } from "./audio-visualizer/line-spectrum-settings";
 
 interface Props {
   audioVisualizerConfig: AudioVisualizerConfig;

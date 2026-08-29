@@ -1,5 +1,6 @@
-import { Input, ALL_FORMATS, BlobSource, AudioSampleSink } from "mediabunny";
 import { expose } from "comlink";
+import { Input, ALL_FORMATS, BlobSource, AudioSampleSink } from "mediabunny";
+
 import type { StoredAudioData } from "./audio";
 
 export async function decodeAudio(file: File): Promise<StoredAudioData> {

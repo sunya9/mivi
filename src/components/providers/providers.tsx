@@ -1,13 +1,15 @@
 import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { AudioContext } from "standardized-audio-context";
+
+import { PwaContext } from "@/contexts/pwa-context";
+import { usePwaState } from "@/lib/pwa/use-pwa-state";
+
 import { AppContext, createAppContext } from "../../contexts/app-context";
 import { Fallback } from "./fallback";
+import { FileDbStoreProvider } from "./file-db-store-provider";
 import { Loading } from "./loading";
 import { ThemeProvider } from "./theme-provider";
-import { FileDbStoreProvider } from "./file-db-store-provider";
-import { usePwaState } from "@/lib/pwa/use-pwa-state";
-import { PwaContext } from "@/contexts/pwa-context";
-import { AudioContext } from "standardized-audio-context";
 
 interface ProvidersProps {
   children: React.ReactNode;

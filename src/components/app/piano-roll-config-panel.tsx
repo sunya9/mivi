@@ -1,11 +1,7 @@
+import { useCallback } from "react";
+
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { RendererConfig, noteFlashModeOptions } from "@/lib/renderers/renderer";
-import { DeepPartial } from "@/lib/type-utils";
-import { useCallback } from "react";
 import {
   Select,
   SelectTrigger,
@@ -13,6 +9,11 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { RendererConfig, noteFlashModeOptions } from "@/lib/renderers/renderer";
+import { DeepPartial } from "@/lib/type-utils";
 interface Props {
   pianoRollConfig: RendererConfig["pianoRollConfig"];
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;

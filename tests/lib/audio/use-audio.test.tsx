@@ -1,15 +1,17 @@
-import { test, expect, vi } from "vitest";
 import { waitFor } from "@testing-library/react";
-import { useAudio } from "@/lib/audio/use-audio";
-import { audioFile, invalidFile } from "../../fixtures";
-import { customRenderHook } from "tests/util";
-import { saveValue } from "@/lib/file-db/file-db";
-import type { FileDbEntry } from "@/lib/file-db/file-db-store";
-import { toast } from "@/components/ui/toast";
 import { AudioContext } from "standardized-audio-context-mock";
+import { customRenderHook } from "tests/util";
+import { test, expect, vi } from "vitest";
+
+import { toast } from "@/components/ui/toast";
 import type { StoredAudioData } from "@/lib/audio/audio";
 import { floatToInt16 } from "@/lib/audio/pcm";
 import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
+import { useAudio } from "@/lib/audio/use-audio";
+import { saveValue } from "@/lib/file-db/file-db";
+import type { FileDbEntry } from "@/lib/file-db/file-db-store";
+
+import { audioFile, invalidFile } from "../../fixtures";
 
 vi.mock("@/lib/audio/run-decode-worker", { spy: true });
 

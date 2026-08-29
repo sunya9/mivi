@@ -1,15 +1,16 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { GridResizableSeparator } from "@/components/grid-resizable/grid-resizable-separator";
+import type { ComponentProps } from "react";
+import { describe, it, expect, vi } from "vitest";
+
 import {
   GridResizableContext,
   type GridResizableContextValue,
 } from "@/components/grid-resizable/grid-resizable-context";
-import { GridResizablePanelGroup } from "@/components/grid-resizable/grid-resizable-panel-group";
 import { GridResizablePanel } from "@/components/grid-resizable/grid-resizable-panel";
+import { GridResizablePanelGroup } from "@/components/grid-resizable/grid-resizable-panel-group";
+import { GridResizableSeparator } from "@/components/grid-resizable/grid-resizable-separator";
 import type { PanelConfig } from "@/components/grid-resizable/types";
-import type { ComponentProps } from "react";
 
 type SeparatorProps = ComponentProps<typeof GridResizableSeparator>;
 

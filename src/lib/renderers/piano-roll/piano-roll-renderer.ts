@@ -1,4 +1,5 @@
 import { MidiTrack } from "@/lib/midi/midi";
+
 import { Renderer, RendererConfig } from "../renderer";
 import { findFirstVisibleNoteIndex } from "./find-first-visible-note";
 import { NoiseTextureRenderer } from "./noise-texture-renderer";

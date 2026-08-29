@@ -1,11 +1,12 @@
-import { expect, test, vi } from "vitest";
 import { fireEvent, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { ComponentProps } from "react";
+import { rendererConfig } from "tests/fixtures";
+import { customRender } from "tests/util";
+import { expect, test, vi } from "vitest";
+
 import { CommonConfigPane } from "@/components/app/common-config-pane";
 import { resolutions } from "@/lib/renderers/renderer";
-import { customRender } from "tests/util";
-import userEvent from "@testing-library/user-event";
-import { rendererConfig } from "tests/fixtures";
-import { ComponentProps } from "react";
 
 type Props = ComponentProps<typeof CommonConfigPane>;
 

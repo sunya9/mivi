@@ -1,6 +1,7 @@
 import { FormRow } from "@/components/common/form-row";
-import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+
 import { AudioVisualizerSectionProps } from "./types";
 
 export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionProps) {

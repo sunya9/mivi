@@ -1,13 +1,14 @@
+import type { StreamTargetChunk } from "mediabunny";
 import { test, expect } from "vitest";
 import { commands } from "vitest/browser";
-import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
-import { MuxerImpl } from "@/lib/muxer/muxer";
-import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
-import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
-import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
+
 import { SerializedAudio } from "@/lib/audio/audio";
+import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
+import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
+import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MidiTracks } from "@/lib/midi/midi";
-import type { StreamTargetChunk } from "mediabunny";
+import { MuxerImpl } from "@/lib/muxer/muxer";
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 
 const DURATION_SEC = 60;
 const WIDTH = 1280;

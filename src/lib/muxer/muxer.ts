@@ -13,6 +13,7 @@ import {
   VideoCodec,
   AudioCodec,
 } from "mediabunny";
+
 import { VideoFormat } from "../renderers/renderer";
 
 interface Config {

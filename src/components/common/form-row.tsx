@@ -1,5 +1,5 @@
-import { useCallback, useId, useRef } from "react";
 import { Field } from "@base-ui/react/field";
+import { useCallback, useId, useRef } from "react";
 
 interface Props {
   label: React.ReactNode;

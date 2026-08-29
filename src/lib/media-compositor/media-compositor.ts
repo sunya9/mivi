@@ -1,10 +1,11 @@
-import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
-import { Muxer } from "@/lib/muxer/muxer";
-import { RecorderResources } from "./recorder-resources";
-import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
-import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
+import { Muxer } from "@/lib/muxer/muxer";
+import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
+import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
+import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+
 import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";
+import { RecorderResources } from "./recorder-resources";
 
 const frameSize = 20;
 const maxEncodeQueueSize = 6;

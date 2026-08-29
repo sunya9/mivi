@@ -1,7 +1,9 @@
 import { CheckIcon, Info, XIcon } from "lucide-react";
 import { useMemo } from "react";
+
 import { checkBrowserApis } from "@/lib/browser-compat/browser-compat";
 import { cn } from "@/lib/utils";
+
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 interface Props {

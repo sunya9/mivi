@@ -1,12 +1,13 @@
+import { test, expect } from "vitest";
+
+import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+import { NoneRenderer } from "@/lib/renderers/none-renderer";
+import { PianoRollRenderer } from "@/lib/renderers/piano-roll/piano-roll-renderer";
 import {
   RendererContext,
   RendererConfig,
   getDefaultRendererConfig,
 } from "@/lib/renderers/renderer";
-import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
-import { NoneRenderer } from "@/lib/renderers/none-renderer";
-import { PianoRollRenderer } from "@/lib/renderers/piano-roll/piano-roll-renderer";
-import { test, expect } from "vitest";
 
 const canvas = document.createElement("canvas");
 const mockContext: RendererContext = canvas.getContext("2d")!;

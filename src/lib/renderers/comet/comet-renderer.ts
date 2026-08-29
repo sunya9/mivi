@@ -1,4 +1,5 @@
 import { MidiTrack } from "@/lib/midi/midi";
+
 import { Renderer, RendererConfig } from "../renderer";
 
 interface CometParticle {

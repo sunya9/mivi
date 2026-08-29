@@ -1,6 +1,7 @@
-import { useFpsCounter } from "@/hooks/use-fps-counter";
 import { customRenderHook } from "tests/util";
 import { test, expect, vi, afterEach } from "vitest";
+
+import { useFpsCounter } from "@/hooks/use-fps-counter";
 
 function setupHook() {
   vi.useFakeTimers();

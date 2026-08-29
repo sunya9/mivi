@@ -1,7 +1,8 @@
 import { screen, render } from "@testing-library/react";
-import { Canvas } from "@/components/app/canvas";
-import { afterEach, expect, test, vi } from "vitest";
 import { ComponentProps } from "react";
+import { afterEach, expect, test, vi } from "vitest";
+
+import { Canvas } from "@/components/app/canvas";
 
 type Props = ComponentProps<typeof Canvas>;
 

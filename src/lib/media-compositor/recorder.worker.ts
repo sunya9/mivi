@@ -1,9 +1,11 @@
+import { expose } from "comlink";
+
 import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 import { MuxerImpl } from "@/lib/muxer/muxer";
-import { createOpfsExportFile } from "./opfs-target";
-import { expose } from "comlink";
-import { RecorderResources } from "./recorder-resources";
+
 import type { ActivePhase } from "./export-progress-tracker";
+import { createOpfsExportFile } from "./opfs-target";
+import { RecorderResources } from "./recorder-resources";
 
 export async function startRecording(
   resources: RecorderResources,

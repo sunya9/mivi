@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback, useMemo, type CSSProperties } from "react";
+
 import { useLocalStorage } from "@/hooks/use-local-storage";
+
 import type { GridResizableContextValue } from "./grid-resizable-context";
 import type { PanelConfig, PanelSize, LayoutState, Orientation, SeparatorSide } from "./types";
 

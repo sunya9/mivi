@@ -1,13 +1,14 @@
-import { MidiTrack } from "@/lib/midi/midi";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ColorPickerInput } from "@/components/common/color-picker-input";
-import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical } from "lucide-react";
+import React from "react";
+
+import { ColorPickerInput } from "@/components/common/color-picker-input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { MidiTrack } from "@/lib/midi/midi";
+import { cn } from "@/lib/utils";
 
 interface Props {
   track: MidiTrack;

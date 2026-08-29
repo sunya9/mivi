@@ -1,16 +1,18 @@
 import { useState, useCallback, useRef } from "react";
+
+import { toast } from "@/components/ui/toast";
+import type { AudioSource } from "@/lib/audio/audio";
+import { errorLogWithToast } from "@/lib/error-toast";
 import {
   RecordingStatus,
   ReadyState,
   RecordingState,
 } from "@/lib/media-compositor/recording-status";
-import { toast } from "@/components/ui/toast";
-import { runRecorder } from "./run-recorder-worker";
-import type { ActivePhase } from "./export-progress-tracker";
-import { errorLogWithToast } from "@/lib/error-toast";
 import type { MidiTracks } from "@/lib/midi/midi";
-import type { AudioSource } from "@/lib/audio/audio";
 import type { RendererConfig } from "@/lib/renderers/renderer";
+
+import type { ActivePhase } from "./export-progress-tracker";
+import { runRecorder } from "./run-recorder-worker";
 
 export function useRecorder(resources: {
   midiTracks?: MidiTracks;

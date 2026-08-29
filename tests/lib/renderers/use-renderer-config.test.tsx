@@ -1,9 +1,10 @@
-import { test, expect } from "vitest";
 import { renderHook, act, render, screen } from "@testing-library/react";
-import { useRendererConfig } from "@/lib/renderers/use-renderer-config";
-import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import userEvent from "@testing-library/user-event";
 import { JSX } from "react";
+import { test, expect } from "vitest";
+
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import { useRendererConfig } from "@/lib/renderers/use-renderer-config";
 
 test("returns initial state is equal to default config", () => {
   const { result } = renderHook(() => useRendererConfig());

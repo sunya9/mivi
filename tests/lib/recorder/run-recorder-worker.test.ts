@@ -1,9 +1,10 @@
-import { runRecorder } from "@/lib/media-compositor/run-recorder-worker";
 import { createEndpoint, releaseProxy, wrap } from "comlink";
 import { resources } from "tests/fixtures";
 import { expect, test, vi } from "vitest";
-import type { RecorderResources } from "@/lib/media-compositor/recorder-resources";
+
 import type { ActivePhase } from "@/lib/media-compositor/export-progress-tracker";
+import type { RecorderResources } from "@/lib/media-compositor/recorder-resources";
+import { runRecorder } from "@/lib/media-compositor/run-recorder-worker";
 
 vi.mock("comlink", async (importOriginal) => ({
   ...(await importOriginal<typeof import("comlink")>()),

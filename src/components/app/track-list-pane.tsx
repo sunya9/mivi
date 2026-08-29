@@ -1,30 +1,3 @@
-import { TrackItem } from "./track-item";
-import { HueRandomizeDialog } from "./hue-randomize-dialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileButton } from "@/components/common/file-button";
-import { FormRow } from "@/components/common/form-row";
-import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
-import React, { Dispatch, SetStateAction, useCallback, useState } from "react";
-import {
-  getRandomTailwindColor,
-  getRandomTailwindColorPalette,
-} from "@/lib/colors/tailwind-colors";
-import { hslToHex, generateGoldenAngleHues } from "@/lib/colors/color";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
-import { Minus, Plus } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -40,6 +13,35 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
+import { Minus, Plus } from "lucide-react";
+import React, { Dispatch, SetStateAction, useCallback, useState } from "react";
+
+import { FileButton } from "@/components/common/file-button";
+import { FormRow } from "@/components/common/form-row";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
+import { hslToHex, generateGoldenAngleHues } from "@/lib/colors/color";
+import {
+  getRandomTailwindColor,
+  getRandomTailwindColorPalette,
+} from "@/lib/colors/tailwind-colors";
+import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
+
+import { HueRandomizeDialog } from "./hue-randomize-dialog";
+import { TrackItem } from "./track-item";
 
 interface Props {
   midiTracks?: MidiTracks;

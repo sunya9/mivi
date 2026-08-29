@@ -1,8 +1,9 @@
-import { expect, test, vi, beforeEach } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
-import { ColorPickerInput } from "@/components/common/color-picker-input";
-import { customRender } from "tests/util";
 import { ComponentProps } from "react";
+import { customRender } from "tests/util";
+import { expect, test, vi, beforeEach } from "vitest";
+
+import { ColorPickerInput } from "@/components/common/color-picker-input";
 
 const mockOnChange = vi.fn<(value: string) => void>();
 

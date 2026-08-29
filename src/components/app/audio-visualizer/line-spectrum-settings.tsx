@@ -1,8 +1,9 @@
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
+import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
+
 import { AudioVisualizerSectionProps } from "./types";
 
 export function LineSpectrumSettings({ config, setConfig }: AudioVisualizerSectionProps) {

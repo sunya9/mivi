@@ -1,7 +1,8 @@
-import { test, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook } from "@testing-library/react";
-import { useAnimationFrame } from "@/hooks/use-animation-frame";
 import { RafStub } from "tests/raf-stub";
+import { test, expect, vi, beforeEach, afterEach } from "vitest";
+
+import { useAnimationFrame } from "@/hooks/use-animation-frame";
 
 export const rafStub = new RafStub();
 

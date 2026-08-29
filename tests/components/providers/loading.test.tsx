@@ -1,8 +1,9 @@
-import { expect, test, vi } from "vitest";
 import { render, screen, act } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { expect, test, vi } from "vitest";
+
 import { Loading } from "@/components/providers/loading";
 import * as utils from "@/lib/utils";
-import userEvent from "@testing-library/user-event";
 
 vi.spyOn(utils, "resetConfig");
 

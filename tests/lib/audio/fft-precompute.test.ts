@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
+
+import type { SerializedAudio } from "@/lib/audio/audio";
+import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import {
   precomputeFFTData,
   getFrameAtTime,
   computeFFTAtTime,
   type PrecomputedFFTData,
 } from "@/lib/audio/fft-precompute";
-import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type { SerializedAudio } from "@/lib/audio/audio";
 
 function createMockSerializedAudio(overrides: Partial<SerializedAudio> = {}): SerializedAudio {
   const sampleRate = 44100;

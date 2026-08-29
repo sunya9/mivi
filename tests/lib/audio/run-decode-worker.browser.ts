@@ -1,5 +1,6 @@
-import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
 import { expect, test } from "vitest";
+
+import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
 
 test("worker completes successfully", async () => {
   const abortcontroller = new AbortController();

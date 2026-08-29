@@ -1,4 +1,8 @@
 import { memo } from "react";
+
+import { ColorPickerInput } from "@/components/common/color-picker-input";
+import { FileButton } from "@/components/common/file-button";
+import { FormRow } from "@/components/common/form-row";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -7,6 +11,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import {
   resolutions,
   FPS,
@@ -18,12 +24,7 @@ import {
   backgroundImageFitOptions,
   audioVisualizerLayerOptions,
 } from "@/lib/renderers/renderer";
-import { ColorPickerInput } from "@/components/common/color-picker-input";
-import { FormRow } from "@/components/common/form-row";
 import { DeepPartial } from "@/lib/type-utils";
-import { Slider } from "@/components/ui/slider";
-import { FileButton } from "@/components/common/file-button";
-import { Switch } from "@/components/ui/switch";
 
 interface Props {
   rendererConfig: RendererConfig;

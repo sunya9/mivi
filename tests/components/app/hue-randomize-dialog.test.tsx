@@ -1,9 +1,10 @@
-import { expect, test, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { HueRandomizeDialog } from "@/components/app/hue-randomize-dialog";
-import { customRender } from "tests/util";
 import { ComponentProps } from "react";
+import { customRender } from "tests/util";
+import { expect, test, vi } from "vitest";
+
+import { HueRandomizeDialog } from "@/components/app/hue-randomize-dialog";
 
 type DialogProps = ComponentProps<typeof HueRandomizeDialog>;
 

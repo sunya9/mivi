@@ -1,10 +1,12 @@
-import { expect, test, vi } from "vitest";
-import { App } from "@/app";
-import { customPageRender } from "./browser.util";
-import { commands, userEvent } from "vitest/browser";
 import { fireEvent } from "@testing-library/react";
-import "@/index.css";
+import { expect, test, vi } from "vitest";
+import { commands, userEvent } from "vitest/browser";
+
+import { App } from "@/app";
 import { toast } from "@/components/ui/toast";
+
+import "@/index.css";
+import { customPageRender } from "./browser.util";
 
 vi.spyOn(console, "error").mockImplementation(() => {});
 

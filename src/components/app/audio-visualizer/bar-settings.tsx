@@ -1,7 +1,4 @@
 import { FormRow } from "@/components/common/form-row";
-import { Slider } from "@/components/ui/slider";
-import { Separator } from "@/components/ui/separator";
-import { AudioVisualizerStyle, audioVisualizerBarStyleOptions } from "@/lib/renderers/renderer";
 import {
   Select,
   SelectTrigger,
@@ -9,6 +6,10 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
+import { AudioVisualizerStyle, audioVisualizerBarStyleOptions } from "@/lib/renderers/renderer";
+
 import { AudioVisualizerSectionProps } from "./types";
 
 export function BarSettings({

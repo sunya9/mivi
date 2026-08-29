@@ -1,7 +1,9 @@
-import { AppContextValue, createAppContext } from "@/contexts/app-context";
 import { renderHook, RenderHookOptions, render as renderOriginal } from "@testing-library/react";
-import { TestProviders } from "./test-providers";
 import { AudioContext } from "standardized-audio-context-mock";
+
+import { AppContextValue, createAppContext } from "@/contexts/app-context";
+
+import { TestProviders } from "./test-providers";
 
 export function customRender(
   children: React.ReactNode,

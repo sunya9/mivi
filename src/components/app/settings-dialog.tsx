@@ -1,3 +1,4 @@
+import { Palette, Info, Keyboard } from "lucide-react";
 import {
   useCallback,
   RefAttributes,
@@ -8,9 +9,8 @@ import {
   useState,
 } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
-import { Palette, Info, Keyboard } from "lucide-react";
+
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sidebar,
@@ -24,9 +24,11 @@ import {
   SidebarMenuItem,
   SidebarProvider,
 } from "@/components/ui/sidebar";
-import { ThemeSettings } from "./theme-settings";
+import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { AboutContent } from "./about-content";
 import { KeyboardShortcutsContent } from "./keyboard-shortcuts-content";
+import { ThemeSettings } from "./theme-settings";
 
 const navGroups = [
   {

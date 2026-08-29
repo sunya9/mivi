@@ -1,31 +1,33 @@
 import { useState, useMemo } from "react";
-import { Toaster } from "@/components/ui/toast";
-import { useVisualizerFit } from "@/hooks/use-visualizer-fit";
+
+import { AppHeader } from "@/components/app/app-header";
+import { CommonConfigPane } from "@/components/app/common-config-pane";
+import { FooterPanel } from "@/components/app/footer-panel";
+import { MidiVisualizer } from "@/components/app/midi-visualizer";
+import { MobileBottomNav, type MobileTabValue } from "@/components/app/mobile-bottom-nav";
+import {
+  SettingsDialog,
+  SettingsContent,
+  type SettingsTabValue,
+} from "@/components/app/settings-dialog";
+import { TrackListPane } from "@/components/app/track-list-pane";
 import {
   GridResizablePanelGroup,
   GridResizablePanel,
   GridResizableSeparator,
   type PanelConfig,
 } from "@/components/grid-resizable";
-import { AppHeader } from "@/components/app/app-header";
-import { TrackListPane } from "@/components/app/track-list-pane";
-import { MidiVisualizer } from "@/components/app/midi-visualizer";
-import { CommonConfigPane } from "@/components/app/common-config-pane";
-import { FooterPanel } from "@/components/app/footer-panel";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useMidi } from "@/lib/midi/use-midi";
+import { Toaster } from "@/components/ui/toast";
+import { useDnd } from "@/hooks/use-dnd";
+import { useVisualizerFit } from "@/hooks/use-visualizer-fit";
 import { useAudio } from "@/lib/audio/use-audio";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
+import { useMidi } from "@/lib/midi/use-midi";
 import { useRendererConfig } from "@/lib/renderers/use-renderer-config";
-import { useBackgroundImage } from "./lib/background-image/use-background-image";
-import { useDnd } from "@/hooks/use-dnd";
-import { MobileBottomNav, type MobileTabValue } from "@/components/app/mobile-bottom-nav";
 import { cn } from "@/lib/utils";
-import {
-  SettingsDialog,
-  SettingsContent,
-  type SettingsTabValue,
-} from "@/components/app/settings-dialog";
+
+import { useBackgroundImage } from "./lib/background-image/use-background-image";
 
 export function App() {
   const { setMidiFile, midiTracks, setMidiTracks, ConfirmDialog } = useMidi();

@@ -1,9 +1,10 @@
-import { expect, test, vi } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
-import { FileButton } from "@/components/common/file-button";
-import { customRender } from "tests/util";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
+import { customRender } from "tests/util";
+import { expect, test, vi } from "vitest";
+
+import { FileButton } from "@/components/common/file-button";
 
 const mockSetFile = vi.fn<(file: File | undefined) => void>();
 

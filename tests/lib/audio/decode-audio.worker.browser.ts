@@ -1,6 +1,7 @@
-import { test, expect } from "vitest";
-import { decodeAudio } from "@/lib/audio/decode-audio.worker";
 import { fetchFixtureAsFile } from "tests/util";
+import { test, expect } from "vitest";
+
+import { decodeAudio } from "@/lib/audio/decode-audio.worker";
 
 test("dummy", () => {
   expect(1).toBe(1);

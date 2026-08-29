@@ -1,8 +1,9 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type { AudioVisualizerConfig, RendererContext, Resolution } from "./renderer";
+
 import { BarSpectrumDrawer } from "./audio-visualizer/bar-spectrum-drawer";
-import { LineSpectrumDrawer } from "./audio-visualizer/line-spectrum-drawer";
 import { CircularDrawer } from "./audio-visualizer/circular-drawer";
+import { LineSpectrumDrawer } from "./audio-visualizer/line-spectrum-drawer";
+import type { AudioVisualizerConfig, RendererContext, Resolution } from "./renderer";
 
 /**
  * Overlay class for rendering audio visualizations on top of existing renderers.

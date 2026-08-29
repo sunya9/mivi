@@ -1,7 +1,8 @@
+import { FallbackProps, getErrorMessage } from "react-error-boundary";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { resetConfig } from "@/lib/utils";
-import { FallbackProps, getErrorMessage } from "react-error-boundary";
 
 export function Fallback(props: FallbackProps) {
   return (

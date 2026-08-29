@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import type { PwaState } from "@/contexts/pwa-context";
 import { useRegisterSW } from "virtual:pwa-register/react";
+
+import type { PwaState } from "@/contexts/pwa-context";
 
 export function usePwaState(): PwaState {
   const registerSW = useRegisterSW();

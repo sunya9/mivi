@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
-import { findFirstVisibleNoteIndex } from "@/lib/renderers/piano-roll/find-first-visible-note";
+
 import { MidiNote } from "@/lib/midi/midi";
+import { findFirstVisibleNoteIndex } from "@/lib/renderers/piano-roll/find-first-visible-note";
 
 function makeNote(id: number, time: number, duration: number): MidiNote {
   return {

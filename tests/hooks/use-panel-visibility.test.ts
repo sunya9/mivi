@@ -1,5 +1,6 @@
-import { test, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
+import { test, expect, vi, beforeEach, afterEach } from "vitest";
+
 import { usePanelVisibility } from "@/hooks/use-panel-visibility";
 
 beforeEach(() => {

@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Pause, Play } from "lucide-react";
+import { useState } from "react";
 
 interface PlayIconProps {
   isPlaying: boolean;

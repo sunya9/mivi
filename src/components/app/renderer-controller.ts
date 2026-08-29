@@ -1,9 +1,9 @@
+import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { MidiTrack } from "@/lib/midi/midi";
-import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
-import { Renderer, RendererConfig, RendererType, Resolution } from "@/lib/renderers/renderer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
-import type { FrequencyData } from "@/lib/audio/audio-analyzer";
+import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+import { Renderer, RendererConfig, RendererType, Resolution } from "@/lib/renderers/renderer";
 
 export class RendererController {
   #context: CanvasRenderingContext2D;

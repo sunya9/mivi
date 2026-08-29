@@ -1,5 +1,6 @@
-import { test, expect, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
+import { test, expect, vi } from "vitest";
+
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 const mockValue = { test: "value" };

@@ -1,6 +1,7 @@
+import { useState, useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { cn, resetConfig } from "@/lib/utils";
-import { useState, useEffect } from "react";
 
 export function Loading() {
   const [showReset, setShowReset] = useState(false);

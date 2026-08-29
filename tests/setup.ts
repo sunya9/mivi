@@ -1,14 +1,16 @@
 import "@testing-library/jest-dom/vitest";
 import "fake-indexeddb/auto";
 import "vitest-canvas-mock";
-import { cleanup } from "@testing-library/react";
-import { afterEach, vi } from "vitest";
-import type { Dispatch, SetStateAction } from "react";
-import { IDBFactory } from "fake-indexeddb";
-import { closeDb } from "@/lib/file-db/file-db";
 import { webcrypto } from "node:crypto";
+
+import { cleanup } from "@testing-library/react";
+import { IDBFactory } from "fake-indexeddb";
+import type { Dispatch, SetStateAction } from "react";
 import * as standardizedAudioContextMock from "standardized-audio-context-mock";
+import { afterEach, vi } from "vitest";
+
 import { toast } from "@/components/ui/toast";
+import { closeDb } from "@/lib/file-db/file-db";
 
 vi.mock("virtual:pwa-register/react", () => ({
   useRegisterSW: vi.fn<typeof import("virtual:pwa-register/react").useRegisterSW>(() => ({

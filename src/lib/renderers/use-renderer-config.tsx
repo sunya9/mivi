@@ -1,14 +1,13 @@
-import { useLocalStorage } from "@/hooks/use-local-storage";
-import { getDefaultRendererConfig, RendererConfig, RendererType } from "@/lib/renderers/renderer";
-import { DeepPartial } from "@/lib/type-utils";
 import { merge, toMerged } from "es-toolkit";
 import { useMemo, useCallback } from "react";
-import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
-import { CometConfigPanel } from "@/components/app/comet-config-panel";
+import React from "react";
+
 import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
+import { CometConfigPanel } from "@/components/app/comet-config-panel";
+import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
 import { FormRow } from "@/components/common/form-row";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectTrigger,
@@ -16,9 +15,11 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator } from "@/components/ui/tabs";
-import React from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { getDefaultRendererConfig, RendererConfig, RendererType } from "@/lib/renderers/renderer";
+import { DeepPartial } from "@/lib/type-utils";
 
 const defaultConfig = getDefaultRendererConfig();
 

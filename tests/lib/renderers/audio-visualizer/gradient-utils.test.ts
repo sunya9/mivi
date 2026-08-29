@@ -1,6 +1,7 @@
+import { expect, test } from "vitest";
+
 import { getGradientCoords } from "@/lib/renderers/audio-visualizer/gradient-utils";
 import { GradientDirection } from "@/lib/renderers/renderer";
-import { expect, test } from "vitest";
 
 const width = 100;
 const height = 200;

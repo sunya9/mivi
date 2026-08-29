@@ -1,9 +1,10 @@
 import { useCallback } from "react";
-import { Progress } from "@/components/ui/progress";
+
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { RecordingStatus } from "@/lib/media-compositor/recording-status";
+import { Progress } from "@/components/ui/progress";
 import { Spinner } from "@/components/ui/spinner";
+import { RecordingStatus } from "@/lib/media-compositor/recording-status";
+import { cn } from "@/lib/utils";
 import { startViewTransition } from "@/lib/utils";
 
 interface Props {

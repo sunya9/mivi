@@ -1,4 +1,5 @@
 import { Info } from "lucide-react";
+
 import { Tooltip, TooltipTrigger, TooltipContent } from "../ui/tooltip";
 
 export function InfoTooltip({ children }: { children: React.ReactNode }) {

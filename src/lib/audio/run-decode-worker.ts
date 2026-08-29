@@ -1,4 +1,5 @@
 import { releaseProxy, wrap } from "comlink";
+
 import type { StoredAudioData } from "./audio";
 
 export function runDecodeWorker(file: File, signal: AbortSignal): Promise<StoredAudioData> {

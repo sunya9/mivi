@@ -1,11 +1,12 @@
-import { test, expect, vi } from "vitest";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useMidi } from "@/lib/midi/use-midi";
 import { testMidiTracks, midiFile } from "tests/fixtures";
-import { MidiTracks } from "@/lib/midi/midi";
-import { toast } from "@/components/ui/toast";
 import { customRenderHook } from "tests/util";
+import { test, expect, vi } from "vitest";
+
+import { toast } from "@/components/ui/toast";
+import { MidiTracks } from "@/lib/midi/midi";
+import { useMidi } from "@/lib/midi/use-midi";
 
 function TestComponent() {
   const { setMidiFile, midiTracks, ConfirmDialog } = useMidi();

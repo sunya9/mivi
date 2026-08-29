@@ -1,4 +1,7 @@
 import { useState, useCallback, useMemo, useId, useRef } from "react";
+
+import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Dialog,
   DialogClose,
@@ -8,11 +11,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { HSL_PRESETS, HSLPresetBase, hslToHex } from "@/lib/colors/color";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { ButtonGroup } from "@/components/ui/button-group";
+import { HSL_PRESETS, HSLPresetBase, hslToHex } from "@/lib/colors/color";
 import { cn } from "@/lib/utils";
 
 interface Props {

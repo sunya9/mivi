@@ -1,9 +1,10 @@
-import { expect, test, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ComponentProps } from "react";
+import { expect, test, vi } from "vitest";
+
 import { SettingsDialog, SettingsContent } from "@/components/app/settings-dialog";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { ComponentProps } from "react";
 
 type Props = ComponentProps<typeof SettingsDialog>;
 

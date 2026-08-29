@@ -1,10 +1,12 @@
-import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ComponentProps } from "react";
+import { expect, test, vi } from "vitest";
+
 import { FooterPanel } from "@/components/app/footer-panel";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
+
 import { createMockPwaState } from "../../pwa-mock";
-import { ComponentProps } from "react";
 
 type Props = ComponentProps<typeof FooterPanel>;
 

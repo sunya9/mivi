@@ -1,4 +1,10 @@
+import { test, expect, vi, beforeEach, Mock } from "vitest";
+
 import { RendererController } from "@/components/app/renderer-controller";
+import type { FrequencyData } from "@/lib/audio/audio-analyzer";
+import type { MidiTrack } from "@/lib/midi/midi";
+import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
+import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
 import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
 import {
   getDefaultRendererConfig,
@@ -6,11 +12,6 @@ import {
   type RendererConfig,
   type Resolution,
 } from "@/lib/renderers/renderer";
-import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
-import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
-import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type { MidiTrack } from "@/lib/midi/midi";
-import { test, expect, vi, beforeEach, Mock } from "vitest";
 
 const mockSetConfig = vi.fn<(config: RendererConfig) => void>();
 

@@ -1,5 +1,6 @@
-import { test, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
+import { test, expect } from "vitest";
+
 import { useVisualizerFit } from "@/hooks/use-visualizer-fit";
 
 // Helper: attach a mock container element to the ref

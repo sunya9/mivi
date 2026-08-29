@@ -1,8 +1,10 @@
 import type { ComponentProps, ReactNode } from "react";
+
 import { cn } from "@/lib/utils";
+
 import { GridResizableContext } from "./grid-resizable-context";
-import { useGridResizable } from "./use-grid-resizable";
 import type { PanelConfig } from "./types";
+import { useGridResizable } from "./use-grid-resizable";
 
 interface GridResizablePanelGroupProps extends ComponentProps<"div"> {
   id: string;

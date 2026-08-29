@@ -1,10 +1,12 @@
-import { expect, test, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { ComponentProps } from "react";
+import { expect, test, vi } from "vitest";
+
 import { MobileBottomNav } from "@/components/app/mobile-bottom-nav";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
+
 import { createMockPwaState } from "../../pwa-mock";
-import { ComponentProps } from "react";
 
 type Props = ComponentProps<typeof MobileBottomNav>;
 

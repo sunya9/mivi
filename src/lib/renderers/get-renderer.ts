@@ -1,7 +1,7 @@
-import { RendererContext, RendererConfig, Renderer, RendererType } from "./renderer";
+import { CometRenderer } from "./comet/comet-renderer";
 import { NoneRenderer } from "./none-renderer";
 import { PianoRollRenderer } from "./piano-roll/piano-roll-renderer";
-import { CometRenderer } from "./comet/comet-renderer";
+import { RendererContext, RendererConfig, Renderer, RendererType } from "./renderer";
 
 type RendererConstructor = new (ctx: RendererContext, config: RendererConfig) => Renderer;
 

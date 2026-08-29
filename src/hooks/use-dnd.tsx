@@ -1,7 +1,8 @@
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
-import { errorLogWithToast } from "@/lib/error-toast";
 import { useState, useCallback, useMemo } from "react";
+
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { errorLogWithToast } from "@/lib/error-toast";
+import { cn } from "@/lib/utils";
 
 interface Props {
   onDropMidi: (file: File) => Promise<void>;

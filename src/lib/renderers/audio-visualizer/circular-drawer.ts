@@ -1,5 +1,6 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/renderers/renderer";
+
 import type { AudioVisualizerDrawer } from "./types";
 
 /**

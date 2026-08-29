@@ -1,11 +1,13 @@
+import * as crypto from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import * as crypto from "node:crypto";
+
+import { AudioContext } from "standardized-audio-context-mock";
+
+import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MidiTracks } from "@/lib/midi/midi";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
-import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
-import { AudioContext } from "standardized-audio-context-mock";
 const midiFilename = "test.mid";
 const midiFilepath = path.resolve(__dirname, midiFilename);
 const midiBuffer = fs.readFileSync(midiFilepath);

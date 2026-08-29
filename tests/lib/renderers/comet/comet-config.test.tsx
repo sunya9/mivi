@@ -1,10 +1,11 @@
 import { screen, within } from "@testing-library/react";
-import { expect, test, vi } from "vitest";
-import { CometConfigPanel } from "@/components/app/comet-config-panel";
-import { customRender } from "tests/util";
-import { testMidiTracks, rendererConfig } from "tests/fixtures";
-import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
+import { ComponentProps } from "react";
+import { testMidiTracks, rendererConfig } from "tests/fixtures";
+import { customRender } from "tests/util";
+import { expect, test, vi } from "vitest";
+
+import { CometConfigPanel } from "@/components/app/comet-config-panel";
 type Props = ComponentProps<typeof CometConfigPanel>;
 const onUpdateRendererConfig: Props["onUpdateRendererConfig"] =
   vi.fn<Props["onUpdateRendererConfig"]>();

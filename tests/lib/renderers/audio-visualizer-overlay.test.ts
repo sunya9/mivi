@@ -1,11 +1,12 @@
+import { expect, test, vi } from "vitest";
+
+import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import {
   getDefaultRendererConfig,
   type AudioVisualizerConfig,
   type Resolution,
 } from "@/lib/renderers/renderer";
-import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import { expect, test, vi } from "vitest";
 
 const defaultResolution: Resolution = {
   width: 800,

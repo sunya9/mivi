@@ -1,8 +1,9 @@
 import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
+
+import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
-import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { AudioVisualizerConfig, Resolution } from "@/lib/renderers/renderer";
 
 const WIDTH = 800;

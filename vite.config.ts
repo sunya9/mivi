@@ -1,15 +1,16 @@
 /// <reference types="vitest" />
 import { execFileSync } from "child_process";
-import { defineConfig, PluginOption } from "vite";
-import { configDefaults } from "vitest/config";
-import react from "@vitejs/plugin-react";
-import Unfonts from "unplugin-fonts/vite";
-import tailwindcss from "@tailwindcss/vite";
-import { VitePWA } from "vite-plugin-pwa";
-import { visualizer } from "rollup-plugin-visualizer";
+
 import { codecovVitePlugin } from "@codecov/vite-plugin";
-import { BrowserCommand } from "vitest/node";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
+import { visualizer } from "rollup-plugin-visualizer";
+import Unfonts from "unplugin-fonts/vite";
+import { defineConfig, PluginOption } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
+import { configDefaults } from "vitest/config";
+import { BrowserCommand } from "vitest/node";
 
 export default defineConfig(({ mode }) => ({
   plugins: [

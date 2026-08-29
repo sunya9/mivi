@@ -1,8 +1,10 @@
-import { AppContext, AppContextValue } from "@/contexts/app-context";
-import { FileDbStoreProvider } from "@/components/providers/file-db-store-provider";
-import { PwaContext, PwaState } from "@/contexts/pwa-context";
-import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Suspense } from "react";
+
+import { FileDbStoreProvider } from "@/components/providers/file-db-store-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { AppContext, AppContextValue } from "@/contexts/app-context";
+import { PwaContext, PwaState } from "@/contexts/pwa-context";
+
 import { createMockPwaState } from "./pwa-mock";
 
 /**

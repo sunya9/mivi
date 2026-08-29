@@ -1,6 +1,7 @@
 import { proxy, releaseProxy, wrap } from "comlink";
-import { RecorderResources } from "./recorder-resources";
+
 import type { ActivePhase } from "./export-progress-tracker";
+import { RecorderResources } from "./recorder-resources";
 
 export function runRecorder(
   resources: RecorderResources,

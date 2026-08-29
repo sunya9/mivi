@@ -1,5 +1,6 @@
-import { expect, test } from "vitest";
 import { render } from "@testing-library/react";
+import { expect, test } from "vitest";
+
 import { PlayIcon } from "@/components/app/play-icon";
 
 test("does not render animation on initial mount", () => {

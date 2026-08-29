@@ -1,11 +1,12 @@
-import { useLocalStorage } from "@/hooks/use-local-storage";
-import { getDefaultTrackConfig, MidiTrack, MidiTracks } from "@/lib/midi/midi";
-import { hashArrayBuffer } from "@/lib/hash";
 import { Midi } from "@tonejs/midi";
-import { useMemo, useCallback } from "react";
-import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import { toast } from "@/components/ui/toast";
 import { toMerged } from "es-toolkit";
+import { useMemo, useCallback } from "react";
+
+import { toast } from "@/components/ui/toast";
+import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { hashArrayBuffer } from "@/lib/hash";
+import { getDefaultTrackConfig, MidiTrack, MidiTracks } from "@/lib/midi/midi";
 
 const defaultTrackConfig = getDefaultTrackConfig("");
 

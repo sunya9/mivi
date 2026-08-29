@@ -1,14 +1,15 @@
-import { test, expect, vi } from "vitest";
-import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 import {
   createTestRecorderResources,
   createTestSerializedAudio,
   createTestMidiTracks,
 } from "tests/fixtures/browser-fixtures";
-import { MuxerImpl } from "@/lib/muxer/muxer";
+import { test, expect, vi } from "vitest";
+
+import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
-import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
+import { MuxerImpl } from "@/lib/muxer/muxer";
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 
 async function compositeToFile(resources: RecorderResources, onProgress: (p: number) => void) {
   const opfsFile = await createOpfsExportFile(`test-export.${resources.rendererConfig.format}`);

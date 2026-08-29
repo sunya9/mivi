@@ -1,5 +1,6 @@
-import { expect, test, vi } from "vitest";
 import { renderHook, waitFor, fireEvent } from "@testing-library/react";
+import { expect, test, vi } from "vitest";
+
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 
 function createBeforeInstallPromptEvent(

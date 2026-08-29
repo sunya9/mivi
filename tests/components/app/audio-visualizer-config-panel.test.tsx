@@ -1,10 +1,11 @@
 import { screen } from "@testing-library/react";
-import { expect, test, vi } from "vitest";
-import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
-import { customRender } from "tests/util";
-import { rendererConfig } from "tests/fixtures";
-import { ComponentProps } from "react";
 import userEvent from "@testing-library/user-event";
+import { ComponentProps } from "react";
+import { rendererConfig } from "tests/fixtures";
+import { customRender } from "tests/util";
+import { expect, test, vi } from "vitest";
+
+import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
 
 type Props = ComponentProps<typeof AudioVisualizerConfigPanel>;
 const onUpdateRendererConfig = vi.fn<Props["onUpdateRendererConfig"]>();

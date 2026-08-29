@@ -3,5 +3,6 @@
   "sortTailwindcss": {
     "stylesheet": "./src/index.css",
     "functions": ["clsx", "cn"]
-  }
+  },
+  "sortImports": true
 }

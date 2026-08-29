@@ -1,11 +1,12 @@
-import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect } from "vitest";
+
+import type { PanelConfig } from "@/components/grid-resizable/types";
 import {
   useGridResizable,
   DEFAULT_STEP,
   LARGE_STEP,
 } from "@/components/grid-resizable/use-grid-resizable";
-import type { PanelConfig } from "@/components/grid-resizable/types";
 
 const STORAGE_KEY_PREFIX = "grid-resizable:v3:";
 

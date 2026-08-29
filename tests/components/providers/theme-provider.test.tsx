@@ -1,5 +1,6 @@
-import { test, expect, vi, afterEach } from "vitest";
 import { render, renderHook, act } from "@testing-library/react";
+import { test, expect, vi, afterEach } from "vitest";
+
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { useTheme } from "@/contexts/theme-context";
 

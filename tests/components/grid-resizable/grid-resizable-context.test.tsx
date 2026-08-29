@@ -1,6 +1,7 @@
-import { test, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
 import type { ReactNode } from "react";
+import { test, expect } from "vitest";
+
 import {
   GridResizableContext,
   useGridResizableContext,

@@ -1,8 +1,9 @@
-import { ListMusic, Music, Palette, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
-import type { ReactNode } from "react";
 import { Tabs as TabsPrimitive } from "@base-ui/react";
+import { ListMusic, Music, Palette, Settings } from "lucide-react";
+import type { ReactNode } from "react";
+
 import { usePwaContext } from "@/lib/pwa/use-pwa-context";
+import { cn } from "@/lib/utils";
 
 const tabs = [
   {

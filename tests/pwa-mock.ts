@@ -1,6 +1,7 @@
-import { PwaState } from "@/contexts/pwa-context";
-import { vi } from "vitest";
 import type { Dispatch, SetStateAction } from "react";
+import { vi } from "vitest";
+
+import { PwaState } from "@/contexts/pwa-context";
 
 /**
  * Default mock PwaState for testing.

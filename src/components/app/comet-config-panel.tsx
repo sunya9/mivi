@@ -1,10 +1,11 @@
+import { useCallback } from "react";
+
 import { FormRow } from "@/components/common/form-row";
-import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
-import { useCallback } from "react";
 
 interface Props {
   cometConfig: RendererConfig["cometConfig"];

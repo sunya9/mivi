@@ -1,9 +1,4 @@
-import { formatTime } from "@/lib/utils";
-import { Canvas } from "@/components/app/canvas";
-import { Button } from "@/components/ui/button";
 import { Pause, Play, Volume2, VolumeX, Maximize, Minimize, X } from "lucide-react";
-import { PlayIcon } from "@/components/app/play-icon";
-import { Slider } from "@/components/ui/slider";
 import {
   useCallback,
   useEffect,
@@ -13,18 +8,25 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import { cn } from "@/lib/utils";
-import { startViewTransition } from "@/lib/utils";
-import { RendererConfig } from "@/lib/renderers/renderer";
+import { useHotkeys } from "react-hotkeys-hook";
+
+import { Canvas } from "@/components/app/canvas";
+import { PlayIcon } from "@/components/app/play-icon";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { useAppContext } from "@/contexts/app-context";
-import { MidiTracks } from "@/lib/midi/midi";
 import { useAnimationFrame } from "@/hooks/use-animation-frame";
 import { useFpsCounter } from "@/hooks/use-fps-counter";
 import { usePanelVisibility } from "@/hooks/use-panel-visibility";
-import { RendererController } from "./renderer-controller";
-import { useHotkeys } from "react-hotkeys-hook";
 import { SerializedAudio } from "@/lib/audio/audio";
 import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
+import { MidiTracks } from "@/lib/midi/midi";
+import { RendererConfig } from "@/lib/renderers/renderer";
+import { formatTime } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { startViewTransition } from "@/lib/utils";
+
+import { RendererController } from "./renderer-controller";
 
 // ARIA widget roles where Space has a native interaction (activate, toggle, type, etc.).
 // "slider" is intentionally excluded so Space toggles playback even when a slider is focused.

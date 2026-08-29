@@ -1,9 +1,10 @@
 import { act, waitFor } from "@testing-library/react";
-import { saveValue } from "@/lib/file-db/file-db";
-import { expect, test, vi } from "vitest";
-import { useBackgroundImage } from "@/lib/background-image/use-background-image";
 import { customRenderHook } from "tests/util";
+import { expect, test, vi } from "vitest";
+
 import { toast } from "@/components/ui/toast";
+import { useBackgroundImage } from "@/lib/background-image/use-background-image";
+import { saveValue } from "@/lib/file-db/file-db";
 
 const mockImageBuffer = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])];
 const mockImage = new File(mockImageBuffer, "test.png", { type: "image/png" });

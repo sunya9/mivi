@@ -1,8 +1,10 @@
 import { useCallback } from "react";
+
 import { cn } from "@/lib/utils";
+
 import { useGridResizableContext } from "./grid-resizable-context";
-import { LARGE_STEP } from "./use-grid-resizable";
 import type { Orientation, PanelSize, SeparatorSide } from "./types";
+import { LARGE_STEP } from "./use-grid-resizable";
 
 interface GridResizableSeparatorProps {
   id: string;

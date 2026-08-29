@@ -1,12 +1,13 @@
+import type { StreamTargetChunk } from "mediabunny";
+import { resources } from "tests/fixtures";
 import { test, expect, vi } from "vitest";
+
+import type { ActivePhase } from "@/lib/media-compositor/export-progress-tracker";
+import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
+import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
+import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { startRecording } from "@/lib/media-compositor/recorder.worker";
 import { MuxerImpl } from "@/lib/muxer/muxer";
-import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
-import { resources } from "tests/fixtures";
-import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
-import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
-import type { ActivePhase } from "@/lib/media-compositor/export-progress-tracker";
-import type { StreamTargetChunk } from "mediabunny";
 
 vi.mock("@/lib/muxer/muxer");
 vi.mock("@/lib/media-compositor/media-compositor");
