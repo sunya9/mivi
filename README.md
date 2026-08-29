@@ -10,17 +10,14 @@ Transform your MIDI files into stunning visual experiences.
 
 [**Try MiVi →**](https://sunya9.github.io/mivi/)
 
----
-
 ## Features
 
 - **Visualizer Styles** - Piano Roll and Comet modes
 - **Deep Customization** - 30+ adjustable parameters, colors, and effects
 - **Playback Control** - Play, pause, seek, and track management
 - **Video Export** - Export visualizations as video files
+- **Privacy First** - Runs entirely in your browser; your files are never uploaded to any server
 - **PWA Support** - Install as standalone app, works offline
-
----
 
 ## Development
 
@@ -40,13 +37,9 @@ pnpm dev
 
 Then open `http://localhost:5173` in your browser.
 
----
-
 ## Contributing
 
 Contributions are welcome! Bug fixes and small improvements can be submitted as a PR directly. For new features or large changes, please open an issue first to discuss.
-
----
 
 ## License
 
