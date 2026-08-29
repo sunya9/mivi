@@ -193,6 +193,7 @@ export class MediaCompositor {
       // If the encoder's queue size exceeds the threshold,
       // pause the loop (yield) until the GPU processes some frames and emits a 'dequeue' event.
       if (this.#videoEncoder.encodeQueueSize > maxEncodeQueueSize) {
+        // oxlint-disable-next-line no-await-in-loop -- backpressure requires sequential await
         await this.#nextDequeue();
       }
     }

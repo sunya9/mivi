@@ -97,11 +97,13 @@ const MB = 2 ** 20;
 
 async function snapshotMB(): Promise<number> {
   let result = Infinity;
+  // oxlint-disable no-await-in-loop -- heap snapshots must be taken sequentially
   for (let i = 0; i < 3; i++) {
     const usage = await commands.getHeapUsage();
     result = Math.min(result, (usage.usedSize + (usage.backingStorageSize ?? 0)) / MB);
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
+  // oxlint-enable no-await-in-loop
   return result;
 }
 

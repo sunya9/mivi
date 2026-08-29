@@ -16,7 +16,9 @@ test("worker completes successfully", async () => {
 test("worker fails with error", async () => {
   const abortcontroller = new AbortController();
   const file = new File(["audio"], "test.mp3", { type: "audio/mpeg" });
-  await expect(runDecodeWorker(file, abortcontroller.signal)).rejects.toThrow();
+  await expect(runDecodeWorker(file, abortcontroller.signal)).rejects.toThrow(
+    "Input has an unsupported or unrecognizable format.",
+  );
 });
 
 test("worker is aborted", async () => {
