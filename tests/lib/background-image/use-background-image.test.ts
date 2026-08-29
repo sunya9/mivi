@@ -5,7 +5,8 @@ import { useBackgroundImage } from "@/lib/background-image/use-background-image"
 import { customRenderHook } from "tests/util";
 import { toast } from "sonner";
 
-const mockImage = new File(["test"], "test.png", { type: "image/png" });
+const mockImageBuffer = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])];
+const mockImage = new File(mockImageBuffer, "test.png", { type: "image/png" });
 
 test("should initialize with empty background image", async () => {
   const { result } = customRenderHook(() => useBackgroundImage());
@@ -32,13 +33,13 @@ test("should load background image from IndexedDB on mount", async () => {
 });
 
 test("should manipulate background image", async () => {
+  // happy-dom's createImageBitmap does not accept Blob/File sources, so stub the decode
   const bitmap = await createImageBitmap(new OffscreenCanvas(1, 1));
-  vi.stubGlobal("createImageBitmap", vi.fn().mockResolvedValue(bitmap));
+  vi.stubGlobal("createImageBitmap", vi.fn<typeof createImageBitmap>().mockResolvedValue(bitmap));
 
   const { result } = customRenderHook(() => useBackgroundImage());
-  await waitFor(async () => {
-    await result.current.setBackgroundImageFile(mockImage);
-  });
+  await waitFor(() => expect(result.current).not.toBeNull());
+  await act(async () => await result.current.setBackgroundImageFile(mockImage));
 
   expect(result.current.backgroundImageFile).toBe(mockImage);
   expect(result.current.backgroundImageBitmap).toEqual(expect.any(ImageBitmap));
@@ -53,11 +54,12 @@ test("should manipulate background image", async () => {
 test("should handle errors when setting background image", async () => {
   const error = new Error("Failed to load image");
   console.error = vi.fn<(...data: unknown[]) => void>();
-  vi.stubGlobal("createImageBitmap", vi.fn().mockRejectedValue(error));
+  vi.stubGlobal("createImageBitmap", vi.fn<typeof createImageBitmap>().mockRejectedValue(error));
 
   const { result } = customRenderHook(() => useBackgroundImage());
 
-  await waitFor(() => result.current.setBackgroundImageFile(mockImage));
+  await waitFor(() => expect(result.current).not.toBeNull());
+  await act(async () => await result.current.setBackgroundImageFile(mockImage));
   await waitFor(() => {
     expect(console.error).toHaveBeenCalledExactlyOnceWith("Failed to load background image", error);
     expect(toast.error).toHaveBeenCalledExactlyOnceWith("Failed to load background image", {
