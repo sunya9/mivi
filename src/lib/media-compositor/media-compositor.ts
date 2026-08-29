@@ -163,7 +163,7 @@ export class MediaCompositor {
     const precomputedFFT = this.#precomputeFFT();
 
     for (let i = 0; i < this.#totalVideoFrames; i++) {
-      const currentTime = (i / this.#totalVideoFrames) * this.#duration;
+      const currentTime = i / this.#fps;
 
       backgroundRenderer.render();
 
