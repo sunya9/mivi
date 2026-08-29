@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi, test } from "vitest";
-import { cn, formatTime, resetConfig, errorLogWithToast, startViewTransition } from "@/lib/utils";
+import { cn, formatTime, resetConfig, startViewTransition } from "@/lib/utils";
 import { saveValue } from "@/lib/file-db/file-db";
-import { toast } from "@/components/ui/toast";
 
 describe("cn", () => {
   it("should merge class names correctly", () => {
@@ -39,49 +38,6 @@ describe("resetConfig", () => {
     expect(location.reload).toHaveBeenCalledTimes(1);
     const databasesAfter = await indexedDB.databases();
     expect(databasesAfter.length).toBe(0);
-  });
-});
-
-describe("errorLogWithToast", () => {
-  beforeEach(() => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  it("should call console.error and toast.error with message", () => {
-    const message = "Test error message";
-    errorLogWithToast(message);
-
-    expect(console.error).toHaveBeenCalledExactlyOnceWith(message);
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
-      title: message,
-      description: undefined,
-      type: "error",
-    });
-  });
-
-  it("should call console.error and toast.error with message and error object", () => {
-    const message = "Test error message";
-    const error = new Error("Test error");
-    errorLogWithToast(message, error);
-
-    expect(console.error).toHaveBeenCalledExactlyOnceWith(message, error);
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
-      title: message,
-      description: error.message,
-      type: "error",
-    });
-  });
-
-  it("should handle undefined error object", () => {
-    const message = "Test error message";
-    errorLogWithToast(message, undefined);
-
-    expect(console.error).toHaveBeenCalledExactlyOnceWith(message);
-    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
-      title: message,
-      description: undefined,
-      type: "error",
-    });
   });
 });
 

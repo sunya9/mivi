@@ -1,7 +1,7 @@
 import { fetchValue, saveValue } from "@/lib/file-db/file-db";
 import { createContext, use, useSyncExternalStore } from "react";
 import { type StoredAudioData } from "../audio/audio";
-import { errorLogWithToast } from "../utils";
+import { errorLogWithToast } from "@/lib/error-toast";
 
 export interface FileDbEntry<T = unknown> {
   file: File;

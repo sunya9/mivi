@@ -3,7 +3,7 @@ import { useAudioFileDb } from "@/lib/file-db/file-db-store";
 import { type StoredAudioData } from "@/lib/audio/audio";
 import { AudioSource, SerializedAudio } from "@/lib/audio/audio";
 import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
-import { errorLogWithToast } from "../utils";
+import { errorLogWithToast } from "@/lib/error-toast";
 import type { AudioBuffer, AudioContext } from "standardized-audio-context";
 import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
 import { floatToInt16, int16ToFloat } from "@/lib/audio/pcm";

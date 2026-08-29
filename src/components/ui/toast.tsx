@@ -18,7 +18,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-export type ToastType = "success" | "info" | "warning" | "error" | "loading";
+export type ToastType = "success" | "info" | "warning" | "error" | "loading" | (string & {});
 
 type WithToastType<T> = Omit<T, "type"> & { type?: ToastType };
 type TypedToastUpdate<Data extends object> = WithToastType<ToastManagerUpdateOptions<Data>>;
@@ -171,8 +171,8 @@ const toastIcons: Record<ToastType, React.ReactNode> = {
   loading: <Loader2Icon className="animate-spin" aria-hidden="true" />,
 };
 
-function ToastIcon({ type }: { type: string | undefined }) {
-  const icon = type && type in toastIcons ? toastIcons[type as ToastType] : undefined;
+function ToastIcon({ type }: { type: ToastType | undefined }) {
+  const icon = type && Object.hasOwn(toastIcons, type) ? toastIcons[type] : undefined;
 
   if (!icon) {
     return null;
