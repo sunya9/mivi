@@ -28,7 +28,7 @@ export function AppHeader({ className, recordingState, toggleRecording }: Props)
         </div>
         <div className="flex items-center gap-2 md:ml-auto">
           {recordingState.type === "recording" && recordingState.activePhase && (
-            <span className="hidden text-muted-foreground md:inline md:text-xs">
+            <span className="hidden text-muted-foreground tabular-nums md:inline md:text-xs">
               {recordingState.activePhase.name} — {recordingState.activePhase.eta}
             </span>
           )}
