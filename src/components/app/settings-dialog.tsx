@@ -1,4 +1,12 @@
-import { useCallback, RefAttributes, SVGProps, ForwardRefExoticComponent, Activity } from "react";
+import {
+  useCallback,
+  RefAttributes,
+  SVGProps,
+  ForwardRefExoticComponent,
+  Activity,
+  useRef,
+  useState,
+} from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { Palette, Info, Keyboard } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -9,6 +17,7 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
@@ -19,17 +28,28 @@ import { ThemeSettings } from "./theme-settings";
 import { AboutContent } from "./about-content";
 import { KeyboardShortcutsContent } from "./keyboard-shortcuts-content";
 
-const navItems = [
-  { value: "general" as const, name: "General", icon: Palette },
-  { value: "about" as const, name: "About", icon: Info },
-  { value: "shortcuts" as const, name: "Shortcuts", icon: Keyboard },
+const navGroups = [
+  {
+    label: "Preferences",
+    items: [{ value: "general" as const, name: "General", icon: Palette }],
+  },
+  {
+    label: "Help",
+    items: [
+      { value: "shortcuts" as const, name: "Shortcuts", icon: Keyboard },
+      { value: "about" as const, name: "About", icon: Info },
+    ],
+  },
 ] satisfies readonly {
-  value: string;
-  name: string;
-  icon: ForwardRefExoticComponent<RefAttributes<SVGSVGElement> & SVGProps<SVGSVGElement>>;
+  label: string;
+  items: readonly {
+    value: string;
+    name: string;
+    icon: ForwardRefExoticComponent<RefAttributes<SVGSVGElement> & SVGProps<SVGSVGElement>>;
+  }[];
 }[];
 
-export type SettingsTabValue = (typeof navItems)[number]["value"];
+export type SettingsTabValue = (typeof navGroups)[number]["items"][number]["value"];
 
 interface SettingsDialogProps {
   tab?: SettingsTabValue;
@@ -41,18 +61,28 @@ export function SettingsDialog({ tab, onTabChange }: SettingsDialogProps) {
   useHotkeys("shift+slash", () => {
     onTabChange("shortcuts");
   });
-  const open = tab !== undefined;
-
+  const open = !!tab;
+  const [lastTab, setLastTab] = useState<SettingsTabValue>("general");
+  if (tab && tab !== lastTab) {
+    setLastTab(tab);
+  }
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
       onTabChange(newOpen ? "general" : undefined);
     },
     [onTabChange],
   );
+  // Focus the dialog itself on open so screen readers announce the title first,
+  // instead of jumping into the first sidebar item
+  const popupRef = useRef<HTMLDivElement>(null);
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="overflow-hidden p-0 md:max-w-175">
-        {tab && <SettingsDialogContent activeTab={tab} onTabChange={onTabChange} />}
+      <DialogContent
+        ref={popupRef}
+        initialFocus={popupRef}
+        className="overflow-hidden p-0 md:max-w-175"
+      >
+        <SettingsDialogContent activeTab={lastTab} onTabChange={onTabChange} />
       </DialogContent>
     </Dialog>
   );
@@ -79,25 +109,28 @@ function SettingsDialogContent({
         Application settings and information
       </DialogDescription>
       <SidebarProvider className="min-h-0 items-start" style={{ "--sidebar-width": "12rem" }}>
-        <Sidebar collapsible="none" className="hidden md:flex">
+        <Sidebar collapsible="none" className="hidden py-3.5 md:flex">
           <SidebarContent>
-            <SidebarGroup>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navItems.map((item) => (
-                    <SidebarMenuItem key={item.value}>
-                      <SidebarMenuButton
-                        isActive={activeTab === item.value}
-                        onClick={() => onTabChange(item.value)}
-                      >
-                        <item.icon />
-                        <span>{item.name}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+            {navGroups.map((group) => (
+              <SidebarGroup key={group.label}>
+                <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {group.items.map((item) => (
+                      <SidebarMenuItem key={item.value}>
+                        <SidebarMenuButton
+                          isActive={activeTab === item.value}
+                          onClick={() => onTabChange(item.value)}
+                        >
+                          <item.icon />
+                          <span>{item.name}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            ))}
           </SidebarContent>
         </Sidebar>
         <SidebarInset>

@@ -1,5 +1,5 @@
 import { expect, test, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SettingsDialog, SettingsContent } from "@/components/app/settings-dialog";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -26,6 +26,15 @@ test("SettingsDialog renders when open is true", () => {
   renderDialog();
 
   expect(screen.getByRole("dialog")).toBeVisible();
+});
+
+test("SettingsDialog moves focus to the dialog container when opened", async () => {
+  renderDialog();
+
+  const dialog = screen.getByRole("dialog");
+  await waitFor(() => {
+    expect(dialog).toHaveFocus();
+  });
 });
 
 test("SettingsDialog does not render content when tab is undefined", () => {

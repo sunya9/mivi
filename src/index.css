@@ -210,6 +210,12 @@
   }
 }
 
+@supports (corner-shape: squircle) {
+  :is([class="rounded"], [class*="rounded-"]):not(.rounded-full) {
+    corner-shape: squircle;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:active-view-transition-type(canvas-expand) {
     &::view-transition-group(*) {
