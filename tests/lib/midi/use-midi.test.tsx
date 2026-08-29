@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { useMidi } from "@/lib/midi/use-midi";
 import { testMidiTracks, midiFile } from "tests/fixtures";
 import { MidiTracks } from "@/lib/midi/midi";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { customRenderHook } from "tests/util";
 
 function TestComponent() {
@@ -53,7 +53,7 @@ test("loads and processes MIDI file", async () => {
   expect(rest).toEqual(expectedRest);
   expect(typeof instanceKey).toBe("string");
   expect(instanceKey.length).toBeGreaterThan(0);
-  expect(toast.success).toHaveBeenCalledWith("MIDI file loaded");
+  expect(toast.add).toHaveBeenCalledWith({ title: "MIDI file loaded", type: "success" });
 });
 
 test("sets midiTracks to undefined when setMidiFile is called with undefined", async () => {

@@ -3,7 +3,7 @@ import { saveValue } from "@/lib/file-db/file-db";
 import { expect, test, vi } from "vitest";
 import { useBackgroundImage } from "@/lib/background-image/use-background-image";
 import { customRenderHook } from "tests/util";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 const mockImageBuffer = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])];
 const mockImage = new File(mockImageBuffer, "test.png", { type: "image/png" });
@@ -48,7 +48,10 @@ test("should manipulate background image", async () => {
   await act(() => result.current.setBackgroundImageFile(undefined));
   expect(result.current.backgroundImageFile).toBeUndefined();
   expect(result.current.backgroundImageBitmap).toBeUndefined();
-  expect(toast.success).toHaveBeenCalledExactlyOnceWith("Image file loaded");
+  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+    title: "Image file loaded",
+    type: "success",
+  });
 });
 
 test("should handle errors when setting background image", async () => {
@@ -62,8 +65,10 @@ test("should handle errors when setting background image", async () => {
   await act(async () => await result.current.setBackgroundImageFile(mockImage));
   await waitFor(() => {
     expect(console.error).toHaveBeenCalledExactlyOnceWith("Failed to load background image", error);
-    expect(toast.error).toHaveBeenCalledExactlyOnceWith("Failed to load background image", {
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+      title: "Failed to load background image",
       description: error.message,
+      type: "error",
     });
   });
   // Decode failed, so entry is NOT saved

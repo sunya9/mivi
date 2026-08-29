@@ -5,7 +5,7 @@ import { audioFile, invalidFile } from "../../fixtures";
 import { customRenderHook } from "tests/util";
 import { saveValue } from "@/lib/file-db/file-db";
 import type { FileDbEntry } from "@/lib/file-db/file-db-store";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { AudioContext } from "standardized-audio-context-mock";
 import type { StoredAudioData } from "@/lib/audio/audio";
 import { floatToInt16 } from "@/lib/audio/pcm";
@@ -75,7 +75,10 @@ test("audioBuffer is defined after call setAudioFile", async () => {
     expect(result.current.audioBuffer).toBeDefined();
     expect(result.current.serializedAudio).toBeDefined();
     expect(result.current.audioFile).toBeDefined();
-    expect(toast.success).toHaveBeenCalledExactlyOnceWith("Audio file loaded");
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+      title: "Audio file loaded",
+      type: "success",
+    });
   });
   expect(runDecodeWorker).toHaveBeenCalledWith(audioFile, expect.any(AbortSignal));
 });
@@ -118,7 +121,10 @@ test("cancelDecode aborts in-progress decode and resets isDecoding", async () =>
     expect(result.current.isDecoding).toBe(false);
     expect(result.current.audioBuffer).toBeUndefined();
     expect(result.current.audioFile).toBeUndefined();
-    expect(toast.info).toHaveBeenCalledExactlyOnceWith("Audio loading cancelled");
+    expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+      title: "Audio loading cancelled",
+      type: "info",
+    });
   });
   // Ensure resolving after cancel has no effect
   resolveWorker(mockStoredAudio);
@@ -179,8 +185,10 @@ test("handles audio file loading errors", async () => {
   await result.current.setAudioFile(invalidFile);
 
   expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith("Failed to set audio file", error);
-  expect(toast.error).toHaveBeenCalledExactlyOnceWith("Failed to set audio file", {
+  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+    title: "Failed to set audio file",
     description: error.message,
+    type: "error",
   });
   expect(result.current.audioBuffer).toBeUndefined();
   expect(result.current.audioFile).toBeUndefined();

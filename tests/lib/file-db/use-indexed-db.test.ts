@@ -4,7 +4,7 @@ import { customRenderHook } from "tests/util";
 import { saveValue } from "@/lib/file-db/file-db";
 import { useAudioFileDb, type FileDbEntry } from "@/lib/file-db/file-db-store";
 import { type StoredAudioData } from "@/lib/audio/audio";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 
 const mockFile = new File(["test content"], "test.txt", {
   type: "text/plain",
@@ -66,7 +66,7 @@ test("should handle saveValue error gracefully", async () => {
     .spyOn(await import("@/lib/file-db/file-db"), "saveValue")
     .mockRejectedValue(error);
   const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-  const toastSpy = vi.spyOn(toast, "error");
+  const toastSpy = vi.spyOn(toast, "add");
 
   const { result } = customRenderHook(() => useAudioFileDb());
 
@@ -75,8 +75,10 @@ test("should handle saveValue error gracefully", async () => {
 
   await waitFor(() => {
     expect(consoleSpy).toHaveBeenCalledWith("Failed to save file", error);
-    expect(toastSpy).toHaveBeenCalledWith("Failed to save file", {
+    expect(toastSpy).toHaveBeenCalledWith({
+      title: "Failed to save file",
       description: error.message,
+      type: "error",
     });
   });
 

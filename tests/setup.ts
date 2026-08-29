@@ -8,6 +8,7 @@ import { IDBFactory } from "fake-indexeddb";
 import { closeDb } from "@/lib/file-db/file-db";
 import { webcrypto } from "node:crypto";
 import * as standardizedAudioContextMock from "standardized-audio-context-mock";
+import { toast } from "@/components/ui/toast";
 
 vi.mock("virtual:pwa-register/react", () => ({
   useRegisterSW: vi.fn<typeof import("virtual:pwa-register/react").useRegisterSW>(() => ({
@@ -27,7 +28,7 @@ afterEach(() => {
 });
 
 vi.mock("standardized-audio-context", () => standardizedAudioContextMock);
-vi.mock("sonner", { spy: true });
+vi.spyOn(toast, "add");
 
 let idCounter = 0;
 

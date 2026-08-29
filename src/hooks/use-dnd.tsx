@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { cn, errorLogWithToast } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { errorLogWithToast } from "@/lib/error-toast";
 import { useState, useCallback, useMemo } from "react";
 
 interface Props {

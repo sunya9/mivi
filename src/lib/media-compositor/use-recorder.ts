@@ -4,10 +4,10 @@ import {
   ReadyState,
   RecordingState,
 } from "@/lib/media-compositor/recording-status";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { runRecorder } from "./run-recorder-worker";
 import type { ActivePhase } from "./export-progress-tracker";
-import { errorLogWithToast } from "../utils";
+import { errorLogWithToast } from "@/lib/error-toast";
 import type { MidiTracks } from "@/lib/midi/midi";
 import type { AudioSource } from "@/lib/audio/audio";
 import type { RendererConfig } from "@/lib/renderers/renderer";
@@ -53,7 +53,6 @@ export function useRecorder(resources: {
           progress < 1 ? new RecordingState(progress, activePhase) : new ReadyState(),
         );
       };
-      toast("Exporting...");
 
       return runRecorder(
         {
@@ -73,9 +72,13 @@ export function useRecorder(resources: {
           a.download = `mivi-${exportName}.${resources.rendererConfig.format}`;
           a.click();
           URL.revokeObjectURL(url);
-          toast.success("Export completed");
+          toast.add({ title: "Export completed", type: "success" });
         })
         .catch((error) => {
+          if (signal.aborted) {
+            toast.add({ title: "Export cancelled", type: "info" });
+            return;
+          }
           errorLogWithToast("Failed during recording", error);
         })
         .finally(() => {
