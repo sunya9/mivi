@@ -1,4 +1,4 @@
-import { CheckIcon, Info, XIcon } from "lucide-react";
+import { CircleCheck, CircleX, Info } from "lucide-react";
 import { useMemo } from "react";
 
 import { checkBrowserApis } from "@/lib/browser-compat/browser-compat";
@@ -35,9 +35,9 @@ export function AboutContent({ className }: Props) {
             {apiStatuses.map((api) => (
               <li key={api.name} className={cn("flex items-center gap-2 text-sm")}>
                 {api.supported ? (
-                  <CheckIcon className="size-4 text-emerald-500" />
+                  <CircleCheck className="size-4 text-emerald-600" />
                 ) : (
-                  <XIcon className="size-4 text-orange-600" />
+                  <CircleX className="size-4 text-orange-600" />
                 )}
                 {api.name}
               </li>

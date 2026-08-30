@@ -94,11 +94,11 @@ export function ColorPickerInput({
   const previewColor = normalizedInputColor ?? value;
 
   return (
-    <InputGroup className={cn("h-8 w-fit", className)} data-disabled={disabled || undefined}>
+    <InputGroup className={cn("h-8 w-fit", className)} data-disabled={disabled}>
       <InputGroupAddon align="inline-start" className="pl-1.5">
         <div
           className={cn(
-            "relative size-5 overflow-hidden rounded-sm",
+            "relative size-5 overflow-hidden rounded-sm border",
             "cursor-pointer",
             disabled && "cursor-not-allowed opacity-50",
           )}
@@ -126,7 +126,7 @@ export function ColorPickerInput({
         aria-label={ariaLabel}
         aria-invalid={isInvalid || undefined}
         disabled={disabled}
-        className="font-mono h-8 w-[9ch]"
+        className="h-8 w-[10ch] text-right font-mono"
       />
     </InputGroup>
   );

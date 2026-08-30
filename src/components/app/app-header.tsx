@@ -18,7 +18,7 @@ export function AppHeader({ className, recordingState, toggleRecording }: Props)
   }, [toggleRecording]);
 
   return (
-    <div className={cn("relative border-b", className)}>
+    <header className={cn("relative border-b", className)}>
       <div className="mx-auto flex max-w-384 items-center justify-between gap-2 px-4 py-2 md:flex-row md:items-end md:p-6">
         <div className="inline-flex items-baseline gap-2">
           <h1 className="text-2xl font-bold tracking-tighter md:text-7xl">MiVi</h1>
@@ -55,6 +55,6 @@ export function AppHeader({ className, recordingState, toggleRecording }: Props)
           value={recordingState.progress * 100}
         />
       )}
-    </div>
+    </header>
   );
 }

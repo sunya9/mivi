@@ -387,7 +387,7 @@ export function MidiVisualizer({
             <div
               onClick={(e) => e.stopPropagation()}
               className={cn(
-                "bg-linear-to-t from-black/50 to-black/0 p-2 transition-all duration-500",
+                "bg-linear-to-t from-black/50 to-black/0 py-2 transition-all duration-500",
                 "hover:translate-y-0",
                 {
                   "pointer-events-auto translate-y-0": panelVisible,
@@ -433,9 +433,9 @@ export function MidiVisualizer({
                     endInteraction();
                     setIsSeeking(false);
                   }}
-                  className="**:data-[slot=slider-track]:bg-muted/30"
+                  className="group py-2 **:data-[slot=slider-range]:h-1 **:data-[slot=slider-thumb]:opacity-0 **:data-[slot=slider-thumb]:transition-[color,box-shadow,opacity] **:group-hover:data-[slot=slider-thumb]:opacity-100 **:data-[slot=slider-track]:h-1 **:data-[slot=slider-track]:rounded-none **:data-[slot=slider-track]:bg-muted/30"
                 />
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-2">
                   <Button
                     onClick={togglePlay}
                     variant="ghost-secondary"
@@ -465,10 +465,12 @@ export function MidiVisualizer({
                     aria-label="Volume"
                     className="basis-24 **:data-[slot=slider-track]:bg-muted/30"
                   />
-                  <span className="flex-1 text-white tabular-nums">
+                  <span className="flex-1 text-sm text-muted tabular-nums">
                     {formatTime(position)} / {formatTime(duration)}
                   </span>
-                  <span className="text-xs text-white/60 tabular-nums">{actualFps} fps</span>
+                  {isPlaying && (
+                    <span className="text-xs text-white/60 tabular-nums">{actualFps} fps</span>
+                  )}
                   <Button
                     variant="ghost-secondary"
                     onClick={toggleExpanded}

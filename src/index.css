@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-*: initial;
+  /* --font-*: initial; */
   --font-sans:
     Geist, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol,
     Noto Color Emoji;
@@ -35,13 +35,13 @@
 
 :root,
 .light {
-  --app-color: oklch(0.5823 0.1411 327.2);
+  --app-color: oklch(58.379% 0.09607 201.31);
   --app-color-foreground: oklch(1 0 0);
   --background: var(--color-gray-50);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
+  --popover: var(--color-gray-50);
   --popover-foreground: oklch(0.145 0 0);
   --primary: var(--app-color);
   --primary-foreground: var(--app-color-foreground);
@@ -235,4 +235,8 @@ html:active-view-transition-type(export-button-change) {
     width: 100%;
     height: 100%;
   }
+}
+
+.lucide {
+  stroke-width: 1.5;
 }
