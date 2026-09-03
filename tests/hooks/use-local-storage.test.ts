@@ -92,3 +92,14 @@ test('treats a corrupted "undefined" entry as missing and removes it', () => {
   expect(localStorage.getItem("test-key")).toBeNull();
   expect(console.error).not.toHaveBeenCalled();
 });
+
+test("persists falsy values instead of removing the key", () => {
+  const { result } = renderHook(() => useLocalStorage<number>("test-key"));
+
+  act(() => {
+    result.current[1](0);
+  });
+
+  expect(result.current[0]).toBe(0);
+  expect(localStorage.getItem("test-key")).toEqual("0");
+});

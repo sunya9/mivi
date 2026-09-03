@@ -24,7 +24,7 @@ function isUpdater<T>(action: SetStateAction<T>): action is (prev: T) => T {
 }
 
 function persistValue<T>(key: string, value: T | undefined) {
-  if (!value) {
+  if (value === undefined) {
     localStorage.removeItem(key);
   } else {
     localStorage.setItem(key, JSON.stringify(value));
