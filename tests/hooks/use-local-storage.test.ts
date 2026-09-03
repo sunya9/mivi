@@ -46,3 +46,49 @@ test("handles JSON parse errors gracefully", () => {
   expect(result.current[0]).toBeUndefined();
   expect(console.error).toHaveBeenCalledTimes(1);
 });
+
+test("persists the resolved value when setter receives a functional updater", () => {
+  localStorage.setItem("test-key", JSON.stringify({ count: 1 }));
+  const { result } = renderHook(() => useLocalStorage<{ count: number }>("test-key"));
+
+  act(() => {
+    result.current[1]((prev) => ({ count: (prev?.count ?? 0) + 1 }));
+  });
+
+  expect(result.current[0]).toEqual({ count: 2 });
+  expect(localStorage.getItem("test-key")).toEqual(JSON.stringify({ count: 2 }));
+});
+
+test("removes item from localStorage when functional updater returns undefined", () => {
+  localStorage.setItem("test-key", JSON.stringify(mockValue));
+  const { result } = renderHook(() => useLocalStorage<typeof mockValue>("test-key"));
+
+  act(() => {
+    result.current[1](() => undefined);
+  });
+
+  expect(result.current[0]).toBeUndefined();
+  expect(localStorage.getItem("test-key")).toBeNull();
+});
+
+test("reads back a value persisted by a functional updater on the next render", () => {
+  const { result } = renderHook(() => useLocalStorage<{ count: number }>("test-key"));
+
+  act(() => {
+    result.current[1](() => ({ count: 5 }));
+  });
+
+  const { result: reloaded } = renderHook(() => useLocalStorage<{ count: number }>("test-key"));
+  expect(reloaded.current[0]).toEqual({ count: 5 });
+});
+
+test('treats a corrupted "undefined" entry as missing and removes it', () => {
+  localStorage.setItem("test-key", "undefined");
+  console.error = vi.fn<(...data: unknown[]) => void>();
+
+  const { result } = renderHook(() => useLocalStorage<string>("test-key"));
+
+  expect(result.current[0]).toBeUndefined();
+  expect(localStorage.getItem("test-key")).toBeNull();
+  expect(console.error).not.toHaveBeenCalled();
+});
