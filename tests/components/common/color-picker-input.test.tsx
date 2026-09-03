@@ -192,3 +192,26 @@ test("should disable both inputs when disabled prop is true", () => {
   expect(textInput).toBeDisabled();
   expect(nativePicker).toBeDisabled();
 });
+
+// External value sync tests
+test("should update text input when value prop changes", () => {
+  const { rerender } = renderColorPickerInput({ value: "#ff0000" });
+  rerender(<ColorPickerInput value="#00ff00" onChange={mockOnChange} aria-label="Color picker" />);
+  expect(screen.getByRole("textbox")).toHaveValue("#00ff00");
+});
+
+test("should keep partial input when rerendered with the same value", () => {
+  const { rerender } = renderColorPickerInput({ value: "#ff0000" });
+  const input = screen.getByRole("textbox");
+  fireEvent.change(input, { target: { value: "#00f" } });
+  rerender(<ColorPickerInput value="#ff0000" onChange={mockOnChange} aria-label="Color picker" />);
+  expect(input).toHaveValue("#00f");
+});
+
+test("should replace partial input when value prop changes", () => {
+  const { rerender } = renderColorPickerInput({ value: "#ff0000" });
+  const input = screen.getByRole("textbox");
+  fireEvent.change(input, { target: { value: "#00f" } });
+  rerender(<ColorPickerInput value="#0000ff" onChange={mockOnChange} aria-label="Color picker" />);
+  expect(input).toHaveValue("#0000ff");
+});

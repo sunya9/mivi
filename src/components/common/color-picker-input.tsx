@@ -44,6 +44,12 @@ export function ColorPickerInput({
   const colorPickerId = `${textInputId}-color-picker`;
 
   const [inputValue, setInputValue] = useState(value);
+  // Follow external value changes without a stale-frame render (no useEffect)
+  const [lastValue, setLastValue] = useState(value);
+  if (value !== lastValue) {
+    setLastValue(value);
+    setInputValue(value);
+  }
 
   const handleNativePickerChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
