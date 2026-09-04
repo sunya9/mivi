@@ -51,6 +51,16 @@ test("should render", async () => {
   expect(result.current.rendererConfig.type).toBe("comet");
 });
 
+test("selecting Vertical Piano Roll shows its config panel", async () => {
+  const { result } = renderHook(() => useRendererConfig());
+  const { rerender } = render(<Wrapper>{result.current.VisualizerStyle}</Wrapper>);
+  await userEvent.click(screen.getByRole("combobox", { name: "Style" }));
+  await userEvent.click(screen.getByRole("option", { name: "Vertical Piano Roll" }));
+  expect(result.current.rendererConfig.type).toBe("verticalPianoRoll");
+  rerender(<Wrapper>{result.current.VisualizerStyle}</Wrapper>);
+  expect(screen.getByText("Keyboard Height: 15%")).toBeInTheDocument();
+});
+
 const Wrapper = ({ children }: { children: JSX.Element }) => {
   return <>{children}</>;
 };

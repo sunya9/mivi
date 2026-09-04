@@ -12,7 +12,7 @@ Transform your MIDI files into stunning visual experiences.
 
 ## Features
 
-- **Visualizer Styles** - Piano Roll and Comet modes
+- **Visualizer Styles** - Piano Roll, Vertical Piano Roll (falling notes onto a keyboard), and Comet modes
 - **Deep Customization** - 30+ adjustable parameters, colors, and effects
 - **Playback Control** - Play, pause, seek, and track management
 - **Video Export** - Export visualizations as video files

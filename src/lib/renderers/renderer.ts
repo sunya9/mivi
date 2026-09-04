@@ -39,6 +39,33 @@ interface PianoRollConfigValues extends NoteEffectsConfigValues {
   pressAnimationDuration: number;
 }
 
+interface VerticalPianoRollConfigValues extends NoteEffectsConfigValues {
+  timeWindow: number;
+  viewRangeTop: number;
+  viewRangeBottom: number;
+  keyboardHeight: number;
+  whiteKeyColor: string;
+  blackKeyColor: string;
+  showKeyPressHighlight: boolean;
+  keyPressOpacity: number;
+  showOctaveLabels: boolean;
+  showKeyLines: boolean;
+  keyLineColor: string;
+  keyLineOpacity: number;
+  showOctaveLines: boolean;
+  octaveLineColor: string;
+  octaveLineOpacity: number;
+  noteMargin: number;
+  noteVerticalMargin: number;
+  noteCornerRadius: number;
+  darkenBlackKeyNotes: boolean;
+  blackKeyNoteDarkness: number;
+  showHitLine: boolean;
+  hitLineColor: string;
+  hitLineWidth: number;
+  hitLineOpacity: number;
+}
+
 interface CometConfigValues {
   fallAngle: number;
   fallDistancePercent: number;
@@ -74,7 +101,7 @@ export const resolutions: Resolution[] = [
   { width: 720, height: 720, label: "720×720 (1:1)" },
 ];
 
-export type RendererType = "none" | "pianoRoll" | "comet";
+export type RendererType = "none" | "pianoRoll" | "verticalPianoRoll" | "comet";
 
 // Audio Visualizer Types
 type AudioVisualizerFFTSize = 512 | 1024 | 2048 | 4096;
@@ -230,6 +257,7 @@ export interface RendererConfig {
   fps: FPS;
   format: VideoFormat;
   pianoRollConfig: PianoRollConfigValues;
+  verticalPianoRollConfig: VerticalPianoRollConfigValues;
   cometConfig: CometConfigValues;
   audioVisualizerConfig: AudioVisualizerConfig;
   audioVisualizerLayer: AudioVisualizerLayer;
@@ -287,6 +315,33 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     showNotePressEffect: true,
     notePressDepth: 4,
     pressAnimationDuration: 0.1,
+  },
+  verticalPianoRollConfig: {
+    ...getDefaultNoteEffectsConfig(),
+    timeWindow: 3,
+    viewRangeTop: 108,
+    viewRangeBottom: 21,
+    keyboardHeight: 15,
+    whiteKeyColor: "#f5f5f5",
+    blackKeyColor: "#1a1a1a",
+    showKeyPressHighlight: true,
+    keyPressOpacity: 0.9,
+    showOctaveLabels: true,
+    showKeyLines: true,
+    keyLineColor: "#ffffff",
+    keyLineOpacity: 0.08,
+    showOctaveLines: true,
+    octaveLineColor: "#ffffff",
+    octaveLineOpacity: 0.1,
+    noteMargin: 1,
+    noteVerticalMargin: 2,
+    noteCornerRadius: 2,
+    darkenBlackKeyNotes: true,
+    blackKeyNoteDarkness: 0.25,
+    showHitLine: true,
+    hitLineColor: "#ffffff",
+    hitLineWidth: 2,
+    hitLineOpacity: 0.8,
   },
   cometConfig: {
     fallAngle: 135,
