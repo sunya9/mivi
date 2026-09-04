@@ -24,7 +24,7 @@ const mockEntry: FileDbEntry<StoredAudioData> = {
 };
 
 test("should initialize with undefined when no entry exists", async () => {
-  const { result } = customRenderHook(() => useAudioFileDb());
+  const { result } = await customRenderHook(() => useAudioFileDb());
   await waitFor(() => {
     expect(result.current.file).toBeUndefined();
     expect(result.current.decoded).toBeUndefined();
@@ -33,7 +33,7 @@ test("should initialize with undefined when no entry exists", async () => {
 
 test("should initialize with cached entry when available", async () => {
   await saveValue(testKey, mockEntry);
-  const { result } = customRenderHook(() => useAudioFileDb());
+  const { result } = await customRenderHook(() => useAudioFileDb());
   await waitFor(() => {
     expect(result.current.file?.name).toBe(mockFile.name);
     expect(result.current.decoded).toBeDefined();
@@ -41,7 +41,7 @@ test("should initialize with cached entry when available", async () => {
 });
 
 test("should set and save entry successfully", async () => {
-  const { result } = customRenderHook(() => useAudioFileDb());
+  const { result } = await customRenderHook(() => useAudioFileDb());
 
   await waitFor(async () => {
     await result.current.setEntry(mockEntry);
@@ -52,7 +52,7 @@ test("should set and save entry successfully", async () => {
 
 test("should clear entry when set to undefined", async () => {
   await saveValue(testKey, mockEntry);
-  const { result } = customRenderHook(() => useAudioFileDb());
+  const { result } = await customRenderHook(() => useAudioFileDb());
 
   await waitFor(async () => {
     await result.current.setEntry(undefined);
@@ -69,7 +69,7 @@ test("should handle saveValue error gracefully", async () => {
   const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   const toastSpy = vi.spyOn(toast, "add");
 
-  const { result } = customRenderHook(() => useAudioFileDb());
+  const { result } = await customRenderHook(() => useAudioFileDb());
 
   await waitFor(() => expect(result.current).not.toBeNull());
   await result.current.setEntry(mockEntry);

@@ -12,8 +12,8 @@ const onUpdateRendererConfig: Props["onUpdateRendererConfig"] =
   vi.fn<Props["onUpdateRendererConfig"]>();
 const pianoRollConfig = rendererConfig.pianoRollConfig;
 
-function renderPane(overrideProps?: Partial<Props>) {
-  customRender(
+async function renderPane(overrideProps?: Partial<Props>) {
+  await customRender(
     <PianoRollConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
       pianoRollConfig={pianoRollConfig}
@@ -25,36 +25,36 @@ function renderPane(overrideProps?: Partial<Props>) {
 }
 
 // Render tests
-test("renders time window label", () => {
-  renderPane();
+test("renders time window label", async () => {
+  await renderPane();
   expect(screen.getByText(`Time Window: ${pianoRollConfig.timeWindow}s`)).toBeInTheDocument();
 });
 
-test("renders note height label", () => {
-  renderPane();
+test("renders note height label", async () => {
+  await renderPane();
   expect(screen.getByText(`Note Height: ${pianoRollConfig.noteHeight}px`)).toBeInTheDocument();
 });
 
-test("renders playhead position label", () => {
-  renderPane();
+test("renders playhead position label", async () => {
+  await renderPane();
   expect(
     screen.getByText(`Playhead Position: ${pianoRollConfig.playheadPosition}%`),
   ).toBeInTheDocument();
 });
 
-test("displays detected note range when midiTracks provided", () => {
-  renderPane();
+test("displays detected note range when midiTracks provided", async () => {
+  await renderPane();
   expect(screen.getByText(/Detected range: 60 - 72/, { exact: false })).toBeInTheDocument();
 });
 
-test("does not display detected note range when no midiTracks", () => {
-  renderPane({ minNote: undefined, maxNote: undefined });
+test("does not display detected note range when no midiTracks", async () => {
+  await renderPane({ minNote: undefined, maxNote: undefined });
   expect(screen.queryByText(/Detected range/)).not.toBeInTheDocument();
 });
 
 // Switch toggle tests
 test("toggle playhead border", async () => {
-  renderPane();
+  await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Playhead Border" });
   await userEvent.click(switchEl);
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -63,7 +63,7 @@ test("toggle playhead border", async () => {
 });
 
 test("toggle ripple effect", async () => {
-  renderPane();
+  await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Ripple Effect" });
   await userEvent.click(switchEl);
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -72,7 +72,7 @@ test("toggle ripple effect", async () => {
 });
 
 test("toggle note press effect", async () => {
-  renderPane();
+  await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Note Press Effect" });
   await userEvent.click(switchEl);
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -83,7 +83,7 @@ test("toggle note press effect", async () => {
 });
 
 test("toggle note flash effect", async () => {
-  renderPane();
+  await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Note Flash Effect" });
   await userEvent.click(switchEl);
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -92,7 +92,7 @@ test("toggle note flash effect", async () => {
 });
 
 test("toggle rough edge", async () => {
-  renderPane();
+  await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Rough Edge" });
   await userEvent.click(switchEl);
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -101,7 +101,7 @@ test("toggle rough edge", async () => {
 });
 
 test("toggle noise texture", async () => {
-  renderPane();
+  await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Noise Texture" });
   await userEvent.click(switchEl);
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
@@ -111,7 +111,7 @@ test("toggle noise texture", async () => {
 
 // Slider value change tests
 test("time window slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Time Window: ${pianoRollConfig.timeWindow}s`,
   });
@@ -124,7 +124,7 @@ test("time window slider updates value", async () => {
 });
 
 test("note height slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Note Height: ${pianoRollConfig.noteHeight}px`,
   });
@@ -137,7 +137,7 @@ test("note height slider updates value", async () => {
 });
 
 test("note corner radius slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Note Corner Radius: ${pianoRollConfig.noteCornerRadius}px`,
   });
@@ -152,7 +152,7 @@ test("note corner radius slider updates value", async () => {
 });
 
 test("note margin slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Note Margin: ${pianoRollConfig.noteMargin}px`,
   });
@@ -165,7 +165,7 @@ test("note margin slider updates value", async () => {
 });
 
 test("playhead position slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Playhead Position: ${pianoRollConfig.playheadPosition}%`,
   });
@@ -180,8 +180,8 @@ test("playhead position slider updates value", async () => {
 });
 
 // Conditional fields tests
-test("playhead border fields shown when showPlayhead is true", () => {
-  renderPane({
+test("playhead border fields shown when showPlayhead is true", async () => {
+  await renderPane({
     pianoRollConfig: { ...pianoRollConfig, showPlayhead: true },
   });
   expect(screen.getByText("Playhead Border Color")).toBeInTheDocument();
@@ -190,8 +190,8 @@ test("playhead border fields shown when showPlayhead is true", () => {
   ).toBeInTheDocument();
 });
 
-test("ripple fields shown when showRippleEffect is true", () => {
-  renderPane({
+test("ripple fields shown when showRippleEffect is true", async () => {
+  await renderPane({
     pianoRollConfig: { ...pianoRollConfig, showRippleEffect: true },
   });
   expect(screen.getByRole("switch", { name: "Use Custom Ripple Color" })).toBeInTheDocument();
@@ -200,8 +200,8 @@ test("ripple fields shown when showRippleEffect is true", () => {
   ).toBeInTheDocument();
 });
 
-test("flash mode select is rendered with current value", () => {
-  renderPane({
+test("flash mode select is rendered with current value", async () => {
+  await renderPane({
     pianoRollConfig: { ...pianoRollConfig, showNoteFlash: true },
   });
   const trigger = screen.getByRole("combobox", { name: "Flash Mode" });
@@ -209,8 +209,8 @@ test("flash mode select is rendered with current value", () => {
   expect(trigger).toHaveTextContent(pianoRollConfig.noteFlashMode === "on" ? "On" : "Duration▼");
 });
 
-test("flash duration slider shown when flash mode is duration", () => {
-  renderPane({
+test("flash duration slider shown when flash mode is duration", async () => {
+  await renderPane({
     pianoRollConfig: {
       ...pianoRollConfig,
       showNoteFlash: true,

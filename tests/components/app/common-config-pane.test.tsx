@@ -14,8 +14,8 @@ const mockOnChangeAudioFile = vi.fn<Props["onChangeAudioFile"]>();
 const mockOnUpdateRendererConfig = vi.fn<Props["onUpdateRendererConfig"]>();
 const mockOnChangeBackgroundImage = vi.fn<Props["onChangeBackgroundImage"]>();
 
-function renderCommonConfigPane(props: Partial<Props> = {}) {
-  return customRender(
+async function renderCommonConfigPane(props: Partial<Props> = {}) {
+  return await customRender(
     <CommonConfigPane
       rendererConfig={rendererConfig}
       onChangeAudioFile={mockOnChangeAudioFile}
@@ -28,29 +28,29 @@ function renderCommonConfigPane(props: Partial<Props> = {}) {
   );
 }
 
-test("should render basic layout", () => {
-  renderCommonConfigPane();
+test("should render basic layout", async () => {
+  await renderCommonConfigPane();
   expect(screen.getByText("Audio Settings")).toBeInTheDocument();
   expect(screen.getByText("Common settings")).toBeInTheDocument();
 });
 
-test("should call onChangeAudioFile when audio file is selected", () => {
-  renderCommonConfigPane();
+test("should call onChangeAudioFile when audio file is selected", async () => {
+  await renderCommonConfigPane();
   const audioFileInput = screen.getByLabelText("Choose Audio file");
   const file = new File(["test"], "test.mp3", { type: "audio/mpeg" });
   fireEvent.change(audioFileInput, { target: { files: [file] } });
   expect(mockOnChangeAudioFile).toHaveBeenCalledExactlyOnceWith(file);
 });
 
-test("not call onChangeAudioFile when file is not selected", () => {
-  renderCommonConfigPane();
+test("not call onChangeAudioFile when file is not selected", async () => {
+  await renderCommonConfigPane();
   const audioFileInput = screen.getByLabelText("Choose Audio file");
   fireEvent.change(audioFileInput, { target: { files: [] } });
   expect(mockOnChangeAudioFile).not.toHaveBeenCalled();
 });
 
-test("should call onUpdateRendererConfig when background color is changed", () => {
-  renderCommonConfigPane();
+test("should call onUpdateRendererConfig when background color is changed", async () => {
+  await renderCommonConfigPane();
   const colorInput = screen.getByLabelText("Color picker");
   fireEvent.input(colorInput, { target: { value: "#ffffff" } });
   expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
@@ -59,7 +59,7 @@ test("should call onUpdateRendererConfig when background color is changed", () =
 });
 
 test("should call onUpdateRendererConfig when resolution is changed", async () => {
-  renderCommonConfigPane();
+  await renderCommonConfigPane();
   const resolutionTrigger = screen.getByRole("combobox", {
     name: "Resolution",
   });
@@ -74,7 +74,7 @@ test("should call onUpdateRendererConfig when resolution is changed", async () =
 });
 
 test("should call onUpdateRendererConfig when FPS is changed", async () => {
-  renderCommonConfigPane();
+  await renderCommonConfigPane();
   const fpsTrigger = screen.getByRole("combobox", { name: "FPS" });
   await userEvent.click(fpsTrigger);
   const fpsOption = screen.getByRole("option", { name: "60 fps" });
@@ -85,7 +85,7 @@ test("should call onUpdateRendererConfig when FPS is changed", async () => {
 });
 
 test("should call onUpdateRendererConfig when format is changed", async () => {
-  renderCommonConfigPane();
+  await renderCommonConfigPane();
   const formatTrigger = screen.getByRole("combobox", { name: "Format" });
   await userEvent.click(formatTrigger);
   const formatOption = screen.getByRole("option", { name: "WebM (VP9)" });
@@ -95,8 +95,8 @@ test("should call onUpdateRendererConfig when format is changed", async () => {
   });
 });
 
-test("should call onChangeBackgroundImage when background image is selected", () => {
-  renderCommonConfigPane();
+test("should call onChangeBackgroundImage when background image is selected", async () => {
+  await renderCommonConfigPane();
   const backgroundImageInput = screen.getByLabelText("Choose Background Image");
   const file = new File(["test"], "test.png", { type: "image/png" });
   fireEvent.change(backgroundImageInput, { target: { files: [file] } });
@@ -104,7 +104,7 @@ test("should call onChangeBackgroundImage when background image is selected", ()
 });
 
 test("should call onUpdateRendererConfig when background image fit is changed", async () => {
-  renderCommonConfigPane();
+  await renderCommonConfigPane();
   const fitTrigger = screen.getByRole("combobox", { name: "Image Fit" });
   await userEvent.click(fitTrigger);
   const fitOption = screen.getByRole("option", { name: "Contain" });
@@ -115,7 +115,7 @@ test("should call onUpdateRendererConfig when background image fit is changed", 
 });
 
 test("should call onUpdateRendererConfig when background image position is changed", async () => {
-  renderCommonConfigPane();
+  await renderCommonConfigPane();
   const positionTrigger = screen.getByRole("combobox", {
     name: "Image Position",
   });
@@ -128,7 +128,7 @@ test("should call onUpdateRendererConfig when background image position is chang
 });
 
 test("should call onUpdateRendererConfig when background image repeat is changed", async () => {
-  renderCommonConfigPane();
+  await renderCommonConfigPane();
   const repeatTrigger = screen.getByRole("combobox", { name: "Image Repeat" });
   await userEvent.click(repeatTrigger);
   const repeatOption = screen.getByRole("option", { name: "Repeat" });
@@ -139,7 +139,7 @@ test("should call onUpdateRendererConfig when background image repeat is changed
 });
 
 test("should call onUpdateRendererConfig when background image opacity is changed", async () => {
-  renderCommonConfigPane();
+  await renderCommonConfigPane();
   const group = screen.getByRole("group", { name: /Image Opacity/ });
   const opacitySlider = within(group).getByRole("slider", { hidden: true });
   opacitySlider.focus();
@@ -150,7 +150,7 @@ test("should call onUpdateRendererConfig when background image opacity is change
 });
 
 test("should clear background image when cancel button is clicked", async () => {
-  renderCommonConfigPane({ backgroundImageFilename: "test.png" });
+  await renderCommonConfigPane({ backgroundImageFilename: "test.png" });
 
   const cancelButton = screen.getByRole("button", {
     name: "Cancel background image",
@@ -159,8 +159,8 @@ test("should clear background image when cancel button is clicked", async () => 
   expect(mockOnChangeBackgroundImage).toHaveBeenCalledExactlyOnceWith(undefined);
 });
 
-test("should not show background image settings when no image is selected", () => {
-  renderCommonConfigPane({ backgroundImageFilename: undefined });
+test("should not show background image settings when no image is selected", async () => {
+  await renderCommonConfigPane({ backgroundImageFilename: undefined });
 
   expect(screen.queryByRole("combobox", { name: "Image Fit" })).not.toBeInTheDocument();
   expect(screen.queryByRole("combobox", { name: "Image Position" })).not.toBeInTheDocument();
@@ -170,7 +170,7 @@ test("should not show background image settings when no image is selected", () =
 });
 
 test("should call onUpdateRendererConfig when background image enabled is toggled", async () => {
-  renderCommonConfigPane();
+  await renderCommonConfigPane();
   const enabledSwitch = screen.getByRole("switch", {
     name: "Show Background Image",
   });
@@ -181,7 +181,7 @@ test("should call onUpdateRendererConfig when background image enabled is toggle
   });
 });
 
-test("should show background image toggle when image is selected", () => {
-  renderCommonConfigPane({ backgroundImageFilename: "test.png" });
+test("should show background image toggle when image is selected", async () => {
+  await renderCommonConfigPane({ backgroundImageFilename: "test.png" });
   expect(screen.getByRole("switch", { name: "Show Background Image" })).toBeInTheDocument();
 });

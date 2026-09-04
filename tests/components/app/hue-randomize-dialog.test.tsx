@@ -8,45 +8,45 @@ import { HueRandomizeDialog } from "@/components/app/hue-randomize-dialog";
 
 type DialogProps = ComponentProps<typeof HueRandomizeDialog>;
 
-function renderDialog(props: Partial<DialogProps> = {}) {
+async function renderDialog(props: Partial<DialogProps> = {}) {
   const onOpenChange = vi.fn<DialogProps["onOpenChange"]>();
   const onConfirm = vi.fn<DialogProps["onConfirm"]>();
-  customRender(
+  await customRender(
     <HueRandomizeDialog open={true} onOpenChange={onOpenChange} onConfirm={onConfirm} {...props} />,
   );
   return { onOpenChange, onConfirm };
 }
 
-test("renders dialog when open is true", () => {
-  renderDialog();
+test("renders dialog when open is true", async () => {
+  await renderDialog();
 
   expect(screen.getByRole("dialog")).toBeInTheDocument();
   expect(screen.getByText("Randomize Hue")).toBeInTheDocument();
 });
 
-test("does not render dialog when open is false", () => {
-  renderDialog({ open: false });
+test("does not render dialog when open is false", async () => {
+  await renderDialog({ open: false });
 
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
 
-test("displays default saturation and lightness values when no localStorage value", () => {
-  renderDialog();
+test("displays default saturation and lightness values when no localStorage value", async () => {
+  await renderDialog();
 
   expect(screen.getByText("100%")).toBeInTheDocument();
   expect(screen.getByText("50%")).toBeInTheDocument();
 });
 
-test("displays localStorage values when available", () => {
+test("displays localStorage values when available", async () => {
   localStorage.setItem("mivi:hue-randomize-sl", JSON.stringify({ s: 80, l: 70 }));
-  renderDialog();
+  await renderDialog();
 
   expect(screen.getByText("80%")).toBeInTheDocument();
   expect(screen.getByText("70%")).toBeInTheDocument();
 });
 
-test("renders 8 preview color swatches", () => {
-  renderDialog();
+test("renders 8 preview color swatches", async () => {
+  await renderDialog();
 
   const dialog = screen.getByRole("dialog");
   const swatches = within(dialog)
@@ -55,8 +55,8 @@ test("renders 8 preview color swatches", () => {
   expect(swatches.length).toBe(8);
 });
 
-test("renders all preset buttons", () => {
-  renderDialog();
+test("renders all preset buttons", async () => {
+  await renderDialog();
 
   expect(screen.getByRole("button", { name: /vivid/i })).toBeInTheDocument();
   expect(screen.getByRole("button", { name: /pastel/i })).toBeInTheDocument();
@@ -65,7 +65,7 @@ test("renders all preset buttons", () => {
 });
 
 test("clicking vivid preset updates values to s=100, l=60", async () => {
-  renderDialog();
+  await renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /vivid/i }));
 
@@ -74,7 +74,7 @@ test("clicking vivid preset updates values to s=100, l=60", async () => {
 });
 
 test("clicking pastel preset updates values to s=80, l=80", async () => {
-  renderDialog();
+  await renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /pastel/i }));
 
@@ -84,7 +84,7 @@ test("clicking pastel preset updates values to s=80, l=80", async () => {
 });
 
 test("clicking dark preset updates values to s=80, l=30", async () => {
-  renderDialog();
+  await renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /dark/i }));
 
@@ -93,7 +93,7 @@ test("clicking dark preset updates values to s=80, l=30", async () => {
 });
 
 test("clicking muted preset updates values to s=40, l=60", async () => {
-  renderDialog();
+  await renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /muted/i }));
 
@@ -102,7 +102,7 @@ test("clicking muted preset updates values to s=40, l=60", async () => {
 });
 
 test("Apply button calls onConfirm with current values and saves to localStorage", async () => {
-  const { onOpenChange, onConfirm } = renderDialog();
+  const { onOpenChange, onConfirm } = await renderDialog();
 
   // Click vivid preset to get known values (s=100, l=60)
   await userEvent.click(screen.getByRole("button", { name: /vivid/i }));
@@ -114,7 +114,7 @@ test("Apply button calls onConfirm with current values and saves to localStorage
 });
 
 test("Cancel button closes dialog without calling onConfirm or saving", async () => {
-  const { onOpenChange, onConfirm } = renderDialog();
+  const { onOpenChange, onConfirm } = await renderDialog();
 
   await userEvent.click(screen.getByRole("button", { name: /cancel/i }));
 
@@ -123,8 +123,8 @@ test("Cancel button closes dialog without calling onConfirm or saving", async ()
   expect(onOpenChange).toHaveBeenCalledWith(false, expect.anything());
 });
 
-test("renders saturation and lightness sliders with correct labels", () => {
-  renderDialog();
+test("renders saturation and lightness sliders with correct labels", async () => {
+  await renderDialog();
 
   expect(screen.getByText("Saturation")).toBeInTheDocument();
   expect(screen.getByText("Lightness")).toBeInTheDocument();
@@ -132,7 +132,7 @@ test("renders saturation and lightness sliders with correct labels", () => {
 });
 
 test("clicking label focuses the corresponding slider", async () => {
-  renderDialog();
+  await renderDialog();
 
   const saturationLabel = screen.getByText("Saturation");
   const saturationGroup = screen.getByRole("group", { name: "Saturation" });

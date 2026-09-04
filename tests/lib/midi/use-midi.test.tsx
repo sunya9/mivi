@@ -28,22 +28,22 @@ vi.mock("@/lib/colors/tailwind-colors", () => ({
   getRandomTailwindColor: vi.fn<() => string>(() => "#000000"),
 }));
 
-test("returns initial state", () => {
-  const { result } = customRenderHook(() => useMidi());
+test("returns initial state", async () => {
+  const { result } = await customRenderHook(() => useMidi());
 
   expect(result.current.midiTracks).toBeUndefined();
   expect(typeof result.current.setMidiFile).toBe("function");
 });
 
-test("loads midiTracks from local storage", () => {
+test("loads midiTracks from local storage", async () => {
   localStorage.setItem("mivi:midi-tracks", JSON.stringify(testMidiTracks));
-  const { result } = customRenderHook(() => useMidi());
+  const { result } = await customRenderHook(() => useMidi());
 
   expect(result.current.midiTracks).toEqual(testMidiTracks);
 });
 
 test("loads and processes MIDI file", async () => {
-  const { result } = customRenderHook(() => useMidi());
+  const { result } = await customRenderHook(() => useMidi());
 
   await act(async () => {
     await result.current.setMidiFile(midiFile);
@@ -58,7 +58,7 @@ test("loads and processes MIDI file", async () => {
 });
 
 test("sets midiTracks to undefined when setMidiFile is called with undefined", async () => {
-  const { result } = customRenderHook(() => useMidi());
+  const { result } = await customRenderHook(() => useMidi());
 
   await act(async () => {
     await result.current.setMidiFile(undefined);
@@ -67,7 +67,7 @@ test("sets midiTracks to undefined when setMidiFile is called with undefined", a
 });
 
 test("handles MIDI file loading errors", async () => {
-  const { result } = customRenderHook(() => useMidi());
+  const { result } = await customRenderHook(() => useMidi());
 
   const mockMidiFile = new File(["invalid midi data"], "test.mid", {
     type: "audio/midi",
@@ -79,8 +79,8 @@ test("handles MIDI file loading errors", async () => {
   expect(result.current.midiTracks).toBeUndefined();
 });
 
-test("setMidiTracks updates midiTracks", () => {
-  const { result } = customRenderHook(() => useMidi());
+test("setMidiTracks updates midiTracks", async () => {
+  const { result } = await customRenderHook(() => useMidi());
 
   act(() => {
     result.current.setMidiTracks(testMidiTracks);

@@ -11,8 +11,8 @@ type Props = ComponentProps<typeof AudioVisualizerConfigPanel>;
 const onUpdateRendererConfig = vi.fn<Props["onUpdateRendererConfig"]>();
 const audioVisualizerConfig = rendererConfig.audioVisualizerConfig;
 
-function renderPane(overrideProps?: Partial<Props>) {
-  customRender(
+async function renderPane(overrideProps?: Partial<Props>) {
+  await customRender(
     <AudioVisualizerConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
       audioVisualizerConfig={audioVisualizerConfig}
@@ -22,13 +22,13 @@ function renderPane(overrideProps?: Partial<Props>) {
 }
 
 // Render tests
-test("renders style selector", () => {
-  renderPane();
+test("renders style selector", async () => {
+  await renderPane();
   expect(screen.getByRole("combobox", { name: "Style" })).toBeInTheDocument();
 });
 
 test("should change style when style is selected", async () => {
-  renderPane();
+  await renderPane();
   const styleTrigger = screen.getByRole("combobox", { name: "Style" });
   await userEvent.click(styleTrigger);
   const barsOption = screen.getByRole("option", { name: "Bars" });
@@ -38,22 +38,22 @@ test("should change style when style is selected", async () => {
   });
 });
 
-test("should not show position selector when style is none", () => {
-  renderPane({
+test("should not show position selector when style is none", async () => {
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "none" },
   });
   expect(screen.queryByRole("combobox", { name: "Position" })).not.toBeInTheDocument();
 });
 
-test("should show position selector when style is bars", () => {
-  renderPane({
+test("should show position selector when style is bars", async () => {
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "bars" },
   });
   expect(screen.getByRole("combobox", { name: "Position" })).toBeInTheDocument();
 });
 
 test("position options should be in order: Top, Center, Bottom", async () => {
-  renderPane({
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "bars" },
   });
   const positionTrigger = screen.getByRole("combobox", { name: "Position" });
@@ -66,7 +66,7 @@ test("position options should be in order: Top, Center, Bottom", async () => {
 });
 
 test("should call onUpdateRendererConfig when position is changed", async () => {
-  renderPane({
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "bars" },
   });
   const positionTrigger = screen.getByRole("combobox", { name: "Position" });
@@ -78,22 +78,22 @@ test("should call onUpdateRendererConfig when position is changed", async () => 
   });
 });
 
-test("should show bar count slider when style is bars", () => {
-  renderPane({
+test("should show bar count slider when style is bars", async () => {
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "bars" },
   });
   expect(screen.getByText(/Bar Count:/)).toBeInTheDocument();
 });
 
-test("should show mirror switch when style is enabled", () => {
-  renderPane({
+test("should show mirror switch when style is enabled", async () => {
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "bars" },
   });
   expect(screen.getByRole("switch", { name: "Mirror" })).toBeInTheDocument();
 });
 
 test("should toggle mirror when switch is clicked", async () => {
-  renderPane({
+  await renderPane({
     audioVisualizerConfig: {
       ...audioVisualizerConfig,
       style: "bars",
@@ -107,15 +107,15 @@ test("should toggle mirror when switch is clicked", async () => {
   });
 });
 
-test("should show use gradient switch when style is enabled", () => {
-  renderPane({
+test("should show use gradient switch when style is enabled", async () => {
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "bars" },
   });
   expect(screen.getByRole("switch", { name: "Use Gradient" })).toBeInTheDocument();
 });
 
-test("should show gradient direction when use gradient is enabled", () => {
-  renderPane({
+test("should show gradient direction when use gradient is enabled", async () => {
+  await renderPane({
     audioVisualizerConfig: {
       ...audioVisualizerConfig,
       style: "bars",
@@ -125,8 +125,8 @@ test("should show gradient direction when use gradient is enabled", () => {
   expect(screen.getByRole("combobox", { name: "Gradient Direction" })).toBeInTheDocument();
 });
 
-test("should show single color picker when use gradient is disabled", () => {
-  renderPane({
+test("should show single color picker when use gradient is disabled", async () => {
+  await renderPane({
     audioVisualizerConfig: {
       ...audioVisualizerConfig,
       style: "bars",
@@ -137,8 +137,8 @@ test("should show single color picker when use gradient is disabled", () => {
 });
 
 // Line Spectrum specific tests
-test("should show line spectrum settings when style is lineSpectrum", () => {
-  renderPane({
+test("should show line spectrum settings when style is lineSpectrum", async () => {
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "lineSpectrum" },
   });
   expect(screen.getByText(/Smoothness:/)).toBeInTheDocument();
@@ -146,8 +146,8 @@ test("should show line spectrum settings when style is lineSpectrum", () => {
   expect(screen.getByRole("switch", { name: "Fill" })).toBeInTheDocument();
 });
 
-test("should show stroke color picker when stroke is enabled for lineSpectrum", () => {
-  renderPane({
+test("should show stroke color picker when stroke is enabled for lineSpectrum", async () => {
+  await renderPane({
     audioVisualizerConfig: {
       ...audioVisualizerConfig,
       style: "lineSpectrum",
@@ -160,8 +160,8 @@ test("should show stroke color picker when stroke is enabled for lineSpectrum", 
   expect(screen.getByRole("textbox", { name: "Stroke Color" })).toBeInTheDocument();
 });
 
-test("should not show stroke color picker when stroke is disabled", () => {
-  renderPane({
+test("should not show stroke color picker when stroke is disabled", async () => {
+  await renderPane({
     audioVisualizerConfig: {
       ...audioVisualizerConfig,
       style: "lineSpectrum",
@@ -175,15 +175,15 @@ test("should not show stroke color picker when stroke is disabled", () => {
 });
 
 // Circular specific tests
-test("should not show position selector when style is circular", () => {
-  renderPane({
+test("should not show position selector when style is circular", async () => {
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "circular" },
   });
   expect(screen.queryByRole("combobox", { name: "Position" })).not.toBeInTheDocument();
 });
 
-test("should show size label instead of height when style is circular", () => {
-  renderPane({
+test("should show size label instead of height when style is circular", async () => {
+  await renderPane({
     audioVisualizerConfig: { ...audioVisualizerConfig, style: "circular" },
   });
   // For circular, the height slider shows "Size" instead of "Height"

@@ -53,6 +53,7 @@ class CacheSlot<T> {
       };
       this.#notify();
     });
+    this.#result = { type: "pending", promise };
     return promise;
   }
 
@@ -77,11 +78,19 @@ class CacheSlot<T> {
 export class FileDbStore {
   readonly audio = new CacheSlot<StoredAudioData>("db:audio");
   readonly backgroundImage = new CacheSlot<ImageBitmap>("db:background-image");
+  #preloaded: Promise<void> | undefined;
+
+  preload(): Promise<void> {
+    this.#preloaded ??= Promise.all([this.audio.load(), this.backgroundImage.load()]).then(
+      () => undefined,
+    );
+    return this.#preloaded;
+  }
 }
 
 export const FileDbStoreContext = createContext<FileDbStore | null>(null);
 
-function useFileDbStore(): FileDbStore {
+export function useFileDbStore(): FileDbStore {
   const store = use(FileDbStoreContext);
   if (!store) {
     throw new Error("useFileDb must be used within FileDbStoreProvider");
@@ -90,9 +99,8 @@ function useFileDbStore(): FileDbStore {
 }
 
 function useSlot<T>(slot: CacheSlot<T>) {
-  // Suspend until initial data is loaded from IndexedDB
   if (!slot.loaded) {
-    throw slot.load();
+    use(slot.load());
   }
 
   const entry = useSyncExternalStore(slot.subscribe, () => slot.data);

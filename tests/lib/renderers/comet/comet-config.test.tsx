@@ -10,8 +10,8 @@ type Props = ComponentProps<typeof CometConfigPanel>;
 const onUpdateRendererConfig: Props["onUpdateRendererConfig"] =
   vi.fn<Props["onUpdateRendererConfig"]>();
 const cometConfig = rendererConfig.cometConfig;
-function renderPane(overrideProps?: Props) {
-  customRender(
+async function renderPane(overrideProps?: Props) {
+  await customRender(
     <CometConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
       cometConfig={cometConfig}
@@ -23,7 +23,7 @@ function renderPane(overrideProps?: Props) {
 }
 
 test("should render Comet component", async () => {
-  renderPane();
+  await renderPane();
   const fallAngleSlider = within(screen.getByRole("group", { name: /Fall Angle/ })).getByRole(
     "slider",
     { hidden: true },
