@@ -39,6 +39,11 @@ test("displays detected note range when provided", () => {
   expect(screen.getByText(/Detected range: 60 - 72/)).toBeInTheDocument();
 });
 
+test("displays detected note range when the lowest note is 0", () => {
+  renderPane({ minNote: 0, maxNote: 12 });
+  expect(screen.getByText(/Detected range: 0 - 12/)).toBeInTheDocument();
+});
+
 test("does not display detected note range without midi", () => {
   renderPane({ minNote: undefined, maxNote: undefined });
   expect(screen.queryByText(/Detected range/)).not.toBeInTheDocument();
