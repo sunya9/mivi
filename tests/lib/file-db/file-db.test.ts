@@ -1,6 +1,6 @@
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
-import { saveValue, fetchValue, dbName, storeName } from "@/lib/file-db/file-db";
+import { saveValue, fetchValue, dbName, storeName, closeDb } from "@/lib/file-db/file-db";
 
 test("should save and fetch a value", async () => {
   await saveValue("key", { name: "test", count: 42 });
@@ -54,4 +54,15 @@ test("should clear legacy data on version upgrade", async () => {
   // Opening with version 2 (via fetchValue) should clear legacy data
   const result = await fetchValue(key);
   expect(result).toBeUndefined();
+});
+
+test("concurrent reads share a single connection", async () => {
+  const open = vi.spyOn(indexedDB, "open");
+
+  await Promise.all([fetchValue("a"), fetchValue("b")]);
+  expect(open).toHaveBeenCalledTimes(1);
+
+  closeDb();
+  await fetchValue("a");
+  expect(open).toHaveBeenCalledTimes(2);
 });

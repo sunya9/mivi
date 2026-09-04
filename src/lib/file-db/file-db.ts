@@ -2,18 +2,21 @@ export const storeName = "key-value";
 export const dbName = "mivi:file";
 
 let cachedDb: IDBDatabase | null = null;
+let opening: Promise<IDBDatabase> | null = null;
 
 /** Close and release the cached DB connection. */
 export function closeDb() {
   cachedDb?.close();
   cachedDb = null;
+  opening = null;
 }
 
 function openDB(): Promise<IDBDatabase> {
   if (cachedDb) return Promise.resolve(cachedDb);
-  return new Promise((resolve, reject) => {
+  opening ??= new Promise((resolve, reject) => {
     const request = indexedDB.open(dbName, 2);
     request.onerror = () => {
+      opening = null;
       reject(new Error("Failed to open database"));
     };
 
@@ -31,10 +34,11 @@ function openDB(): Promise<IDBDatabase> {
     request.onsuccess = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
       cachedDb = db;
-
+      opening = null;
       resolve(db);
     };
   });
+  return opening;
 }
 
 export async function fetchValue<T>(key: string): Promise<T | undefined> {

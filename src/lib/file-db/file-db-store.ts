@@ -44,6 +44,7 @@ class CacheSlot<T> {
   };
 
   load(): Promise<void> {
+    if (this.#result.type === "fulfilled") return Promise.resolve();
     if (this.#result.type === "pending") return this.#result.promise;
 
     const promise = fetchValue<FileDbEntry<T>>(this.#dbKey).then((entry) => {
