@@ -1,6 +1,6 @@
+import { hexLuminance } from "@/lib/colors/color";
+import { RendererContext } from "@/lib/renderers/renderer";
 import { seededRandom } from "@/lib/seeded-random";
-
-import { RendererContext } from "../renderer";
 
 interface NoiseTextureConfig {
   intensity: number;
@@ -47,7 +47,7 @@ export class NoiseTextureRenderer {
   }
 
   apply(noteColor: string, noteX: number, noteY: number, noteSeed: number): void {
-    const luminance = this.#getColorLuminance(noteColor);
+    const luminance = hexLuminance(noteColor);
     const pattern = luminance > 0.5 ? this.#patternDark : this.#patternLight;
 
     if (!pattern) return;
@@ -97,12 +97,5 @@ export class NoiseTextureRenderer {
 
     ctx.putImageData(imageData, 0, 0);
     return this.#ctx.createPattern(canvas, "repeat");
-  }
-
-  #getColorLuminance(hexColor: string): number {
-    const r = parseInt(hexColor.slice(1, 3), 16) / 255;
-    const g = parseInt(hexColor.slice(3, 5), 16) / 255;
-    const b = parseInt(hexColor.slice(5, 7), 16) / 255;
-    return 0.299 * r + 0.587 * g + 0.114 * b;
   }
 }

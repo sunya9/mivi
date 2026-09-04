@@ -1,14 +1,29 @@
-import { MidiTrack } from "../midi/midi";
+import { MidiTrack } from "@/lib/midi/midi";
 
-interface PianoRollConfigValues {
-  noteMargin: number;
-  noteVerticalMargin: number;
-  gridColor: string;
+export interface NoteEffectsConfigValues {
   showRippleEffect: boolean;
   rippleDuration: number;
   rippleRadius: number;
   useCustomRippleColor: boolean;
   rippleColor: string;
+  showNoteFlash: boolean;
+  noteFlashDuration: number;
+  noteFlashMode: "on" | "duration";
+  noteFlashIntensity: number;
+  noteFlashFadeOutDuration: number;
+  showRoughEdge: boolean;
+  roughEdgeIntensity: number;
+  roughEdgeSegmentLength: number;
+  showNoiseTexture: boolean;
+  noiseIntensity: number;
+  noiseGrainSize: number;
+  noiseColorVariance: number;
+}
+
+interface PianoRollConfigValues extends NoteEffectsConfigValues {
+  noteMargin: number;
+  noteVerticalMargin: number;
+  gridColor: string;
   showPlayhead: boolean;
   playheadPosition: number;
   playheadColor: string;
@@ -17,23 +32,11 @@ interface PianoRollConfigValues {
   noteHeight: number;
   noteCornerRadius: number;
   timeWindow: number;
-  showNoteFlash: boolean;
-  noteFlashDuration: number;
-  noteFlashMode: "on" | "duration";
-  noteFlashIntensity: number;
-  noteFlashFadeOutDuration: number;
   viewRangeTop: number;
   viewRangeBottom: number;
   showNotePressEffect: boolean;
   notePressDepth: number;
   pressAnimationDuration: number;
-  showNoiseTexture: boolean;
-  noiseIntensity: number;
-  noiseGrainSize: number;
-  noiseColorVariance: number;
-  showRoughEdge: boolean;
-  roughEdgeIntensity: number;
-  roughEdgeSegmentLength: number;
 }
 
 interface CometConfigValues {
@@ -234,6 +237,26 @@ export interface RendererConfig {
 
 export type RendererContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
+const getDefaultNoteEffectsConfig = (): NoteEffectsConfigValues => ({
+  showRippleEffect: true,
+  rippleDuration: 0.5,
+  rippleRadius: 50,
+  useCustomRippleColor: false,
+  rippleColor: "#ffffff",
+  showNoteFlash: true,
+  noteFlashDuration: 1,
+  noteFlashMode: "duration",
+  noteFlashIntensity: 0.5,
+  noteFlashFadeOutDuration: 0.2,
+  showRoughEdge: false,
+  roughEdgeIntensity: 1.5,
+  roughEdgeSegmentLength: 4,
+  showNoiseTexture: false,
+  noiseIntensity: 0.15,
+  noiseGrainSize: 4,
+  noiseColorVariance: 30,
+});
+
 export const getDefaultRendererConfig = (): RendererConfig => ({
   type: "pianoRoll",
   backgroundColor: "#1a1a1a",
@@ -247,14 +270,10 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
   fps: 30,
   format: "mp4",
   pianoRollConfig: {
+    ...getDefaultNoteEffectsConfig(),
     noteMargin: 2,
     noteVerticalMargin: 1,
     gridColor: "#ffffff",
-    showRippleEffect: true,
-    rippleDuration: 0.5,
-    rippleRadius: 50,
-    useCustomRippleColor: false,
-    rippleColor: "#ffffff",
     showPlayhead: true,
     playheadPosition: 50,
     playheadColor: "#ffffff",
@@ -263,23 +282,11 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     noteHeight: 4,
     noteCornerRadius: 2,
     timeWindow: 5,
-    showNoteFlash: true,
-    noteFlashDuration: 1,
-    noteFlashMode: "duration",
-    noteFlashIntensity: 0.5,
-    noteFlashFadeOutDuration: 0.2,
     viewRangeTop: 127,
     viewRangeBottom: 0,
     showNotePressEffect: true,
     notePressDepth: 4,
     pressAnimationDuration: 0.1,
-    showNoiseTexture: false,
-    noiseIntensity: 0.15,
-    noiseGrainSize: 4,
-    noiseColorVariance: 30,
-    showRoughEdge: false,
-    roughEdgeIntensity: 1.5,
-    roughEdgeSegmentLength: 4,
   },
   cometConfig: {
     fallAngle: 135,

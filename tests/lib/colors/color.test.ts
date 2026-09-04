@@ -6,6 +6,10 @@ import {
   srgbToHex,
   HSL_PRESETS,
   generateGoldenAngleHues,
+  hexToRgb,
+  brightenHexColor,
+  darkenHexColor,
+  hexLuminance,
 } from "@/lib/colors/color";
 
 // srgbToHex tests
@@ -191,4 +195,55 @@ test("generateGoldenAngleHues produces well-distributed hues for many tracks", (
     const wrappedDiff = Math.min(diff, 360 - diff);
     expect(wrappedDiff).toBeGreaterThan(100); // Should be ~137.5°
   }
+});
+
+// hexToRgb tests
+
+test("hexToRgb parses #ff8000 to [255, 128, 0]", () => {
+  expect(hexToRgb("#ff8000")).toEqual([255, 128, 0]);
+});
+
+test("hexToRgb parses black and white", () => {
+  expect(hexToRgb("#000000")).toEqual([0, 0, 0]);
+  expect(hexToRgb("#ffffff")).toEqual([255, 255, 255]);
+});
+
+// brightenHexColor tests
+
+test("brightenHexColor with intensity 0 keeps the original channels", () => {
+  expect(brightenHexColor("#ff0000", 0)).toBe("rgb(255, 0, 0)");
+});
+
+test("brightenHexColor with intensity 1 saturates to white", () => {
+  expect(brightenHexColor("#000000", 1)).toBe("rgb(255, 255, 255)");
+});
+
+test("brightenHexColor adds intensity * 255 to each channel and clamps at 255", () => {
+  expect(brightenHexColor("#ff0000", 0.5)).toBe("rgb(255, 127.5, 127.5)");
+});
+
+// hexLuminance tests
+
+test("hexLuminance returns 1 for white and 0 for black", () => {
+  expect(hexLuminance("#ffffff")).toBeCloseTo(1);
+  expect(hexLuminance("#000000")).toBeCloseTo(0);
+});
+
+test("hexLuminance weights red at 0.299", () => {
+  expect(hexLuminance("#ff0000")).toBeCloseTo(0.299);
+});
+
+// darkenHexColor tests
+
+test("darkenHexColor with amount 0 keeps the color", () => {
+  expect(darkenHexColor("#3b82f6", 0)).toBe("#3b82f6");
+});
+
+test("darkenHexColor scales each channel towards black", () => {
+  expect(darkenHexColor("#ffffff", 0.5)).toBe("#808080");
+  expect(darkenHexColor("#ff0000", 0.25)).toBe("#bf0000");
+});
+
+test("darkenHexColor with amount 1 is black", () => {
+  expect(darkenHexColor("#3b82f6", 1)).toBe("#000000");
 });

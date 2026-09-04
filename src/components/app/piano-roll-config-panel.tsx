@@ -2,18 +2,14 @@ import { useCallback } from "react";
 
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { RendererConfig, noteFlashModeOptions } from "@/lib/renderers/renderer";
+import { RendererConfig } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
+
+import { NoteEffectsConfigFields } from "./note-effects-config-fields";
+
 interface Props {
   pianoRollConfig: RendererConfig["pianoRollConfig"];
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
@@ -227,366 +223,70 @@ export function PianoRollConfigPanel({
         </>
       )}
       <Separator />
-      <FormRow
-        label={<span>Ripple Effect</span>}
-        controller={({ id }) => (
-          <Switch
-            id={id}
-            checked={pianoRollConfig.showRippleEffect}
-            onCheckedChange={(checked) => {
-              setPianoRollConfig({ showRippleEffect: checked });
-            }}
-          />
-        )}
-      />
-      {pianoRollConfig.showRippleEffect && (
-        <>
-          <FormRow
-            label={<span>Use Custom Ripple Color</span>}
-            controller={({ id }) => (
-              <Switch
-                id={id}
-                checked={pianoRollConfig.useCustomRippleColor}
-                onCheckedChange={(checked) => {
-                  setPianoRollConfig({ useCustomRippleColor: checked });
-                }}
-              />
-            )}
-          />
-          {pianoRollConfig.useCustomRippleColor && (
+      <NoteEffectsConfigFields
+        config={pianoRollConfig}
+        onChange={setPianoRollConfig}
+        afterRipple={
+          <>
             <FormRow
-              label={<span>Ripple Color</span>}
+              label={<span>Note Press Effect</span>}
               controller={({ id }) => (
-                <ColorPickerInput
+                <Switch
                   id={id}
-                  value={pianoRollConfig.rippleColor}
-                  onChange={(value) => {
-                    setPianoRollConfig({ rippleColor: value });
+                  checked={pianoRollConfig.showNotePressEffect}
+                  onCheckedChange={(checked) => {
+                    setPianoRollConfig({ showNotePressEffect: checked });
                   }}
                 />
               )}
             />
-          )}
-          <FormRow
-            label={<span>Ripple Duration: {pianoRollConfig.rippleDuration}sec</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.rippleDuration]}
-                className="w-full max-w-48 min-w-24"
-                min={0.1}
-                max={2}
-                step={0.1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ rippleDuration: value });
-                }}
-              />
-            )}
-          />
-          <FormRow
-            label={<span>Ripple Radius: {pianoRollConfig.rippleRadius}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.rippleRadius]}
-                className="w-full max-w-48 min-w-24"
-                min={10}
-                max={100}
-                step={1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ rippleRadius: value });
-                }}
-              />
-            )}
-          />
-        </>
-      )}
-      <Separator />
-      <FormRow
-        label={<span>Note Press Effect</span>}
-        controller={({ id }) => (
-          <Switch
-            id={id}
-            checked={pianoRollConfig.showNotePressEffect}
-            onCheckedChange={(checked) => {
-              setPianoRollConfig({ showNotePressEffect: checked });
-            }}
-          />
-        )}
-      />
-      {pianoRollConfig.showNotePressEffect && (
-        <>
-          <FormRow
-            label={<span>Press Depth: {pianoRollConfig.notePressDepth}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.notePressDepth]}
-                className="w-full max-w-48 min-w-24"
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ notePressDepth: value });
-                }}
-              />
-            )}
-          />
-          <FormRow
-            label={
-              <span>Press Animation Duration: {pianoRollConfig.pressAnimationDuration}sec</span>
-            }
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.pressAnimationDuration]}
-                className="w-full max-w-48 min-w-24"
-                min={0.05}
-                max={1}
-                step={0.05}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ pressAnimationDuration: value });
-                }}
-              />
-            )}
-          />
-        </>
-      )}
-      <Separator />
-      <FormRow
-        label={<span>Note Flash Effect</span>}
-        controller={({ id }) => (
-          <Switch
-            id={id}
-            checked={pianoRollConfig.showNoteFlash}
-            onCheckedChange={(checked) => {
-              setPianoRollConfig({ showNoteFlash: checked });
-            }}
-          />
-        )}
-      />
-      {pianoRollConfig.showNoteFlash && (
-        <>
-          <FormRow
-            label={<span>Flash Intensity: {pianoRollConfig.noteFlashIntensity}</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.noteFlashIntensity]}
-                className="w-full max-w-48 min-w-24"
-                min={0}
-                max={1}
-                step={0.1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ noteFlashIntensity: value });
-                }}
-              />
-            )}
-          />
-
-          <FormRow
-            label={<span>Fade Out Duration: {pianoRollConfig.noteFlashFadeOutDuration}sec</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.noteFlashFadeOutDuration]}
-                className="w-full max-w-48 min-w-24"
-                min={0.1}
-                max={1}
-                step={0.1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ noteFlashFadeOutDuration: value });
-                }}
-              />
-            )}
-          />
-          <FormRow
-            label={<span>Flash Mode</span>}
-            controller={({ id, labelId }) => (
-              <Select
-                value={pianoRollConfig.noteFlashMode}
-                onValueChange={(value) => {
-                  if (!value) return;
-                  setPianoRollConfig({
-                    noteFlashMode: value,
-                  });
-                }}
-                items={noteFlashModeOptions}
-              >
-                <SelectTrigger id={id} aria-labelledby={labelId}>
-                  <SelectValue placeholder="Select flash mode" />
-                </SelectTrigger>
-                <SelectContent align="end">
-                  {noteFlashModeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {pianoRollConfig.noteFlashMode === "duration" && (
-            <FormRow
-              label={<span>Flash Duration: {pianoRollConfig.noteFlashDuration}sec</span>}
-              customControl
-              controller={({ id, labelId, ref }) => (
-                <Slider
-                  ref={ref}
-                  id={id}
-                  aria-labelledby={labelId}
-                  value={[pianoRollConfig.noteFlashDuration]}
-                  className="w-full max-w-48 min-w-24"
-                  min={0.1}
-                  max={2}
-                  step={0.1}
-                  onValueChange={([value]) => {
-                    setPianoRollConfig({ noteFlashDuration: value });
-                  }}
+            {pianoRollConfig.showNotePressEffect && (
+              <>
+                <FormRow
+                  label={<span>Press Depth: {pianoRollConfig.notePressDepth}px</span>}
+                  customControl
+                  controller={({ labelId, ref }) => (
+                    <Slider
+                      ref={ref}
+                      aria-labelledby={labelId}
+                      value={[pianoRollConfig.notePressDepth]}
+                      className="w-full max-w-48 min-w-24"
+                      min={1}
+                      max={10}
+                      step={1}
+                      onValueChange={([value]) => {
+                        setPianoRollConfig({ notePressDepth: value });
+                      }}
+                    />
+                  )}
                 />
-              )}
-            />
-          )}
-        </>
-      )}
-      <Separator />
-      <FormRow
-        label={<span>Rough Edge</span>}
-        controller={({ id }) => (
-          <Switch
-            id={id}
-            checked={pianoRollConfig.showRoughEdge}
-            onCheckedChange={(checked) => {
-              setPianoRollConfig({ showRoughEdge: checked });
-            }}
-          />
-        )}
+                <FormRow
+                  label={
+                    <span>
+                      Press Animation Duration: {pianoRollConfig.pressAnimationDuration}sec
+                    </span>
+                  }
+                  customControl
+                  controller={({ labelId, ref }) => (
+                    <Slider
+                      ref={ref}
+                      aria-labelledby={labelId}
+                      value={[pianoRollConfig.pressAnimationDuration]}
+                      className="w-full max-w-48 min-w-24"
+                      min={0.05}
+                      max={1}
+                      step={0.05}
+                      onValueChange={([value]) => {
+                        setPianoRollConfig({ pressAnimationDuration: value });
+                      }}
+                    />
+                  )}
+                />
+              </>
+            )}
+          </>
+        }
       />
-      {pianoRollConfig.showRoughEdge && (
-        <>
-          <FormRow
-            label={<span>Rough Edge Intensity: {pianoRollConfig.roughEdgeIntensity}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.roughEdgeIntensity]}
-                className="w-full max-w-48 min-w-24"
-                min={0.1}
-                max={5}
-                step={0.1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ roughEdgeIntensity: value });
-                }}
-              />
-            )}
-          />
-          <FormRow
-            label={<span>Rough Edge Segment: {pianoRollConfig.roughEdgeSegmentLength}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.roughEdgeSegmentLength]}
-                className="w-full max-w-48 min-w-24"
-                min={2}
-                max={16}
-                step={1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ roughEdgeSegmentLength: value });
-                }}
-              />
-            )}
-          />
-        </>
-      )}
-      <Separator />
-      <FormRow
-        label={<span>Noise Texture</span>}
-        controller={({ id }) => (
-          <Switch
-            id={id}
-            checked={pianoRollConfig.showNoiseTexture}
-            onCheckedChange={(checked) => {
-              setPianoRollConfig({ showNoiseTexture: checked });
-            }}
-          />
-        )}
-      />
-      {pianoRollConfig.showNoiseTexture && (
-        <>
-          <FormRow
-            label={
-              <span>Noise Intensity: {Math.round(pianoRollConfig.noiseIntensity * 100)}%</span>
-            }
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.noiseIntensity]}
-                className="w-full max-w-48 min-w-24"
-                min={0.01}
-                max={0.5}
-                step={0.01}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ noiseIntensity: value });
-                }}
-              />
-            )}
-          />
-          <FormRow
-            label={<span>Noise Grain Size: {pianoRollConfig.noiseGrainSize}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.noiseGrainSize]}
-                className="w-full max-w-48 min-w-24"
-                min={1}
-                max={16}
-                step={1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ noiseGrainSize: value });
-                }}
-              />
-            )}
-          />
-          <FormRow
-            label={<span>Noise Color Variance: {pianoRollConfig.noiseColorVariance}</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[pianoRollConfig.noiseColorVariance]}
-                className="w-full max-w-48 min-w-24"
-                min={1}
-                max={100}
-                step={1}
-                onValueChange={([value]) => {
-                  setPianoRollConfig({ noiseColorVariance: value });
-                }}
-              />
-            )}
-          />
-        </>
-      )}
     </>
   );
 }
