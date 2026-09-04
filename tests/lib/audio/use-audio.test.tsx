@@ -1,5 +1,6 @@
 import { waitFor } from "@testing-library/react";
 import { AudioContext } from "standardized-audio-context-mock";
+import { audioFile, invalidFile } from "tests/fixtures";
 import { customRenderHook } from "tests/util";
 import { test, expect, vi } from "vitest";
 
@@ -10,8 +11,6 @@ import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
 import { useAudio } from "@/lib/audio/use-audio";
 import { saveValue } from "@/lib/file-db/file-db";
 import type { FileDbEntry } from "@/lib/file-db/file-db-store";
-
-import { audioFile, invalidFile } from "../../fixtures";
 
 vi.mock("@/lib/audio/run-decode-worker", { spy: true });
 
