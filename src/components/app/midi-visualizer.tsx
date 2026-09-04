@@ -372,9 +372,17 @@ export function MidiVisualizer({
             "relative overflow-hidden [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-container]",
             {
               "h-full max-h-full w-full max-w-full": !expanded,
-              "m-auto max-h-3/4 w-full max-w-4xl": expanded,
+              "m-10 object-cover": expanded,
             },
           )}
+          style={
+            expanded
+              ? {
+                  maxWidth: rendererConfig.resolution.width,
+                  maxHeight: rendererConfig.resolution.height,
+                }
+              : {}
+          }
           aria-modal={expanded}
         >
           <Canvas
