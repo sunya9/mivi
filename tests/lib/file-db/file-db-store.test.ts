@@ -85,3 +85,22 @@ test("reset keeps already loaded data", async () => {
   expect(store.audio.loaded).toBe(true);
   expect(store.audio.data?.file.name).toBe("a.mp3");
 });
+
+test("preload after reset reloads only slots that have not been loaded", async () => {
+  const original = fileDb.fetchValue;
+  vi.spyOn(fileDb, "fetchValue").mockImplementation((key) =>
+    key === "db:background-image" ? Promise.reject(new Error("boom")) : original(key),
+  );
+  const store = new FileDbStore();
+  await expect(store.preload()).rejects.toThrow("boom");
+  await store.audio.load();
+  expect(store.audio.loaded).toBe(true);
+
+  store.reset();
+  const fetchValue = vi.spyOn(fileDb, "fetchValue").mockImplementation(original).mockClear();
+  await store.preload();
+
+  expect(fetchValue).toHaveBeenCalledTimes(1);
+  expect(fetchValue).toHaveBeenCalledWith("db:background-image");
+  expect(store.backgroundImage.loaded).toBe(true);
+});
