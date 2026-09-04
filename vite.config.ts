@@ -207,6 +207,9 @@ export default defineConfig(({ mode }) => ({
         test: {
           name: "vrt",
           browser: {
+            // Mismatches already produce actual/diff attachments; a failure screenshot next to the
+            // baselines would only end up committed by accident
+            screenshotFailures: false,
             enabled: true,
             provider: playwright(),
             instances: [{ browser: "chromium" }],
