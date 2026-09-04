@@ -400,6 +400,7 @@ export function MidiVisualizer({
               <div className="flex flex-col gap-1">
                 <Slider
                   aria-label="Seek position"
+                  thumbAlignment="center"
                   max={duration || Infinity}
                   value={[position]}
                   step={0.1}
@@ -433,7 +434,13 @@ export function MidiVisualizer({
                     endInteraction();
                     setIsSeeking(false);
                   }}
-                  className="group py-2 **:data-[slot=slider-range]:h-1 **:data-[slot=slider-thumb]:opacity-0 **:data-[slot=slider-thumb]:transition-[color,box-shadow,opacity] **:group-hover:data-[slot=slider-thumb]:opacity-100 **:data-[slot=slider-track]:h-1 **:data-[slot=slider-track]:rounded-none **:data-[slot=slider-track]:bg-muted/30"
+                  className={cn(
+                    "group py-2",
+                    "**:data-[slot=slider-track]:h-1 **:data-[slot=slider-track]:rounded-none **:data-[slot=slider-track]:bg-muted/30",
+                    "**:data-[slot=slider-range]:h-1",
+                    "**:data-[slot=slider-thumb]:opacity-0 **:data-[slot=slider-thumb]:transition-[color,box-shadow,opacity]",
+                    "**:group-hover:data-[slot=slider-thumb]:opacity-100",
+                  )}
                 />
                 <div className="flex items-center gap-2 px-2">
                   <Button
