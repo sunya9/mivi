@@ -5,6 +5,7 @@ import React from "react";
 import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
 import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
+import { VerticalPianoRollConfigPanel } from "@/components/app/vertical-piano-roll-config-panel";
 import { FormRow } from "@/components/common/form-row";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -46,6 +47,18 @@ const RENDERER_OPTIONS: RendererOption[] = [
     renderConfig: (rendererConfig, onUpdateRendererConfig, minNote, maxNote) => (
       <PianoRollConfigPanel
         pianoRollConfig={rendererConfig.pianoRollConfig}
+        onUpdateRendererConfig={onUpdateRendererConfig}
+        minNote={minNote}
+        maxNote={maxNote}
+      />
+    ),
+  },
+  {
+    value: "verticalPianoRoll",
+    label: "Vertical Piano Roll",
+    renderConfig: (rendererConfig, onUpdateRendererConfig, minNote, maxNote) => (
+      <VerticalPianoRollConfigPanel
+        verticalPianoRollConfig={rendererConfig.verticalPianoRollConfig}
         onUpdateRendererConfig={onUpdateRendererConfig}
         minNote={minNote}
         maxNote={maxNote}

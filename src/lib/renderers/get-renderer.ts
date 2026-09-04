@@ -2,12 +2,14 @@ import { CometRenderer } from "./comet/comet-renderer";
 import { NoneRenderer } from "./none-renderer";
 import { PianoRollRenderer } from "./piano-roll/piano-roll-renderer";
 import { RendererContext, RendererConfig, Renderer, RendererType } from "./renderer";
+import { VerticalPianoRollRenderer } from "./vertical-piano-roll/vertical-piano-roll-renderer";
 
 type RendererConstructor = new (ctx: RendererContext, config: RendererConfig) => Renderer;
 
 const rendererClasses: Record<RendererType, RendererConstructor> = {
   none: NoneRenderer,
   pianoRoll: PianoRollRenderer,
+  verticalPianoRoll: VerticalPianoRollRenderer,
   comet: CometRenderer,
 };
 

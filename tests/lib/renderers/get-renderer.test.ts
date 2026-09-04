@@ -8,6 +8,7 @@ import {
   RendererConfig,
   getDefaultRendererConfig,
 } from "@/lib/renderers/renderer";
+import { VerticalPianoRollRenderer } from "@/lib/renderers/vertical-piano-roll/vertical-piano-roll-renderer";
 
 const canvas = document.createElement("canvas");
 const mockContext: RendererContext = canvas.getContext("2d")!;
@@ -24,4 +25,10 @@ test("should return PianoRollRenderer for pianoRoll type", () => {
   const config: RendererConfig = { ...mockConfig, type: "pianoRoll" };
   const renderer = getRendererFromConfig(mockContext, config);
   expect(renderer).toBeInstanceOf(PianoRollRenderer);
+});
+
+test("should return VerticalPianoRollRenderer for verticalPianoRoll type", () => {
+  const config: RendererConfig = { ...mockConfig, type: "verticalPianoRoll" };
+  const renderer = getRendererFromConfig(mockContext, config);
+  expect(renderer).toBeInstanceOf(VerticalPianoRollRenderer);
 });
