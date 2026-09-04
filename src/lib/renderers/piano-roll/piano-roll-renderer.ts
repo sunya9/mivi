@@ -1,4 +1,4 @@
-import { brightenHexColor } from "@/lib/colors/color";
+import { brightenHexColor } from "@/lib/colors/hex";
 import { MidiTrack } from "@/lib/midi/midi";
 import { Renderer, RendererConfig } from "@/lib/renderers/renderer";
 import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-visible-note";
@@ -43,7 +43,6 @@ export class PianoRollRenderer extends Renderer {
 
   #noiseTextureRenderer: NoiseTextureRenderer;
   #roughRectDrawer: RoughRectDrawer;
-  #brightenedColorCache = new Map<string, string>();
 
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -225,7 +224,7 @@ export class PianoRollRenderer extends Renderer {
           }
 
           if (intensity > 0) {
-            this.ctx.fillStyle = this.#brighten(track.config.color, intensity);
+            this.ctx.fillStyle = brightenHexColor(track.config.color, intensity);
           }
 
           // Update touch state
@@ -340,16 +339,6 @@ export class PianoRollRenderer extends Renderer {
     const radius = Math.max(0, this.config.pianoRollConfig.rippleRadius * radiusProgress);
     const alpha = 0.4 * (1 - fadeProgress);
     drawRipple(this.ctx, x, y, radius, color, alpha);
-  }
-
-  #brighten(color: string, intensity: number): string {
-    const key = `${color}:${intensity}`;
-    let result = this.#brightenedColorCache.get(key);
-    if (!result) {
-      result = brightenHexColor(color, intensity);
-      this.#brightenedColorCache.set(key, result);
-    }
-    return result;
   }
 
   #updateNoiseTexture(): void {

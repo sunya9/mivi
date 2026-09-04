@@ -1,4 +1,5 @@
-import { oklchToSrgb, srgbToHex } from "@/lib/colors/color";
+import { oklchToSrgb } from "@/lib/colors/color";
+import { srgbToHex } from "@/lib/colors/hex";
 import { tailwindDefaultColors } from "@/lib/colors/tailwind-default-colors";
 
 const colorKeys = [

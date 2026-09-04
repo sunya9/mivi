@@ -1,4 +1,4 @@
-import { hexLuminance } from "@/lib/colors/color";
+import { hexLuminance } from "@/lib/colors/hex";
 import { RendererContext } from "@/lib/renderers/renderer";
 import { seededRandom } from "@/lib/seeded-random";
 
