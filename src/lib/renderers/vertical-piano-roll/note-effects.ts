@@ -1,4 +1,4 @@
-import { darkenHexColor } from "@/lib/colors/color";
+import { darkenHexColor } from "@/lib/colors/hex";
 
 // At 30 fps a 10 ms note would never land inside a frame, so keys stay lit at least this long
 export const MIN_PRESS_DURATION = 0.08;

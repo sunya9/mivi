@@ -1,4 +1,4 @@
-import { brightenHexColor } from "@/lib/colors/color";
+import { brightenHexColor } from "@/lib/colors/hex";
 import { MidiNote, MidiTrack } from "@/lib/midi/midi";
 import { Renderer, RendererConfig } from "@/lib/renderers/renderer";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
