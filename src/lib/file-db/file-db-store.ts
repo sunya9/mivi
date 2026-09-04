@@ -57,6 +57,12 @@ class CacheSlot<T> {
     return promise;
   }
 
+  reset(): void {
+    if (this.#result.type !== "fulfilled") {
+      this.#result = { type: "initial" };
+    }
+  }
+
   setEntry = async (entry: FileDbEntry<T> | undefined): Promise<void> => {
     this.#result = {
       type: "fulfilled",
@@ -86,6 +92,12 @@ export class FileDbStore {
     );
     return this.#preloaded;
   }
+
+  reset = (): void => {
+    this.#preloaded = undefined;
+    this.audio.reset();
+    this.backgroundImage.reset();
+  };
 }
 
 export const FileDbStoreContext = createContext<FileDbStore | null>(null);
@@ -93,7 +105,7 @@ export const FileDbStoreContext = createContext<FileDbStore | null>(null);
 export function useFileDbStore(): FileDbStore {
   const store = use(FileDbStoreContext);
   if (!store) {
-    throw new Error("useFileDb must be used within FileDbStoreProvider");
+    throw new Error("useFileDbStore must be used within FileDbStoreContext");
   }
   return store;
 }

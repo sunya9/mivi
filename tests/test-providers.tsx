@@ -1,6 +1,6 @@
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 
-import { FileDbGate, FileDbStoreProvider } from "@/components/providers/file-db-store-provider";
+import { FileDbGate } from "@/components/providers/file-db-gate";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AppContext, AppContextValue } from "@/contexts/app-context";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
@@ -22,22 +22,18 @@ export function TestProviders({
   fileDbStore?: FileDbStore;
   pwaState?: PwaState;
 }) {
-  const app = (
-    <AppContext value={appContextValue}>
-      <PwaContext value={pwaState}>
-        <Suspense fallback={null}>
-          <FileDbGate>{children}</FileDbGate>
-        </Suspense>
-      </PwaContext>
-    </AppContext>
-  );
+  const [ownFileDbStore] = useState(() => new FileDbStore());
   return (
     <ThemeProvider defaultTheme="light">
-      {fileDbStore ? (
-        <FileDbStoreContext value={fileDbStore}>{app}</FileDbStoreContext>
-      ) : (
-        <FileDbStoreProvider>{app}</FileDbStoreProvider>
-      )}
+      <FileDbStoreContext value={fileDbStore ?? ownFileDbStore}>
+        <AppContext value={appContextValue}>
+          <PwaContext value={pwaState}>
+            <Suspense fallback={null}>
+              <FileDbGate>{children}</FileDbGate>
+            </Suspense>
+          </PwaContext>
+        </AppContext>
+      </FileDbStoreContext>
     </ThemeProvider>
   );
 }

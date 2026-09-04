@@ -3,11 +3,12 @@ import { ErrorBoundary } from "react-error-boundary";
 import { AudioContext } from "standardized-audio-context";
 
 import { PwaContext } from "@/contexts/pwa-context";
+import { FileDbStore, FileDbStoreContext } from "@/lib/file-db/file-db-store";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 
 import { AppContext, createAppContext } from "../../contexts/app-context";
 import { Fallback } from "./fallback";
-import { FileDbGate, FileDbStoreProvider } from "./file-db-store-provider";
+import { FileDbGate } from "./file-db-gate";
 import { Loading } from "./loading";
 import { ThemeProvider } from "./theme-provider";
 
@@ -17,21 +18,22 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   const [appContextValue] = useState(() => createAppContext(new AudioContext()));
+  const [fileDbStore] = useState(() => new FileDbStore());
   const pwaUpdateState = usePwaState();
 
   return (
     <ThemeProvider defaultTheme="light">
-      <FileDbStoreProvider>
+      <FileDbStoreContext value={fileDbStore}>
         <AppContext value={appContextValue}>
           <PwaContext value={pwaUpdateState}>
-            <ErrorBoundary fallbackRender={Fallback}>
+            <ErrorBoundary fallbackRender={Fallback} onReset={fileDbStore.reset}>
               <Suspense fallback={<Loading />}>
                 <FileDbGate>{children}</FileDbGate>
               </Suspense>
             </ErrorBoundary>
           </PwaContext>
         </AppContext>
-      </FileDbStoreProvider>
+      </FileDbStoreContext>
     </ThemeProvider>
   );
 }
