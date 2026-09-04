@@ -68,7 +68,7 @@ export function VerticalPianoRollConfigPanel({
             <span>
               View Range: {config.viewRangeBottom} - {config.viewRangeTop}
             </span>
-            {minNote && maxNote && (
+            {minNote !== undefined && maxNote !== undefined && (
               <span className="text-muted-foreground">
                 (Detected range: {minNote} - {maxNote})
               </span>

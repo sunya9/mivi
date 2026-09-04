@@ -250,7 +250,7 @@ export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote,
             <span>
               View Range: {cometConfig.viewRangeBottom} - {cometConfig.viewRangeTop}
             </span>
-            {minNote && maxNote && (
+            {minNote !== undefined && maxNote !== undefined && (
               <span className="text-muted-foreground">
                 (Detected range: {minNote} - {maxNote})
               </span>

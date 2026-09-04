@@ -115,7 +115,7 @@ export function PianoRollConfigPanel({
             <span>
               View Range: {pianoRollConfig.viewRangeBottom} - {pianoRollConfig.viewRangeTop}
             </span>
-            {minNote && maxNote && (
+            {minNote !== undefined && maxNote !== undefined && (
               <span className="text-muted-foreground">
                 (Detected range: {minNote} - {maxNote})
               </span>
