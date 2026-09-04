@@ -1,4 +1,4 @@
-import { Kbd } from "../ui/kbd";
+import { Kbd } from "@/components/ui/kbd";
 
 interface ShortcutItem {
   key: string;

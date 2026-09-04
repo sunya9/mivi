@@ -2,11 +2,11 @@ import { Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { AudioContext } from "standardized-audio-context";
 
+import { AppContext, createAppContext } from "@/contexts/app-context";
 import { PwaContext } from "@/contexts/pwa-context";
 import { FileDbStore, FileDbStoreContext } from "@/lib/file-db/file-db-store";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 
-import { AppContext, createAppContext } from "../../contexts/app-context";
 import { Fallback } from "./fallback";
 import { FileDbGate } from "./file-db-gate";
 import { Loading } from "./loading";

@@ -14,7 +14,7 @@ import {
   AudioCodec,
 } from "mediabunny";
 
-import { VideoFormat } from "../renderers/renderer";
+import { VideoFormat } from "@/lib/renderers/renderer";
 
 interface Config {
   outputFormat: OutputFormat;
