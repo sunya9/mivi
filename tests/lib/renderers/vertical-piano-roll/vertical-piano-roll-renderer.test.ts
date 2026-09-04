@@ -120,3 +120,34 @@ test("black key notes are drawn after white key notes so they stay in front", ()
   const xs = vi.mocked(ctx.roundRect).mock.calls.map(([x]) => x);
   expect(xs).toEqual([200, 370]);
 });
+
+test("black key notes stay in front of white key notes from higher priority tracks", () => {
+  const { ctx, renderer } = setup({ viewRangeBottom: 60, viewRangeTop: 72, noteMargin: 0 });
+  const whiteOnTopTrack = {
+    ...tracks[0],
+    id: "top",
+    notes: [{ ...tracks[0].notes[0], id: 200, midi: 65, time: 0.2 }],
+  };
+  const blackOnLowerTrack = {
+    ...tracks[0],
+    id: "lower",
+    notes: [{ ...tracks[0].notes[0], id: 201, midi: 66, time: 0.2 }],
+  };
+  renderer.render([whiteOnTopTrack, blackOnLowerTrack], 0);
+  const xs = vi.mocked(ctx.roundRect).mock.calls.map(([x]) => x);
+  expect(xs).toEqual([300, 370]);
+});
+
+test("ripples inherit the track opacity", () => {
+  const visible = setup({ showRippleEffect: true });
+  visible.renderer.render(tracks, 0.1);
+  expect(visible.ctx.arc).toHaveBeenCalled();
+
+  const invisible = setup({ showRippleEffect: true });
+  const transparent = tracks.map((track) => ({
+    ...track,
+    config: { ...track.config, opacity: 0 },
+  }));
+  invisible.renderer.render(transparent, 0.1);
+  expect(invisible.ctx.arc).not.toHaveBeenCalled();
+});

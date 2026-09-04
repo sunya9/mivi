@@ -24,6 +24,7 @@ interface PendingRipple {
   x: number;
   progress: number;
   color: string;
+  opacity: number;
 }
 
 export class VerticalPianoRollRenderer extends Renderer {
@@ -86,16 +87,17 @@ export class VerticalPianoRollRenderer extends Renderer {
     this.ctx.rect(0, 0, width, hitLineY);
     this.ctx.clip();
 
-    // Reverse iteration so first track in list appears on top (drawn last) and wins the key color
-    for (let ti = tracks.length - 1; ti >= 0; ti--) {
-      const track = tracks[ti];
-      if (!track.config.visible) continue;
+    // Black keys sit in front of white keys, so black-key notes of every track are drawn in a
+    // second pass on top. Within a pass the first track in the list is drawn last (on top) and
+    // wins the key color.
+    for (const drawBlackKeys of [false, true]) {
+      for (let ti = tracks.length - 1; ti >= 0; ti--) {
+        const track = tracks[ti];
+        if (!track.config.visible) continue;
 
-      const maxDuration = this.#getMaxDuration(track.notes);
-      const startIdx = findFirstNoteIndexFrom(track.notes, currentTime - lookback - maxDuration);
+        const maxDuration = this.#getMaxDuration(track.notes);
+        const startIdx = findFirstNoteIndexFrom(track.notes, currentTime - lookback - maxDuration);
 
-      // Black keys sit in front of white keys, so their notes are drawn in a second pass on top
-      for (const drawBlackKeys of [false, true]) {
         for (let ni = startIdx; ni < track.notes.length; ni++) {
           const note = track.notes[ni];
           if (note.time > topEdgeTime) break;
@@ -117,6 +119,7 @@ export class VerticalPianoRollRenderer extends Renderer {
                 x: key.x + key.width / 2,
                 progress,
                 color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
+                opacity: track.config.opacity,
               });
             }
           }
@@ -197,7 +200,7 @@ export class VerticalPianoRollRenderer extends Renderer {
         hitLineY,
         cfg.rippleRadius * ripple.progress,
         ripple.color,
-        0.4 * (1 - ripple.progress),
+        0.4 * (1 - ripple.progress) * ripple.opacity,
       );
     }
   }
