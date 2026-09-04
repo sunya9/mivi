@@ -10,7 +10,7 @@ const mockImageBuffer = [new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10])];
 const mockImage = new File(mockImageBuffer, "test.png", { type: "image/png" });
 
 test("should initialize with empty background image", async () => {
-  const { result } = customRenderHook(() => useBackgroundImage());
+  const { result } = await customRenderHook(() => useBackgroundImage());
   await waitFor(() => {
     expect(result.current.backgroundImageFile).toBeUndefined();
     expect(result.current.backgroundImageBitmap).toBeUndefined();
@@ -25,7 +25,7 @@ test("should load background image from IndexedDB on mount", async () => {
     decoded: { width: 100, height: 100 },
   };
   await saveValue("db:background-image", entry);
-  const { result } = customRenderHook(() => useBackgroundImage());
+  const { result } = await customRenderHook(() => useBackgroundImage());
 
   await waitFor(() => {
     expect(result.current.backgroundImageFile).toBeDefined();
@@ -38,7 +38,7 @@ test("should manipulate background image", async () => {
   const bitmap = await createImageBitmap(new OffscreenCanvas(1, 1));
   vi.stubGlobal("createImageBitmap", vi.fn<typeof createImageBitmap>().mockResolvedValue(bitmap));
 
-  const { result } = customRenderHook(() => useBackgroundImage());
+  const { result } = await customRenderHook(() => useBackgroundImage());
   await waitFor(() => expect(result.current).not.toBeNull());
   await act(async () => await result.current.setBackgroundImageFile(mockImage));
 
@@ -60,7 +60,7 @@ test("should handle errors when setting background image", async () => {
   console.error = vi.fn<(...data: unknown[]) => void>();
   vi.stubGlobal("createImageBitmap", vi.fn<typeof createImageBitmap>().mockRejectedValue(error));
 
-  const { result } = customRenderHook(() => useBackgroundImage());
+  const { result } = await customRenderHook(() => useBackgroundImage());
 
   await waitFor(() => expect(result.current).not.toBeNull());
   await act(async () => await result.current.setBackgroundImageFile(mockImage));

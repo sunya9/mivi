@@ -29,7 +29,7 @@ const defaultSnapshot: PlaybackSnapshot = {
 
 type Props = ComponentProps<typeof MidiVisualizer>;
 
-function renderVisualizer(options?: {
+async function renderVisualizer(options?: {
   props?: Partial<Props>;
   snapshot?: Partial<PlaybackSnapshot>;
   getPosition?: () => number;
@@ -51,7 +51,7 @@ function renderVisualizer(options?: {
     audioContext: new AudioContext(),
     audioPlaybackStore: store,
   };
-  const view = customRender(
+  const view = await customRender(
     <MidiVisualizer rendererConfig={rendererConfig} {...options?.props} />,
     {
       appContextValue,
@@ -67,8 +67,8 @@ afterEach(() => {
   });
 });
 
-test("renders basic controls", () => {
-  renderVisualizer();
+test("renders basic controls", async () => {
+  await renderVisualizer();
 
   expect(screen.getByRole("button", { name: "Play" })).toBeInTheDocument();
   expect(screen.getAllByRole("slider", { hidden: true })).toHaveLength(2); // seek + volume
@@ -81,7 +81,7 @@ test("renders basic controls", () => {
 });
 
 test("handles volume control", async () => {
-  const { store } = renderVisualizer();
+  const { store } = await renderVisualizer();
 
   // Volume slider is always visible (no longer in HoverCard)
   const volumeSlider = within(screen.getByRole("group", { name: "Volume" })).getByRole("slider", {
@@ -94,7 +94,7 @@ test("handles volume control", async () => {
 });
 
 test("handles seek control with keyboard", async () => {
-  const { store } = renderVisualizer();
+  const { store } = await renderVisualizer();
 
   const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
   seekSlider.focus();
@@ -106,7 +106,7 @@ test("handles seek control with keyboard", async () => {
 });
 
 test("toggle play state when space key is pressed", async () => {
-  const { store } = renderVisualizer();
+  const { store } = await renderVisualizer();
 
   await userEvent.keyboard("{ }");
 
@@ -114,7 +114,7 @@ test("toggle play state when space key is pressed", async () => {
 });
 
 test("toggle play state when space key is pressed while slider is focused", async () => {
-  const { store } = renderVisualizer();
+  const { store } = await renderVisualizer();
 
   // Focus the seek slider
   const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
@@ -131,7 +131,7 @@ test("toggle play state when space key is pressed while slider is focused", asyn
 });
 
 test("toggle play state when space key is pressed while volume slider is focused", async () => {
-  const { store } = renderVisualizer();
+  const { store } = await renderVisualizer();
 
   // Focus the volume slider
   const volumeSlider = within(screen.getByRole("group", { name: "Volume" })).getByRole("slider", {
@@ -150,14 +150,14 @@ function findPlayer() {
 }
 
 // --- Expand UI tests ---
-test("should not be expanded initially", () => {
-  renderVisualizer();
+test("should not be expanded initially", async () => {
+  await renderVisualizer();
 
   expect(findPlayer()).toHaveAttribute("aria-expanded", "false");
 });
 
 test("should expand when expand button is clicked", async () => {
-  renderVisualizer();
+  await renderVisualizer();
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   expect(findPlayer()).toHaveAttribute("aria-expanded", "true");
@@ -165,14 +165,14 @@ test("should expand when expand button is clicked", async () => {
 
 test("should call View Transitions API when expanding", async () => {
   document.startViewTransition = vi.fn<typeof document.startViewTransition>();
-  renderVisualizer();
+  await renderVisualizer();
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   expect(document.startViewTransition).toHaveBeenCalled();
 });
 
 test("should collapse when ESC key is pressed", async () => {
-  renderVisualizer();
+  await renderVisualizer();
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   await userEvent.keyboard("{Escape}");
@@ -180,7 +180,7 @@ test("should collapse when ESC key is pressed", async () => {
 });
 
 test("should collapse when background is clicked", async () => {
-  renderVisualizer();
+  await renderVisualizer();
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   const container = findPlayer();
@@ -189,15 +189,15 @@ test("should collapse when background is clicked", async () => {
 });
 
 test("should work without View Transitions API support", async () => {
-  renderVisualizer();
+  await renderVisualizer();
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   expect(findPlayer()).toHaveAttribute("aria-expanded", "true");
 });
 
 // --- Canvas invalidation tests ---
-test("should call render when midiTracks changes", () => {
-  const { rerender } = renderVisualizer({ props: { midiTracks: testMidiTracks } });
+test("should call render when midiTracks changes", async () => {
+  const { rerender } = await renderVisualizer({ props: { midiTracks: testMidiTracks } });
 
   const initialCallCount = mockRender.mock.calls.length;
 
@@ -215,8 +215,8 @@ test("should call render when midiTracks changes", () => {
   expect(mockRender.mock.calls.length).toBeGreaterThan(initialCallCount);
 });
 
-test("should call render when rendererConfig changes", () => {
-  const { rerender } = renderVisualizer();
+test("should call render when rendererConfig changes", async () => {
+  const { rerender } = await renderVisualizer();
 
   const initialCallCount = mockRender.mock.calls.length;
 
@@ -233,7 +233,7 @@ test("should call render when rendererConfig changes", () => {
 });
 
 test("should call render when backgroundImageBitmap changes", async () => {
-  const { rerender } = renderVisualizer();
+  const { rerender } = await renderVisualizer();
 
   const initialCallCount = mockRender.mock.calls.length;
 
@@ -249,7 +249,7 @@ test("should call render when backgroundImageBitmap changes", async () => {
 
 // --- Mute tests ---
 test("clicking mute button calls toggleMute", async () => {
-  const { store } = renderVisualizer();
+  const { store } = await renderVisualizer();
 
   const muteButton = screen.getByRole("button", { name: "Mute" });
   await userEvent.click(muteButton);
@@ -257,22 +257,22 @@ test("clicking mute button calls toggleMute", async () => {
   expect(store.toggleMute).toHaveBeenCalled();
 });
 
-test("mute button shows correct state when unmuted", () => {
-  renderVisualizer({ snapshot: { muted: false } });
+test("mute button shows correct state when unmuted", async () => {
+  await renderVisualizer({ snapshot: { muted: false } });
 
   const muteButton = screen.getByRole("button", { name: "Mute" });
   expect(muteButton).toHaveAttribute("aria-pressed", "false");
 });
 
-test("mute button shows correct state when muted", () => {
-  renderVisualizer({ snapshot: { muted: true } });
+test("mute button shows correct state when muted", async () => {
+  await renderVisualizer({ snapshot: { muted: true } });
 
   const muteButton = screen.getByRole("button", { name: "Unmute" });
   expect(muteButton).toHaveAttribute("aria-pressed", "true");
 });
 
 test("toggle mute when 'm' key is pressed", async () => {
-  const { store } = renderVisualizer();
+  const { store } = await renderVisualizer();
 
   await userEvent.keyboard("m");
 
@@ -280,7 +280,7 @@ test("toggle mute when 'm' key is pressed", async () => {
 });
 
 test("reveal control panel when 'm' key is pressed", async () => {
-  renderVisualizer({ snapshot: { isPlaying: true } });
+  await renderVisualizer({ snapshot: { isPlaying: true } });
 
   // When playing, panel should initially be hidden (translate-y-full)
   const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
@@ -294,9 +294,9 @@ test("reveal control panel when 'm' key is pressed", async () => {
 });
 
 // --- Keep panel visible tests ---
-test("panel is always visible when not playing", () => {
+test("panel is always visible when not playing", async () => {
   // When not playing, panel should always be visible
-  renderVisualizer({ snapshot: { isPlaying: false } });
+  await renderVisualizer({ snapshot: { isPlaying: false } });
 
   const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
 
@@ -305,9 +305,9 @@ test("panel is always visible when not playing", () => {
   expect(panelContainer.className).not.toContain("translate-y-full");
 });
 
-test("panel is hidden when playing and no interaction", () => {
+test("panel is hidden when playing and no interaction", async () => {
   // When playing with no interaction, panel should be hidden
-  renderVisualizer({ snapshot: { isPlaying: true } });
+  await renderVisualizer({ snapshot: { isPlaying: true } });
 
   const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
 
@@ -317,7 +317,7 @@ test("panel is hidden when playing and no interaction", () => {
 
 // --- F key expand toggle ---
 test("F key toggles expand", async () => {
-  renderVisualizer();
+  await renderVisualizer();
 
   expect(findPlayer()).toHaveAttribute("aria-expanded", "false");
 
@@ -330,7 +330,7 @@ test("F key toggles expand", async () => {
 
 // --- Arrow key seek tests ---
 test("arrow left seeks backward 0.1s", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 30,
   });
@@ -341,7 +341,7 @@ test("arrow left seeks backward 0.1s", async () => {
 });
 
 test("arrow right seeks forward 0.1s", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 30,
   });
@@ -352,7 +352,7 @@ test("arrow right seeks forward 0.1s", async () => {
 });
 
 test("arrow keys do not seek when slider is focused", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 30,
   });
@@ -370,7 +370,7 @@ test("arrow keys do not seek when slider is focused", async () => {
 
 // --- J/L seek tests ---
 test("J key seeks backward 10s", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 30,
   });
@@ -381,7 +381,7 @@ test("J key seeks backward 10s", async () => {
 });
 
 test("L key seeks forward 10s", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 30,
   });
@@ -393,7 +393,7 @@ test("L key seeks forward 10s", async () => {
 
 // --- Volume key tests ---
 test("arrow up increases volume", async () => {
-  const { store } = renderVisualizer({ snapshot: { volume: 0.5 } });
+  const { store } = await renderVisualizer({ snapshot: { volume: 0.5 } });
 
   await userEvent.keyboard("{arrowup}");
 
@@ -401,7 +401,7 @@ test("arrow up increases volume", async () => {
 });
 
 test("arrow down decreases volume", async () => {
-  const { store } = renderVisualizer({ snapshot: { volume: 0.5 } });
+  const { store } = await renderVisualizer({ snapshot: { volume: 0.5 } });
 
   await userEvent.keyboard("{arrowdown}");
 
@@ -409,7 +409,7 @@ test("arrow down decreases volume", async () => {
 });
 
 test("arrow up/down do not adjust volume when slider is focused", async () => {
-  const { store } = renderVisualizer();
+  const { store } = await renderVisualizer();
 
   const seekSlider = screen.getAllByRole("slider", { hidden: true })[0];
   seekSlider.focus();
@@ -422,7 +422,7 @@ test("arrow up/down do not adjust volume when slider is focused", async () => {
 
 // --- Home/0/End tests ---
 test("Home key seeks to beginning", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 30,
   });
@@ -433,7 +433,7 @@ test("Home key seeks to beginning", async () => {
 });
 
 test("0 key seeks to beginning", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 30,
   });
@@ -444,7 +444,7 @@ test("0 key seeks to beginning", async () => {
 });
 
 test("End key seeks to end", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 30,
   });
@@ -456,7 +456,7 @@ test("End key seeks to end", async () => {
 
 // --- Seek/volume shortcuts reveal control panel ---
 test("seek shortcuts reveal control panel", async () => {
-  renderVisualizer({
+  await renderVisualizer({
     snapshot: { isPlaying: true, duration: 60 },
     getPosition: () => 30,
   });
@@ -471,7 +471,7 @@ test("seek shortcuts reveal control panel", async () => {
 });
 
 test("volume shortcuts reveal control panel", async () => {
-  renderVisualizer({ snapshot: { isPlaying: true, volume: 0.5 } });
+  await renderVisualizer({ snapshot: { isPlaying: true, volume: 0.5 } });
 
   const panelContainer = screen.getByLabelText("Midi Visualizer Controls");
   expect(panelContainer.className).toContain("translate-y-full");
@@ -484,7 +484,7 @@ test("volume shortcuts reveal control panel", async () => {
 
 // --- Seek clamps to boundaries ---
 test("seek does not go below 0", async () => {
-  const { store } = renderVisualizer({ getPosition: () => 0.05 });
+  const { store } = await renderVisualizer({ getPosition: () => 0.05 });
 
   await userEvent.keyboard("{arrowleft}");
 
@@ -492,7 +492,7 @@ test("seek does not go below 0", async () => {
 });
 
 test("seek does not exceed duration", async () => {
-  const { store } = renderVisualizer({
+  const { store } = await renderVisualizer({
     snapshot: { duration: 60 },
     getPosition: () => 59.95,
   });

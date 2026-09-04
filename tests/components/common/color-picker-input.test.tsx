@@ -11,8 +11,10 @@ beforeEach(() => {
   mockOnChange.mockClear();
 });
 
-function renderColorPickerInput(props: Partial<ComponentProps<typeof ColorPickerInput>> = {}) {
-  return customRender(
+async function renderColorPickerInput(
+  props: Partial<ComponentProps<typeof ColorPickerInput>> = {},
+) {
+  return await customRender(
     <ColorPickerInput
       value="#ff0000"
       onChange={mockOnChange}
@@ -23,42 +25,42 @@ function renderColorPickerInput(props: Partial<ComponentProps<typeof ColorPicker
 }
 
 // Basic rendering tests
-test("should render with the specified color in the text input", () => {
-  renderColorPickerInput({ value: "#00ff00" });
+test("should render with the specified color in the text input", async () => {
+  await renderColorPickerInput({ value: "#00ff00" });
   const input = screen.getByRole("textbox");
   expect(input).toHaveValue("#00ff00");
 });
 
-test("should render color preview with correct background color", () => {
-  renderColorPickerInput({ value: "#0000ff" });
+test("should render color preview with correct background color", async () => {
+  await renderColorPickerInput({ value: "#0000ff" });
   const nativePicker = screen.getByLabelText("Color picker picker");
   expect(nativePicker.parentElement).toHaveStyle({
     backgroundColor: "#0000ff",
   });
 });
 
-test("should apply aria-label to the text input", () => {
-  renderColorPickerInput({ "aria-label": "Pick a color" });
+test("should apply aria-label to the text input", async () => {
+  await renderColorPickerInput({ "aria-label": "Pick a color" });
   expect(screen.getByLabelText("Pick a color")).toBeInTheDocument();
 });
 
-test("should apply custom className to the container", () => {
-  renderColorPickerInput({ className: "custom-class" });
+test("should apply custom className to the container", async () => {
+  await renderColorPickerInput({ className: "custom-class" });
   const nativePicker = screen.getByLabelText("Color picker picker");
   const group = nativePicker.closest("[data-slot='input-group']");
   expect(group).toHaveClass("custom-class");
 });
 
 // Color picker tests
-test("should call onChange when native color picker value changes", () => {
-  renderColorPickerInput();
+test("should call onChange when native color picker value changes", async () => {
+  await renderColorPickerInput();
   const nativePicker = screen.getByLabelText("Color picker picker");
   fireEvent.input(nativePicker, { target: { value: "#00ff00" } });
   expect(mockOnChange).toHaveBeenCalledWith("#00ff00");
 });
 
-test("should update text input when native color picker changes", () => {
-  renderColorPickerInput();
+test("should update text input when native color picker changes", async () => {
+  await renderColorPickerInput();
   const nativePicker = screen.getByLabelText("Color picker picker");
   fireEvent.input(nativePicker, { target: { value: "#00ff00" } });
   const textInput = screen.getByRole("textbox");
@@ -66,23 +68,23 @@ test("should update text input when native color picker changes", () => {
 });
 
 // Text input tests
-test("should not call onChange while typing", () => {
-  renderColorPickerInput();
+test("should not call onChange while typing", async () => {
+  await renderColorPickerInput();
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#00ff" } });
   expect(mockOnChange).not.toHaveBeenCalled();
 });
 
-test("should call onChange with normalized value on blur", () => {
-  renderColorPickerInput();
+test("should call onChange with normalized value on blur", async () => {
+  await renderColorPickerInput();
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "00ff00" } });
   fireEvent.blur(input);
   expect(mockOnChange).toHaveBeenCalledWith("#00ff00");
 });
 
-test("should call onChange with normalized value on Enter key", () => {
-  renderColorPickerInput();
+test("should call onChange with normalized value on Enter key", async () => {
+  await renderColorPickerInput();
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "00ff00" } });
   fireEvent.keyDown(input, { key: "Enter" });
@@ -90,32 +92,32 @@ test("should call onChange with normalized value on Enter key", () => {
 });
 
 // Validation tests
-test("should normalize color without hash prefix", () => {
-  renderColorPickerInput();
+test("should normalize color without hash prefix", async () => {
+  await renderColorPickerInput();
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "00ff00" } });
   fireEvent.blur(input);
   expect(mockOnChange).toHaveBeenCalledWith("#00ff00");
 });
 
-test("should expand 3-digit hex to 6-digit", () => {
-  renderColorPickerInput();
+test("should expand 3-digit hex to 6-digit", async () => {
+  await renderColorPickerInput();
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#0f0" } });
   fireEvent.blur(input);
   expect(mockOnChange).toHaveBeenCalledWith("#00ff00");
 });
 
-test("should convert uppercase to lowercase", () => {
-  renderColorPickerInput();
+test("should convert uppercase to lowercase", async () => {
+  await renderColorPickerInput();
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#FF00FF" } });
   fireEvent.blur(input);
   expect(mockOnChange).toHaveBeenCalledWith("#ff00ff");
 });
 
-test("should revert to original value on invalid input", () => {
-  renderColorPickerInput({ value: "#ff0000" });
+test("should revert to original value on invalid input", async () => {
+  await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#xyz" } });
   fireEvent.blur(input);
@@ -123,46 +125,46 @@ test("should revert to original value on invalid input", () => {
   expect(input).toHaveValue("#ff0000");
 });
 
-test("should set aria-invalid=true during invalid input", () => {
-  renderColorPickerInput({ value: "#ff0000" });
+test("should set aria-invalid=true during invalid input", async () => {
+  await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#xyz" } });
   expect(input).toHaveAttribute("aria-invalid", "true");
 });
 
-test("should not set aria-invalid for valid input", () => {
-  renderColorPickerInput({ value: "#ff0000" });
+test("should not set aria-invalid for valid input", async () => {
+  await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#00ff00" } });
   expect(input).not.toHaveAttribute("aria-invalid", "true");
 });
 
 // Hash preservation tests
-test("should always keep # at the beginning", () => {
-  renderColorPickerInput({ value: "#ff0000" });
+test("should always keep # at the beginning", async () => {
+  await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "" } });
   expect(input).toHaveValue("#");
 });
 
-test("should restore # if user tries to delete it", () => {
-  renderColorPickerInput({ value: "#ff0000" });
+test("should restore # if user tries to delete it", async () => {
+  await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "abc" } });
   expect(input).toHaveValue("#abc");
 });
 
 // Character limit tests
-test("should limit input to 7 characters", () => {
-  renderColorPickerInput({ value: "#ff0000" });
+test("should limit input to 7 characters", async () => {
+  await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#ff0000abc" } });
   expect(input).toHaveValue("#ff0000");
 });
 
 // Live preview tests
-test("should update preview color while typing valid color", () => {
-  renderColorPickerInput({ value: "#ff0000" });
+test("should update preview color while typing valid color", async () => {
+  await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   const nativePicker = screen.getByLabelText("Color picker picker");
 
@@ -172,8 +174,8 @@ test("should update preview color while typing valid color", () => {
   });
 });
 
-test("should show fallback preview color for invalid input", () => {
-  renderColorPickerInput({ value: "#ff0000" });
+test("should show fallback preview color for invalid input", async () => {
+  await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   const nativePicker = screen.getByLabelText("Color picker picker");
 
@@ -185,8 +187,8 @@ test("should show fallback preview color for invalid input", () => {
 });
 
 // Disabled state
-test("should disable both inputs when disabled prop is true", () => {
-  renderColorPickerInput({ disabled: true });
+test("should disable both inputs when disabled prop is true", async () => {
+  await renderColorPickerInput({ disabled: true });
   const textInput = screen.getByRole("textbox");
   const nativePicker = screen.getByLabelText("Color picker picker");
   expect(textInput).toBeDisabled();
@@ -194,22 +196,22 @@ test("should disable both inputs when disabled prop is true", () => {
 });
 
 // External value sync tests
-test("should update text input when value prop changes", () => {
-  const { rerender } = renderColorPickerInput({ value: "#ff0000" });
+test("should update text input when value prop changes", async () => {
+  const { rerender } = await renderColorPickerInput({ value: "#ff0000" });
   rerender(<ColorPickerInput value="#00ff00" onChange={mockOnChange} aria-label="Color picker" />);
   expect(screen.getByRole("textbox")).toHaveValue("#00ff00");
 });
 
-test("should keep partial input when rerendered with the same value", () => {
-  const { rerender } = renderColorPickerInput({ value: "#ff0000" });
+test("should keep partial input when rerendered with the same value", async () => {
+  const { rerender } = await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#00f" } });
   rerender(<ColorPickerInput value="#ff0000" onChange={mockOnChange} aria-label="Color picker" />);
   expect(input).toHaveValue("#00f");
 });
 
-test("should replace partial input when value prop changes", () => {
-  const { rerender } = renderColorPickerInput({ value: "#ff0000" });
+test("should replace partial input when value prop changes", async () => {
+  const { rerender } = await renderColorPickerInput({ value: "#ff0000" });
   const input = screen.getByRole("textbox");
   fireEvent.change(input, { target: { value: "#00f" } });
   rerender(<ColorPickerInput value="#0000ff" onChange={mockOnChange} aria-label="Color picker" />);

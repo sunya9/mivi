@@ -6,7 +6,7 @@ import { App } from "@/app";
 import { customRender } from "./util";
 
 test("should render App component", async () => {
-  customRender(<App />);
+  await customRender(<App />);
   await waitFor(() => {
     expect(screen.getByText("MiVi")).toBeInTheDocument();
   });

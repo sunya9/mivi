@@ -3,22 +3,23 @@ import { test, expect, vi, afterEach } from "vitest";
 
 import { useFpsCounter } from "@/hooks/use-fps-counter";
 
-function setupHook() {
+async function setupHook() {
+  const rendered = await customRenderHook(() => useFpsCounter());
   vi.useFakeTimers();
-  return customRenderHook(() => useFpsCounter());
+  return rendered;
 }
 
 afterEach(() => {
   vi.useRealTimers();
 });
 
-test("fps is 0 initially", () => {
-  const { result } = setupHook();
+test("fps is 0 initially", async () => {
+  const { result } = await setupHook();
   expect(result.current.fps).toBe(0);
 });
 
-test("calculates fps after 1 second of ticks", () => {
-  const { result, rerender } = setupHook();
+test("calculates fps after 1 second of ticks", async () => {
+  const { result, rerender } = await setupHook();
 
   for (let i = 0; i < 50; i++) {
     vi.advanceTimersByTime(21);
@@ -31,8 +32,8 @@ test("calculates fps after 1 second of ticks", () => {
   expect(result.current.fps).toBeLessThanOrEqual(50);
 });
 
-test("does not update fps before 1 second", () => {
-  const { result, rerender } = setupHook();
+test("does not update fps before 1 second", async () => {
+  const { result, rerender } = await setupHook();
 
   for (let i = 0; i < 10; i++) {
     vi.advanceTimersByTime(50);
@@ -43,8 +44,8 @@ test("does not update fps before 1 second", () => {
   expect(result.current.fps).toBe(0);
 });
 
-test("reset clears fps to 0", () => {
-  const { result, rerender } = setupHook();
+test("reset clears fps to 0", async () => {
+  const { result, rerender } = await setupHook();
 
   for (let i = 0; i < 50; i++) {
     vi.advanceTimersByTime(21);
@@ -58,8 +59,8 @@ test("reset clears fps to 0", () => {
   expect(result.current.fps).toBe(0);
 });
 
-test("recalculates fps after reset", () => {
-  const { result, rerender } = setupHook();
+test("recalculates fps after reset", async () => {
+  const { result, rerender } = await setupHook();
 
   // First: ~48fps
   for (let i = 0; i < 50; i++) {

@@ -32,7 +32,7 @@ const mockStoredEntry: FileDbEntry<StoredAudioData> = {
 };
 
 test("returns initial state", async () => {
-  const { result } = customRenderHook(() => useAudio());
+  const { result } = await customRenderHook(() => useAudio());
   await waitFor(() => {
     expect(result.current.audioBuffer).toBeUndefined();
     expect(result.current.serializedAudio).toBeUndefined();
@@ -42,7 +42,7 @@ test("returns initial state", async () => {
 
 test("audioBuffer is defined when entry exists in indexedDb", async () => {
   await saveValue("db:audio", mockStoredEntry);
-  const { result } = customRenderHook(() => useAudio());
+  const { result } = await customRenderHook(() => useAudio());
   await waitFor(() => {
     expect(result.current.audioBuffer).toBeDefined();
     expect(result.current.serializedAudio).toBeDefined();
@@ -61,7 +61,7 @@ test("normalizes legacy Float32Array entries from indexedDb", async () => {
     },
   } as unknown as FileDbEntry<StoredAudioData>;
   await saveValue("db:audio", legacyEntry);
-  const { result } = customRenderHook(() => useAudio());
+  const { result } = await customRenderHook(() => useAudio());
   await waitFor(() => {
     expect(result.current.audioBuffer).toBeDefined();
     expect(result.current.serializedAudio?.channels[0]).toBeInstanceOf(Int16Array);
@@ -70,7 +70,7 @@ test("normalizes legacy Float32Array entries from indexedDb", async () => {
 
 test("audioBuffer is defined after call setAudioFile", async () => {
   vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockStoredAudio);
-  const { result } = customRenderHook(() => useAudio());
+  const { result } = await customRenderHook(() => useAudio());
   await waitFor(() => expect(result.current).not.toBeNull());
   await result.current.setAudioFile(audioFile);
   await waitFor(() => {
@@ -87,7 +87,7 @@ test("audioBuffer is defined after call setAudioFile", async () => {
 
 test("sets audioBuffer to undefined when setAudioFile is called with undefined", async () => {
   vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockStoredAudio);
-  const { result } = customRenderHook(() => useAudio());
+  const { result } = await customRenderHook(() => useAudio());
   await waitFor(() => expect(result.current).not.toBeNull());
   await result.current.setAudioFile(audioFile);
   await waitFor(() => {
@@ -110,7 +110,7 @@ test("cancelDecode aborts in-progress decode and resets isDecoding", async () =>
         signal.addEventListener("abort", () => reject(signal.reason), { once: true });
       }),
   );
-  const { result } = customRenderHook(() => useAudio());
+  const { result } = await customRenderHook(() => useAudio());
   await waitFor(() => expect(result.current).not.toBeNull());
 
   const promise = result.current.setAudioFile(audioFile);
@@ -153,7 +153,7 @@ test("re-entry: second setAudioFile discards first decode result", async () => {
 
   const secondFile = new File(["second"], "second.mp3", { type: "audio/mpeg" });
 
-  const { result } = customRenderHook(() => useAudio());
+  const { result } = await customRenderHook(() => useAudio());
   await waitFor(() => expect(result.current).not.toBeNull());
 
   // Start first decode (will hang)
@@ -181,7 +181,7 @@ test("handles audio file loading errors", async () => {
   const error = new Error("Failed to decode audio data");
   vi.mocked(runDecodeWorker).mockRejectedValueOnce(error);
   const consoleErrorSpy = vi.spyOn(console, "error");
-  const { result } = customRenderHook(() => useAudio());
+  const { result } = await customRenderHook(() => useAudio());
 
   await waitFor(() => expect(result.current).not.toBeNull());
   await result.current.setAudioFile(invalidFile);

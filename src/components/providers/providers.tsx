@@ -7,7 +7,7 @@ import { usePwaState } from "@/lib/pwa/use-pwa-state";
 
 import { AppContext, createAppContext } from "../../contexts/app-context";
 import { Fallback } from "./fallback";
-import { FileDbStoreProvider } from "./file-db-store-provider";
+import { FileDbGate, FileDbStoreProvider } from "./file-db-store-provider";
 import { Loading } from "./loading";
 import { ThemeProvider } from "./theme-provider";
 
@@ -25,7 +25,9 @@ export function Providers({ children }: ProvidersProps) {
         <AppContext value={appContextValue}>
           <PwaContext value={pwaUpdateState}>
             <ErrorBoundary fallbackRender={Fallback}>
-              <Suspense fallback={<Loading />}>{children}</Suspense>
+              <Suspense fallback={<Loading />}>
+                <FileDbGate>{children}</FileDbGate>
+              </Suspense>
             </ErrorBoundary>
           </PwaContext>
         </AppContext>

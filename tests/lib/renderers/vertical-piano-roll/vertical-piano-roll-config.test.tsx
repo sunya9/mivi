@@ -12,8 +12,8 @@ const onUpdateRendererConfig: Props["onUpdateRendererConfig"] =
   vi.fn<Props["onUpdateRendererConfig"]>();
 const verticalPianoRollConfig = rendererConfig.verticalPianoRollConfig;
 
-function renderPane(overrideProps?: Partial<Props>) {
-  customRender(
+async function renderPane(overrideProps?: Partial<Props>) {
+  await customRender(
     <VerticalPianoRollConfigPanel
       onUpdateRendererConfig={onUpdateRendererConfig}
       verticalPianoRollConfig={verticalPianoRollConfig}
@@ -24,8 +24,8 @@ function renderPane(overrideProps?: Partial<Props>) {
   );
 }
 
-test("renders time window and keyboard height labels", () => {
-  renderPane();
+test("renders time window and keyboard height labels", async () => {
+  await renderPane();
   expect(
     screen.getByText(`Time Window: ${verticalPianoRollConfig.timeWindow}s`),
   ).toBeInTheDocument();
@@ -34,23 +34,23 @@ test("renders time window and keyboard height labels", () => {
   ).toBeInTheDocument();
 });
 
-test("displays detected note range when provided", () => {
-  renderPane();
+test("displays detected note range when provided", async () => {
+  await renderPane();
   expect(screen.getByText(/Detected range: 60 - 72/)).toBeInTheDocument();
 });
 
-test("displays detected note range when the lowest note is 0", () => {
-  renderPane({ minNote: 0, maxNote: 12 });
+test("displays detected note range when the lowest note is 0", async () => {
+  await renderPane({ minNote: 0, maxNote: 12 });
   expect(screen.getByText(/Detected range: 0 - 12/)).toBeInTheDocument();
 });
 
-test("does not display detected note range without midi", () => {
-  renderPane({ minNote: undefined, maxNote: undefined });
+test("does not display detected note range without midi", async () => {
+  await renderPane({ minNote: undefined, maxNote: undefined });
   expect(screen.queryByText(/Detected range/)).not.toBeInTheDocument();
 });
 
 test("toggle key press highlight", async () => {
-  renderPane();
+  await renderPane();
   await userEvent.click(screen.getByRole("switch", { name: "Key Press Highlight" }));
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
     verticalPianoRollConfig: { showKeyPressHighlight: false },
@@ -58,22 +58,22 @@ test("toggle key press highlight", async () => {
 });
 
 test("toggle darken black key notes", async () => {
-  renderPane();
+  await renderPane();
   await userEvent.click(screen.getByRole("switch", { name: "Darken Black Key Notes" }));
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
     verticalPianoRollConfig: { darkenBlackKeyNotes: false },
   });
 });
 
-test("black key note darkness slider is hidden when darkening is off", () => {
-  renderPane({
+test("black key note darkness slider is hidden when darkening is off", async () => {
+  await renderPane({
     verticalPianoRollConfig: { ...verticalPianoRollConfig, darkenBlackKeyNotes: false },
   });
   expect(screen.queryByText(/Black Key Note Darkness/)).not.toBeInTheDocument();
 });
 
 test("black key note darkness slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Black Key Note Darkness: ${Math.round(verticalPianoRollConfig.blackKeyNoteDarkness * 100)}%`,
   });
@@ -88,7 +88,7 @@ test("black key note darkness slider updates value", async () => {
 });
 
 test("toggle octave labels", async () => {
-  renderPane();
+  await renderPane();
   await userEvent.click(screen.getByRole("switch", { name: "Octave Labels" }));
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
     verticalPianoRollConfig: { showOctaveLabels: false },
@@ -96,41 +96,41 @@ test("toggle octave labels", async () => {
 });
 
 test("toggle key lines", async () => {
-  renderPane();
+  await renderPane();
   await userEvent.click(screen.getByRole("switch", { name: "Key Lines" }));
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
     verticalPianoRollConfig: { showKeyLines: false },
   });
 });
 
-test("key line color and opacity are shown only while key lines are on", () => {
-  renderPane();
+test("key line color and opacity are shown only while key lines are on", async () => {
+  await renderPane();
   expect(screen.getByText("Key Line Color")).toBeInTheDocument();
   expect(screen.getByText(/Key Line Opacity/)).toBeInTheDocument();
 });
 
-test("key line color and opacity are hidden when key lines are off", () => {
-  renderPane({
+test("key line color and opacity are hidden when key lines are off", async () => {
+  await renderPane({
     verticalPianoRollConfig: { ...verticalPianoRollConfig, showKeyLines: false },
   });
   expect(screen.queryByText("Key Line Color")).not.toBeInTheDocument();
   expect(screen.queryByText(/Key Line Opacity/)).not.toBeInTheDocument();
 });
 
-test("octave line color is shown only while octave lines are on", () => {
-  renderPane();
+test("octave line color is shown only while octave lines are on", async () => {
+  await renderPane();
   expect(screen.getByText("Octave Line Color")).toBeInTheDocument();
 });
 
-test("octave line color is hidden when octave lines are off", () => {
-  renderPane({
+test("octave line color is hidden when octave lines are off", async () => {
+  await renderPane({
     verticalPianoRollConfig: { ...verticalPianoRollConfig, showOctaveLines: false },
   });
   expect(screen.queryByText("Octave Line Color")).not.toBeInTheDocument();
 });
 
 test("toggle octave lines", async () => {
-  renderPane();
+  await renderPane();
   await userEvent.click(screen.getByRole("switch", { name: "Octave Lines" }));
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
     verticalPianoRollConfig: { showOctaveLines: false },
@@ -138,7 +138,7 @@ test("toggle octave lines", async () => {
 });
 
 test("toggle hit line", async () => {
-  renderPane();
+  await renderPane();
   await userEvent.click(screen.getByRole("switch", { name: "Hit Line" }));
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
     verticalPianoRollConfig: { showHitLine: false },
@@ -146,7 +146,7 @@ test("toggle hit line", async () => {
 });
 
 test("toggle ripple, flash, rough edge and noise effects", async () => {
-  renderPane();
+  await renderPane();
   await userEvent.click(screen.getByRole("switch", { name: "Ripple Effect" }));
   expect(onUpdateRendererConfig).toHaveBeenCalledWith({
     verticalPianoRollConfig: { showRippleEffect: false },
@@ -166,7 +166,7 @@ test("toggle ripple, flash, rough edge and noise effects", async () => {
 });
 
 test("time window slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Time Window: ${verticalPianoRollConfig.timeWindow}s`,
   });
@@ -179,7 +179,7 @@ test("time window slider updates value", async () => {
 });
 
 test("keyboard height slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Keyboard Height: ${verticalPianoRollConfig.keyboardHeight}%`,
   });
@@ -192,7 +192,7 @@ test("keyboard height slider updates value", async () => {
 });
 
 test("note vertical margin slider updates value", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", {
     name: `Note Vertical Margin: ${verticalPianoRollConfig.noteVerticalMargin}px`,
   });
@@ -207,7 +207,7 @@ test("note vertical margin slider updates value", async () => {
 });
 
 test("view range slider updates both bounds", async () => {
-  renderPane();
+  await renderPane();
   const group = screen.getByRole("group", { name: /View Range/ });
   const [bottomSlider] = within(group).getAllByRole("slider", { hidden: true });
   bottomSlider.focus();
@@ -220,15 +220,15 @@ test("view range slider updates both bounds", async () => {
   });
 });
 
-test("hit line fields are hidden when the hit line is off", () => {
-  renderPane({
+test("hit line fields are hidden when the hit line is off", async () => {
+  await renderPane({
     verticalPianoRollConfig: { ...verticalPianoRollConfig, showHitLine: false },
   });
   expect(screen.queryByText("Hit Line Color")).not.toBeInTheDocument();
 });
 
-test("flash duration slider shown when flash mode is duration", () => {
-  renderPane({
+test("flash duration slider shown when flash mode is duration", async () => {
+  await renderPane({
     verticalPianoRollConfig: {
       ...verticalPianoRollConfig,
       showNoteFlash: true,

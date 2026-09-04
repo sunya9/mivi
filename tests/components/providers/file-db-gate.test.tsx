@@ -1,0 +1,46 @@
+import { act, render, screen } from "@testing-library/react";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { expect, test, vi } from "vitest";
+
+import { FileDbGate, FileDbStoreProvider } from "@/components/providers/file-db-store-provider";
+import * as fileDb from "@/lib/file-db/file-db";
+
+function renderGate() {
+  return act(async () => {
+    render(
+      <FileDbStoreProvider>
+        <ErrorBoundary fallback={<p>error</p>}>
+          <Suspense fallback={<p>loading</p>}>
+            <FileDbGate>
+              <p>ready</p>
+            </FileDbGate>
+          </Suspense>
+        </ErrorBoundary>
+      </FileDbStoreProvider>,
+    );
+  });
+}
+
+test("shows fallback until the file db is loaded, then children", async () => {
+  let resolve!: (value: undefined) => void;
+  const promise = new Promise<undefined>((r) => (resolve = r));
+  vi.spyOn(fileDb, "fetchValue").mockReturnValue(promise);
+  await renderGate();
+
+  expect(screen.getByText("loading")).toBeInTheDocument();
+  expect(screen.queryByText("ready")).toBeNull();
+
+  await act(async () => resolve(undefined));
+
+  expect(screen.getByText("ready")).toBeInTheDocument();
+  expect(screen.queryByText("loading")).toBeNull();
+});
+
+test("surfaces a load failure to the error boundary", async () => {
+  vi.spyOn(fileDb, "fetchValue").mockRejectedValue(new Error("boom"));
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  await renderGate();
+
+  expect(await screen.findByText("error")).toBeInTheDocument();
+});
