@@ -1,9 +1,10 @@
+import { brightenHexColor } from "@/lib/colors/color";
 import { MidiTrack } from "@/lib/midi/midi";
-
-import { Renderer, RendererConfig } from "../renderer";
-import { findFirstVisibleNoteIndex } from "./find-first-visible-note";
-import { NoiseTextureRenderer } from "./noise-texture-renderer";
-import { RoughRectDrawer } from "./rough-rect-drawer";
+import { Renderer, RendererConfig } from "@/lib/renderers/renderer";
+import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-visible-note";
+import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture-renderer";
+import { drawRipple } from "@/lib/renderers/shared/ripple";
+import { RoughRectDrawer } from "@/lib/renderers/shared/rough-rect-drawer";
 
 export class PianoRollRenderer extends Renderer {
   readonly #overflowFactor = 0.5;
@@ -42,7 +43,7 @@ export class PianoRollRenderer extends Renderer {
 
   #noiseTextureRenderer: NoiseTextureRenderer;
   #roughRectDrawer: RoughRectDrawer;
-  #rgbCache = new Map<string, [number, number, number]>();
+  #brightenedColorCache = new Map<string, string>();
 
   constructor(
     ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
@@ -224,7 +225,7 @@ export class PianoRollRenderer extends Renderer {
           }
 
           if (intensity > 0) {
-            this.ctx.fillStyle = this.#adjustColorBrightness(track.config.color, intensity);
+            this.ctx.fillStyle = this.#brighten(track.config.color, intensity);
           }
 
           // Update touch state
@@ -336,44 +337,19 @@ export class PianoRollRenderer extends Renderer {
     radiusProgress: number,
     fadeProgress: number,
   ) {
-    const maxRipples = 1;
-
-    for (let i = 0; i < maxRipples; i++) {
-      const radius = Math.max(0, this.config.pianoRollConfig.rippleRadius * radiusProgress);
-      const alpha = 0.4 * (1 - fadeProgress);
-
-      if (alpha <= 0) return;
-
-      this.ctx.save();
-      this.ctx.beginPath();
-      this.ctx.arc(x, y, radius, 0, Math.PI * 2);
-      this.ctx.fillStyle = color;
-      this.ctx.strokeStyle = color;
-      this.ctx.lineWidth = 2;
-      this.ctx.globalAlpha = alpha;
-      this.ctx.stroke();
-      this.ctx.fill();
-      this.ctx.restore();
-    }
+    const radius = Math.max(0, this.config.pianoRollConfig.rippleRadius * radiusProgress);
+    const alpha = 0.4 * (1 - fadeProgress);
+    drawRipple(this.ctx, x, y, radius, color, alpha);
   }
 
-  #parseRgb(color: string): [number, number, number] {
-    let rgb = this.#rgbCache.get(color);
-    if (!rgb) {
-      rgb = [
-        parseInt(color.slice(1, 3), 16),
-        parseInt(color.slice(3, 5), 16),
-        parseInt(color.slice(5, 7), 16),
-      ];
-      this.#rgbCache.set(color, rgb);
+  #brighten(color: string, intensity: number): string {
+    const key = `${color}:${intensity}`;
+    let result = this.#brightenedColorCache.get(key);
+    if (!result) {
+      result = brightenHexColor(color, intensity);
+      this.#brightenedColorCache.set(key, result);
     }
-    return rgb;
-  }
-
-  #adjustColorBrightness(color: string, intensity: number): string {
-    const [r, g, b] = this.#parseRgb(color);
-    const brightenValue = intensity * 255;
-    return `rgb(${Math.min(255, r + brightenValue)}, ${Math.min(255, g + brightenValue)}, ${Math.min(255, b + brightenValue)})`;
+    return result;
   }
 
   #updateNoiseTexture(): void {
