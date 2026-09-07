@@ -14,6 +14,7 @@ async function renderFileButton(props: Partial<ComponentProps<typeof FileButton>
       filename={undefined}
       setFile={mockSetFile}
       accept="audio/*"
+      label="Audio file"
       placeholder="No file selected"
       cancelLabel="Cancel file"
       {...props}
@@ -23,13 +24,13 @@ async function renderFileButton(props: Partial<ComponentProps<typeof FileButton>
 
 test("should render placeholder when no file is selected", async () => {
   await renderFileButton();
-  expect(screen.getByDisplayValue("No file selected")).toBeInTheDocument();
+  expect(screen.getByText("No file selected")).toBeInTheDocument();
   expect(screen.getByText("Open")).toBeInTheDocument();
 });
 
 test("should render filename when file is selected", async () => {
   await renderFileButton({ filename: "test.mp3" });
-  expect(screen.getByDisplayValue("test.mp3")).toBeInTheDocument();
+  expect(screen.getByText("test.mp3")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Cancel file" })).toBeInTheDocument();
 });
 
@@ -57,7 +58,7 @@ test("should call setFile with undefined when cancel button is clicked", async (
 
 test("should show loading state when loading is true", async () => {
   await renderFileButton({ loading: true });
-  expect(screen.getByDisplayValue("Loading...")).toBeInTheDocument();
+  expect(screen.getByText("Loading...")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
   expect(screen.queryByText("Open")).not.toBeInTheDocument();
 });
@@ -68,4 +69,21 @@ test("should call onCancel when cancel button is clicked during loading", async 
   const cancelButton = screen.getByRole("button", { name: "Cancel" });
   await userEvent.click(cancelButton);
   expect(mockOnCancel).toHaveBeenCalledOnce();
+});
+
+test("should show the filename as plain text rather than a text field", async () => {
+  await renderFileButton({ filename: "test.mp3" });
+  expect(screen.getByText("test.mp3")).toBeInTheDocument();
+  expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+});
+
+test("should open the file chooser when the label is clicked", async () => {
+  await renderFileButton({ filename: "test.mp3" });
+  const fileInput = screen.getByLabelText("No file selected");
+  const onClick = vi.fn<() => void>();
+  fileInput.addEventListener("click", onClick);
+
+  await userEvent.click(screen.getByText("Audio file"));
+
+  expect(onClick).toHaveBeenCalledOnce();
 });

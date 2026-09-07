@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 
-import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import {
   createCustomResolution,
   MAX_RESOLUTION_SIZE,
@@ -11,11 +11,12 @@ import {
 interface SizeInputProps {
   ref?: React.Ref<HTMLInputElement>;
   label: string;
+  prefix: string;
   value: number;
   onCommit: (value: number) => number;
 }
 
-function SizeInput({ ref, label, value, onCommit }: SizeInputProps) {
+function SizeInput({ ref, label, prefix, value, onCommit }: SizeInputProps) {
   const [draft, setDraft] = useState(String(value));
   const [syncedValue, setSyncedValue] = useState(value);
   if (syncedValue !== value) {
@@ -30,22 +31,25 @@ function SizeInput({ ref, label, value, onCommit }: SizeInputProps) {
   }, [draft, onCommit, value]);
 
   return (
-    <Input
-      ref={ref}
-      type="number"
-      inputMode="numeric"
-      aria-label={label}
-      min={MIN_RESOLUTION_SIZE}
-      max={MAX_RESOLUTION_SIZE}
-      step={2}
-      className="w-20 text-right"
-      value={draft}
-      onChange={(event) => setDraft(event.target.value)}
-      onBlur={commit}
-      onKeyDown={(event) => {
-        if (event.key === "Enter") commit();
-      }}
-    />
+    <InputGroup className="w-24">
+      <InputGroupAddon className="text-muted-foreground">{prefix}</InputGroupAddon>
+      <InputGroupInput
+        ref={ref}
+        type="number"
+        inputMode="numeric"
+        aria-label={label}
+        min={MIN_RESOLUTION_SIZE}
+        max={MAX_RESOLUTION_SIZE}
+        step={2}
+        className="text-right"
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onBlur={commit}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") commit();
+        }}
+      />
+    </InputGroup>
   );
 }
 
@@ -77,11 +81,12 @@ export function CustomResolutionFields({ widthInputRef, resolution, onChange }: 
       <SizeInput
         ref={widthInputRef}
         label="Width"
+        prefix="W"
         value={resolution.width}
         onCommit={commitWidth}
       />
       <span className="text-muted-foreground">×</span>
-      <SizeInput label="Height" value={resolution.height} onCommit={commitHeight} />
+      <SizeInput label="Height" prefix="H" value={resolution.height} onCommit={commitHeight} />
     </div>
   );
 }

@@ -82,6 +82,7 @@ export function App() {
             orientation="horizontal"
             panelId="track-list"
             side="before"
+            aria-label="Resize track list panel"
             className="area-[sep-h1]"
             getOptimalSizeForFit={(sizes) => getCenterFitSize("track-list", sizes)}
           />
@@ -91,6 +92,7 @@ export function App() {
             orientation="vertical"
             panelId="visualizer"
             side="before"
+            aria-label="Resize visualizer panel"
             className="area-[sep-v]"
             getOptimalSizeForFit={getVisualizerOptimalHeight}
           />
@@ -112,6 +114,7 @@ export function App() {
             orientation="horizontal"
             panelId="style"
             side="after"
+            aria-label="Resize style panel"
             className="area-[sep-h2]"
             getOptimalSizeForFit={(sizes) => getCenterFitSize("style", sizes)}
           />

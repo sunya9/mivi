@@ -27,7 +27,7 @@ test("should render MIDI file selection form when no tracks are provided", () =>
   renderTrackListPane();
 
   expect(screen.getByText("Open")).toBeInTheDocument();
-  expect(screen.getByDisplayValue("Choose MIDI file")).toBeInTheDocument();
+  expect(screen.getByText("Choose MIDI file")).toBeInTheDocument();
 });
 
 test("should render track list when tracks are provided", () => {
@@ -112,11 +112,11 @@ test("should render MIDI offset input when tracks are provided", () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
   expect(screen.getByText("MIDI Offset (s)")).toBeInTheDocument();
-  const offsetInput = screen.getByRole("spinbutton", {
+  const offsetInput = screen.getByRole("textbox", {
     name: "MIDI Offset (s)",
   });
   expect(offsetInput).toBeInTheDocument();
-  expect(offsetInput).toHaveValue(0);
+  expect(offsetInput).toHaveValue("0");
 
   expect(screen.getByLabelText("Increase offset")).toBeInTheDocument();
   expect(screen.getByLabelText("Decrease offset")).toBeInTheDocument();
@@ -149,10 +149,11 @@ test("should decrement MIDI offset when minus button is clicked", async () => {
 test("should update MIDI offset when value is directly entered", () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  const offsetInput = screen.getByRole("spinbutton", {
+  const offsetInput = screen.getByRole("textbox", {
     name: "MIDI Offset (s)",
   });
   fireEvent.change(offsetInput, { target: { value: "1.5" } });
+  fireEvent.blur(offsetInput);
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const lastCall = mockSetMidiTracks.mock.calls.length - 1;
@@ -163,10 +164,11 @@ test("should update MIDI offset when value is directly entered", () => {
 test("should allow negative MIDI offset values", () => {
   renderTrackListPane({ midiTracks: testMidiTracks });
 
-  const offsetInput = screen.getByRole("spinbutton", {
+  const offsetInput = screen.getByRole("textbox", {
     name: "MIDI Offset (s)",
   });
   fireEvent.change(offsetInput, { target: { value: "-0.5" } });
+  fireEvent.blur(offsetInput);
 
   expect(mockSetMidiTracks).toHaveBeenCalled();
   const lastCall = mockSetMidiTracks.mock.calls.length - 1;
@@ -181,7 +183,7 @@ test("should reset MIDI offset to 0 when input is cleared and blurred", async ()
   };
   renderTrackListPane({ midiTracks: midiTracksWithOffset });
 
-  const offsetInput = screen.getByRole("spinbutton", {
+  const offsetInput = screen.getByRole("textbox", {
     name: "MIDI Offset (s)",
   });
   await userEvent.clear(offsetInput);
@@ -472,10 +474,10 @@ test("TrackListPane renders tracks from the store", async () => {
 test("TrackListPane resets the offset input when a new MIDI instance is loaded", async () => {
   const appContextValue = await renderConnectedPane();
   act(() => appContextValue.midiTracksStore.set({ ...testMidiTracks, midiOffset: 1.5 }));
-  expect(screen.getByRole("spinbutton", { name: "MIDI Offset (s)" })).toHaveValue(1.5);
+  expect(screen.getByRole("textbox", { name: "MIDI Offset (s)" })).toHaveValue("1.5");
 
   act(() =>
     appContextValue.midiTracksStore.set({ ...testMidiTracks, instanceKey: "next", midiOffset: 0 }),
   );
-  expect(screen.getByRole("spinbutton", { name: "MIDI Offset (s)" })).toHaveValue(0);
+  expect(screen.getByRole("textbox", { name: "MIDI Offset (s)" })).toHaveValue("0");
 });

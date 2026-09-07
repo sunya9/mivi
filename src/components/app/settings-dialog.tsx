@@ -18,7 +18,6 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -123,6 +122,7 @@ function SettingsDialogContent({
                       <SidebarMenuItem key={item.value}>
                         <SidebarMenuButton
                           isActive={activeTab === item.value}
+                          aria-current={activeTab === item.value ? "true" : undefined}
                           onClick={() => onTabChange(item.value)}
                         >
                           <item.icon />
@@ -136,7 +136,7 @@ function SettingsDialogContent({
             ))}
           </SidebarContent>
         </Sidebar>
-        <SidebarInset>
+        <div className="relative flex w-full flex-1 flex-col bg-background">
           <ScrollArea className="relative h-107.5 max-h-107.5">
             <div className="p-4">
               <Activity mode={modeForTab("general")}>
@@ -150,7 +150,7 @@ function SettingsDialogContent({
               </Activity>
             </div>
           </ScrollArea>
-        </SidebarInset>
+        </div>
       </SidebarProvider>
     </>
   );
@@ -163,7 +163,7 @@ interface SettingsContentProps {
 export function SettingsContent({ className }: SettingsContentProps) {
   return (
     <Tabs defaultValue="general" className={className}>
-      <TabsList variant="line-indicator" className="w-full">
+      <TabsList variant="line-indicator" className="w-full" aria-label="Settings">
         <TabsTrigger value="general">General</TabsTrigger>
         <TabsTrigger value="about">About</TabsTrigger>
         <TabsIndicator />

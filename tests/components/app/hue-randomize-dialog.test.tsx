@@ -50,7 +50,7 @@ test("renders 8 preview color swatches", async () => {
 
   const dialog = screen.getByRole("dialog");
   const swatches = within(dialog)
-    .getAllByRole("generic")
+    .getAllByRole("generic", { hidden: true })
     .filter((el) => el.style.backgroundColor !== "");
   expect(swatches.length).toBe(8);
 });
@@ -134,15 +134,18 @@ test("renders saturation and lightness sliders with correct labels", async () =>
 test("clicking label focuses the corresponding slider", async () => {
   await renderDialog();
 
-  const saturationLabel = screen.getByText("Saturation");
-  const saturationGroup = screen.getByRole("group", { name: "Saturation" });
+  const expectLabelFocusesSlider = async (name: string) => {
+    const label = screen.getByText(name);
+    const input = within(screen.getByRole("group", { name: new RegExp(`^${name}`) })).getByRole(
+      "slider",
+      { hidden: true },
+    );
+    expect(input).toHaveAttribute("aria-labelledby", label.closest("[id]")!.id);
 
-  await userEvent.click(saturationLabel);
-  expect(saturationGroup).toHaveFocus();
+    await userEvent.click(label);
+    expect(input).toHaveFocus();
+  };
 
-  const lightnessLabel = screen.getByText("Lightness");
-  const lightnessGroup = screen.getByRole("group", { name: "Lightness" });
-
-  await userEvent.click(lightnessLabel);
-  expect(lightnessGroup).toHaveFocus();
+  await expectLabelFocusesSlider("Saturation");
+  await expectLabelFocusesSlider("Lightness");
 });

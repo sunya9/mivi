@@ -55,10 +55,30 @@ test("should render opacity slider when track is visible", () => {
 
   expect(screen.getByText("Opacity: 100%")).toBeInTheDocument();
   expect(
-    within(screen.getByRole("group", { name: "Opacity" })).getByRole("slider", {
+    within(screen.getByRole("group", { name: "Opacity: 100%" })).getByRole("slider", {
       hidden: true,
     }),
   ).toBeInTheDocument();
+});
+
+test("should label the sliders by their visible text and focus them from the label", async () => {
+  renderWithDndContext(
+    <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
+  );
+
+  const expectLabelFocusesSlider = async (name: string) => {
+    const label = screen.getByText(name);
+    const input = within(screen.getByRole("group", { name })).getByRole("slider", {
+      hidden: true,
+    });
+    expect(input).toHaveAttribute("aria-labelledby", label.id);
+
+    await userEvent.click(label);
+    expect(input).toHaveFocus();
+  };
+
+  await expectLabelFocusesSlider("Opacity: 100%");
+  await expectLabelFocusesSlider("Scale: 100%");
 });
 
 test("should call onUpdateTrackConfig when opacity is changed", async () => {
@@ -66,7 +86,7 @@ test("should call onUpdateTrackConfig when opacity is changed", async () => {
     <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
-  const slider = within(screen.getByRole("group", { name: "Opacity" })).getByRole("slider", {
+  const slider = within(screen.getByRole("group", { name: "Opacity: 100%" })).getByRole("slider", {
     hidden: true,
   });
   slider.focus();
@@ -127,7 +147,7 @@ test("should render scale slider when track is visible", () => {
 
   expect(screen.getByText("Scale: 100%")).toBeInTheDocument();
   expect(
-    within(screen.getByRole("group", { name: "Scale" })).getByRole("slider", {
+    within(screen.getByRole("group", { name: "Scale: 100%" })).getByRole("slider", {
       hidden: true,
     }),
   ).toBeInTheDocument();
@@ -138,7 +158,7 @@ test("should call onUpdateTrackConfig when scale is changed", async () => {
     <TrackItem track={mockTrack} index={0} onUpdateTrackConfig={mockOnUpdateTrackConfig} />,
   );
 
-  const slider = within(screen.getByRole("group", { name: "Scale" })).getByRole("slider", {
+  const slider = within(screen.getByRole("group", { name: "Scale: 100%" })).getByRole("slider", {
     hidden: true,
   });
   slider.focus();

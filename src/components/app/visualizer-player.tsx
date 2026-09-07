@@ -215,6 +215,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
             },
             "light",
           )}
+          role="group"
           aria-label="Midi Visualizer Controls"
         >
           <SeekSlider onInteractionStart={startInteraction} onInteractionEnd={endInteraction} />

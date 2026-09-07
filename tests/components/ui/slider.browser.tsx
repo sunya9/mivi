@@ -29,3 +29,29 @@ test("a slider mounted inside a hidden container positions its thumb once shown"
 
   await expect.poll(thumbState).toEqual({ visibility: "visible", offset: 0 });
 });
+
+test("aria-label names the range input", async () => {
+  const screen = await page.render(
+    <Slider value={[1]} min={0} max={1} step={0.01} aria-label="Volume" />,
+  );
+  await expect.element(screen.getByRole("slider", { name: "Volume" })).toBeInTheDocument();
+});
+
+test("clicking the label focuses the range input with a visible focus ring", async () => {
+  const screen = await page.render(<Slider label="Amount" value={[5]} min={0} max={10} />);
+
+  await screen.getByText("Amount").click();
+
+  const input = document.querySelector<HTMLInputElement>('input[type="range"]')!;
+  expect(document.activeElement).toBe(input);
+  expect(input.matches(":focus-visible")).toBe(true);
+});
+
+test("aria-label names every thumb of a range slider", async () => {
+  const screen = await page.render(
+    <Slider value={[10, 20]} min={0} max={100} aria-label="View Range" />,
+  );
+  await expect
+    .poll(() => screen.getByRole("slider", { name: "View Range" }).elements().length)
+    .toBe(2);
+});

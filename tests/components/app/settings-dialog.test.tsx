@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps, useState } from "react";
 import { AudioContext } from "standardized-audio-context-mock";
@@ -59,6 +59,40 @@ test("SettingsDialog does not render content when tab is undefined", () => {
   renderDialog({ tab: undefined });
 
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+});
+
+test("SettingsDialog labels the theme select with its title", () => {
+  renderDialog();
+
+  expect(screen.getByRole("combobox", { name: "Theme" })).toHaveAccessibleDescription(
+    "Select the color theme for the application.",
+  );
+});
+
+test("SettingsDialog focuses the theme select when its title is clicked", async () => {
+  renderDialog();
+
+  await userEvent.click(screen.getByText("Theme"));
+  expect(screen.getByRole("combobox", { name: "Theme" })).toHaveFocus();
+});
+
+test("SettingsDialog marks the active navigation item as current", () => {
+  renderDialog({ tab: "about" });
+
+  expect(screen.getByRole("button", { name: "About" })).toHaveAttribute("aria-current", "true");
+  expect(screen.getByRole("button", { name: "General" })).not.toHaveAttribute("aria-current");
+});
+
+test("SettingsDialog does not nest a main landmark inside the dialog", () => {
+  renderDialog();
+
+  expect(within(screen.getByRole("dialog")).queryByRole("main")).not.toBeInTheDocument();
+});
+
+test("SettingsContent labels the theme select with its title", () => {
+  render(<SettingsContent />, { wrapper: LightThemeWrapper });
+
+  expect(screen.getByRole("combobox", { name: "Theme" })).toBeInTheDocument();
 });
 
 test("SettingsDialog shows General content when tab is general", () => {

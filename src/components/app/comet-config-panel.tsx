@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 
 import { FormRow } from "@/components/common/form-row";
+import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
@@ -22,216 +22,112 @@ export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote,
   );
   return (
     <>
-      <FormRow
+      <SliderRow
         label={<span>Fall Angle: {cometConfig.fallAngle}°</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.fallAngle]}
-            min={0}
-            max={360}
-            step={5}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ fallAngle: value })}
-          />
-        )}
+        value={[cometConfig.fallAngle]}
+        min={0}
+        max={360}
+        step={5}
+        onValueChange={([value]) => setCometConfig({ fallAngle: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Angle Randomness: ±{cometConfig.angleRandomness}°</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.angleRandomness]}
-            min={0}
-            max={45}
-            step={1}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ angleRandomness: value })}
-          />
-        )}
+        value={[cometConfig.angleRandomness]}
+        min={0}
+        max={45}
+        step={1}
+        onValueChange={([value]) => setCometConfig({ angleRandomness: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Fall Distance: {cometConfig.fallDistancePercent}%</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.fallDistancePercent]}
-            min={10}
-            max={200}
-            step={5}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ fallDistancePercent: value })}
-          />
-        )}
+        value={[cometConfig.fallDistancePercent]}
+        min={10}
+        max={200}
+        step={5}
+        onValueChange={([value]) => setCometConfig({ fallDistancePercent: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Fall Duration: {cometConfig.fallDuration}s</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.fallDuration]}
-            min={0.01}
-            max={5.0}
-            step={0.01}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ fallDuration: value })}
-          />
-        )}
+        value={[cometConfig.fallDuration]}
+        min={0.01}
+        max={5.0}
+        step={0.01}
+        onValueChange={([value]) => setCometConfig({ fallDuration: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Fade Out Duration: {cometConfig.fadeOutDuration}s</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.fadeOutDuration]}
-            min={0.01}
-            max={2.0}
-            step={0.01}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ fadeOutDuration: value })}
-          />
-        )}
+        value={[cometConfig.fadeOutDuration]}
+        min={0.01}
+        max={2.0}
+        step={0.01}
+        onValueChange={([value]) => setCometConfig({ fadeOutDuration: value })}
       />
       <Separator />
-      <FormRow
+      <SliderRow
         label={<span>Comet Size: {cometConfig.cometSize}px</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.cometSize]}
-            min={2}
-            max={50}
-            step={1}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ cometSize: value })}
-          />
-        )}
+        value={[cometConfig.cometSize]}
+        min={2}
+        max={50}
+        step={1}
+        onValueChange={([value]) => setCometConfig({ cometSize: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Start Position X: {cometConfig.startPositionX}%</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.startPositionX]}
-            min={0}
-            max={100}
-            step={5}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ startPositionX: value })}
-          />
-        )}
+        value={[cometConfig.startPositionX]}
+        min={0}
+        max={100}
+        step={5}
+        onValueChange={([value]) => setCometConfig({ startPositionX: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Start Position Y: {cometConfig.startPositionY}%</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.startPositionY]}
-            min={0}
-            max={100}
-            step={5}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ startPositionY: value })}
-          />
-        )}
+        value={[cometConfig.startPositionY]}
+        min={0}
+        max={100}
+        step={5}
+        onValueChange={([value]) => setCometConfig({ startPositionY: value })}
       />
       <Separator />
-      <FormRow
+      <SliderRow
         label={<span>Trail Length: {cometConfig.trailLength}s</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.trailLength]}
-            min={0.01}
-            max={3.0}
-            step={0.01}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ trailLength: value })}
-          />
-        )}
+        value={[cometConfig.trailLength]}
+        min={0.01}
+        max={3.0}
+        step={0.01}
+        onValueChange={([value]) => setCometConfig({ trailLength: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Trail Width: {cometConfig.trailWidth}px</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.trailWidth]}
-            min={1}
-            max={10}
-            step={1}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ trailWidth: value })}
-          />
-        )}
+        value={[cometConfig.trailWidth]}
+        min={1}
+        max={10}
+        step={1}
+        onValueChange={([value]) => setCometConfig({ trailWidth: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Trail Opacity: {Math.round(cometConfig.trailOpacity * 100)}%</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.trailOpacity]}
-            min={0.1}
-            max={1.0}
-            step={0.05}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ trailOpacity: value })}
-          />
-        )}
+        value={[cometConfig.trailOpacity]}
+        min={0.1}
+        max={1.0}
+        step={0.05}
+        onValueChange={([value]) => setCometConfig({ trailOpacity: value })}
       />
       <Separator />
-      <FormRow
+      <SliderRow
         label={<span>Note Spacing: {cometConfig.spacingMargin}px</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.spacingMargin]}
-            min={0}
-            max={50}
-            step={1}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ spacingMargin: value })}
-          />
-        )}
+        value={[cometConfig.spacingMargin]}
+        min={0}
+        max={50}
+        step={1}
+        onValueChange={([value]) => setCometConfig({ spacingMargin: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Spacing Randomness: {cometConfig.spacingRandomness}px</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.spacingRandomness]}
-            min={0}
-            max={20}
-            step={1}
-            aria-labelledby={labelId}
-            onValueChange={([value]) => setCometConfig({ spacingRandomness: value })}
-          />
-        )}
+        value={[cometConfig.spacingRandomness]}
+        min={0}
+        max={20}
+        step={1}
+        onValueChange={([value]) => setCometConfig({ spacingRandomness: value })}
       />
       <FormRow
         label={<span>Reverse Stacking</span>}
@@ -244,7 +140,7 @@ export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote,
         )}
       />
       <Separator />
-      <FormRow
+      <SliderRow
         label={
           <span className="flex flex-wrap gap-x-2">
             <span>
@@ -257,28 +153,20 @@ export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote,
             )}
           </span>
         }
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            className="w-full max-w-48 min-w-24"
-            value={[cometConfig.viewRangeBottom, cometConfig.viewRangeTop]}
-            min={0}
-            max={127}
-            step={1}
-            aria-labelledby={labelId}
-            defaultValue={[
-              Math.min(0, minNote ? minNote - 10 : 0),
-              Math.max(127, maxNote ? maxNote + 10 : 127),
-            ]}
-            onValueChange={([bottom, top]) =>
-              setCometConfig({
-                viewRangeBottom: bottom,
-                viewRangeTop: top,
-              })
-            }
-          />
-        )}
+        value={[cometConfig.viewRangeBottom, cometConfig.viewRangeTop]}
+        min={0}
+        max={127}
+        step={1}
+        defaultValue={[
+          Math.min(0, minNote ? minNote - 10 : 0),
+          Math.max(127, maxNote ? maxNote + 10 : 127),
+        ]}
+        onValueChange={([bottom, top]) =>
+          setCometConfig({
+            viewRangeBottom: bottom,
+            viewRangeTop: top,
+          })
+        }
       />
     </>
   );

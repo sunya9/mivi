@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useId, useRef } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -73,7 +73,7 @@ function Content({
 
       <div className="space-y-6 py-4">
         {/* Preview swatches */}
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-2" aria-hidden>
           {previewColors.map((color) => (
             <div
               key={color}
@@ -147,29 +147,21 @@ function ParamSlider({
   label: string;
   className?: string;
 }) {
-  const labelId = useId();
-  const ref = useRef<HTMLDivElement>(null);
-  const handleClick = useCallback(() => {
-    ref.current?.focus();
-  }, []);
-
   return (
-    <div className={cn("space-y-2", className)}>
-      <div className="flex justify-between text-sm">
-        <div id={labelId} onClick={handleClick} tabIndex={-1}>
+    <Slider
+      label={
+        <>
           {label}
-        </div>
-        <span className="text-muted-foreground">{value}%</span>
-      </div>
-      <Slider
-        ref={ref}
-        value={[value]}
-        min={min}
-        max={max}
-        step={step}
-        onValueChange={([value]) => onValueChange(value)}
-        aria-labelledby={labelId}
-      />
-    </div>
+          <span className="text-muted-foreground">{value}%</span>
+        </>
+      }
+      labelClassName="flex justify-between text-sm"
+      className={cn("space-y-2", className)}
+      value={[value]}
+      min={min}
+      max={max}
+      step={step}
+      onValueChange={([value]) => onValueChange(value)}
+    />
   );
 }

@@ -1,47 +1,18 @@
 import { Field } from "@base-ui/react/field";
-import { useCallback, useId, useRef } from "react";
+import { useId } from "react";
 
 interface Props {
   label: React.ReactNode;
-  controller: (props: {
-    id: string;
-    labelId: string;
-    ref: React.RefObject<HTMLDivElement | null>;
-  }) => React.ReactNode;
-  customControl?: boolean;
+  controller: (props: { id: string }) => React.ReactNode;
 }
 
-const FOCUSABLE_SELECTOR = '[role="switch"], [role="combobox"], input[type="range"]';
-
-export function FormRow({ label, controller, customControl = false }: Props) {
-  const labelId = useId();
+export function FormRow({ label, controller }: Props) {
   const controlId = useId();
-  const ref = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const handleClick = useCallback(() => {
-    const container = containerRef.current;
-    container?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus({ focusVisible: true });
-  }, []);
-
-  if (customControl) {
-    return (
-      <div ref={containerRef} className="flex items-center justify-between" onClick={handleClick}>
-        <div id={labelId} className="flex-1">
-          {label}
-        </div>
-        <div className="flex-none">{controller({ id: controlId, labelId, ref })}</div>
-      </div>
-    );
-  }
 
   return (
-    <Field.Root
-      ref={containerRef}
-      className="flex items-center justify-between"
-      onClick={handleClick}
-    >
+    <Field.Root className="flex items-center justify-between">
       <Field.Label className="flex-1">{label}</Field.Label>
-      <div className="flex-none">{controller({ id: controlId, labelId, ref })}</div>
+      <div className="flex-none">{controller({ id: controlId })}</div>
     </Field.Root>
   );
 }

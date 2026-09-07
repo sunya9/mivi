@@ -93,6 +93,21 @@ test("MobileBottomNav shows indicator on Settings tab when needRefresh is true",
   expect(pingIndicator).toBeInTheDocument();
 });
 
+test("MobileBottomNav announces the update indicator as text", () => {
+  renderNav({}, { needRefresh: [true, vi.fn<PwaState["needRefresh"][1]>()] });
+
+  expect(screen.getByRole("tab", { name: /settings/i })).toHaveAccessibleName(
+    "Settings Update available",
+  );
+});
+
+test("MobileBottomNav is a named navigation landmark with a named tab list", () => {
+  renderNav();
+
+  expect(screen.getByRole("navigation", { name: "Sections" })).toBeInTheDocument();
+  expect(screen.getByRole("tablist", { name: "Sections" })).toBeInTheDocument();
+});
+
 test("MobileBottomNav shows indicator only on Settings tab icon", () => {
   renderNav({}, { needRefresh: [true, vi.fn<PwaState["needRefresh"][1]>()] });
 

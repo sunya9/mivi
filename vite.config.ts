@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => ({
         name: "MiVi",
         short_name: "MiVi",
         description: "MiVi is a midi visualizer.",
-        theme_color: "oklch(58.379% 0.09607 201.31)",
+        theme_color: "oklch(53.5% 0.09607 201.31)",
         background_color: "oklch(0.985 0.002 247.839)",
         icons: [
           {

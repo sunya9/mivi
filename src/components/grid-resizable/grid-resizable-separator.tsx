@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 import { useGridResizableContext } from "./grid-resizable-context";
+import { getPanelElementId } from "./panel-element-id";
 import type { Orientation, PanelSize, SeparatorSide } from "./types";
 import { LARGE_STEP } from "./use-grid-resizable";
 
@@ -14,6 +15,7 @@ interface GridResizableSeparatorProps {
   /** Which side of the separator the panel is on */
   side: SeparatorSide;
   className?: string;
+  "aria-label"?: string;
   /** Callback to get optimal size for the panel on double-click. Receives current sizes. */
   getOptimalSizeForFit?: (sizes: Record<string, PanelSize>) => number | undefined;
 }
@@ -24,10 +26,12 @@ export function GridResizableSeparator({
   panelId,
   side,
   className,
+  "aria-label": ariaLabel,
   getOptimalSizeForFit,
 }: GridResizableSeparatorProps) {
   const {
     sizes,
+    panelConfigs,
     startResize,
     updateResize,
     endResize,
@@ -110,7 +114,8 @@ export function GridResizableSeparator({
     [panelId, side, orientation, resizeByKeyboard, resizeToMin],
   );
 
-  const panelSize = sizes[panelId] ?? 0;
+  const panelSize = Math.round(sizes[panelId] ?? 0);
+  const constraints = panelConfigs.get(panelId)?.constraints;
   // aria-orientation is opposite of separator orientation
   const ariaOrientation = orientation === "horizontal" ? "vertical" : "horizontal";
 
@@ -123,9 +128,12 @@ export function GridResizableSeparator({
       role="separator"
       tabIndex={0}
       aria-orientation={ariaOrientation}
-      aria-controls={panelId}
-      aria-valuenow={Math.round(panelSize)}
-      aria-label={`Resize ${panelId} panel`}
+      aria-controls={getPanelElementId(panelId)}
+      aria-valuemin={constraints?.minSize ?? 0}
+      aria-valuemax={constraints?.maxSize}
+      aria-valuenow={panelSize}
+      aria-valuetext={`${panelSize} pixels`}
+      aria-label={ariaLabel ?? `Resize ${panelId} panel`}
       className={cn(
         "hidden md:block", // Hidden on mobile, visible on desktop
         "group relative z-10 touch-none",
