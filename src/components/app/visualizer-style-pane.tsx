@@ -93,7 +93,7 @@ export function VisualizerStylePane() {
         <TabsTrigger value="audio">Audio Style</TabsTrigger>
         <TabsIndicator />
       </TabsList>
-      <TabsContent keepMounted value="visualizer" className="overflow-hidden">
+      <TabsContent value="visualizer" className="overflow-hidden">
         <ScrollArea className="h-full" orientation="vertical">
           <Card variant="transparent">
             <CardContent className="space-y-4">
@@ -131,7 +131,7 @@ export function VisualizerStylePane() {
           </Card>
         </ScrollArea>
       </TabsContent>
-      <TabsContent value="audio" className="overflow-hidden" keepMounted>
+      <TabsContent value="audio" className="overflow-hidden">
         <ScrollArea className="h-full" orientation="vertical">
           <Card variant="transparent">
             <CardContent className="space-y-4">
