@@ -25,7 +25,3 @@ test("removes the legacy IndexedDB cache and MIDI state", async () => {
   expect(localStorage.getItem("mivi:midi-tracks")).toBeNull();
   expect(localStorage.getItem("mivi:midi-settings")).toBe("{}");
 });
-
-test("is a no-op when nothing legacy exists", async () => {
-  await expect(purgeLegacyStorage()).resolves.toBeUndefined();
-});

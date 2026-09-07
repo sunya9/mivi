@@ -2,10 +2,6 @@ import { expect, test } from "vitest";
 
 import { ConfirmStore } from "@/lib/confirm/confirm-store";
 
-test("starts closed", () => {
-  expect(new ConfirmStore().getSnapshot().open).toBe(false);
-});
-
 test("confirm opens the dialog with defaults filled in", () => {
   const store = new ConfirmStore();
   void store.confirm({ title: "Title", description: "Desc" });

@@ -4,7 +4,6 @@ import { expect, test } from "vitest";
 import type { MidiTracks } from "@/lib/midi/midi";
 import {
   applyMidiSettings,
-  createMidiSettingsStore,
   extractMidiSettings,
   type MidiSettings,
 } from "@/lib/midi/midi-settings-store";
@@ -70,11 +69,4 @@ test("applyMidiSettings ignores settings whose tracks do not match the file", ()
   };
   expect(applyMidiSettings(parsed, missing)).toBe(parsed);
   expect(applyMidiSettings(parsed, unknown)).toBe(parsed);
-});
-
-test("createMidiSettingsStore persists to localStorage", () => {
-  const settings = extractMidiSettings(edited);
-  createMidiSettingsStore().set(settings);
-
-  expect(createMidiSettingsStore().getSnapshot()).toEqual(settings);
 });

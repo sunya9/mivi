@@ -131,11 +131,6 @@ const audioFile = new File([audioData], audioFilename, {
   type: "audio/mpeg",
 });
 
-const invalidData = "This is not a valid audio file content";
-const invalidFile = new File([invalidData], "test.mp3", {
-  type: "audio/mpeg",
-});
-
 // Use mocked AudioContext to create test audioBuffer
 const audioContext = new AudioContext();
 const audioBuffer = audioContext.createBuffer(2, 22050, 44100);
@@ -157,4 +152,4 @@ const resources: RecorderResources = {
   rendererConfig,
 };
 
-export { midiFile, testMidiTracks, audioFile, invalidFile, rendererConfig, audioBuffer, resources };
+export { midiFile, testMidiTracks, audioFile, rendererConfig, audioBuffer, resources };

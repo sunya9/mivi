@@ -19,8 +19,8 @@ function setup(parsed: MidiTracks = testMidiTracks) {
   });
   const midiTracksStore = createMidiTracksStore();
   const midiSettingsStore = createMidiSettingsStore();
-  const unbind = bindMidiTracks(slot, midiTracksStore, midiSettingsStore);
-  return { slot, midiTracksStore, midiSettingsStore, unbind };
+  bindMidiTracks(slot, midiTracksStore, midiSettingsStore);
+  return { slot, midiTracksStore, midiSettingsStore };
 }
 
 test("publishes the parsed file as editable tracks and persists their settings", async () => {
@@ -85,13 +85,4 @@ test("a decode in progress leaves the current tracks untouched", async () => {
   const pending = slot.setFile(new File(["n"], "next.mid"));
   expect(midiTracksStore.getSnapshot()).toBe(before);
   await pending;
-});
-
-test("stops following after unbind", async () => {
-  const { slot, midiTracksStore, unbind } = setup();
-  unbind();
-
-  await slot.setFile(file);
-
-  expect(midiTracksStore.getSnapshot()).toBeUndefined();
 });

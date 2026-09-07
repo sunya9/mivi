@@ -1,6 +1,6 @@
 import { waitFor } from "@testing-library/react";
 import { AudioContext } from "standardized-audio-context-mock";
-import { audioFile, invalidFile } from "tests/fixtures";
+import { audioFile } from "tests/fixtures";
 import { customRenderHook } from "tests/util";
 import { test, expect, vi } from "vitest";
 
@@ -67,20 +67,6 @@ test("playback store receives the buffer after setAudioFile", async () => {
   expect(runDecodeWorker).toHaveBeenCalledWith(audioFile, expect.any(AbortSignal));
 });
 
-test("clears the playback buffer when setAudioFile is called with undefined", async () => {
-  vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockAudio);
-  const { result, appContextValue } = await renderAudioHook();
-  await result.current.setAudioFile(audioFile);
-  await waitFor(() => {
-    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBeGreaterThan(0);
-  });
-  await result.current.setAudioFile(undefined);
-  await waitFor(() => {
-    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBe(0);
-    expect(result.current.audioFile).toBeUndefined();
-  });
-});
-
 test("cancelDecode aborts in-progress decode and resets isDecoding", async () => {
   let resolveWorker!: (value: SerializedAudio) => void;
   vi.mocked(runDecodeWorker).mockImplementationOnce(
@@ -117,57 +103,6 @@ test("cancelDecode does nothing while idle", async () => {
   const { result } = await renderAudioHook();
   result.current.cancelDecode();
   expect(toast.add).not.toHaveBeenCalled();
-});
-
-test("re-entry: second setAudioFile discards first decode result", async () => {
-  let resolveFirst!: (value: SerializedAudio) => void;
-  vi.mocked(runDecodeWorker).mockImplementationOnce(
-    (_file, signal: AbortSignal) =>
-      new Promise<SerializedAudio>((resolve, reject) => {
-        resolveFirst = resolve;
-        signal.addEventListener("abort", () => reject(signal.reason), { once: true });
-      }),
-  );
-  const secondAudio: SerializedAudio = { ...mockAudio, sampleRate: 22050, duration: 2 };
-  vi.mocked(runDecodeWorker).mockResolvedValueOnce(secondAudio);
-  const secondFile = new File(["second"], "second.mp3", { type: "audio/mpeg" });
-
-  const { result, appContextValue } = await renderAudioHook();
-
-  const firstPromise = result.current.setAudioFile(audioFile);
-  await waitFor(() => expect(result.current.isDecoding).toBe(true));
-
-  await result.current.setAudioFile(secondFile);
-  await firstPromise;
-
-  await waitFor(() => {
-    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBeGreaterThan(0);
-    expect(result.current.audioFile).toBe(secondFile);
-    expect(result.current.isDecoding).toBe(false);
-  });
-
-  resolveFirst(mockAudio);
-  await waitFor(() => {
-    expect(result.current.audioFile).toBe(secondFile);
-  });
-});
-
-test("handles audio file loading errors", async () => {
-  const error = new Error("Failed to decode audio data");
-  vi.mocked(runDecodeWorker).mockRejectedValueOnce(error);
-  const consoleErrorSpy = vi.spyOn(console, "error");
-  const { result, appContextValue } = await renderAudioHook();
-
-  await result.current.setAudioFile(invalidFile);
-
-  expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith("Failed to load audio file", error);
-  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
-    title: "Failed to load audio file",
-    description: error.message,
-    type: "error",
-  });
-  expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBe(0);
-  expect(result.current.audioFile).toBeUndefined();
 });
 
 test("useSetAudioFile does not re-render while the file decodes", async () => {

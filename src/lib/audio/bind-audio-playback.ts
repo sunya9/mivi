@@ -9,7 +9,7 @@ export function bindAudioToPlayback(
   audioSlot: FileSlot<SerializedAudio>,
   playback: AudioPlaybackStore,
   audioContext: AudioContext,
-): () => void {
+): void {
   let lastDecoded: SerializedAudio | undefined;
   const apply = () => {
     const decoded = audioSlot.getSnapshot().decoded;
@@ -18,5 +18,5 @@ export function bindAudioToPlayback(
     playback.setAudioBuffer(decoded && toAudioBuffer(decoded, audioContext));
   };
   apply();
-  return audioSlot.subscribe(apply);
+  audioSlot.subscribe(apply);
 }

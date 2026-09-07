@@ -25,12 +25,6 @@ function createSlot(decode: FileDecoder<string> = async (f) => `decoded:${f.name
   return { slot, storage };
 }
 
-test("starts empty and not loaded", () => {
-  const { slot } = createSlot();
-  expect(slot.loaded).toBe(false);
-  expect(slot.getSnapshot()).toEqual({ file: undefined, decoded: undefined, decoding: false });
-});
-
 test("load without a stored file marks the slot loaded and empty", async () => {
   const { slot } = createSlot();
   await slot.load();

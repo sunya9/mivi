@@ -11,7 +11,7 @@ export function bindMidiTracks(
   midiSlot: FileSlot<MidiTracks>,
   midiTracksStore: MidiTracksStore,
   midiSettingsStore: MidiSettingsStore,
-): () => void {
+): void {
   let lastParsed: MidiTracks | undefined;
   const applyParsed = () => {
     const parsed = midiSlot.getSnapshot().decoded;
@@ -25,10 +25,6 @@ export function bindMidiTracks(
   };
 
   applyParsed();
-  const unsubscribeSlot = midiSlot.subscribe(applyParsed);
-  const unsubscribeTracks = midiTracksStore.subscribe(persistEdits);
-  return () => {
-    unsubscribeSlot();
-    unsubscribeTracks();
-  };
+  midiSlot.subscribe(applyParsed);
+  midiTracksStore.subscribe(persistEdits);
 }

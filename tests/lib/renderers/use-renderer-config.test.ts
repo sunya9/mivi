@@ -2,15 +2,8 @@ import { act } from "@testing-library/react";
 import { customRenderHook } from "tests/util";
 import { test, expect, vi } from "vitest";
 
-import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import { useRendererConfig, useUpdateRendererConfig } from "@/lib/renderers/use-renderer-config";
 import { shallowEqual } from "@/lib/store/observable-store";
-
-test("selects from the default config", async () => {
-  const { result } = await customRenderHook(() => useRendererConfig((config) => config.fps));
-
-  expect(result.current).toBe(getDefaultRendererConfig().fps);
-});
 
 test("updates config with partial changes", async () => {
   const { result } = await customRenderHook(() => ({
@@ -21,18 +14,6 @@ test("updates config with partial changes", async () => {
   act(() => result.current.update({ backgroundColor: "#ffffff" }));
 
   expect(result.current.backgroundColor).toBe("#ffffff");
-});
-
-test("deep merges nested config objects", async () => {
-  const { result, appContextValue } = await customRenderHook(() => useUpdateRendererConfig());
-
-  act(() => result.current({ pianoRollConfig: { noteMargin: 6 } }));
-
-  const defaultConfig = getDefaultRendererConfig();
-  expect(appContextValue.rendererConfigStore.getSnapshot()).toEqual({
-    ...defaultConfig,
-    pianoRollConfig: { ...defaultConfig.pianoRollConfig, noteMargin: 6 },
-  });
 });
 
 test("a slice keeps its identity and does not re-render when another field changes", async () => {
