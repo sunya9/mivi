@@ -2,8 +2,8 @@ import { useCallback } from "react";
 
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
+import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import { DeepPartial } from "@/lib/type-utils";
@@ -30,39 +30,23 @@ export function VerticalPianoRollConfigPanel({
   );
   return (
     <>
-      <FormRow
+      <SliderRow
         label={<span>Time Window: {config.timeWindow}s</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            aria-labelledby={labelId}
-            className="w-full max-w-48 min-w-24"
-            value={[config.timeWindow]}
-            min={0.5}
-            max={10}
-            step={0.1}
-            onValueChange={([value]) => setConfig({ timeWindow: value })}
-          />
-        )}
+        value={[config.timeWindow]}
+        min={0.5}
+        max={10}
+        step={0.1}
+        onValueChange={([value]) => setConfig({ timeWindow: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Keyboard Height: {config.keyboardHeight}%</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            aria-labelledby={labelId}
-            className="w-full max-w-48 min-w-24"
-            value={[config.keyboardHeight]}
-            min={5}
-            max={40}
-            step={1}
-            onValueChange={([value]) => setConfig({ keyboardHeight: value })}
-          />
-        )}
+        value={[config.keyboardHeight]}
+        min={5}
+        max={40}
+        step={1}
+        onValueChange={([value]) => setConfig({ keyboardHeight: value })}
       />
-      <FormRow
+      <SliderRow
         label={
           <span className="flex flex-wrap gap-x-2">
             <span>
@@ -75,69 +59,35 @@ export function VerticalPianoRollConfigPanel({
             )}
           </span>
         }
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            aria-labelledby={labelId}
-            className="w-full max-w-48 min-w-24"
-            value={[config.viewRangeBottom, config.viewRangeTop]}
-            min={0}
-            max={127}
-            step={1}
-            onValueChange={([bottom, top]) =>
-              setConfig({ viewRangeBottom: bottom, viewRangeTop: top })
-            }
-          />
-        )}
+        value={[config.viewRangeBottom, config.viewRangeTop]}
+        min={0}
+        max={127}
+        step={1}
+        onValueChange={([bottom, top]) => setConfig({ viewRangeBottom: bottom, viewRangeTop: top })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Note Margin: {config.noteMargin}px</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            aria-labelledby={labelId}
-            className="w-full max-w-48 min-w-24"
-            value={[config.noteMargin]}
-            min={0}
-            max={5}
-            step={0.5}
-            onValueChange={([value]) => setConfig({ noteMargin: value })}
-          />
-        )}
+        value={[config.noteMargin]}
+        min={0}
+        max={5}
+        step={0.5}
+        onValueChange={([value]) => setConfig({ noteMargin: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Note Vertical Margin: {config.noteVerticalMargin}px</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            aria-labelledby={labelId}
-            className="w-full max-w-48 min-w-24"
-            value={[config.noteVerticalMargin]}
-            min={0}
-            max={10}
-            step={0.5}
-            onValueChange={([value]) => setConfig({ noteVerticalMargin: value })}
-          />
-        )}
+        value={[config.noteVerticalMargin]}
+        min={0}
+        max={10}
+        step={0.5}
+        onValueChange={([value]) => setConfig({ noteVerticalMargin: value })}
       />
-      <FormRow
+      <SliderRow
         label={<span>Note Corner Radius: {config.noteCornerRadius}px</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            aria-labelledby={labelId}
-            className="w-full max-w-48 min-w-24"
-            value={[config.noteCornerRadius]}
-            min={0}
-            max={10}
-            step={0.5}
-            onValueChange={([value]) => setConfig({ noteCornerRadius: value })}
-          />
-        )}
+        value={[config.noteCornerRadius]}
+        min={0}
+        max={10}
+        step={0.5}
+        onValueChange={([value]) => setConfig({ noteCornerRadius: value })}
       />
       <FormRow
         label={<span>Darken Black Key Notes</span>}
@@ -150,23 +100,15 @@ export function VerticalPianoRollConfigPanel({
         )}
       />
       {config.darkenBlackKeyNotes && (
-        <FormRow
+        <SliderRow
           label={
             <span>Black Key Note Darkness: {Math.round(config.blackKeyNoteDarkness * 100)}%</span>
           }
-          customControl
-          controller={({ labelId, ref }) => (
-            <Slider
-              ref={ref}
-              aria-labelledby={labelId}
-              className="w-full max-w-48 min-w-24"
-              value={[config.blackKeyNoteDarkness]}
-              min={0.05}
-              max={0.6}
-              step={0.05}
-              onValueChange={([value]) => setConfig({ blackKeyNoteDarkness: value })}
-            />
-          )}
+          value={[config.blackKeyNoteDarkness]}
+          min={0.05}
+          max={0.6}
+          step={0.05}
+          onValueChange={([value]) => setConfig({ blackKeyNoteDarkness: value })}
         />
       )}
       <Separator />
@@ -201,21 +143,13 @@ export function VerticalPianoRollConfigPanel({
         )}
       />
       {config.showKeyPressHighlight && (
-        <FormRow
+        <SliderRow
           label={<span>Key Press Opacity: {Math.round(config.keyPressOpacity * 100)}%</span>}
-          customControl
-          controller={({ labelId, ref }) => (
-            <Slider
-              ref={ref}
-              aria-labelledby={labelId}
-              className="w-full max-w-48 min-w-24"
-              value={[config.keyPressOpacity]}
-              min={0.1}
-              max={1}
-              step={0.05}
-              onValueChange={([value]) => setConfig({ keyPressOpacity: value })}
-            />
-          )}
+          value={[config.keyPressOpacity]}
+          min={0.1}
+          max={1}
+          step={0.05}
+          onValueChange={([value]) => setConfig({ keyPressOpacity: value })}
         />
       )}
       <FormRow
@@ -251,21 +185,13 @@ export function VerticalPianoRollConfigPanel({
         />
       )}
       {config.showKeyLines && (
-        <FormRow
+        <SliderRow
           label={<span>Key Line Opacity: {Math.round(config.keyLineOpacity * 100)}%</span>}
-          customControl
-          controller={({ labelId, ref }) => (
-            <Slider
-              ref={ref}
-              aria-labelledby={labelId}
-              className="w-full max-w-48 min-w-24"
-              value={[config.keyLineOpacity]}
-              min={0}
-              max={0.3}
-              step={0.01}
-              onValueChange={([value]) => setConfig({ keyLineOpacity: value })}
-            />
-          )}
+          value={[config.keyLineOpacity]}
+          min={0}
+          max={0.3}
+          step={0.01}
+          onValueChange={([value]) => setConfig({ keyLineOpacity: value })}
         />
       )}
       <FormRow
@@ -291,21 +217,13 @@ export function VerticalPianoRollConfigPanel({
         />
       )}
       {config.showOctaveLines && (
-        <FormRow
+        <SliderRow
           label={<span>Octave Line Opacity: {Math.round(config.octaveLineOpacity * 100)}%</span>}
-          customControl
-          controller={({ labelId, ref }) => (
-            <Slider
-              ref={ref}
-              aria-labelledby={labelId}
-              className="w-full max-w-48 min-w-24"
-              value={[config.octaveLineOpacity]}
-              min={0}
-              max={0.5}
-              step={0.01}
-              onValueChange={([value]) => setConfig({ octaveLineOpacity: value })}
-            />
-          )}
+          value={[config.octaveLineOpacity]}
+          min={0}
+          max={0.5}
+          step={0.01}
+          onValueChange={([value]) => setConfig({ octaveLineOpacity: value })}
         />
       )}
       <Separator />
@@ -331,37 +249,21 @@ export function VerticalPianoRollConfigPanel({
               />
             )}
           />
-          <FormRow
+          <SliderRow
             label={<span>Hit Line Width: {config.hitLineWidth}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                className="w-full max-w-48 min-w-24"
-                value={[config.hitLineWidth]}
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={([value]) => setConfig({ hitLineWidth: value })}
-              />
-            )}
+            value={[config.hitLineWidth]}
+            min={1}
+            max={10}
+            step={1}
+            onValueChange={([value]) => setConfig({ hitLineWidth: value })}
           />
-          <FormRow
+          <SliderRow
             label={<span>Hit Line Opacity: {Math.round(config.hitLineOpacity * 100)}%</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                className="w-full max-w-48 min-w-24"
-                value={[config.hitLineOpacity]}
-                min={0}
-                max={1}
-                step={0.05}
-                onValueChange={([value]) => setConfig({ hitLineOpacity: value })}
-              />
-            )}
+            value={[config.hitLineOpacity]}
+            min={0}
+            max={1}
+            step={0.05}
+            onValueChange={([value]) => setConfig({ hitLineOpacity: value })}
           />
         </>
       )}

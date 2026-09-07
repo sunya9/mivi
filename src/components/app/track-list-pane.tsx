@@ -13,18 +13,11 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { Minus, Plus } from "lucide-react";
 import React, { Dispatch, SetStateAction, useCallback, useState } from "react";
 
 import { FileButton } from "@/components/common/file-button";
 import { FormRow } from "@/components/common/form-row";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@/components/ui/input-group";
 import {
   Menubar,
   MenubarContent,
@@ -33,6 +26,13 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar";
+import {
+  NumberField,
+  NumberFieldDecrement,
+  NumberFieldGroup,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from "@/components/ui/number-field";
 import { hslToHex, generateGoldenAngleHues } from "@/lib/colors/color";
 import {
   getRandomTailwindColor,
@@ -80,7 +80,6 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
   midiFilename,
   onChangeMidiFile,
 }: Props) {
-  const [offsetInputValue, setOffsetInputValue] = useState(() => `${midiTracks?.midiOffset || 0}`);
   const [hslDialogOpen, setHslDialogOpen] = useState(false);
 
   const randomizeColorsHue = useRandomizeColorsHue(setMidiTracks);
@@ -96,42 +95,6 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
     [midiTracks, setMidiTracks],
   );
 
-  const handleOffsetInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setOffsetInputValue(value);
-      if (value === "") return;
-      const parsed = parseFloat(value);
-      if (!isNaN(parsed)) {
-        onMidiOffsetChange(parsed);
-      }
-    },
-    [onMidiOffsetChange],
-  );
-
-  const incrementOffset = useCallback(() => {
-    if (!midiTracks) return;
-    const newOffset = midiTracks.midiOffset + 0.1;
-    onMidiOffsetChange(Math.round(newOffset * 10) / 10);
-    setOffsetInputValue(String(Math.round(newOffset * 10) / 10));
-  }, [midiTracks, onMidiOffsetChange]);
-
-  const decrementOffset = useCallback(() => {
-    if (!midiTracks) return;
-    const newOffset = midiTracks.midiOffset - 0.1;
-    onMidiOffsetChange(Math.round(newOffset * 10) / 10);
-    setOffsetInputValue(String(Math.round(newOffset * 10) / 10));
-  }, [midiTracks, onMidiOffsetChange]);
-  const handleOffsetInputBlur = useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => {
-      const parsed = parseFloat(e.target.value);
-      if (e.target.value === "" || isNaN(parsed)) {
-        setOffsetInputValue("0");
-        onMidiOffsetChange(0);
-      }
-    },
-    [onMidiOffsetChange],
-  );
   return (
     <Card variant="transparent">
       <CardHeader>
@@ -144,6 +107,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
           filename={midiFilename}
           setFile={onChangeMidiFile}
           accept=".mid,.midi"
+          label="MIDI file"
           placeholder="Choose MIDI file"
           cancelLabel="Cancel MIDI file"
         />
@@ -153,37 +117,18 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
           <FormRow
             label="MIDI Offset (s)"
             controller={({ id }) => (
-              <InputGroup className="w-32">
-                <InputGroupAddon align="inline-start">
-                  <InputGroupButton
-                    size="icon-xs"
-                    onClick={decrementOffset}
-                    aria-label="Decrease offset"
-                  >
-                    <Minus />
-                  </InputGroupButton>
-                </InputGroupAddon>
-                <InputGroupInput
-                  id={id}
-                  type="number"
-                  className="text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                  value={offsetInputValue}
-                  onChange={handleOffsetInputChange}
-                  onBlur={handleOffsetInputBlur}
-                  step={0.1}
-                  aria-valuenow={midiTracks.midiOffset}
-                  aria-valuetext={`${midiTracks.midiOffset} seconds`}
-                />
-                <InputGroupAddon align="inline-end">
-                  <InputGroupButton
-                    size="icon-xs"
-                    onClick={incrementOffset}
-                    aria-label="Increase offset"
-                  >
-                    <Plus />
-                  </InputGroupButton>
-                </InputGroupAddon>
-              </InputGroup>
+              <NumberField
+                id={id}
+                value={midiTracks.midiOffset}
+                step={0.1}
+                onValueChange={(value) => onMidiOffsetChange(value ?? 0)}
+              >
+                <NumberFieldGroup className="w-32">
+                  <NumberFieldDecrement aria-label="Decrease offset" />
+                  <NumberFieldInput />
+                  <NumberFieldIncrement aria-label="Increase offset" />
+                </NumberFieldGroup>
+              </NumberField>
             )}
           />
         </CardContent>

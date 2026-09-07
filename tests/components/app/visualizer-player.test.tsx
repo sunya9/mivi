@@ -53,7 +53,7 @@ test("does not own the F key shortcut", async () => {
 });
 
 function getControls() {
-  return screen.getByLabelText("Midi Visualizer Controls");
+  return screen.getByRole("group", { name: "Midi Visualizer Controls" });
 }
 
 test("hides the controls as soon as the mouse leaves while playing", async () => {

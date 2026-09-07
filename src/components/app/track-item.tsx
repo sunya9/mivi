@@ -36,20 +36,22 @@ export const TrackItem = React.memo(function TrackItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={cn("grid grid-cols-[auto_1fr_auto_48px] items-center gap-x-2 gap-y-2 py-4")}
+      className={cn("grid-track-item items-center gap-x-2 py-4", {
+        "gap-y-2": track.config.visible,
+      })}
     >
       <button
         type="button"
         {...attributes}
         {...listeners}
-        className="cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+        className="cursor-grab touch-none text-muted-foreground area-[drag] hover:text-foreground active:cursor-grabbing"
         aria-label="Drag to reorder"
       >
         <GripVertical className="size-4" />
       </button>
       <label
         htmlFor={id}
-        className={cn("col-span-2", {
+        className={cn("area-[name]", {
           "text-muted-foreground": !track.config.visible,
         })}
       >
@@ -59,7 +61,7 @@ export const TrackItem = React.memo(function TrackItem({
         id={id}
         checked={track.config.visible}
         onCheckedChange={(checked) => onUpdateTrackConfig(index, { visible: checked })}
-        className="col-start-4 justify-self-end"
+        className="justify-self-end area-[switch]"
       />
 
       {track.config.visible && (
@@ -67,44 +69,42 @@ export const TrackItem = React.memo(function TrackItem({
           <ColorPickerInput
             value={track.config.color}
             onChange={(value) => onUpdateTrackConfig(index, { color: value })}
-            className="col-start-2"
+            className="area-[color]"
             aria-label="Note color"
           />
-          <div className="text-end text-xs text-muted-foreground tabular-nums">
-            Opacity: {Math.round(track.config.opacity * 100)}%
-          </div>
           <Slider
+            label={<>Opacity: {Math.round(track.config.opacity * 100)}%</>}
+            labelClassName="text-end text-xs text-muted-foreground tabular-nums area-[opacity-label] @max-[340px]:text-start"
+            className="contents"
+            controlClassName="w-16 area-[opacity]"
             value={[track.config.opacity]}
             min={0}
             max={1}
             step={0.05}
             defaultValue={[1]}
             onValueChange={([value]) => onUpdateTrackConfig(index, { opacity: value })}
-            className="w-16"
             key={`${track.id}-opacity`}
-            aria-label="Opacity"
           />
 
-          <label className="col-start-2 flex items-center gap-1 text-xs text-muted-foreground">
+          <label className="flex items-center gap-1 text-xs text-muted-foreground area-[staccato]">
             <Checkbox
               checked={track.config.staccato}
               onCheckedChange={(checked) => onUpdateTrackConfig(index, { staccato: !!checked })}
             />
             Staccato
           </label>
-          <div className="text-end text-xs text-muted-foreground tabular-nums">
-            Scale: {Math.round(track.config.scale * 100)}%
-          </div>
           <Slider
+            label={<>Scale: {Math.round(track.config.scale * 100)}%</>}
+            labelClassName="text-end text-xs text-muted-foreground tabular-nums area-[scale-label] @max-[340px]:text-start"
+            className="contents"
+            controlClassName="w-16 area-[scale]"
             value={[track.config.scale]}
             min={0.5}
             max={1}
             step={0.05}
             defaultValue={[1]}
             onValueChange={([value]) => onUpdateTrackConfig(index, { scale: value })}
-            aria-label="Scale"
             key={`${track.id}-scale`}
-            className="col-start-4 basis-16"
           />
         </>
       )}

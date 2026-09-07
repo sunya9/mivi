@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect } from "vitest";
 
 import { FormRow } from "@/components/common/form-row";
+import { Switch } from "@/components/ui/switch";
 
 describe("FormRow", () => {
   it("should render label and controller", () => {
@@ -15,16 +17,6 @@ describe("FormRow", () => {
     render(<FormRow label="Label" controller={({ id }) => <button id={id}>Click me</button>} />);
 
     expect(screen.getByText("Click me")).toBeInTheDocument();
-  });
-
-  it("should render with function as controller", () => {
-    render(
-      <FormRow label="Label" controller={({ id }) => <input type="text" aria-labelledby={id} />} />,
-    );
-
-    const input = screen.getByRole("textbox");
-    expect(input).toBeInTheDocument();
-    expect(input).toHaveAttribute("aria-labelledby");
   });
 
   it("should pass id to controller function", () => {
@@ -61,15 +53,13 @@ describe("FormRow", () => {
     expect(screen.getByText("Label")).toBeInTheDocument();
   });
 
-  it("should set aria-labelledby on controller wrapper when using function", () => {
-    render(
-      <FormRow
-        label="Accessible Label"
-        controller={({ id }) => <input type="text" id={`input-${id}`} />}
-      />,
-    );
+  it("should associate a switch with the label natively", async () => {
+    render(<FormRow label="Toggle" controller={({ id }) => <Switch id={id} />} />);
 
-    const label = screen.getByText("Accessible Label").closest("label");
-    expect(label).toHaveAttribute("id");
+    const toggle = screen.getByRole("switch", { name: "Toggle" });
+    expect(toggle).toHaveAttribute("aria-checked", "false");
+
+    await userEvent.click(screen.getByText("Toggle"));
+    expect(toggle).toHaveAttribute("aria-checked", "true");
   });
 });

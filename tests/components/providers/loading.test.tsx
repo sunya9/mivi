@@ -18,7 +18,7 @@ test("renders loading spinner and message", async () => {
     </AppContext>,
   );
 
-  expect(screen.getByText("Loading...")).toBeVisible();
+  expect(screen.getByRole("status")).toHaveTextContent("Loading...");
   expect(screen.queryByRole("button")).toBeNull();
 
   await act(() => vi.advanceTimersByTimeAsync(3000));

@@ -1,7 +1,7 @@
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
+import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 
 import { AudioVisualizerSectionProps } from "./types";
@@ -10,21 +10,13 @@ export function LineSpectrumSettings({ config, setConfig }: AudioVisualizerSecti
   return (
     <>
       <Separator />
-      <FormRow
+      <SliderRow
         label={<span>Smoothness: {Math.round(config.lineSpectrumConfig.tension * 100)}%</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            aria-labelledby={labelId}
-            className="w-full max-w-48 min-w-24"
-            value={[config.lineSpectrumConfig.tension]}
-            min={0}
-            max={1}
-            step={0.1}
-            onValueChange={([value]) => setConfig({ lineSpectrumConfig: { tension: value } })}
-          />
-        )}
+        value={[config.lineSpectrumConfig.tension]}
+        min={0}
+        max={1}
+        step={0.1}
+        onValueChange={([value]) => setConfig({ lineSpectrumConfig: { tension: value } })}
       />
       <Separator />
       <FormRow
@@ -50,43 +42,25 @@ export function LineSpectrumSettings({ config, setConfig }: AudioVisualizerSecti
               />
             )}
           />
-          <FormRow
+          <SliderRow
             label={<span>Line Width: {config.lineSpectrumConfig.lineWidth}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                className="w-full max-w-48 min-w-24"
-                value={[config.lineSpectrumConfig.lineWidth]}
-                min={1}
-                max={10}
-                step={1}
-                onValueChange={([value]) => setConfig({ lineSpectrumConfig: { lineWidth: value } })}
-              />
-            )}
+            value={[config.lineSpectrumConfig.lineWidth]}
+            min={1}
+            max={10}
+            step={1}
+            onValueChange={([value]) => setConfig({ lineSpectrumConfig: { lineWidth: value } })}
           />
-          <FormRow
+          <SliderRow
             label={
               <span>
                 Stroke Opacity: {Math.round(config.lineSpectrumConfig.strokeOpacity * 100)}%
               </span>
             }
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                className="w-full max-w-48 min-w-24"
-                value={[config.lineSpectrumConfig.strokeOpacity]}
-                min={0}
-                max={1}
-                step={0.1}
-                onValueChange={([value]) =>
-                  setConfig({ lineSpectrumConfig: { strokeOpacity: value } })
-                }
-              />
-            )}
+            value={[config.lineSpectrumConfig.strokeOpacity]}
+            min={0}
+            max={1}
+            step={0.1}
+            onValueChange={([value]) => setConfig({ lineSpectrumConfig: { strokeOpacity: value } })}
           />
         </>
       )}

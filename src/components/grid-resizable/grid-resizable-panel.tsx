@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 import { useGridResizableContext } from "./grid-resizable-context";
+import { getPanelElementId } from "./panel-element-id";
 
 interface GridResizablePanelProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "render"> {
   panelId: string;
@@ -31,6 +32,7 @@ export function GridResizablePanel({
     <div
       ref={refCallback}
       {...props}
+      id={getPanelElementId(panelId)}
       data-slot="grid-resizable-panel"
       data-panel-id={panelId}
       className={cn("min-h-0 min-w-0 overflow-hidden", className)}

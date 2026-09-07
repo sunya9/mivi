@@ -10,6 +10,7 @@ import {
 import { GridResizablePanel } from "@/components/grid-resizable/grid-resizable-panel";
 import { GridResizablePanelGroup } from "@/components/grid-resizable/grid-resizable-panel-group";
 import { GridResizableSeparator } from "@/components/grid-resizable/grid-resizable-separator";
+import { getPanelElementId } from "@/components/grid-resizable/panel-element-id";
 import type { PanelConfig } from "@/components/grid-resizable/types";
 
 type SeparatorProps = ComponentProps<typeof GridResizableSeparator>;
@@ -57,9 +58,47 @@ describe("GridResizableSeparator", () => {
       const separator = screen.getByRole("separator");
 
       expect(separator).toHaveAttribute("aria-orientation", "vertical");
-      expect(separator).toHaveAttribute("aria-controls", "panel1");
+      expect(separator).toHaveAttribute("aria-controls", getPanelElementId("panel1"));
       expect(separator).toHaveAttribute("aria-valuenow", "300");
+      expect(separator).toHaveAttribute("aria-valuetext", "300 pixels");
       expect(separator).toHaveAttribute("aria-label", "Resize panel1 panel");
+    });
+
+    it("should expose the panel constraints as the value range", () => {
+      const context = createMockContext();
+      context.panelConfigs = new Map([
+        ["panel1", { id: "panel1", defaultSize: 300, constraints: { minSize: 100, maxSize: 600 } }],
+      ]);
+      render(
+        <GridResizableContext.Provider value={context}>
+          <GridResizableSeparator
+            id="sep1"
+            orientation="horizontal"
+            panelId="panel1"
+            side="before"
+          />
+        </GridResizableContext.Provider>,
+      );
+      const separator = screen.getByRole("separator");
+
+      expect(separator).toHaveAttribute("aria-valuemin", "100");
+      expect(separator).toHaveAttribute("aria-valuemax", "600");
+    });
+
+    it("should default the value range to start at zero", () => {
+      renderSeparator();
+      const separator = screen.getByRole("separator");
+
+      expect(separator).toHaveAttribute("aria-valuemin", "0");
+      expect(separator).not.toHaveAttribute("aria-valuemax");
+    });
+
+    it("should use a custom aria-label when provided", () => {
+      renderSeparator({ "aria-label": "Resize track list panel" });
+
+      expect(
+        screen.getByRole("separator", { name: "Resize track list panel" }),
+      ).toBeInTheDocument();
     });
 
     it("should render with correct data attributes", () => {
@@ -198,6 +237,26 @@ describe("GridResizableSeparator", () => {
   });
 
   describe("integration with PanelGroup", () => {
+    it("should point aria-controls at the rendered panel element", () => {
+      const panels: PanelConfig[] = [{ id: "panel1", defaultSize: 300 }];
+
+      render(
+        <GridResizablePanelGroup id="test-controls" panels={panels}>
+          <GridResizablePanel panelId="panel1" data-testid="panel" />
+          <GridResizableSeparator
+            id="sep1"
+            orientation="horizontal"
+            panelId="panel1"
+            side="before"
+          />
+        </GridResizablePanelGroup>,
+      );
+
+      const controlsId = screen.getByRole("separator").getAttribute("aria-controls");
+      expect(controlsId).toBeTruthy();
+      expect(screen.getByTestId("panel")).toHaveAttribute("id", controlsId);
+    });
+
     it("should resize panel on Home key", async () => {
       const user = userEvent.setup();
       const panels: PanelConfig[] = [

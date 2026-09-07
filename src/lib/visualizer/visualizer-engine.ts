@@ -36,6 +36,7 @@ export class VisualizerEngine {
     this.#lastPosition = store.getSnapshot().position;
     this.canvas = document.createElement("canvas");
     this.canvas.className = CANVAS_CLASS_NAME;
+    this.canvas.setAttribute("role", "img");
     this.canvas.setAttribute("aria-label", "Visualized Midi");
     const context = this.canvas.getContext("2d");
     if (!context) throw new Error("Failed to get canvas context");

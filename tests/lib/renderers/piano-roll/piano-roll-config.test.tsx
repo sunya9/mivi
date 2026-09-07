@@ -209,6 +209,16 @@ test("flash mode select is rendered with current value", async () => {
   expect(trigger).toHaveTextContent(pianoRollConfig.noteFlashMode === "on" ? "On" : "Duration▼");
 });
 
+test("flash mode select only references label ids that exist", async () => {
+  await renderPane({
+    pianoRollConfig: { ...pianoRollConfig, showNoteFlash: true },
+  });
+  const trigger = screen.getByRole("combobox", { name: "Flash Mode" });
+  for (const id of trigger.getAttribute("aria-labelledby")?.split(" ") ?? []) {
+    expect(document.getElementById(id)).not.toBeNull();
+  }
+});
+
 test("flash duration slider shown when flash mode is duration", async () => {
   await renderPane({
     pianoRollConfig: {

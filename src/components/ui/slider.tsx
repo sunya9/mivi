@@ -9,6 +9,9 @@ type SliderProps = Omit<SliderPrimitive.Root.Props, "onValueChange" | "onValueCo
     value: number[],
     eventDetails: SliderPrimitive.Root.CommitEventDetails,
   ) => void;
+  label?: React.ReactNode;
+  labelClassName?: string;
+  controlClassName?: string;
 };
 
 function toArray(v: number | readonly number[]): number[] {
@@ -53,8 +56,12 @@ function Slider({
   max = 100,
   onValueChange,
   onValueCommitted,
+  label,
+  labelClassName,
+  controlClassName,
   ...props
 }: SliderProps) {
+  const ariaLabel = props["aria-label"];
   const _values = React.useMemo(
     () => (isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]),
     [value, defaultValue, min, max],
@@ -62,6 +69,7 @@ function Slider({
 
   const step = props.step ?? 1;
   const { mountKey, controlRef } = useRemountWhenShown();
+  const getAriaLabel = React.useMemo(() => (ariaLabel ? () => ariaLabel : undefined), [ariaLabel]);
   return (
     <SliderPrimitive.Root
       key={mountKey}
@@ -86,9 +94,17 @@ function Slider({
       }}
       {...props}
     >
+      {label != null && (
+        <SliderPrimitive.Label data-slot="slider-label" className={labelClassName}>
+          {label}
+        </SliderPrimitive.Label>
+      )}
       <SliderPrimitive.Control
         ref={controlRef}
-        className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-horizontal:min-h-5 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col"
+        className={cn(
+          "relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-horizontal:min-h-5 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col",
+          controlClassName,
+        )}
       >
         <SliderPrimitive.Track
           data-slot="slider-track"
@@ -103,6 +119,7 @@ function Slider({
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}
+            getAriaLabel={getAriaLabel}
             className="block size-3 shrink-0 rounded-full bg-primary shadow-sm ring-ring/50 transition select-none group-hover:bg-primary-alt hover:ring-4 disabled:pointer-events-none disabled:opacity-50 has-focus-visible:ring-4 has-focus-visible:outline-hidden"
           />
         ))}

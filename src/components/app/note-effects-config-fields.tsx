@@ -2,15 +2,10 @@ import { ReactNode } from "react";
 
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { SelectRow } from "@/components/common/select-row";
+import { SliderRow } from "@/components/common/slider-row";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { NoteEffectsConfigValues, noteFlashModeOptions } from "@/lib/renderers/renderer";
 
@@ -57,37 +52,21 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
               )}
             />
           )}
-          <FormRow
+          <SliderRow
             label={<span>Ripple Duration: {config.rippleDuration}sec</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.rippleDuration]}
-                className="w-full max-w-48 min-w-24"
-                min={0.1}
-                max={2}
-                step={0.1}
-                onValueChange={([value]) => onChange({ rippleDuration: value })}
-              />
-            )}
+            value={[config.rippleDuration]}
+            min={0.1}
+            max={2}
+            step={0.1}
+            onValueChange={([value]) => onChange({ rippleDuration: value })}
           />
-          <FormRow
+          <SliderRow
             label={<span>Ripple Radius: {config.rippleRadius}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.rippleRadius]}
-                className="w-full max-w-48 min-w-24"
-                min={10}
-                max={100}
-                step={1}
-                onValueChange={([value]) => onChange({ rippleRadius: value })}
-              />
-            )}
+            value={[config.rippleRadius]}
+            min={10}
+            max={100}
+            step={1}
+            onValueChange={([value]) => onChange({ rippleRadius: value })}
           />
         </>
       )}
@@ -110,79 +89,48 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       />
       {config.showNoteFlash && (
         <>
-          <FormRow
+          <SliderRow
             label={<span>Flash Intensity: {config.noteFlashIntensity}</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.noteFlashIntensity]}
-                className="w-full max-w-48 min-w-24"
-                min={0}
-                max={1}
-                step={0.1}
-                onValueChange={([value]) => onChange({ noteFlashIntensity: value })}
-              />
-            )}
+            value={[config.noteFlashIntensity]}
+            min={0}
+            max={1}
+            step={0.1}
+            onValueChange={([value]) => onChange({ noteFlashIntensity: value })}
           />
-          <FormRow
+          <SliderRow
             label={<span>Fade Out Duration: {config.noteFlashFadeOutDuration}sec</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.noteFlashFadeOutDuration]}
-                className="w-full max-w-48 min-w-24"
-                min={0.1}
-                max={1}
-                step={0.1}
-                onValueChange={([value]) => onChange({ noteFlashFadeOutDuration: value })}
-              />
-            )}
+            value={[config.noteFlashFadeOutDuration]}
+            min={0.1}
+            max={1}
+            step={0.1}
+            onValueChange={([value]) => onChange({ noteFlashFadeOutDuration: value })}
           />
-          <FormRow
+          <SelectRow
             label={<span>Flash Mode</span>}
-            controller={({ id, labelId }) => (
-              <Select
-                value={config.noteFlashMode}
-                onValueChange={(value) => {
-                  if (!value) return;
-                  onChange({ noteFlashMode: value });
-                }}
-                items={noteFlashModeOptions}
-              >
-                <SelectTrigger id={id} aria-labelledby={labelId}>
-                  <SelectValue placeholder="Select flash mode" />
-                </SelectTrigger>
-                <SelectContent align="end">
-                  {noteFlashModeOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
+            value={config.noteFlashMode}
+            onValueChange={(value) => {
+              if (!value) return;
+              onChange({ noteFlashMode: value });
+            }}
+            items={noteFlashModeOptions}
+            placeholder="Select flash mode"
+          >
+            <SelectContent align="end">
+              {noteFlashModeOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </SelectRow>
           {config.noteFlashMode === "duration" && (
-            <FormRow
+            <SliderRow
               label={<span>Flash Duration: {config.noteFlashDuration}sec</span>}
-              customControl
-              controller={({ id, labelId, ref }) => (
-                <Slider
-                  ref={ref}
-                  id={id}
-                  aria-labelledby={labelId}
-                  value={[config.noteFlashDuration]}
-                  className="w-full max-w-48 min-w-24"
-                  min={0.1}
-                  max={2}
-                  step={0.1}
-                  onValueChange={([value]) => onChange({ noteFlashDuration: value })}
-                />
-              )}
+              value={[config.noteFlashDuration]}
+              min={0.1}
+              max={2}
+              step={0.1}
+              onValueChange={([value]) => onChange({ noteFlashDuration: value })}
             />
           )}
         </>
@@ -200,37 +148,21 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       />
       {config.showRoughEdge && (
         <>
-          <FormRow
+          <SliderRow
             label={<span>Rough Edge Intensity: {config.roughEdgeIntensity}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.roughEdgeIntensity]}
-                className="w-full max-w-48 min-w-24"
-                min={0.1}
-                max={5}
-                step={0.1}
-                onValueChange={([value]) => onChange({ roughEdgeIntensity: value })}
-              />
-            )}
+            value={[config.roughEdgeIntensity]}
+            min={0.1}
+            max={5}
+            step={0.1}
+            onValueChange={([value]) => onChange({ roughEdgeIntensity: value })}
           />
-          <FormRow
+          <SliderRow
             label={<span>Rough Edge Segment: {config.roughEdgeSegmentLength}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.roughEdgeSegmentLength]}
-                className="w-full max-w-48 min-w-24"
-                min={2}
-                max={16}
-                step={1}
-                onValueChange={([value]) => onChange({ roughEdgeSegmentLength: value })}
-              />
-            )}
+            value={[config.roughEdgeSegmentLength]}
+            min={2}
+            max={16}
+            step={1}
+            onValueChange={([value]) => onChange({ roughEdgeSegmentLength: value })}
           />
         </>
       )}
@@ -247,53 +179,29 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       />
       {config.showNoiseTexture && (
         <>
-          <FormRow
+          <SliderRow
             label={<span>Noise Intensity: {Math.round(config.noiseIntensity * 100)}%</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.noiseIntensity]}
-                className="w-full max-w-48 min-w-24"
-                min={0.01}
-                max={0.5}
-                step={0.01}
-                onValueChange={([value]) => onChange({ noiseIntensity: value })}
-              />
-            )}
+            value={[config.noiseIntensity]}
+            min={0.01}
+            max={0.5}
+            step={0.01}
+            onValueChange={([value]) => onChange({ noiseIntensity: value })}
           />
-          <FormRow
+          <SliderRow
             label={<span>Noise Grain Size: {config.noiseGrainSize}px</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.noiseGrainSize]}
-                className="w-full max-w-48 min-w-24"
-                min={1}
-                max={16}
-                step={1}
-                onValueChange={([value]) => onChange({ noiseGrainSize: value })}
-              />
-            )}
+            value={[config.noiseGrainSize]}
+            min={1}
+            max={16}
+            step={1}
+            onValueChange={([value]) => onChange({ noiseGrainSize: value })}
           />
-          <FormRow
+          <SliderRow
             label={<span>Noise Color Variance: {config.noiseColorVariance}</span>}
-            customControl
-            controller={({ labelId, ref }) => (
-              <Slider
-                ref={ref}
-                aria-labelledby={labelId}
-                value={[config.noiseColorVariance]}
-                className="w-full max-w-48 min-w-24"
-                min={1}
-                max={100}
-                step={1}
-                onValueChange={([value]) => onChange({ noiseColorVariance: value })}
-              />
-            )}
+            value={[config.noiseColorVariance]}
+            min={1}
+            max={100}
+            step={1}
+            onValueChange={([value]) => onChange({ noiseColorVariance: value })}
           />
         </>
       )}

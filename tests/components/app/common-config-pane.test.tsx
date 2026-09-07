@@ -169,7 +169,8 @@ test("should not show background image settings when no image is selected", asyn
   expect(screen.queryByRole("combobox", { name: "Image Position" })).not.toBeInTheDocument();
   expect(screen.queryByRole("combobox", { name: "Image Repeat" })).not.toBeInTheDocument();
   expect(screen.queryByRole("group", { name: /Image Opacity/ })).not.toBeInTheDocument();
-  expect(screen.queryByRole("switch", { name: "Show Background Image" })).not.toBeInTheDocument();
+  expect(screen.getByRole("switch", { name: "Show Background Image" })).toBeInTheDocument();
+  expect(screen.getByLabelText("Choose Background Image")).toBeInTheDocument();
 });
 
 test("should update the store when background image enabled is toggled", async () => {
@@ -185,6 +186,21 @@ test("should update the store when background image enabled is toggled", async (
 test("should show background image toggle when image is selected", async () => {
   await renderCommonConfigPane();
   expect(screen.getByRole("switch", { name: "Show Background Image" })).toBeInTheDocument();
+});
+
+test("should hide the file picker and image settings while the toggle is off", async () => {
+  await renderCommonConfigPane();
+  const toggle = screen.getByRole("switch", { name: "Show Background Image" });
+  const fileInput = screen.getByLabelText("Choose Background Image");
+  expect(toggle.compareDocumentPosition(fileInput) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+  await userEvent.click(toggle);
+  expect(screen.queryByLabelText("Choose Background Image")).not.toBeInTheDocument();
+  expect(screen.queryByRole("combobox", { name: "Image Fit" })).not.toBeInTheDocument();
+
+  await userEvent.click(toggle);
+  expect(screen.getByLabelText("Choose Background Image")).toBeInTheDocument();
+  expect(screen.getByRole("combobox", { name: "Image Fit" })).toBeInTheDocument();
 });
 
 async function selectResolution(name: string) {
@@ -213,8 +229,11 @@ test("should seed custom size inputs with the previously selected resolution", a
   const before = config().resolution;
   await selectResolution("Custom");
   expect(config().resolution).toEqual({ ...before, label: "Custom" });
-  expect(screen.getByRole("spinbutton", { name: "Width" })).toHaveValue(before.width);
-  expect(screen.getByRole("spinbutton", { name: "Height" })).toHaveValue(before.height);
+  const group = screen.getByRole("group", { name: "Custom Size" });
+  expect(within(group).getByRole("spinbutton", { name: "Width" })).toHaveValue(before.width);
+  expect(within(group).getByRole("spinbutton", { name: "Height" })).toHaveValue(before.height);
+  expect(within(group).getByText("W")).toBeVisible();
+  expect(within(group).getByText("H")).toBeVisible();
 });
 
 test("should move focus into the width input when Custom is picked", async () => {

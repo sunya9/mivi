@@ -38,7 +38,7 @@ function stubResizeObserver() {
 
 test("mounts the engine's canvas", async () => {
   const { engine } = await renderCanvas();
-  expect(screen.getByLabelText("Visualized Midi")).toBe(engine.canvas);
+  expect(screen.getByRole("img", { name: "Visualized Midi" })).toBe(engine.canvas);
 });
 
 test("detaches the canvas on unmount without destroying it", async () => {

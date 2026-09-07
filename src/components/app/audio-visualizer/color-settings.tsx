@@ -1,14 +1,9 @@
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { SelectRow } from "@/components/common/select-row";
+import { SliderRow } from "@/components/common/slider-row";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { gradientDirectionOptions } from "@/lib/renderers/renderer";
 
@@ -51,27 +46,21 @@ export function ColorSettings({
       {config.useGradient ? (
         <>
           {!isCircular && (
-            <FormRow
+            <SelectRow
               label={<span>Gradient Direction</span>}
-              controller={({ id }) => (
-                <Select
-                  value={config.gradientDirection}
-                  onValueChange={(value) => setConfig({ gradientDirection: value ?? undefined })}
-                  items={gradientDirectionOptions}
-                >
-                  <SelectTrigger id={id}>
-                    <SelectValue placeholder="Select direction" />
-                  </SelectTrigger>
-                  <SelectContent align="end">
-                    {gradientDirectionOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+              value={config.gradientDirection}
+              onValueChange={(value) => setConfig({ gradientDirection: value ?? undefined })}
+              items={gradientDirectionOptions}
+              placeholder="Select direction"
+            >
+              <SelectContent align="end">
+                {gradientDirectionOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </SelectRow>
           )}
           <FormRow
             label={<span>Gradient Start Color</span>}
@@ -110,40 +99,24 @@ export function ColorSettings({
         />
       )}
       {showFill && config.lineSpectrumConfig.fill && (
-        <FormRow
+        <SliderRow
           label={
             <span>Fill Opacity: {Math.round(config.lineSpectrumConfig.fillOpacity * 100)}%</span>
           }
-          customControl
-          controller={({ labelId, ref }) => (
-            <Slider
-              ref={ref}
-              aria-labelledby={labelId}
-              className="w-full max-w-48 min-w-24"
-              value={[config.lineSpectrumConfig.fillOpacity]}
-              min={0}
-              max={1}
-              step={0.1}
-              onValueChange={([value]) => setConfig({ lineSpectrumConfig: { fillOpacity: value } })}
-            />
-          )}
+          value={[config.lineSpectrumConfig.fillOpacity]}
+          min={0}
+          max={1}
+          step={0.1}
+          onValueChange={([value]) => setConfig({ lineSpectrumConfig: { fillOpacity: value } })}
         />
       )}
-      <FormRow
+      <SliderRow
         label={<span>Opacity: {Math.round(config.barOpacity * 100)}%</span>}
-        customControl
-        controller={({ labelId, ref }) => (
-          <Slider
-            ref={ref}
-            aria-labelledby={labelId}
-            className="w-full max-w-48 min-w-24"
-            value={[config.barOpacity]}
-            min={0.1}
-            max={1}
-            step={0.05}
-            onValueChange={([value]) => setConfig({ barOpacity: value })}
-          />
-        )}
+        value={[config.barOpacity]}
+        min={0.1}
+        max={1}
+        step={0.05}
+        onValueChange={([value]) => setConfig({ barOpacity: value })}
       />
     </>
   );

@@ -22,7 +22,7 @@ export function AboutContent({ className }: Props) {
         MiVi is a web application that visualizes MIDI files with synchronized audio playback and
         video export capabilities.
       </p>
-      <Alert>
+      <Alert role="note">
         <Info />
         <AlertTitle>Browser API Support</AlertTitle>
         <AlertDescription>
@@ -34,9 +34,17 @@ export function AboutContent({ className }: Props) {
             {apiStatuses.map((api) => (
               <li key={api.name} className={cn("flex items-center gap-2 text-sm")}>
                 {api.supported ? (
-                  <CircleCheck className="size-4 text-emerald-600" />
+                  <CircleCheck
+                    role="img"
+                    aria-label="Supported"
+                    className="size-4 text-emerald-600"
+                  />
                 ) : (
-                  <CircleX className="size-4 text-orange-600" />
+                  <CircleX
+                    role="img"
+                    aria-label="Not supported"
+                    className="size-4 text-orange-600"
+                  />
                 )}
                 {api.name}
               </li>

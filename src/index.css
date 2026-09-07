@@ -35,7 +35,7 @@
 
 :root,
 .light {
-  --app-color: oklch(58.379% 0.09607 201.31);
+  --app-color: oklch(53.5% 0.09607 201.31);
   --app-color-foreground: oklch(1 0 0);
   --background: var(--color-gray-50);
   --foreground: oklch(0.145 0 0);
@@ -208,6 +208,31 @@
     grid-template-rows:
       auto var(--panel-visualizer)
       1px 1fr auto;
+  }
+}
+
+@utility grid-track-item {
+  display: grid;
+  grid-template-columns: auto minmax(7rem, 1fr) auto 64px;
+  grid-template-areas:
+    "drag name name switch"
+    ". color opacity-label opacity"
+    ". staccato scale-label scale";
+  @container (width < 340px) {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "drag name switch"
+      ". color staccato"
+      ". opacity-label opacity"
+      ". scale-label scale";
+  }
+  @container (width < 260px) {
+    grid-template-areas:
+      "drag name switch"
+      ". color color"
+      ". staccato staccato"
+      ". opacity-label opacity"
+      ". scale-label scale";
   }
 }
 

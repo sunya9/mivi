@@ -1,13 +1,7 @@
 import { useCallback } from "react";
 
-import { FormRow } from "@/components/common/form-row";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { SelectRow } from "@/components/common/select-row";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import {
   AudioVisualizerConfig,
   RendererConfig,
@@ -44,27 +38,21 @@ export function AudioVisualizerConfigPanel({
 
   return (
     <>
-      <FormRow
+      <SelectRow
         label={<span>Style</span>}
-        controller={({ id }) => (
-          <Select
-            value={style}
-            onValueChange={(value) => setConfig({ style: value ?? undefined })}
-            items={audioVisualizerStyleOptions}
-          >
-            <SelectTrigger id={id}>
-              <SelectValue placeholder="Select style" />
-            </SelectTrigger>
-            <SelectContent align="end">
-              {audioVisualizerStyleOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      />
+        value={style}
+        onValueChange={(value) => setConfig({ style: value ?? undefined })}
+        items={audioVisualizerStyleOptions}
+        placeholder="Select style"
+      >
+        <SelectContent align="end">
+          {audioVisualizerStyleOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </SelectRow>
       {isEnabled && (
         <>
           <GeneralSettings
