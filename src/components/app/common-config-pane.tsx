@@ -75,6 +75,12 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
   const { backgroundImageFile, setBackgroundImageFile } = useBackgroundImage();
   const backgroundImageFilename = backgroundImageFile?.name;
   const customWidthInputRef = useRef<HTMLInputElement>(null);
+  const focusCustomOnCloseRef = useRef(false);
+  const focusAfterResolutionClose = () => {
+    if (!focusCustomOnCloseRef.current) return true;
+    focusCustomOnCloseRef.current = false;
+    return customWidthInputRef.current ?? true;
+  };
   return (
     <Card variant="transparent">
       <CardHeader>
@@ -247,13 +253,14 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
                 const resolution =
                   customResolution ?? createCustomResolution(current.width, current.height);
                 onUpdateRendererConfig({ resolution, customResolution: resolution });
+                focusCustomOnCloseRef.current = true;
               }}
               items={resolutionItems}
             >
               <SelectTrigger id={id} className="w-48">
                 <SelectValue placeholder="Select resolution" />
               </SelectTrigger>
-              <SelectContent finalFocus={() => customWidthInputRef.current ?? true}>
+              <SelectContent finalFocus={focusAfterResolutionClose}>
                 {resolutionGroups.map((group) => (
                   <SelectGroup key={group.label}>
                     <SelectLabel>{group.label}</SelectLabel>
