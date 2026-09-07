@@ -12,6 +12,7 @@ import { createMidiSettingsStore, type MidiSettingsStore } from "@/lib/midi/midi
 import { createMidiTracksStore, type MidiTracksStore } from "@/lib/midi/midi-tracks-store";
 import { AudioPlaybackStoreImpl, type AudioPlaybackStore } from "@/lib/player/audio-playback-store";
 import { bindAnalyserSettings } from "@/lib/player/bind-analyser-settings";
+import { bindPageLifecycle } from "@/lib/player/bind-page-lifecycle";
 import {
   createRendererConfigStore,
   type RendererConfigStore,
@@ -49,6 +50,7 @@ export function createAppContext(
   const midiSettingsStore = createMidiSettingsStore();
   bindMidiTracks(fileStore.midi, midiTracksStore, midiSettingsStore);
   bindAnalyserSettings(rendererConfigStore, audioPlaybackStore);
+  bindPageLifecycle(audioPlaybackStore, audioContext);
   const visualizerEngine = new VisualizerEngine(
     audioPlaybackStore,
     createVisualizerSources({ rendererConfigStore, midiTracksStore, fileStore }),

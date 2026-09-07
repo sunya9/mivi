@@ -359,3 +359,30 @@ test("configureAnalyser applies fft size and smoothing to the live analyser", ()
   expect(setFftSize).toHaveBeenCalledWith(512);
   expect(setSmoothing).toHaveBeenCalledWith(0.2);
 });
+
+test("pause stops playback at the position reached", async () => {
+  const { store, audioContext } = createStore();
+  const longBuffer = audioContext.createBuffer(1, 44100 * 10, 44100);
+  store.setAudioBuffer(longBuffer);
+  store.togglePlay();
+  const source = getSourceNodes(audioContext)[0];
+  const stop = vi.spyOn(source, "stop");
+  await registrar.getDeLorean(audioContext)!.travel(5);
+
+  store.pause();
+
+  expect(store.getSnapshot().status).toBe("paused");
+  expect(store.getSnapshot().position).toBe(5);
+  expect(stop).toHaveBeenCalledOnce();
+});
+
+test("pause while not playing changes nothing", () => {
+  const { store } = createStoreWithAudioBuffer();
+  const listener = vi.fn<() => void>();
+  store.subscribe(listener);
+
+  store.pause();
+
+  expect(store.getSnapshot().status).toBe("initial");
+  expect(listener).not.toHaveBeenCalled();
+});

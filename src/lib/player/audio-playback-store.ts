@@ -45,6 +45,8 @@ export interface AudioPlaybackStore {
   setVolume: (volume: number) => void;
   toggleMute: () => void;
   togglePlay: () => void;
+  play: () => void;
+  pause: () => void;
   /** Moves the position while preserving the current playing/paused state */
   seek: (time: number) => void;
   beginScrub: () => void;
@@ -262,6 +264,12 @@ export class AudioPlaybackStoreImpl
     } else {
       this.play();
     }
+  };
+
+  pause = (): void => {
+    if (!this.#source) return;
+    this.syncFromAudioContext();
+    this.stop();
   };
 
   // ============================================================
