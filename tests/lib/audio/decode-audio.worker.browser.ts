@@ -7,7 +7,7 @@ test("dummy", () => {
   expect(1).toBe(1);
 });
 
-test("decodes audio file and returns StoredAudioData", async () => {
+test("decodes audio file and returns SerializedAudio", async () => {
   const audioFile = await fetchFixtureAsFile("./tests/fixtures/test.mp3", "test.mp3", "audio/mpeg");
   const result = await decodeAudio(audioFile);
 
@@ -16,6 +16,7 @@ test("decodes audio file and returns StoredAudioData", async () => {
   expect(result.channels[0]).toBeInstanceOf(Int16Array);
   expect(result.channels[1]).toBeInstanceOf(Int16Array);
   expect(result.sampleRate).toBe(48000);
+  expect(result.duration).toBeCloseTo(217728 / 48000);
 });
 
 test("throws when file has no audio track", async () => {

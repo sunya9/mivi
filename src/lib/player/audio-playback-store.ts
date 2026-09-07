@@ -5,16 +5,38 @@ import type {
   GainNode,
 } from "standardized-audio-context";
 
-import { AudioAnalyzer, type FrequencyData } from "@/lib/audio/audio-analyzer";
-import { LocalStorageRepository } from "@/lib/storage/localstorage-repository";
+import { AudioAnalyzer, type FFTSize, type FrequencyData } from "@/lib/audio/audio-analyzer";
+import { ObservableStore, shallowEqual } from "@/lib/store/observable-store";
+import { PersistedStore } from "@/lib/store/persisted-store";
+
+/**
+ * "initial" lasts until the first play toggle of the current buffer. Scrubbing pauses the audio
+ * graph; the suffix names the state a scrub returns to at endScrub ("scrubbingPlaying" resumes).
+ */
+export type PlaybackStatus =
+  | "initial"
+  | "paused"
+  | "playing"
+  | "scrubbingPaused"
+  | "scrubbingPlaying";
 
 /** Immutable snapshot of playback state */
 export interface PlaybackSnapshot {
-  readonly isPlaying: boolean;
+  readonly status: PlaybackStatus;
+  /**
+   * performance.now() of the latest play/pause toggle while its feedback is still showing,
+   * 0 otherwise. Expires after PLAY_FEEDBACK_MS.
+   */
+  readonly playFeedbackAt: number;
   readonly position: number;
   readonly duration: number;
   readonly volume: number;
   readonly muted: boolean;
+}
+
+/** What the user perceives as "playing": a scrub pause that will resume still counts */
+export function isEffectivelyPlaying(snapshot: PlaybackSnapshot): boolean {
+  return snapshot.status === "playing" || snapshot.status === "scrubbingPlaying";
 }
 
 export interface AudioPlaybackStore {
@@ -23,78 +45,91 @@ export interface AudioPlaybackStore {
   setVolume: (volume: number) => void;
   toggleMute: () => void;
   togglePlay: () => void;
-  seek: (time: number, commit: boolean, seamless?: boolean) => void;
+  /** Moves the position while preserving the current playing/paused state */
+  seek: (time: number) => void;
+  beginScrub: () => void;
+  scrub: (time: number) => void;
+  endScrub: (time: number) => void;
   syncFromAudioContext: () => void;
   setAudioBuffer: (audioBuffer: AudioBuffer | undefined) => void;
-  getPosition: () => number;
   getFrequencyData: () => FrequencyData | null;
+  configureAnalyser: (options: AnalyserOptions) => void;
+}
+
+export interface AnalyserOptions {
+  fftSize: FFTSize;
+  smoothingTimeConstant: number;
 }
 
 const STORAGE_KEY_VOLUME = "mivi:volume";
 const STORAGE_KEY_MUTED = "mivi:muted";
 
-/** Snap to start if seeking within this threshold from the beginning */
+export const PLAY_FEEDBACK_MS = 500;
+
 const SEEK_SNAP_THRESHOLD_SEC = 1;
 
-/**
- * External store for audio playback state.
- * Encapsulates AudioContext, GainNode, AudioBuffer, and playback state management.
- * Uses the subscriber pattern for integration with useSyncExternalStore.
- *
- * ## Method binding convention
- * - Arrow function properties: Methods that need stable references
- *   (passed as callbacks to React or event listeners)
- * - Regular methods: Internal operations or methods not typically passed as callbacks
- */
-export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
+export class AudioPlaybackStoreImpl
+  extends ObservableStore<PlaybackSnapshot>
+  implements AudioPlaybackStore
+{
   readonly #audioContext: AudioContext;
   readonly #gainNode: GainNode<AudioContext>;
   readonly #analyser: AudioAnalyzer;
-  readonly #storage: LocalStorageRepository = new LocalStorageRepository();
+  readonly #volumeStore: PersistedStore<number>;
+  readonly #mutedStore: PersistedStore<boolean>;
   #audioBuffer: AudioBuffer | undefined = undefined;
   #source: AudioBufferSourceNode<AudioContext> | null = null;
   #startedAt: number = 0;
   #position: number = 0;
+  /** Set while a scrub is in progress; `resume` records what the scrub interrupted */
+  #scrub: { resume: boolean } | null = null;
+  #hasToggled: boolean = false;
+  #playFeedbackAt: number = 0;
+  #playFeedbackTimer: ReturnType<typeof setTimeout> | null = null;
   #volume: number;
   #muted: boolean;
-  #listeners: Set<() => void> = new Set();
-  #snapshot: PlaybackSnapshot;
 
   constructor(audioContext: AudioContext) {
+    const volumeStore = new PersistedStore<number>(STORAGE_KEY_VOLUME, (persisted) =>
+      typeof persisted === "number" ? persisted : 1,
+    );
+    const mutedStore = new PersistedStore<boolean>(STORAGE_KEY_MUTED, (persisted) =>
+      typeof persisted === "boolean" ? persisted : false,
+    );
+    const volume = volumeStore.getSnapshot();
+    const muted = mutedStore.getSnapshot();
+    super(
+      { status: "initial", playFeedbackAt: 0, position: 0, duration: 0, volume, muted },
+      shallowEqual,
+    );
+    this.#volumeStore = volumeStore;
+    this.#mutedStore = mutedStore;
     this.#audioContext = audioContext;
     this.#gainNode = audioContext.createGain();
     this.#analyser = new AudioAnalyzer(audioContext);
     // Connect analyser -> gainNode -> destination
     this.#analyser.node.connect(this.#gainNode);
     this.#gainNode.connect(audioContext.destination);
-    this.#volume = this.#storage.get(STORAGE_KEY_VOLUME, 1);
-    this.#muted = this.#storage.get(STORAGE_KEY_MUTED, false);
+    this.#volume = volume;
+    this.#muted = muted;
     this.#applyGain();
-    this.#snapshot = this.#createSnapshot();
   }
-
-  // ============================================================
-  // Subscriber pattern (for useSyncExternalStore)
-  // ============================================================
-
-  /** Subscribe to state changes */
-  subscribe = (listener: () => void): (() => void) => {
-    this.#listeners.add(listener);
-    return () => this.#listeners.delete(listener);
-  };
-
-  /** Get current snapshot (returns same reference if unchanged) */
-  getSnapshot = (): PlaybackSnapshot => {
-    return this.#snapshot;
-  };
 
   // ============================================================
   // Private snapshot helpers
   // ============================================================
 
+  // Derived from the audio graph rather than stored, so an "ended" source cannot leave a stale status
+  #status(): PlaybackStatus {
+    if (this.#source) return "playing";
+    if (this.#scrub) return this.#scrub.resume ? "scrubbingPlaying" : "scrubbingPaused";
+    return this.#hasToggled ? "paused" : "initial";
+  }
+
   #createSnapshot(): PlaybackSnapshot {
     return {
-      isPlaying: this.#source !== null,
+      status: this.#status(),
+      playFeedbackAt: this.#playFeedbackAt,
       position: this.#position,
       duration: this.#audioBuffer?.duration ?? 0,
       volume: this.#volume,
@@ -103,17 +138,7 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
   }
 
   #notifyIfChanged(): void {
-    const newSnapshot = this.#createSnapshot();
-    if (
-      newSnapshot.isPlaying !== this.#snapshot.isPlaying ||
-      newSnapshot.position !== this.#snapshot.position ||
-      newSnapshot.duration !== this.#snapshot.duration ||
-      newSnapshot.volume !== this.#snapshot.volume ||
-      newSnapshot.muted !== this.#snapshot.muted
-    ) {
-      this.#snapshot = newSnapshot;
-      this.#listeners.forEach((listener) => listener());
-    }
+    this.setSnapshot(this.#createSnapshot());
   }
 
   #applyGain(): void {
@@ -136,13 +161,10 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
   // Volume / Mute controls
   // ============================================================
 
-  /** Get current position (synchronous access for non-React consumers) */
-  getPosition = (): number => this.#position;
-
   /** Sets the volume and persists to storage */
   setVolume = (volume: number): void => {
     this.#volume = volume;
-    this.#storage.set(STORAGE_KEY_VOLUME, volume);
+    this.#volumeStore.set(volume);
     this.#applyGain();
     this.#notifyIfChanged();
   };
@@ -150,7 +172,7 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
   /** Toggles mute state and persists to storage */
   toggleMute = (): void => {
     this.#muted = !this.#muted;
-    this.#storage.set(STORAGE_KEY_MUTED, this.#muted);
+    this.#mutedStore.set(this.#muted);
     this.#applyGain();
     this.#notifyIfChanged();
   };
@@ -165,6 +187,8 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
     this.#stopSource();
     this.#audioBuffer = audioBuffer;
     this.#position = 0;
+    this.#hasToggled = false;
+    this.#clearPlayFeedback();
     this.#notifyIfChanged();
   };
 
@@ -189,6 +213,7 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
       if (this.#source === source) {
         this.#source = null;
         this.#position = audioBuffer.duration;
+        this.#raisePlayFeedback();
         this.#notifyIfChanged();
       }
     });
@@ -210,7 +235,28 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
   }
 
   /** Toggles play/pause state */
+  #clearPlayFeedback(): void {
+    if (this.#playFeedbackTimer !== null) {
+      clearTimeout(this.#playFeedbackTimer);
+      this.#playFeedbackTimer = null;
+    }
+    this.#playFeedbackAt = 0;
+  }
+
+  #raisePlayFeedback(): void {
+    this.#clearPlayFeedback();
+    this.#hasToggled = true;
+    this.#playFeedbackAt = performance.now();
+    this.#playFeedbackTimer = setTimeout(() => {
+      this.#playFeedbackTimer = null;
+      this.#playFeedbackAt = 0;
+      this.#notifyIfChanged();
+    }, PLAY_FEEDBACK_MS);
+  }
+
   togglePlay = (): void => {
+    if (!this.#audioBuffer) return;
+    this.#raisePlayFeedback();
     if (this.#source) {
       this.stop();
     } else {
@@ -229,33 +275,46 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
     this.#notifyIfChanged();
   };
 
-  /**
-   * Seeks to the specified time.
-   * @param time - Target time in seconds
-   * @param commit - If true, resume playback if was playing before seek
-   * @param seamless - If true, maintain playback without interruption (for keyboard seek)
-   */
-  seek = (time: number, commit: boolean, seamless: boolean = false): void => {
+  /** Users expect a scrub near the beginning to land exactly on the start */
+  #snapToStart(time: number): number {
+    return time < SEEK_SNAP_THRESHOLD_SEC ? 0 : time;
+  }
+
+  /** Moves the position while preserving the current playing/paused state */
+  seek = (time: number): void => {
     const wasPlaying = this.#source !== null;
-    const adjustedSeekTime = time < SEEK_SNAP_THRESHOLD_SEC ? 0 : time;
-
-    if (seamless && wasPlaying) {
-      this.#stopSource();
-      this.#position = adjustedSeekTime;
-      this.play();
-      return;
-    }
-
+    this.#stopSource();
+    this.#position = this.#snapToStart(time);
     if (wasPlaying) {
-      this.#stopSource();
+      this.play();
+    } else {
       this.#notifyIfChanged();
     }
+  };
 
-    this.#position = adjustedSeekTime;
+  /** Pauses for a pointer scrub and remembers whether to resume at endScrub */
+  beginScrub = (): void => {
+    if (this.#scrub) return;
+    this.#scrub = { resume: this.#source !== null };
+    this.#stopSource();
     this.#notifyIfChanged();
+  };
 
-    if (commit && wasPlaying) {
+  /** Moves the position during a scrub without resuming playback */
+  scrub = (time: number): void => {
+    this.#position = this.#snapToStart(time);
+    this.#notifyIfChanged();
+  };
+
+  /** Commits the scrub position and resumes playback if it was running before */
+  endScrub = (time: number): void => {
+    this.#position = this.#snapToStart(time);
+    const resume = this.#scrub?.resume ?? false;
+    this.#scrub = null;
+    if (resume) {
       this.play();
+    } else {
+      this.#notifyIfChanged();
     }
   };
 
@@ -270,5 +329,10 @@ export class AudioPlaybackStoreImpl implements AudioPlaybackStore {
   getFrequencyData = (): FrequencyData | null => {
     if (!this.#source) return null;
     return this.#analyser.getFrequencyData();
+  };
+
+  configureAnalyser = ({ fftSize, smoothingTimeConstant }: AnalyserOptions): void => {
+    this.#analyser.fftSize = fftSize;
+    this.#analyser.smoothingTimeConstant = smoothingTimeConstant;
   };
 }

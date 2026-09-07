@@ -1,6 +1,8 @@
+import { testMidiTracks } from "tests/fixtures";
 import { describe, it, expect, beforeEach, vi, test } from "vitest";
 
-import { saveValue } from "@/lib/file-db/file-db";
+import { FileStore } from "@/lib/file-store/file-store";
+import { MemoryFileStorage } from "@/lib/file-store/memory-file-storage";
 import { cn, formatTime, resetConfig, startViewTransition } from "@/lib/utils";
 
 describe("cn", () => {
@@ -26,19 +28,25 @@ describe("resetConfig", () => {
     vi.spyOn(location, "reload");
   });
 
-  it("delete all configuration", async () => {
-    // store mock file
-    await saveValue("test", new File([], "test"));
+  it("clears stored files and localStorage, then reloads", async () => {
+    const storage = new MemoryFileStorage();
+    await storage.write("audio", new File([], "test"));
+    const fileStore = new FileStore(storage, {
+      midi: async () => testMidiTracks,
+      audio: async () => {
+        throw new Error("unused");
+      },
+      backgroundImage: async () => {
+        throw new Error("unused");
+      },
+    });
     localStorage.setItem("test", "test");
 
-    const databasesBefore = await indexedDB.databases();
-    expect(databasesBefore.length).toBe(1);
+    await resetConfig(fileStore);
 
-    await resetConfig();
-
+    expect(await storage.read("audio")).toBeUndefined();
+    expect(localStorage.getItem("test")).toBeNull();
     expect(location.reload).toHaveBeenCalledTimes(1);
-    const databasesAfter = await indexedDB.databases();
-    expect(databasesAfter.length).toBe(0);
   });
 });
 

@@ -308,3 +308,39 @@ test("handleMouseMove does not start timer when not playing", () => {
 
   expect(result.current.panelVisible).toBe(true);
 });
+
+// Pointer leave
+test("handlePointerLeave hides panel immediately when playing", () => {
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true }));
+
+  act(() => {
+    result.current.handleMouseMove();
+  });
+  expect(result.current.panelVisible).toBe(true);
+
+  act(() => {
+    result.current.handlePointerLeave();
+  });
+  expect(result.current.panelVisible).toBe(false);
+});
+
+test("handlePointerLeave keeps panel visible when not playing", () => {
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: false }));
+
+  act(() => {
+    result.current.handlePointerLeave();
+  });
+  expect(result.current.panelVisible).toBe(true);
+});
+
+test("handlePointerLeave keeps panel visible during interaction", () => {
+  const { result } = renderHook(() => usePanelVisibility({ isPlaying: true }));
+
+  act(() => {
+    result.current.startInteraction();
+  });
+  act(() => {
+    result.current.handlePointerLeave();
+  });
+  expect(result.current.panelVisible).toBe(true);
+});

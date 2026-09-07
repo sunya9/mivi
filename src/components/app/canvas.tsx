@@ -1,81 +1,34 @@
-import { CanvasHTMLAttributes, useEffectEvent, useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 
+import { useAppContext } from "@/contexts/app-context";
 import { cn } from "@/lib/utils";
 
-interface Props extends CanvasHTMLAttributes<HTMLCanvasElement> {
-  aspectRatio: number;
-  onInit: (ctx: CanvasRenderingContext2D) => void;
-  invalidate: (usePrecomputed: boolean) => void;
+interface Props {
+  className?: string;
 }
 
-function calcSize(container: HTMLElement, aspectRatio: number) {
-  const containerWidth = container.clientWidth;
-  const containerHeight = container.clientHeight;
-  if (!containerWidth || !containerHeight) return;
-  // Contain-fit: use the dimension that is more constrained
-  const heightFromWidth = containerWidth / aspectRatio;
-  if (heightFromWidth <= containerHeight) {
-    return {
-      width: containerWidth,
-      height: heightFromWidth,
-    };
-  } else {
-    return {
-      height: containerHeight,
-      width: containerHeight * aspectRatio,
-    };
-  }
-}
-
-export function Canvas({ onInit, className, aspectRatio, style, invalidate, ...props }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+export function Canvas({ className }: Props) {
+  const { visualizerEngine } = useAppContext();
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const onInvalidate = useEffectEvent(invalidate);
-  const onInitEffect = useEffectEvent(onInit);
-
-  useLayoutEffect(() => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) throw new Error("Failed to get canvas context");
-    onInitEffect(ctx);
-  }, []);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
-    const canvas = canvasRef.current;
-    if (!container || !canvas) return;
-
-    const resizeCanvas = () => {
-      const size = calcSize(container, aspectRatio);
-      if (!size) return;
-      canvas.width = size.width * window.devicePixelRatio;
-      canvas.height = size.height * window.devicePixelRatio;
-      onInvalidate(true);
-    };
-
-    const observer = new ResizeObserver(resizeCanvas);
+    if (!container) return;
+    const unmount = visualizerEngine.mountCanvas(container);
+    const fit = () => visualizerEngine.fitCanvas(container.clientWidth, container.clientHeight);
+    const observer = new ResizeObserver(fit);
     observer.observe(container);
-    resizeCanvas();
-
-    return () => observer.disconnect();
-  }, [aspectRatio]);
+    fit();
+    return () => {
+      unmount();
+      observer.disconnect();
+    };
+  }, [visualizerEngine]);
 
   return (
     <div
       ref={containerRef}
       className={cn("h-full w-full", "flex items-center justify-center", className)}
-    >
-      <canvas
-        ref={canvasRef}
-        className="max-h-full max-w-full [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-canvas]"
-        aria-label="Visualized Midi"
-        style={{
-          ...style,
-          aspectRatio,
-        }}
-        {...props}
-      />
-    </div>
+    />
   );
 }

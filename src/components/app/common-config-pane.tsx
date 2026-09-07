@@ -13,40 +13,52 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { useAudio } from "@/lib/audio/use-audio";
+import { useBackgroundImage } from "@/lib/background-image/use-background-image";
 import {
   resolutions,
   FPS,
   fpsOptions,
   formatOptions,
-  RendererConfig,
   backgroundImagePositions,
   backgroundImageRepeats,
   backgroundImageFitOptions,
   audioVisualizerLayerOptions,
+  RendererConfig,
 } from "@/lib/renderers/renderer";
-import { DeepPartial } from "@/lib/type-utils";
+import { useRendererConfig, useUpdateRendererConfig } from "@/lib/renderers/use-renderer-config";
+import { shallowEqual } from "@/lib/store/observable-store";
 
-interface Props {
-  rendererConfig: RendererConfig;
-  onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
-  audioFilename?: string;
-  onChangeAudioFile: (file: File | undefined) => void;
-  isAudioDecoding?: boolean;
-  onCancelAudioDecode?: () => void;
-  backgroundImageFilename?: string;
-  onChangeBackgroundImage: (file: File | undefined) => void;
-}
+const selectCommonConfig = ({
+  backgroundColor,
+  backgroundImageEnabled,
+  backgroundImageFit,
+  backgroundImagePosition,
+  backgroundImageRepeat,
+  backgroundImageOpacity,
+  resolution,
+  fps,
+  format,
+  audioVisualizerLayer,
+}: RendererConfig) => ({
+  backgroundColor,
+  backgroundImageEnabled,
+  backgroundImageFit,
+  backgroundImagePosition,
+  backgroundImageRepeat,
+  backgroundImageOpacity,
+  resolution,
+  fps,
+  format,
+  audioVisualizerLayer,
+});
 
-export const CommonConfigPane = memo(function CommonConfigPane({
-  rendererConfig,
-  onUpdateRendererConfig,
-  audioFilename,
-  onChangeAudioFile,
-  isAudioDecoding,
-  onCancelAudioDecode,
-  backgroundImageFilename,
-  onChangeBackgroundImage,
-}: Props) {
+export const CommonConfigPane = memo(function CommonConfigPane() {
+  const rendererConfig = useRendererConfig(selectCommonConfig, shallowEqual);
+  const onUpdateRendererConfig = useUpdateRendererConfig();
+  const { audioFile, setAudioFile, isDecoding, cancelDecode } = useAudio();
+  const { backgroundImageFile, setBackgroundImageFile } = useBackgroundImage();
+  const backgroundImageFilename = backgroundImageFile?.name;
   return (
     <Card variant="transparent">
       <CardHeader>
@@ -57,13 +69,13 @@ export const CommonConfigPane = memo(function CommonConfigPane({
       <CardContent className="grid grid-cols-1 gap-2">
         <div className="relative">
           <FileButton
-            filename={audioFilename}
-            setFile={onChangeAudioFile}
+            filename={audioFile?.name}
+            setFile={setAudioFile}
             accept="audio/*"
             placeholder="Choose Audio file"
             cancelLabel="Cancel audio file"
-            loading={isAudioDecoding}
-            onCancel={onCancelAudioDecode}
+            loading={isDecoding}
+            onCancel={cancelDecode}
           />
         </div>
       </CardContent>
@@ -86,7 +98,7 @@ export const CommonConfigPane = memo(function CommonConfigPane({
         />
         <FileButton
           filename={backgroundImageFilename}
-          setFile={onChangeBackgroundImage}
+          setFile={setBackgroundImageFile}
           accept="image/*"
           placeholder="Choose Background Image"
           cancelLabel="Cancel background image"

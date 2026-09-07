@@ -1,15 +1,20 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ComponentProps } from "react";
+import { ComponentProps, useState } from "react";
+import { AudioContext } from "standardized-audio-context-mock";
 import { expect, test, vi } from "vitest";
 
 import { SettingsDialog, SettingsContent } from "@/components/app/settings-dialog";
-import { ThemeProvider } from "@/components/providers/theme-provider";
+import { AppContext, createAppContext } from "@/contexts/app-context";
 
 type Props = ComponentProps<typeof SettingsDialog>;
 
+// Only the app context is needed here; skipping the file-db gate keeps these renders synchronous
 function LightThemeWrapper({ children }: { children: React.ReactNode }) {
-  return <ThemeProvider defaultTheme="light">{children}</ThemeProvider>;
+  const [appContextValue] = useState(() =>
+    createAppContext(new AudioContext(), { defaultTheme: "light" }),
+  );
+  return <AppContext value={appContextValue}>{children}</AppContext>;
 }
 
 function renderDialog(props: Partial<Props> = {}) {

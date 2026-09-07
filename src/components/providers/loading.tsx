@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useAppContext } from "@/contexts/app-context";
 import { cn, resetConfig } from "@/lib/utils";
 
 export function Loading() {
+  const { fileStore } = useAppContext();
   const [showReset, setShowReset] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -23,7 +25,7 @@ export function Loading() {
           If nothing appears after a few seconds, please try resetting.
         </p>
         <p className="mt-2 text-center">
-          <Button variant="outline" onClick={resetConfig}>
+          <Button variant="outline" onClick={() => resetConfig(fileStore)}>
             Reset configuration
           </Button>
         </p>

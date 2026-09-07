@@ -1,7 +1,8 @@
 import { clsx, type ClassValue } from "clsx";
+import { flushSync } from "react-dom";
 import { twMerge } from "tailwind-merge";
 
-import { closeDb } from "@/lib/file-db/file-db";
+import type { FileStore } from "@/lib/file-store/file-store";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -13,29 +14,9 @@ export function formatTime(timeInSeconds: number): string {
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 }
 
-export async function resetConfig() {
-  // Close cached DB connection before deleting databases
-  closeDb();
-
-  // delete indexedDB databases
-  const databases = await indexedDB.databases();
-  const promises = databases
-    .map((db) => db.name)
-    .filter((name) => typeof name === "string")
-    .map((name) => {
-      const req = indexedDB.deleteDatabase(name);
-      return new Promise<void>((resolve, reject) => {
-        req.onsuccess = () => resolve();
-        req.onblocked = reject;
-        req.onerror = reject;
-      });
-    });
-  await Promise.all(promises);
-
-  // delete localStorage
+export async function resetConfig(fileStore: FileStore) {
+  await fileStore.clear();
   localStorage.clear();
-
-  // reload page
   location.reload();
 }
 
@@ -45,8 +26,10 @@ export function startViewTransition(callback: () => void, options?: { types?: st
     return;
   }
   return document.startViewTransition({
+    // React defers state updates made outside its event handlers, so without flushSync the
+    // browser would capture the new state before React commits and animate nothing
     update: () => {
-      callback();
+      flushSync(callback);
     },
     ...options,
   });

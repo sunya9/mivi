@@ -32,6 +32,16 @@ test("calls console.error and error toast with message and error object", () => 
   });
 });
 
+test("uses a thrown string as the description", () => {
+  errorLogWithToast("Failed", "plain reason");
+
+  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+    title: "Failed",
+    description: "plain reason",
+    type: "error",
+  });
+});
+
 test("handles undefined error object", () => {
   const message = "Test error message";
   errorLogWithToast(message, undefined);

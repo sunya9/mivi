@@ -25,6 +25,7 @@ function makeNote(id: number, midi: number, time: number, duration: number): Mid
 const tracks: MidiTrack[] = [
   {
     id: "melody",
+    sourceIndex: 0,
     config: getDefaultTrackConfig("Melody", "#3b82f6"),
     notes: [
       makeNote(0, 60, 0, 0.5),
@@ -38,6 +39,7 @@ const tracks: MidiTrack[] = [
   },
   {
     id: "bass",
+    sourceIndex: 1,
     config: getDefaultTrackConfig("Bass", "#f59e0b"),
     notes: [makeNote(10, 36, 0, 4), makeNote(11, 43, 1, 0.1), makeNote(12, 48, 1.75, 0.5)],
   },

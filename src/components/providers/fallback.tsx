@@ -2,9 +2,11 @@ import { FallbackProps, getErrorMessage } from "react-error-boundary";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAppContext } from "@/contexts/app-context";
 import { resetConfig } from "@/lib/utils";
 
 export function Fallback(props: FallbackProps) {
+  const { fileStore } = useAppContext();
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center">
       <Card className="max-w-xl flex-none">
@@ -22,7 +24,7 @@ export function Fallback(props: FallbackProps) {
         </CardContent>
         <CardFooter className="flex gap-2">
           <Button onClick={props.resetErrorBoundary}>Reload app</Button>
-          <Button variant="outline" onClick={resetConfig}>
+          <Button variant="outline" onClick={() => resetConfig(fileStore)}>
             Reset configuration
           </Button>
         </CardFooter>

@@ -1,9 +1,9 @@
 import { expose } from "comlink";
 import { Input, ALL_FORMATS, BlobSource, AudioSampleSink } from "mediabunny";
 
-import type { StoredAudioData } from "./audio";
+import type { SerializedAudio } from "./audio";
 
-export async function decodeAudio(file: File): Promise<StoredAudioData> {
+export async function decodeAudio(file: File): Promise<SerializedAudio> {
   const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
   // Resolve the demuxer outside the try/finally: mediabunny's Input#dispose()
   // re-chains on the cached demuxer promise without a .catch, leaking an
@@ -45,7 +45,13 @@ export async function decodeAudio(file: File): Promise<StoredAudioData> {
       return merged;
     });
 
-    return { channels, sampleRate, length: totalFrames, numberOfChannels };
+    return {
+      channels,
+      sampleRate,
+      length: totalFrames,
+      numberOfChannels,
+      duration: totalFrames / sampleRate,
+    };
   } finally {
     input.dispose();
   }

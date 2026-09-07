@@ -1,247 +1,68 @@
-import { Pause, Play, Volume2, VolumeX, Maximize, Minimize, X } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useEffectEvent,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-import { Canvas } from "@/components/app/canvas";
-import { PlayIcon } from "@/components/app/play-icon";
+import { VisualizerPlayer } from "@/components/app/visualizer-player";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { Dialog, DialogClose, DialogPortal } from "@/components/ui/dialog";
 import { useAppContext } from "@/contexts/app-context";
-import { useAnimationFrame } from "@/hooks/use-animation-frame";
-import { useFpsCounter } from "@/hooks/use-fps-counter";
-import { usePanelVisibility } from "@/hooks/use-panel-visibility";
-import { SerializedAudio } from "@/lib/audio/audio";
-import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
-import { MidiTracks } from "@/lib/midi/midi";
-import { RendererConfig } from "@/lib/renderers/renderer";
-import { formatTime } from "@/lib/utils";
-import { cn } from "@/lib/utils";
+import { useStore } from "@/hooks/use-store";
 import { startViewTransition } from "@/lib/utils";
 
-import { RendererController } from "./renderer-controller";
-
-// ARIA widget roles where Space has a native interaction (activate, toggle, type, etc.).
-// "slider" is intentionally excluded so Space toggles playback even when a slider is focused.
-const INTERACTIVE_ROLES = new Set([
-  "button",
-  "checkbox",
-  "combobox",
-  "link",
-  "listbox",
-  "menuitem",
-  "menuitemcheckbox",
-  "menuitemradio",
-  "option",
-  "radio",
-  "searchbox",
-  "spinbutton",
-  "switch",
-  "tab",
-  "textbox",
-  "treeitem",
-]);
+const PLAYER_LABEL = "Midi Visualizer Player";
 
 interface Props {
-  rendererConfig: RendererConfig;
-  midiTracks?: MidiTracks;
-  backgroundImageBitmap?: ImageBitmap;
-  serializedAudio?: SerializedAudio;
-  /** Ref to the visualizer container for measuring dimensions */
   containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function MidiVisualizer({
-  rendererConfig,
-  midiTracks,
-  backgroundImageBitmap,
-  serializedAudio,
-  containerRef,
-}: Props) {
-  const rendererControllerRef = useRef<RendererController>(undefined);
-
-  const { audioPlaybackStore: store } = useAppContext();
-  const { duration, volume, muted, isPlaying, position } = useSyncExternalStore(
-    store.subscribe,
-    store.getSnapshot,
-  );
-  const {
-    seek,
-    togglePlay,
-    setVolume,
-    toggleMute,
-    getPosition,
-    syncFromAudioContext,
-    getFrequencyData,
-  } = store;
+export function MidiVisualizer({ containerRef }: Props) {
+  const { rendererConfigStore } = useAppContext();
+  const { width, height } = useStore(rendererConfigStore, (config) => config.resolution);
+  const regionRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
-  // Blocks animation updates during seek (separate from isInteracting for panel visibility)
-  const [isSeeking, setIsSeeking] = useState(false);
-  // Tracks playing state before seek interaction (for resuming after seek)
-  const [wasPlayingBeforeSeek, setWasPlayingBeforeSeek] = useState(false);
-  // Show pre-interaction state during seek to avoid button flickering
-  const displayedIsPlaying = isSeeking ? wasPlayingBeforeSeek : isPlaying;
 
-  const {
-    panelVisible,
-    startInteraction,
-    endInteraction,
-    showPanel,
-    handleMouseMove,
-    handleTouchReveal,
-  } = usePanelVisibility({ isPlaying });
-  const { fps: actualFps, tick: fpsTick, reset: fpsReset } = useFpsCounter();
-  const tracks = useMemo(() => midiTracks?.tracks || [], [midiTracks]);
-  const midiOffset = useMemo(() => midiTracks?.midiOffset ?? 0, [midiTracks]);
-  const invalidate = useCallback(
-    (usePrecomputed: boolean) => {
-      const currentPosition = getPosition();
-      // Get frequency data: from real-time analyser during playback, or pre-computed during seek
-      let frequencyData = getFrequencyData();
-      if (!frequencyData && usePrecomputed && serializedAudio) {
-        frequencyData = computeFFTAtTime(serializedAudio, currentPosition, {
-          fftSize: rendererConfig.audioVisualizerConfig.fftSize,
-          smoothingTimeConstant: rendererConfig.audioVisualizerConfig.smoothingTimeConstant,
-        });
-      }
-      rendererControllerRef.current?.render(tracks, currentPosition + midiOffset, frequencyData);
-    },
-    [
-      getPosition,
-      getFrequencyData,
-      midiOffset,
-      tracks,
-      serializedAudio,
-      rendererConfig.audioVisualizerConfig.fftSize,
-      rendererConfig.audioVisualizerConfig.smoothingTimeConstant,
-    ],
-  );
-
-  const invalidateEffect = useEffectEvent(invalidate);
-
-  useEffect(() => {
-    rendererControllerRef.current?.setRendererConfig(rendererConfig);
-    // Use pre-computed FFT data for immediate preview when not playing
-    invalidateEffect(true);
-  }, [rendererConfig]);
-
-  useEffect(() => {
-    rendererControllerRef.current?.setBackgroundImageBitmap(backgroundImageBitmap);
-    // Use pre-computed FFT data for immediate preview when not playing
-    invalidateEffect(true);
-  }, [backgroundImageBitmap]);
-
-  // Re-render when midiTracks changes (e.g., color presets)
-  useEffect(() => {
-    invalidateEffect(true);
-  }, [midiTracks?.tracks]);
-
-  // Re-render when audio is loaded to show FFT preview at position 0
-  useEffect(() => {
-    invalidateEffect(true);
-  }, [serializedAudio]);
-
-  const handleInit = useCallback((ctx: CanvasRenderingContext2D) => {
-    rendererControllerRef.current = new RendererController(ctx);
-  }, []);
-
-  const invalidateSeek = useCallback(
-    (time: number, commit: boolean, seamless: boolean = false) => {
-      seek(time, commit, seamless);
-      // Use pre-computed FFT for seek visualization
-      invalidate(true);
-    },
-    [seek, invalidate],
-  );
-
-  const onAnimate = useCallback(() => {
-    if (!isPlaying || isSeeking) return;
-    syncFromAudioContext();
-    invalidate(false);
-    fpsTick();
-  }, [isPlaying, isSeeking, syncFromAudioContext, invalidate, fpsTick]);
-
-  const fpsResetEvent = useEffectEvent(fpsReset);
-  useEffect(() => {
-    if (!isPlaying) fpsResetEvent();
-  }, [isPlaying]);
-
-  useAnimationFrame(isPlaying, onAnimate, rendererConfig.fps);
-
-  const handleContainerClick = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (e.button !== 0) return;
-      const pointerType = e.pointerType;
-      // Touch on mobile: reveal/hide UI without toggling play
-      if (pointerType === "touch") {
-        const consumed = handleTouchReveal();
-        if (consumed) {
-          return;
-        }
-      }
-      // Mouse click: toggle play
-      togglePlay();
-    },
-    [handleTouchReveal, togglePlay],
-  );
   const setExpandedAnimation = useCallback((expanded: React.SetStateAction<boolean>) => {
     startViewTransition(() => setExpanded(expanded), { types: ["canvas-expand"] });
   }, []);
-  const toggleExpanded = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      setExpandedAnimation((prev) => !prev);
-      e.currentTarget.blur();
+  const toggleExpanded = useCallback(() => {
+    setExpandedAnimation((prev) => !prev);
+  }, [setExpandedAnimation]);
+
+  const setRegionRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      regionRef.current = element;
+      if (containerRef) containerRef.current = element;
+    },
+    [containerRef],
+  );
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!open) setExpandedAnimation(false);
     },
     [setExpandedAnimation],
   );
 
-  // Space: Play/Pause (blocked on interactive widgets except sliders)
-  useHotkeys(
-    "space",
-    (e) => {
-      if (e.repeat) return;
+  const closeExpanded = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      e.stopPropagation();
       e.preventDefault();
-      togglePlay();
+      if (e.currentTarget === e.target) {
+        setExpandedAnimation(false);
+      }
     },
-    {
-      enableOnFormTags: ["input"],
-      ignoreEventWhen: (e) => {
-        const target = e.target;
-        if (!(target instanceof HTMLElement)) return true;
-        // Native interactive elements (implicit roles are not reflected in target.role)
-        if (target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement) return true;
-        if (target instanceof HTMLInputElement && target.type !== "range") return true;
-        // Custom widgets with explicit ARIA roles (e.g., base-ui div[role="button"])
-        return INTERACTIVE_ROLES.has(target.role ?? "");
-      },
-    },
-    [togglePlay],
+    [setExpandedAnimation],
   );
 
-  // Escape: Exit expanded view
-  useHotkeys("escape", () => setExpandedAnimation(false), { enabled: expanded }, [
-    expanded,
-    setExpandedAnimation,
-  ]);
-
-  // M: Mute/Unmute (disabled in form inputs)
-  useHotkeys(
-    "m",
-    (e) => {
-      if (e.repeat) return;
-      e.preventDefault();
-      toggleMute();
-      showPanel();
-    },
-    [toggleMute, showPanel],
-  );
+  // Base UI's finalFocus would land on the first tabbable child of the region (the seek slider),
+  // which steals the arrow keys from the document-level hotkeys; focus the region itself instead
+  const prevExpandedRef = useRef(expanded);
+  useEffect(() => {
+    if (prevExpandedRef.current && !expanded) regionRef.current?.focus();
+    prevExpandedRef.current = expanded;
+  }, [expanded]);
 
   // F: Toggle expand/collapse canvas
   useHotkeys(
@@ -254,255 +75,56 @@ export function MidiVisualizer({
     [setExpandedAnimation],
   );
 
-  const isInteractiveWidgetFocused = useCallback((e: KeyboardEvent) => {
-    const target = e.target;
-    return (
-      !(target instanceof HTMLElement) ||
-      target.role === "separator" ||
-      (target instanceof HTMLInputElement && target.type === "range")
-    );
-  }, []);
+  const player = <VisualizerPlayer expanded={expanded} onToggleExpanded={toggleExpanded} />;
 
-  // Arrow left/right: Seek ±5s (skip when interactive widget is focused)
-  useHotkeys(
-    "left,right",
-    (e) => {
-      const offset = e.key === "ArrowLeft" ? -0.1 : 0.1;
-      const newTime = Math.max(0, Math.min(duration, getPosition() + offset));
-      invalidateSeek(newTime, true, true);
-      showPanel();
-    },
-    {
-      ignoreEventWhen: isInteractiveWidgetFocused,
-    },
-    [duration, getPosition, invalidateSeek, showPanel],
-  );
-
-  // J/L: Seek ±10s
-  useHotkeys(
-    "j,l",
-    (e) => {
-      if (e.repeat) return;
-      const offset = e.key === "j" || e.key === "J" ? -10 : 10;
-      const newTime = Math.max(0, Math.min(duration, getPosition() + offset));
-      invalidateSeek(newTime, true, true);
-      showPanel();
-    },
-    [duration, getPosition, invalidateSeek, showPanel],
-  );
-
-  // Arrow up/down: Volume ±1% (skip when interactive widget is focused)
-  useHotkeys(
-    "up,down",
-    (e) => {
-      const delta = e.key === "ArrowUp" ? 0.01 : -0.01;
-      const newVolume = Math.max(0, Math.min(1, volume + delta));
-      setVolume(newVolume);
-      showPanel();
-    },
-    {
-      ignoreEventWhen: isInteractiveWidgetFocused,
-    },
-    [volume, setVolume, showPanel],
-  );
-
-  // Home/0: Jump to beginning
-  useHotkeys(
-    "home,0",
-    () => {
-      invalidateSeek(0, true, true);
-      showPanel();
-    },
-    {
-      ignoreEventWhen: isInteractiveWidgetFocused,
-    },
-    [invalidateSeek, showPanel],
-  );
-
-  // End: Jump to end
-  useHotkeys(
-    "end",
-    () => {
-      invalidateSeek(duration, true, true);
-      showPanel();
-    },
-    {
-      preventDefault: true,
-      ignoreEventWhen: isInteractiveWidgetFocused,
-    },
-    [duration, invalidateSeek, showPanel],
-  );
-  const closeExpanded = useCallback(
-    (e: React.MouseEvent<HTMLElement>) => {
-      e.stopPropagation();
-      e.preventDefault();
-      if (e.currentTarget === e.target) {
-        setExpandedAnimation(false);
-      }
-    },
-    [setExpandedAnimation],
-  );
   return (
     <div className="relative h-full w-full bg-gray-50 bg-[linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas)),linear-gradient(45deg,var(--canvas)_25%,transparent_25%,transparent_75%,var(--canvas)_75%,var(--canvas))] bg-size-[16px_16px] bg-position-[0_0,8px_8px] dark:bg-gray-600">
       <div
-        ref={containerRef}
-        onClick={closeExpanded}
-        className={cn("flex h-full w-full items-center justify-center", {
-          "fixed inset-0 z-30 bg-background/50 backdrop-blur-sm": expanded,
-        })}
-        aria-expanded={expanded}
-        aria-label="Midi Visualizer Player"
-        role={expanded ? "dialog" : "region"}
-        aria-modal={expanded}
+        ref={setRegionRef}
+        tabIndex={-1}
+        className="flex h-full w-full items-center justify-center outline-none"
+        aria-label={PLAYER_LABEL}
+        role="region"
       >
-        {expanded && (
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={closeExpanded}
-            className="absolute top-2 right-2 z-50 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16"
-          >
-            <X strokeWidth={1} className="size-full" aria-label="Close" />
-          </Button>
-        )}
-        <div
-          onClick={handleContainerClick}
-          onMouseMove={handleMouseMove}
-          className={cn(
-            "relative overflow-hidden [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-container]",
-            {
-              "h-full max-h-full w-full max-w-full": !expanded,
-              "m-10 object-cover": expanded,
-            },
-          )}
-          style={
-            expanded
-              ? {
-                  maxWidth: rendererConfig.resolution.width,
-                  maxHeight: rendererConfig.resolution.height,
-                }
-              : {}
-          }
-          aria-modal={expanded}
-        >
-          <Canvas
-            aspectRatio={rendererConfig.resolution.width / rendererConfig.resolution.height}
-            invalidate={invalidate}
-            onInit={handleInit}
-          />
-          <PlayIcon isPlaying={displayedIsPlaying} />
-          <div className="pointer-events-none absolute right-0 bottom-0 left-0 overflow-hidden [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-controls]">
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className={cn(
-                "flex flex-col",
-                "bg-linear-to-t from-black/50 to-black/0 transition-all duration-500",
-                "hover:translate-y-0",
-                {
-                  "pointer-events-auto translate-y-0": panelVisible,
-                  "translate-y-full": !panelVisible,
-                },
-                "light",
-              )}
-              aria-label="Midi Visualizer Controls"
-            >
-              <Slider
-                aria-label="Seek position"
-                thumbAlignment="center"
-                max={duration || Infinity}
-                value={[position]}
-                step={0.1}
-                onPointerDown={() => {
-                  // Capture playing state and stop playback immediately at pointer-down
-                  setWasPlayingBeforeSeek(isPlaying);
-                  startInteraction();
-                  setIsSeeking(true);
-                  // Stop playback at current position (don't commit so we can resume later)
-                  invalidateSeek(position, false);
-                }}
-                onValueChange={([value], { reason }) => {
-                  if (reason === "track-press" || reason === "drag") {
-                    // Seek to new position (playback already stopped at pointer-down)
-                    invalidateSeek(value, false);
-                  }
-                  // keyboard: handled only in onValueCommit (seamless)
-                }}
-                onValueCommitted={([value], { reason }) => {
-                  if (reason === "keyboard") {
-                    // Keyboard: seamless seek
-                    invalidateSeek(value, true, true);
-                  } else {
-                    // pointer-down or drag: commit seek and resume if was playing
-                    invalidateSeek(value, true, false);
-                    if (wasPlayingBeforeSeek) {
-                      togglePlay();
-                    }
-                  }
-                  setWasPlayingBeforeSeek(false);
-                  endInteraction();
-                  setIsSeeking(false);
-                }}
-                className={cn(
-                  "group",
-                  "**:data-[slot=slider-track]:h-1 **:data-[slot=slider-track]:rounded-none **:data-[slot=slider-track]:bg-muted/30",
-                  "**:data-[slot=slider-range]:h-1",
-                  "**:data-[slot=slider-thumb]:opacity-0 **:data-[slot=slider-thumb]:transition-[color,box-shadow,opacity]",
-                  "**:group-hover:data-[slot=slider-thumb]:opacity-100",
-                )}
-              />
-              <div className="flex items-center gap-2 p-1">
-                <Button
-                  onClick={togglePlay}
-                  variant="ghost-secondary"
-                  size="icon-lg"
-                  aria-label={displayedIsPlaying ? "Pause" : "Play"}
-                >
-                  {displayedIsPlaying ? <Pause /> : <Play />}
-                </Button>
-                <Button
-                  variant="ghost-secondary"
-                  size="icon-lg"
-                  onClick={toggleMute}
-                  aria-pressed={muted}
-                  aria-label={muted ? "Unmute" : "Mute"}
-                >
-                  {muted ? <VolumeX /> : <Volume2 />}
-                </Button>
-                <Slider
-                  value={[volume]}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  onPointerDown={startInteraction}
-                  onValueChange={([value]) => setVolume(value)}
-                  onValueCommitted={([value]) => {
-                    setVolume(value);
-                    endInteraction();
-                  }}
-                  aria-label="Volume"
-                  className="basis-24 **:data-[slot=slider-track]:bg-muted/30"
-                />
-                <span className="flex-1 text-sm text-muted tabular-nums">
-                  {formatTime(position)} / {formatTime(duration)}
-                </span>
-                {isPlaying && (
-                  <span className="text-xs text-white/60 tabular-nums">{actualFps} fps</span>
-                )}
-                <Button
-                  variant="ghost-secondary"
-                  onClick={toggleExpanded}
-                  className="hidden md:inline-flex"
-                  aria-haspopup="dialog"
-                  size="icon-lg"
-                  aria-label={expanded ? "Minimize" : "Maximize"}
-                >
-                  {expanded ? <Minimize /> : <Maximize />}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        {!expanded && player}
       </div>
+      {expanded && (
+        <Dialog open onOpenChange={handleOpenChange}>
+          <DialogPortal>
+            <DialogPrimitive.Backdrop className="fixed inset-0 z-30 bg-background/50 backdrop-blur-sm" />
+            <DialogPrimitive.Popup
+              ref={popupRef}
+              initialFocus={popupRef}
+              finalFocus={false}
+              onClick={closeExpanded}
+              aria-label={PLAYER_LABEL}
+              aria-modal
+              className="fixed inset-0 z-30 flex items-center justify-center outline-none"
+            >
+              <DialogClose
+                render={
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute top-2 right-2 z-50 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16"
+                    aria-label="Close"
+                  />
+                }
+              >
+                <X strokeWidth={1} className="size-full" />
+              </DialogClose>
+              <div
+                style={{
+                  width: `min(${width}px, 100dvw - 5rem, (100dvh - 5rem) * ${width / height})`,
+                  aspectRatio: `${width} / ${height}`,
+                }}
+              >
+                {player}
+              </div>
+            </DialogPrimitive.Popup>
+          </DialogPortal>
+        </Dialog>
+      )}
     </div>
   );
 }

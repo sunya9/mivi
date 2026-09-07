@@ -1,45 +1,56 @@
-import { renderHook, act, waitFor } from "@testing-library/react";
-import { testMidiTracks, rendererConfig } from "tests/fixtures";
+import { act, waitFor } from "@testing-library/react";
+import { AudioContext } from "standardized-audio-context-mock";
+import { audioFile, rendererConfig, testMidiTracks } from "tests/fixtures";
+import { customRenderHook } from "tests/util";
 import { test, expect, vi } from "vitest";
 
 import { toast } from "@/components/ui/toast";
-import { AudioSource } from "@/lib/audio/audio";
+import { createAppContext } from "@/contexts/app-context";
+import { fileDecoders } from "@/contexts/file-decoders";
+import type { SerializedAudio } from "@/lib/audio/audio";
 import { runRecorder } from "@/lib/media-compositor/run-recorder-worker";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
+import type { MidiTracks } from "@/lib/midi/midi";
+import type { RendererConfig } from "@/lib/renderers/renderer";
 
+vi.mock("@/contexts/file-decoders", { spy: true });
 vi.mock("@/lib/media-compositor/run-recorder-worker", { spy: true });
 
-const mockAudioSource: AudioSource = {
-  name: "test.mp3",
-  serialized: {
-    length: 100,
-    sampleRate: 44100,
-    numberOfChannels: 2,
-    duration: 10,
-    channels: [new Int16Array(100), new Int16Array(100)],
-  },
+const serializedAudio: SerializedAudio = {
+  length: 100,
+  sampleRate: 44100,
+  numberOfChannels: 2,
+  channels: [new Int16Array(100), new Int16Array(100)],
+  duration: 100 / 44100,
 };
 
-const mockProps: Parameters<typeof useRecorder>[0] = {
-  audioSource: mockAudioSource,
-  midiTracks: testMidiTracks,
-  rendererConfig: rendererConfig,
-};
+const expectedAudioSource = { name: audioFile.name, serialized: serializedAudio };
 
-test("should initialize with ReadyState", () => {
-  const { result } = renderHook((props) => useRecorder(props), {
-    initialProps: mockProps,
-  });
+async function renderRecorder(
+  overrides: { audio?: boolean; midiTracks?: MidiTracks; rendererConfig?: RendererConfig } = {},
+) {
+  vi.mocked(fileDecoders.audio).mockResolvedValue(serializedAudio);
+  const appContextValue = createAppContext(new AudioContext());
+  const rendered = await customRenderHook(() => useRecorder(), { appContextValue });
+  const { fileStore, midiTracksStore, rendererConfigStore } = rendered.appContextValue;
+  if (overrides.audio !== false) {
+    await fileStore.audio.setFile(audioFile);
+  }
+  midiTracksStore.set("midiTracks" in overrides ? overrides.midiTracks : testMidiTracks);
+  if (overrides.rendererConfig) rendererConfigStore.set(overrides.rendererConfig);
+  return rendered;
+}
+
+const resolveSoon = () =>
+  new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0));
+
+test("should initialize with ReadyState", async () => {
+  const { result } = await renderRecorder();
   expect(result.current.recordingState.isRecording).toBe(false);
 });
 
 test("should show error toast when trying to start recording without audio file", async () => {
-  const { result } = renderHook((props) => useRecorder(props), {
-    initialProps: {
-      ...mockProps,
-      audioSource: undefined,
-    },
-  });
+  const { result } = await renderRecorder({ audio: false });
 
   await act(async () => {
     await result.current.toggleRecording();
@@ -53,12 +64,7 @@ test("should show error toast when trying to start recording without audio file"
 });
 
 test("should show error toast when trying to start recording without MIDI file", async () => {
-  const { result } = renderHook((props) => useRecorder(props), {
-    initialProps: {
-      ...mockProps,
-      midiTracks: undefined,
-    },
-  });
+  const { result } = await renderRecorder({ midiTracks: undefined });
 
   await act(async () => {
     await result.current.toggleRecording();
@@ -72,51 +78,34 @@ test("should show error toast when trying to start recording without MIDI file",
 });
 
 test("should allow recording without MIDI when renderer type is none and audio visualizer is enabled", async () => {
-  const { result } = renderHook((props) => useRecorder(props), {
-    initialProps: {
-      ...mockProps,
-      midiTracks: undefined,
-      rendererConfig: {
-        ...rendererConfig,
-        type: "none" as const,
-        audioVisualizerConfig: {
-          ...rendererConfig.audioVisualizerConfig,
-          style: "bars" as const,
-        },
-      },
+  const { result } = await renderRecorder({
+    midiTracks: undefined,
+    rendererConfig: {
+      ...rendererConfig,
+      type: "none",
+      audioVisualizerConfig: { ...rendererConfig.audioVisualizerConfig, style: "bars" },
     },
   });
-  vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0)),
-  );
+  vi.mocked(runRecorder).mockImplementationOnce(resolveSoon);
 
   await act(async () => {
     await result.current.toggleRecording();
   });
 
   expect(runRecorder).toHaveBeenCalledExactlyOnceWith(
-    expect.objectContaining({
-      audioSource: mockProps.audioSource,
-      midiTracks: undefined,
-    }),
+    expect.objectContaining({ audioSource: expectedAudioSource, midiTracks: undefined }),
     expect.any(Function),
     expect.any(AbortSignal),
   );
 });
 
 test("should show error when renderer type is none and audio visualizer is also none", async () => {
-  const { result } = renderHook((props) => useRecorder(props), {
-    initialProps: {
-      ...mockProps,
-      midiTracks: undefined,
-      rendererConfig: {
-        ...rendererConfig,
-        type: "none" as const,
-        audioVisualizerConfig: {
-          ...rendererConfig.audioVisualizerConfig,
-          style: "none" as const,
-        },
-      },
+  const { result } = await renderRecorder({
+    midiTracks: undefined,
+    rendererConfig: {
+      ...rendererConfig,
+      type: "none",
+      audioVisualizerConfig: { ...rendererConfig.audioVisualizerConfig, style: "none" },
     },
   });
 
@@ -131,20 +120,20 @@ test("should show error when renderer type is none and audio visualizer is also 
   });
 });
 
-test("should start recording when all required files are present", async () => {
-  const { result } = renderHook(() => useRecorder(mockProps));
-  vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0)),
-  );
+test("should start recording with the current store values", async () => {
+  const { result, appContextValue } = await renderRecorder();
+  vi.mocked(runRecorder).mockImplementationOnce(resolveSoon);
+
   await act(async () => {
     await result.current.toggleRecording();
   });
 
   expect(runRecorder).toHaveBeenCalledExactlyOnceWith(
     {
-      rendererConfig: mockProps.rendererConfig,
-      midiTracks: mockProps.midiTracks,
-      audioSource: mockProps.audioSource,
+      rendererConfig: appContextValue.rendererConfigStore.getSnapshot(),
+      midiTracks: testMidiTracks,
+      audioSource: expectedAudioSource,
+      backgroundImageBitmap: undefined,
     },
     expect.any(Function),
     expect.any(AbortSignal),
@@ -152,7 +141,7 @@ test("should start recording when all required files are present", async () => {
 });
 
 test("should abort recording when toggling during recording", async () => {
-  const { result } = renderHook(() => useRecorder(mockProps));
+  const { result } = await renderRecorder();
   vi.mocked(runRecorder).mockImplementationOnce(
     () =>
       new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 10)),
@@ -178,7 +167,7 @@ test("should abort recording when toggling during recording", async () => {
 });
 
 test("should show info toast instead of error when cancelling export", async () => {
-  const { result } = renderHook(() => useRecorder(mockProps));
+  const { result } = await renderRecorder();
   vi.mocked(runRecorder).mockImplementationOnce(
     (_resources, _onProgress, signal) =>
       new Promise<File>((_, reject) => {
@@ -214,7 +203,7 @@ test("should handle errors during recording", async () => {
         }, 0),
       ),
   );
-  const { result } = renderHook(() => useRecorder(mockProps));
+  const { result } = await renderRecorder();
 
   let start: Promise<void> | undefined;
   act(() => {
@@ -235,10 +224,8 @@ test("should handle errors during recording", async () => {
 });
 
 test("should show success toast when export completes", async () => {
-  vi.mocked(runRecorder).mockImplementationOnce(
-    () => new Promise<File>((resolve) => setTimeout(() => resolve(new File([], "export.webm")), 0)),
-  );
-  const { result } = renderHook(() => useRecorder(mockProps));
+  vi.mocked(runRecorder).mockImplementationOnce(resolveSoon);
+  const { result } = await renderRecorder();
 
   await act(async () => {
     await result.current.toggleRecording();

@@ -36,6 +36,7 @@ const testMidiTracks: MidiTracks = {
         visible: true,
       },
       id: "0",
+      sourceIndex: 0,
       notes: [
         {
           id: 0,

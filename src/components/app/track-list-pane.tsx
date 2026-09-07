@@ -39,6 +39,7 @@ import {
   getRandomTailwindColorPalette,
 } from "@/lib/colors/tailwind-colors";
 import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
+import { useMidi } from "@/lib/midi/use-midi";
 
 import { HueRandomizeDialog } from "./hue-randomize-dialog";
 import { TrackItem } from "./track-item";
@@ -73,7 +74,7 @@ function useRandomizeColorsHue(setMidiTracks: Dispatch<SetStateAction<MidiTracks
   );
 }
 
-export const TrackListPane = React.memo(function TrackListPane({
+export const TrackListPaneContent = React.memo(function TrackListPaneContent({
   midiTracks,
   setMidiTracks,
   midiFilename,
@@ -420,4 +421,17 @@ function sortDisabledToBottom(tracks: MidiTracks["tracks"]) {
   const enabled = tracks.filter((t) => t.config.visible);
   const disabled = tracks.filter((t) => !t.config.visible);
   return [...enabled, ...disabled];
+}
+
+export function TrackListPane() {
+  const { midiTracks, setMidiTracks, setMidiFile } = useMidi();
+  return (
+    <TrackListPaneContent
+      key={midiTracks?.instanceKey}
+      midiTracks={midiTracks}
+      setMidiTracks={setMidiTracks}
+      midiFilename={midiTracks?.name}
+      onChangeMidiFile={setMidiFile}
+    />
+  );
 }

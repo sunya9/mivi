@@ -1,15 +1,22 @@
 import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { AudioContext } from "standardized-audio-context-mock";
 import { expect, test, vi } from "vitest";
 
 import { Loading } from "@/components/providers/loading";
+import { AppContext, createAppContext } from "@/contexts/app-context";
 import * as utils from "@/lib/utils";
 
 vi.spyOn(utils, "resetConfig");
 
 test("renders loading spinner and message", async () => {
   vi.useFakeTimers();
-  render(<Loading />);
+  const appContextValue = createAppContext(new AudioContext());
+  render(
+    <AppContext value={appContextValue}>
+      <Loading />
+    </AppContext>,
+  );
 
   expect(screen.getByText("Loading...")).toBeVisible();
   expect(screen.queryByRole("button")).toBeNull();
@@ -22,5 +29,5 @@ test("renders loading spinner and message", async () => {
   vi.useRealTimers();
 
   await userEvent.click(resetButton);
-  expect(utils.resetConfig).toHaveBeenCalledOnce();
+  expect(utils.resetConfig).toHaveBeenCalledExactlyOnceWith(appContextValue.fileStore);
 });

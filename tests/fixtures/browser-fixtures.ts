@@ -30,6 +30,7 @@ export function createTestMidiTracks(): MidiTracks {
     tracks: [
       {
         id: "0",
+        sourceIndex: 0,
         config: {
           color: "#ff0000",
           name: "Test",
