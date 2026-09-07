@@ -21,6 +21,8 @@ export function createMockStore(options?: { snapshot?: Partial<PlaybackSnapshot>
     scrub: vi.fn<AudioPlaybackStore["scrub"]>(),
     endScrub: vi.fn<AudioPlaybackStore["endScrub"]>(),
     togglePlay: vi.fn<AudioPlaybackStore["togglePlay"]>(),
+    play: vi.fn<AudioPlaybackStore["play"]>(),
+    pause: vi.fn<AudioPlaybackStore["pause"]>(),
     setVolume: vi.fn<AudioPlaybackStore["setVolume"]>(),
     toggleMute: vi.fn<AudioPlaybackStore["toggleMute"]>(),
     syncFromAudioContext: vi.fn<AudioPlaybackStore["syncFromAudioContext"]>(),
