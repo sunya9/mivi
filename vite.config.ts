@@ -71,38 +71,12 @@ export default defineConfig(({ mode }) => ({
       devOptions: {
         enabled: mode === "generateSW",
       },
+      // The glob below already covers the manifest icons
+      includeManifestIcons: false,
       workbox: {
-        runtimeCaching: [
-          // https://vite-pwa-org.netlify.app/workbox/generate-sw.html#cache-external-resources
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts-cache",
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "gstatic-fonts-cache",
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200],
-              },
-            },
-          },
-        ],
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Only social previews read it, so it is not worth an offline copy
+        globIgnores: ["og.png"],
       },
     }),
     mode === "analyze" &&
