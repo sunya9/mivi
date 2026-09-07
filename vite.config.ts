@@ -16,13 +16,12 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
     react(),
-    // TODO?: add react compiler plugin (not using Babel)
     Unfonts({
-      google: {
+      fontsource: {
         families: [
           {
             name: "Geist",
-            styles: "wght@100..900",
+            variable: true,
           },
         ],
       },
