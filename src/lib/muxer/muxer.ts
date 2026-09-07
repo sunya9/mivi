@@ -14,13 +14,14 @@ import {
   AudioCodec,
 } from "mediabunny";
 
-import { VideoFormat } from "@/lib/renderers/renderer";
+import { getH264CodecString } from "@/lib/muxer/h264-level";
+import { Resolution, VideoFormat } from "@/lib/renderers/renderer";
 
 interface Config {
   outputFormat: OutputFormat;
   videoCodecId: VideoCodec;
   audioCodecId: AudioCodec;
-  videoCodec: string;
+  videoCodec: (resolution: Resolution) => string;
   audioCodec: string;
   mimeType: string;
 }
@@ -40,7 +41,7 @@ const FORMAT_CONFIGS: Record<VideoFormat, Config> = {
     outputFormat: new WebMOutputFormat(),
     videoCodecId: "vp9" as const,
     audioCodecId: "opus" as const,
-    videoCodec: "vp09.00.41.08",
+    videoCodec: () => "vp09.00.41.08",
     audioCodec: "opus",
     mimeType: "video/webm",
   },
@@ -48,7 +49,7 @@ const FORMAT_CONFIGS: Record<VideoFormat, Config> = {
     outputFormat: new Mp4OutputFormat({ fastStart: false }),
     videoCodecId: "avc" as const,
     audioCodecId: "aac" as const,
-    videoCodec: "avc1.42E029",
+    videoCodec: getH264CodecString,
     audioCodec: "mp4a.40.2",
     mimeType: "video/mp4",
   },
