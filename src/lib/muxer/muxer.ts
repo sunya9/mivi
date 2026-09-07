@@ -21,7 +21,7 @@ interface Config {
   outputFormat: OutputFormat;
   videoCodecId: VideoCodec;
   audioCodecId: AudioCodec;
-  videoCodec: (resolution: Resolution) => string;
+  videoCodec: (resolution: Resolution, frameRate: number) => string;
   audioCodec: string;
   mimeType: string;
 }
