@@ -186,3 +186,107 @@ test("should show background image toggle when image is selected", async () => {
   await renderCommonConfigPane();
   expect(screen.getByRole("switch", { name: "Show Background Image" })).toBeInTheDocument();
 });
+
+async function selectResolution(name: string) {
+  await userEvent.click(screen.getByRole("combobox", { name: "Resolution" }));
+  await userEvent.click(screen.getByRole("option", { name }));
+}
+
+test("should group resolution presets by orientation", async () => {
+  await renderCommonConfigPane();
+  await userEvent.click(screen.getByRole("combobox", { name: "Resolution" }));
+  const listbox = screen.getByRole("listbox");
+  expect(within(listbox).getByText("Landscape")).toBeInTheDocument();
+  expect(within(listbox).getByText("Portrait")).toBeInTheDocument();
+  expect(within(listbox).getByText("Square")).toBeInTheDocument();
+  expect(within(listbox).getByRole("option", { name: "1080×1920 (9:16)" })).toBeInTheDocument();
+  expect(within(listbox).getByRole("option", { name: "Custom" })).toBeInTheDocument();
+});
+
+test("should not show custom size inputs while a preset is selected", async () => {
+  await renderCommonConfigPane();
+  expect(screen.queryByRole("spinbutton", { name: "Width" })).not.toBeInTheDocument();
+});
+
+test("should seed custom size inputs with the previously selected resolution", async () => {
+  const { config } = await renderCommonConfigPane();
+  const before = config().resolution;
+  await selectResolution("Custom");
+  expect(config().resolution).toEqual({ ...before, label: "Custom" });
+  expect(screen.getByRole("spinbutton", { name: "Width" })).toHaveValue(before.width);
+  expect(screen.getByRole("spinbutton", { name: "Height" })).toHaveValue(before.height);
+});
+
+test("should move focus into the width input when Custom is picked", async () => {
+  await renderCommonConfigPane();
+  await selectResolution("Custom");
+  expect(screen.getByRole("spinbutton", { name: "Width" })).toHaveFocus();
+});
+
+test("should return focus to the trigger when a preset is picked", async () => {
+  await renderCommonConfigPane();
+  await selectResolution("Custom");
+  await selectResolution("1080×1920 (9:16)");
+  expect(screen.getByRole("combobox", { name: "Resolution" })).toHaveFocus();
+});
+
+test("should commit a normalized custom size on blur", async () => {
+  const { config } = await renderCommonConfigPane();
+  await selectResolution("Custom");
+  const width = screen.getByRole("spinbutton", { name: "Width" });
+  await userEvent.clear(width);
+  await userEvent.type(width, "1001");
+  expect(config().resolution.width).toBe(1280);
+  await userEvent.tab();
+  expect(config().resolution.width).toBe(1002);
+  expect(width).toHaveValue(1002);
+});
+
+test("should commit a custom size on Enter", async () => {
+  const { config } = await renderCommonConfigPane();
+  await selectResolution("Custom");
+  const height = screen.getByRole("spinbutton", { name: "Height" });
+  await userEvent.clear(height);
+  await userEvent.type(height, "900{Enter}");
+  expect(config().resolution.height).toBe(900);
+});
+
+test("should restore the last committed size when the input is left empty", async () => {
+  const { config } = await renderCommonConfigPane();
+  await selectResolution("Custom");
+  const width = screen.getByRole("spinbutton", { name: "Width" });
+  await userEvent.clear(width);
+  await userEvent.tab();
+  expect(config().resolution.width).toBe(1280);
+  expect(width).toHaveValue(1280);
+});
+
+test("should restore the last custom size when Custom is picked again", async () => {
+  const { config } = await renderCommonConfigPane();
+  await selectResolution("Custom");
+  const width = screen.getByRole("spinbutton", { name: "Width" });
+  await userEvent.clear(width);
+  await userEvent.type(width, "1000{Enter}");
+  await selectResolution("1080×1920 (9:16)");
+  await selectResolution("Custom");
+  expect(config().resolution).toEqual({ width: 1000, height: 720, label: "Custom" });
+  expect(screen.getByRole("spinbutton", { name: "Width" })).toHaveValue(1000);
+});
+
+test("should persist the custom size separately from the active resolution", async () => {
+  const { config } = await renderCommonConfigPane();
+  await selectResolution("Custom");
+  const height = screen.getByRole("spinbutton", { name: "Height" });
+  await userEvent.clear(height);
+  await userEvent.type(height, "900{Enter}");
+  await selectResolution("1080×1920 (9:16)");
+  expect(config().customResolution).toEqual({ width: 1280, height: 900, label: "Custom" });
+});
+
+test("should hide custom size inputs again when a preset is picked", async () => {
+  const { config } = await renderCommonConfigPane();
+  await selectResolution("Custom");
+  await selectResolution("1080×1920 (9:16)");
+  expect(config().resolution).toMatchObject({ width: 1080, height: 1920 });
+  expect(screen.queryByRole("spinbutton", { name: "Width" })).not.toBeInTheDocument();
+});

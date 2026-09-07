@@ -1,5 +1,6 @@
-import { memo } from "react";
+import { memo, useRef } from "react";
 
+import { CustomResolutionFields } from "@/components/app/custom-resolution-fields";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FileButton } from "@/components/common/file-button";
 import { FormRow } from "@/components/common/form-row";
@@ -9,13 +10,20 @@ import {
   SelectTrigger,
   SelectValue,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useAudio } from "@/lib/audio/use-audio";
 import { useBackgroundImage } from "@/lib/background-image/use-background-image";
 import {
+  createCustomResolution,
+  CUSTOM_RESOLUTION_LABEL,
+  isCustomResolution,
+  resolutionGroups,
   resolutions,
   FPS,
   fpsOptions,
@@ -29,6 +37,11 @@ import {
 import { useRendererConfig, useUpdateRendererConfig } from "@/lib/renderers/use-renderer-config";
 import { shallowEqual } from "@/lib/store/observable-store";
 
+const resolutionItems = [...resolutions, { label: CUSTOM_RESOLUTION_LABEL }].map(({ label }) => ({
+  value: label,
+  label,
+}));
+
 const selectCommonConfig = ({
   backgroundColor,
   backgroundImageEnabled,
@@ -37,6 +50,7 @@ const selectCommonConfig = ({
   backgroundImageRepeat,
   backgroundImageOpacity,
   resolution,
+  customResolution,
   fps,
   format,
   audioVisualizerLayer,
@@ -48,6 +62,7 @@ const selectCommonConfig = ({
   backgroundImageRepeat,
   backgroundImageOpacity,
   resolution,
+  customResolution,
   fps,
   format,
   audioVisualizerLayer,
@@ -59,6 +74,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
   const { audioFile, setAudioFile, isDecoding, cancelDecode } = useAudio();
   const { backgroundImageFile, setBackgroundImageFile } = useBackgroundImage();
   const backgroundImageFilename = backgroundImageFile?.name;
+  const customWidthInputRef = useRef<HTMLInputElement>(null);
   return (
     <Card variant="transparent">
       <CardHeader>
@@ -221,27 +237,56 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
               value={rendererConfig.resolution.label}
               onValueChange={(value) => {
                 if (value == null) return;
-                const resolution = resolutions.find((r) => r.label === value);
-                onUpdateRendererConfig({ resolution });
+                if (value !== CUSTOM_RESOLUTION_LABEL) {
+                  onUpdateRendererConfig({
+                    resolution: resolutions.find((r) => r.label === value),
+                  });
+                  return;
+                }
+                const { resolution: current, customResolution } = rendererConfig;
+                const resolution =
+                  customResolution ?? createCustomResolution(current.width, current.height);
+                onUpdateRendererConfig({ resolution, customResolution: resolution });
               }}
-              items={resolutions.map((r) => ({
-                value: r.label,
-                label: r.label,
-              }))}
+              items={resolutionItems}
             >
               <SelectTrigger id={id} className="w-48">
                 <SelectValue placeholder="Select resolution" />
               </SelectTrigger>
-              <SelectContent>
-                {resolutions.map((resolution) => (
-                  <SelectItem key={resolution.label} value={resolution.label}>
-                    {resolution.label}
-                  </SelectItem>
+              <SelectContent finalFocus={() => customWidthInputRef.current ?? true}>
+                {resolutionGroups.map((group) => (
+                  <SelectGroup key={group.label}>
+                    <SelectLabel>{group.label}</SelectLabel>
+                    {group.resolutions.map((resolution) => (
+                      <SelectItem key={resolution.label} value={resolution.label}>
+                        {resolution.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
                 ))}
+                <SelectSeparator />
+                <SelectGroup>
+                  <SelectItem value={CUSTOM_RESOLUTION_LABEL}>{CUSTOM_RESOLUTION_LABEL}</SelectItem>
+                </SelectGroup>
               </SelectContent>
             </Select>
           )}
         />
+        {isCustomResolution(rendererConfig.resolution) && (
+          <FormRow
+            label={<span>Custom Size</span>}
+            customControl
+            controller={() => (
+              <CustomResolutionFields
+                widthInputRef={customWidthInputRef}
+                resolution={rendererConfig.resolution}
+                onChange={(resolution) =>
+                  onUpdateRendererConfig({ resolution, customResolution: resolution })
+                }
+              />
+            )}
+          />
+        )}
         <FormRow
           label={<span>FPS</span>}
           controller={({ id }) => (
