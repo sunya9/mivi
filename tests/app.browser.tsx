@@ -66,7 +66,7 @@ test("complete happy path on mobile", async () => {
   const webmOption = screen.getByRole("option", { name: "WebM (VP9)" });
   await webmOption.click();
 
-  expect(screen.getByText("Audio file loaded")).toBeInTheDocument();
+  await expect.element(screen.getByText("Audio file loaded")).toBeInTheDocument();
   // Dismiss all programmatically shown toast notifications
   toast.close();
   await expect.element(screen.getByText("Audio file loaded")).not.toBeInTheDocument();
