@@ -24,7 +24,7 @@ function SizeInput({ ref, label, value, onCommit }: SizeInputProps) {
   }
 
   const commit = useCallback(() => {
-    const parsed = Number.parseInt(draft, 10);
+    const parsed = draft.trim() === "" ? Number.NaN : Number(draft);
     const committed = Number.isNaN(parsed) ? value : onCommit(parsed);
     setDraft(String(committed));
   }, [draft, onCommit, value]);
