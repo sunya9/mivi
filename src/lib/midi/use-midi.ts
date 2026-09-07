@@ -1,118 +1,43 @@
-import { Midi } from "@tonejs/midi";
-import { toMerged } from "es-toolkit";
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 
 import { toast } from "@/components/ui/toast";
-import { useConfirmDialog } from "@/hooks/use-confirm-dialog";
-import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useAppContext } from "@/contexts/app-context";
+import { useStore } from "@/hooks/use-store";
 import { hashArrayBuffer } from "@/lib/hash";
-import { getDefaultTrackConfig, MidiTrack, MidiTracks } from "@/lib/midi/midi";
 
-const defaultTrackConfig = getDefaultTrackConfig("");
+/** Reads the tracks on demand so callers do not re-render on every edit */
+export function useSetMidiFile() {
+  const { fileStore, midiTracksStore, midiSettingsStore, confirmStore } = useAppContext();
 
-async function loadMidi(midiFile: File, arrayBuffer: ArrayBuffer, hash?: string) {
-  const [computedHash, midi] = await Promise.all([
-    hash ? Promise.resolve(hash) : hashArrayBuffer(arrayBuffer),
-    Promise.resolve(new Midi(arrayBuffer)),
-  ]);
-  let noteId = 0;
-  const tracks = midi.tracks.map((track, index): MidiTrack => {
-    const color = "#ffffff";
-    const config = getDefaultTrackConfig(track.name || `Track ${index + 1}`, color);
-    return {
-      id: crypto.randomUUID(),
-      notes: track.notes.map((note) => ({ ...note.toJSON(), id: noteId++ })),
-      config,
-    };
-  });
-  const notes = tracks.flatMap((track) => track.notes);
-  const min = notes.reduce((a, b) => Math.min(a, b.midi), Infinity);
-  const max = notes.reduce((a, b) => Math.max(a, b.midi), -Infinity);
-  const newMidiTracks: MidiTracks = {
-    hash: computedHash,
-    instanceKey: crypto.randomUUID(),
-    name: midiFile.name,
-    tracks,
-    duration: midi.duration,
-    minNote: min,
-    maxNote: max,
-    midiOffset: 0,
-  };
-  return newMidiTracks;
-}
-
-function overwriteMidiTracks(midiTracks: MidiTracks | undefined) {
-  if (!midiTracks) return;
-  let noteId = 0;
-  const tracks: MidiTrack[] = midiTracks.tracks.map((track) => {
-    const config = toMerged(defaultTrackConfig, track.config);
-    return {
-      ...track,
-      notes: track.notes.map((note) => ({
-        ...note,
-        id: note.id ?? noteId++,
-      })),
-      config,
-    };
-  });
-  return {
-    ...midiTracks,
-    tracks,
-    hash: midiTracks.hash ?? "",
-    instanceKey: midiTracks.instanceKey ?? crypto.randomUUID(),
-    midiOffset: midiTracks.midiOffset ?? 0,
-  };
+  return useCallback(
+    async (midiFile: File | undefined) => {
+      if (!midiFile) {
+        await fileStore.midi.setFile(undefined);
+        return;
+      }
+      const newHash = await hashArrayBuffer(await midiFile.arrayBuffer());
+      if (midiTracksStore.getSnapshot()?.hash === newHash) {
+        const shouldOverwrite = await confirmStore.confirm({
+          title: "Same file detected",
+          description:
+            "The same MIDI file is already loaded. Do you want to overwrite the current settings (offset, track settings, etc.)?",
+          confirmLabel: "Overwrite",
+          cancelLabel: "Keep",
+          variant: "default",
+        });
+        if (!shouldOverwrite) return;
+        // Same hash would otherwise re-apply the persisted settings to the reloaded file
+        midiSettingsStore.set(undefined);
+      }
+      const loaded = await fileStore.midi.setFile(midiFile);
+      if (loaded) toast.add({ title: "MIDI file loaded", type: "success" });
+    },
+    [confirmStore, fileStore, midiSettingsStore, midiTracksStore],
+  );
 }
 
 export function useMidi() {
-  // don't use undefined because it's not valid json
-  const [rawMidiTracks, setMidiTracks] = useLocalStorage<MidiTracks | undefined>(
-    "mivi:midi-tracks",
-  );
-  const midiTracks: MidiTracks | undefined = useMemo(
-    () => overwriteMidiTracks(rawMidiTracks),
-    [rawMidiTracks],
-  );
-  const { confirm, DialogComponent } = useConfirmDialog();
-
-  const setMidiFile = useCallback(
-    async (midiFile: File | undefined) => {
-      if (!midiFile) {
-        setMidiTracks(undefined);
-      } else {
-        // Check if the file hash matches the current MIDI file
-        const arrayBuffer = await midiFile.arrayBuffer();
-        const newHash = await hashArrayBuffer(arrayBuffer);
-
-        if (midiTracks && midiTracks.hash === newHash) {
-          // Same file detected - show confirmation dialog
-          const shouldOverwrite = await confirm({
-            title: "Same file detected",
-            description:
-              "The same MIDI file is already loaded. Do you want to overwrite the current settings (offset, track settings, etc.)?",
-            confirmLabel: "Overwrite",
-            cancelLabel: "Keep",
-            variant: "default",
-          });
-
-          if (!shouldOverwrite) {
-            // User chose to keep current state - do nothing
-            return;
-          }
-        }
-
-        // Load and set the new MIDI file (pass hash and arrayBuffer to avoid recomputing)
-        const newMidiTracks = await loadMidi(midiFile, arrayBuffer, newHash);
-        setMidiTracks(newMidiTracks);
-        toast.add({ title: "MIDI file loaded", type: "success" });
-      }
-    },
-    [confirm, midiTracks, setMidiTracks],
-  );
-  return {
-    setMidiFile,
-    midiTracks,
-    setMidiTracks,
-    ConfirmDialog: DialogComponent,
-  };
+  const { midiTracksStore } = useAppContext();
+  const midiTracks = useStore(midiTracksStore, (tracks) => tracks);
+  return { setMidiFile: useSetMidiFile(), midiTracks, setMidiTracks: midiTracksStore.set };
 }

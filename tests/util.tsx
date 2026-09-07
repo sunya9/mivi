@@ -9,7 +9,16 @@ import {
 import { AudioContext } from "standardized-audio-context-mock";
 
 import { AppContextValue, createAppContext } from "@/contexts/app-context";
-import { FileDbStore } from "@/lib/file-db/file-db-store";
+import { ConfirmStore } from "@/lib/confirm/confirm-store";
+import { type FileDecoders, FileStore } from "@/lib/file-store/file-store";
+import { MemoryFileStorage } from "@/lib/file-store/memory-file-storage";
+import { createMidiSettingsStore } from "@/lib/midi/midi-settings-store";
+import { createMidiTracksStore } from "@/lib/midi/midi-tracks-store";
+import { type AudioPlaybackStore } from "@/lib/player/audio-playback-store";
+import { createRendererConfigStore } from "@/lib/renderers/renderer-config-store";
+import { ThemeStore } from "@/lib/theme/theme-store";
+import { VisualizerEngine } from "@/lib/visualizer/visualizer-engine";
+import { createVisualizerSources } from "@/lib/visualizer/visualizer-sources";
 
 import { TestProviders } from "./test-providers";
 
@@ -18,19 +27,49 @@ export async function customRender(
   options?: { appContextValue?: AppContextValue },
 ): Promise<RenderResult> {
   const appContextValue = options?.appContextValue ?? createAppContext(new AudioContext());
-  const fileDbStore = new FileDbStore();
   let result!: RenderResult;
   await act(async () => {
     result = renderOriginal(children, {
       wrapper: ({ children }) => (
-        <TestProviders appContextValue={appContextValue} fileDbStore={fileDbStore}>
-          {children}
-        </TestProviders>
+        <TestProviders appContextValue={appContextValue}>{children}</TestProviders>
       ),
     });
-    await fileDbStore.preload();
+    await appContextValue.fileStore.preload();
   });
   return result;
+}
+
+const unusedDecoder = async () => {
+  throw new Error("decoder not stubbed");
+};
+
+/** App context around a mocked playback store; nothing is wired, so tests control the store fully */
+export function createMockAppContext(
+  audioPlaybackStore: AudioPlaybackStore,
+  decoders: Partial<FileDecoders> = {},
+): AppContextValue {
+  const fileStore = new FileStore(new MemoryFileStorage(), {
+    midi: unusedDecoder,
+    audio: unusedDecoder,
+    backgroundImage: unusedDecoder,
+    ...decoders,
+  });
+  const rendererConfigStore = createRendererConfigStore();
+  const midiTracksStore = createMidiTracksStore();
+  return {
+    audioContext: new AudioContext(),
+    audioPlaybackStore,
+    fileStore,
+    rendererConfigStore,
+    midiTracksStore,
+    midiSettingsStore: createMidiSettingsStore(),
+    visualizerEngine: new VisualizerEngine(
+      audioPlaybackStore,
+      createVisualizerSources({ rendererConfigStore, midiTracksStore, fileStore }),
+    ),
+    themeStore: new ThemeStore("light"),
+    confirmStore: new ConfirmStore(),
+  };
 }
 
 /**
@@ -39,22 +78,18 @@ export async function customRender(
  */
 export async function customRenderHook<T, P>(
   hook: (props: P) => T,
-  options?: RenderHookOptions<P>,
+  options?: RenderHookOptions<P> & { appContextValue?: AppContextValue },
 ) {
-  const audioContext = new AudioContext();
-  const appContextValue = createAppContext(audioContext);
-  const fileDbStore = new FileDbStore();
+  const { appContextValue = createAppContext(new AudioContext()), ...hookOptions } = options ?? {};
   let result!: RenderHookResult<T, P>;
   await act(async () => {
     result = renderHook((props: P) => hook(props), {
       wrapper: ({ children }) => (
-        <TestProviders appContextValue={appContextValue} fileDbStore={fileDbStore}>
-          {children}
-        </TestProviders>
+        <TestProviders appContextValue={appContextValue}>{children}</TestProviders>
       ),
-      ...options,
+      ...hookOptions,
     });
-    await fileDbStore.preload();
+    await appContextValue.fileStore.preload();
   });
   return { ...result, appContextValue };
 }

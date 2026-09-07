@@ -5,76 +5,59 @@ import { customRenderHook } from "tests/util";
 import { test, expect, vi } from "vitest";
 
 import { toast } from "@/components/ui/toast";
-import type { StoredAudioData } from "@/lib/audio/audio";
+import { createAppContext } from "@/contexts/app-context";
+import type { SerializedAudio } from "@/lib/audio/audio";
 import { floatToInt16 } from "@/lib/audio/pcm";
 import { runDecodeWorker } from "@/lib/audio/run-decode-worker";
-import { useAudio } from "@/lib/audio/use-audio";
-import { saveValue } from "@/lib/file-db/file-db";
-import type { FileDbEntry } from "@/lib/file-db/file-db-store";
+import { useAudio, useSetAudioFile } from "@/lib/audio/use-audio";
+import { MemoryFileStorage } from "@/lib/file-store/memory-file-storage";
 
 vi.mock("@/lib/audio/run-decode-worker", { spy: true });
 
-// Create a mock stored audio entry
 const mockAudioContext = new AudioContext();
 const mockAudioBuffer = mockAudioContext.createBuffer(2, 44100, 44100);
-const mockStoredAudio: StoredAudioData = {
+const mockAudio: SerializedAudio = {
   channels: Array.from({ length: mockAudioBuffer.numberOfChannels }, (_, i) =>
     floatToInt16(mockAudioBuffer.getChannelData(i)),
   ),
   sampleRate: mockAudioBuffer.sampleRate,
   length: mockAudioBuffer.length,
   numberOfChannels: mockAudioBuffer.numberOfChannels,
-};
-const mockStoredEntry: FileDbEntry<StoredAudioData> = {
-  file: audioFile,
-  decoded: mockStoredAudio,
+  duration: 1,
 };
 
+async function renderAudioHook(seed?: File) {
+  const fileStorage = new MemoryFileStorage();
+  if (seed) await fileStorage.write("audio", seed);
+  const appContextValue = createAppContext(new AudioContext(), { fileStorage });
+  return customRenderHook(() => useAudio(), { appContextValue });
+}
+
 test("returns initial state", async () => {
-  const { result } = await customRenderHook(() => useAudio());
+  const { result, appContextValue } = await renderAudioHook();
   await waitFor(() => {
-    expect(result.current.audioBuffer).toBeUndefined();
-    expect(result.current.serializedAudio).toBeUndefined();
+    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBe(0);
     expect(result.current.audioFile).toBeUndefined();
   });
 });
 
-test("audioBuffer is defined when entry exists in indexedDb", async () => {
-  await saveValue("db:audio", mockStoredEntry);
-  const { result } = await customRenderHook(() => useAudio());
+test("decodes a stored file on startup and feeds the playback store", async () => {
+  vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockAudio);
+  const { result, appContextValue } = await renderAudioHook(audioFile);
+
+  expect(result.current.audioFile).toBe(audioFile);
   await waitFor(() => {
-    expect(result.current.audioBuffer).toBeDefined();
-    expect(result.current.serializedAudio).toBeDefined();
-    expect(result.current.audioFile).toBeDefined();
+    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBeGreaterThan(0);
+    expect(result.current.isDecoding).toBe(false);
   });
 });
 
-test("normalizes legacy Float32Array entries from indexedDb", async () => {
-  const legacyEntry = {
-    file: audioFile,
-    decoded: {
-      ...mockStoredAudio,
-      channels: Array.from({ length: mockAudioBuffer.numberOfChannels }, (_, i) =>
-        mockAudioBuffer.getChannelData(i),
-      ),
-    },
-  } as unknown as FileDbEntry<StoredAudioData>;
-  await saveValue("db:audio", legacyEntry);
-  const { result } = await customRenderHook(() => useAudio());
-  await waitFor(() => {
-    expect(result.current.audioBuffer).toBeDefined();
-    expect(result.current.serializedAudio?.channels[0]).toBeInstanceOf(Int16Array);
-  });
-});
-
-test("audioBuffer is defined after call setAudioFile", async () => {
-  vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockStoredAudio);
-  const { result } = await customRenderHook(() => useAudio());
-  await waitFor(() => expect(result.current).not.toBeNull());
+test("playback store receives the buffer after setAudioFile", async () => {
+  vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockAudio);
+  const { result, appContextValue } = await renderAudioHook();
   await result.current.setAudioFile(audioFile);
   await waitFor(() => {
-    expect(result.current.audioBuffer).toBeDefined();
-    expect(result.current.serializedAudio).toBeDefined();
+    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBeGreaterThan(0);
     expect(result.current.audioFile).toBeDefined();
     expect(toast.add).toHaveBeenCalledExactlyOnceWith({
       title: "Audio file loaded",
@@ -84,33 +67,30 @@ test("audioBuffer is defined after call setAudioFile", async () => {
   expect(runDecodeWorker).toHaveBeenCalledWith(audioFile, expect.any(AbortSignal));
 });
 
-test("sets audioBuffer to undefined when setAudioFile is called with undefined", async () => {
-  vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockStoredAudio);
-  const { result } = await customRenderHook(() => useAudio());
-  await waitFor(() => expect(result.current).not.toBeNull());
+test("clears the playback buffer when setAudioFile is called with undefined", async () => {
+  vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockAudio);
+  const { result, appContextValue } = await renderAudioHook();
   await result.current.setAudioFile(audioFile);
   await waitFor(() => {
-    expect(result.current.audioBuffer).toBeDefined();
+    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBeGreaterThan(0);
   });
   await result.current.setAudioFile(undefined);
   await waitFor(() => {
-    expect(result.current.audioBuffer).toBeUndefined();
-    expect(result.current.serializedAudio).toBeUndefined();
+    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBe(0);
     expect(result.current.audioFile).toBeUndefined();
   });
 });
 
 test("cancelDecode aborts in-progress decode and resets isDecoding", async () => {
-  let resolveWorker!: (value: StoredAudioData) => void;
+  let resolveWorker!: (value: SerializedAudio) => void;
   vi.mocked(runDecodeWorker).mockImplementationOnce(
     (_file, signal: AbortSignal) =>
-      new Promise<StoredAudioData>((resolve, reject) => {
+      new Promise<SerializedAudio>((resolve, reject) => {
         resolveWorker = resolve;
         signal.addEventListener("abort", () => reject(signal.reason), { once: true });
       }),
   );
-  const { result } = await customRenderHook(() => useAudio());
-  await waitFor(() => expect(result.current).not.toBeNull());
+  const { result, appContextValue } = await renderAudioHook();
 
   const promise = result.current.setAudioFile(audioFile);
   await waitFor(() => expect(result.current.isDecoding).toBe(true));
@@ -120,57 +100,53 @@ test("cancelDecode aborts in-progress decode and resets isDecoding", async () =>
 
   await waitFor(() => {
     expect(result.current.isDecoding).toBe(false);
-    expect(result.current.audioBuffer).toBeUndefined();
+    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBe(0);
     expect(result.current.audioFile).toBeUndefined();
     expect(toast.add).toHaveBeenCalledExactlyOnceWith({
       title: "Audio loading cancelled",
       type: "info",
     });
   });
-  // Ensure resolving after cancel has no effect
-  resolveWorker(mockStoredAudio);
+  resolveWorker(mockAudio);
   await waitFor(() => {
-    expect(result.current.audioBuffer).toBeUndefined();
+    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBe(0);
   });
 });
 
+test("cancelDecode does nothing while idle", async () => {
+  const { result } = await renderAudioHook();
+  result.current.cancelDecode();
+  expect(toast.add).not.toHaveBeenCalled();
+});
+
 test("re-entry: second setAudioFile discards first decode result", async () => {
-  let resolveFirst!: (value: StoredAudioData) => void;
+  let resolveFirst!: (value: SerializedAudio) => void;
   vi.mocked(runDecodeWorker).mockImplementationOnce(
     (_file, signal: AbortSignal) =>
-      new Promise<StoredAudioData>((resolve, reject) => {
+      new Promise<SerializedAudio>((resolve, reject) => {
         resolveFirst = resolve;
         signal.addEventListener("abort", () => reject(signal.reason), { once: true });
       }),
   );
-
-  const secondAudio: StoredAudioData = {
-    ...mockStoredAudio,
-    sampleRate: 22050,
-  };
+  const secondAudio: SerializedAudio = { ...mockAudio, sampleRate: 22050, duration: 2 };
   vi.mocked(runDecodeWorker).mockResolvedValueOnce(secondAudio);
-
   const secondFile = new File(["second"], "second.mp3", { type: "audio/mpeg" });
 
-  const { result } = await customRenderHook(() => useAudio());
-  await waitFor(() => expect(result.current).not.toBeNull());
+  const { result, appContextValue } = await renderAudioHook();
 
-  // Start first decode (will hang)
   const firstPromise = result.current.setAudioFile(audioFile);
   await waitFor(() => expect(result.current.isDecoding).toBe(true));
 
-  // Start second decode (aborts first, resolves immediately)
   await result.current.setAudioFile(secondFile);
   await firstPromise;
 
   await waitFor(() => {
-    expect(result.current.audioBuffer).toBeDefined();
+    expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBeGreaterThan(0);
     expect(result.current.audioFile).toBe(secondFile);
     expect(result.current.isDecoding).toBe(false);
   });
 
-  // Resolving first after second completed has no effect
-  resolveFirst(mockStoredAudio);
+  resolveFirst(mockAudio);
   await waitFor(() => {
     expect(result.current.audioFile).toBe(secondFile);
   });
@@ -180,17 +156,41 @@ test("handles audio file loading errors", async () => {
   const error = new Error("Failed to decode audio data");
   vi.mocked(runDecodeWorker).mockRejectedValueOnce(error);
   const consoleErrorSpy = vi.spyOn(console, "error");
-  const { result } = await customRenderHook(() => useAudio());
+  const { result, appContextValue } = await renderAudioHook();
 
-  await waitFor(() => expect(result.current).not.toBeNull());
   await result.current.setAudioFile(invalidFile);
 
-  expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith("Failed to set audio file", error);
+  expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith("Failed to load audio file", error);
   expect(toast.add).toHaveBeenCalledExactlyOnceWith({
-    title: "Failed to set audio file",
+    title: "Failed to load audio file",
     description: error.message,
     type: "error",
   });
-  expect(result.current.audioBuffer).toBeUndefined();
+  expect(appContextValue.audioPlaybackStore.getSnapshot().duration).toBe(0);
   expect(result.current.audioFile).toBeUndefined();
+});
+
+test("useSetAudioFile does not re-render while the file decodes", async () => {
+  vi.mocked(runDecodeWorker).mockResolvedValueOnce(mockAudio);
+  const appContextValue = createAppContext(new AudioContext(), {
+    fileStorage: new MemoryFileStorage(),
+  });
+  let renders = 0;
+  const { result } = await customRenderHook(
+    () => {
+      renders++;
+      return useSetAudioFile();
+    },
+    { appContextValue },
+  );
+  const rendersAfterMount = renders;
+
+  await result.current(audioFile);
+
+  expect(appContextValue.fileStore.audio.getSnapshot().file).toBe(audioFile);
+  expect(renders).toBe(rendersAfterMount);
+  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+    title: "Audio file loaded",
+    type: "success",
+  });
 });

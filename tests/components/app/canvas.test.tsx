@@ -1,28 +1,21 @@
-import { screen, render } from "@testing-library/react";
-import { ComponentProps } from "react";
+import { screen } from "@testing-library/react";
+import { createMockStore } from "tests/lib/player/create-mock-store";
+import { createMockAppContext, customRender } from "tests/util";
 import { afterEach, expect, test, vi } from "vitest";
 
 import { Canvas } from "@/components/app/canvas";
 
-type Props = ComponentProps<typeof Canvas>;
-
-function renderCanvas(props: Partial<Props> = {}) {
-  const onInit = vi.fn<Props["onInit"]>();
-  const invalidate = vi.fn<Props["invalidate"]>();
-  const baseProps: Props = { aspectRatio: 1, onInit, invalidate };
-  const view = render(<Canvas {...baseProps} {...props} />);
-  const rerenderCanvas = (next: Partial<Props>) =>
-    view.rerender(<Canvas {...baseProps} {...props} {...next} />);
-  return { ...view, rerenderCanvas, onInit, invalidate };
+async function renderCanvas(className?: string) {
+  const appContextValue = createMockAppContext(createMockStore());
+  const engine = appContextValue.visualizerEngine;
+  const fitCanvas = vi.spyOn(engine, "fitCanvas");
+  const view = await customRender(<Canvas className={className} />, { appContextValue });
+  return { ...view, engine, fitCanvas };
 }
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
-
-function findCanvas() {
-  return screen.getByLabelText("Visualized Midi");
-}
 
 function mockContainerSize(element: Element, width: number, height: number = width) {
   vi.spyOn(element, "clientWidth", "get").mockReturnValue(width);
@@ -43,50 +36,31 @@ function stubResizeObserver() {
   );
 }
 
-test("should render canvas with correct aspect ratio", () => {
-  renderCanvas({ aspectRatio: 2 });
-  const canvas = findCanvas();
-  expect(canvas).toBeInTheDocument();
-  expect(canvas).toHaveStyle({ aspectRatio: "2" });
+test("mounts the engine's canvas", async () => {
+  const { engine } = await renderCanvas();
+  expect(screen.getByLabelText("Visualized Midi")).toBe(engine.canvas);
 });
 
-test("should call onInit with canvas context", () => {
-  const { onInit } = renderCanvas();
-  expect(onInit).toHaveBeenCalledExactlyOnceWith(expect.any(CanvasRenderingContext2D));
+test("detaches the canvas on unmount without destroying it", async () => {
+  const { engine, unmount } = await renderCanvas();
+  unmount();
+  expect(engine.canvas.isConnected).toBe(false);
+  expect(engine.canvas.getAttribute("aria-label")).toBe("Visualized Midi");
 });
 
-test("should call invalidate when container is resized", () => {
+test("fits the canvas to the container on mount and on resize", async () => {
   stubResizeObserver();
+  const { container, fitCanvas } = await renderCanvas();
+  expect(fitCanvas).toHaveBeenCalled();
 
-  const { container, invalidate } = renderCanvas();
-  mockContainerSize(container.firstElementChild!, 300);
-
-  invalidate.mockClear();
+  mockContainerSize(container.firstElementChild!, 300, 150);
+  fitCanvas.mockClear();
   resizeCallback?.();
 
-  expect(invalidate).toHaveBeenCalledOnce();
-  const canvas = findCanvas();
-  expect(canvas).toHaveProperty("width", 300 * window.devicePixelRatio);
+  expect(fitCanvas).toHaveBeenCalledExactlyOnceWith(300, 150);
 });
 
-test("should update canvas dimensions when aspectRatio changes", () => {
-  const { container, rerenderCanvas, invalidate } = renderCanvas();
-  mockContainerSize(container.firstElementChild!, 200);
-
-  invalidate.mockClear();
-
-  rerenderCanvas({ aspectRatio: 0.5 });
-
-  expect(invalidate).toHaveBeenCalled();
-  const canvas = findCanvas();
-  expect(canvas).toHaveStyle({ aspectRatio: "0.5" });
-  // aspectRatio=0.5 (tall), container=200x200 → height-constrained: width=100, height=200
-  expect(canvas).toHaveProperty("width", 100 * window.devicePixelRatio);
-  expect(canvas).toHaveProperty("height", 200 * window.devicePixelRatio);
-});
-
-test("should apply custom className to container", () => {
-  const { container } = renderCanvas({ className: "custom-class" });
-
+test("applies a custom className to the container", async () => {
+  const { container } = await renderCanvas("custom-class");
   expect(container.firstElementChild).toHaveClass("custom-class");
 });

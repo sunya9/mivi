@@ -1,22 +1,11 @@
-import { useCallback } from "react";
-
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Spinner } from "@/components/ui/spinner";
-import { RecordingStatus } from "@/lib/media-compositor/recording-status";
+import { ExportButton } from "@/components/app/export-button";
 import { cn } from "@/lib/utils";
-import { startViewTransition } from "@/lib/utils";
 
 interface Props {
   className?: string;
-  recordingState: RecordingStatus;
-  toggleRecording: () => void;
 }
-export function AppHeader({ className, recordingState, toggleRecording }: Props) {
-  const handleToggleRecording = useCallback(() => {
-    startViewTransition(toggleRecording, { types: ["export-button-change"] });
-  }, [toggleRecording]);
 
+export function AppHeader({ className }: Props) {
   return (
     <header className={cn("relative border-b", className)}>
       <div className="mx-auto flex max-w-384 items-center justify-between gap-2 px-4 py-2 md:flex-row md:items-end md:p-6">
@@ -28,33 +17,9 @@ export function AppHeader({ className, recordingState, toggleRecording }: Props)
           </p>
         </div>
         <div className="flex items-center gap-2 md:ml-auto">
-          {recordingState.type === "recording" && recordingState.activePhase && (
-            <span className="hidden text-muted-foreground tabular-nums md:inline md:text-xs">
-              {recordingState.activePhase.name} — {recordingState.activePhase.eta}
-            </span>
-          )}
-          <Button
-            onClick={handleToggleRecording}
-            className="h-8 px-3 md:h-9 md:px-4 [html:active-view-transition-type(export-button-change)_&]:[view-transition-name:export-button]"
-          >
-            {recordingState.type === "recording" ? (
-              <>
-                <Spinner />
-                <span>Stop export</span>
-              </>
-            ) : (
-              "Start export"
-            )}
-          </Button>
+          <ExportButton />
         </div>
       </div>
-      {recordingState.type === "recording" && (
-        <Progress
-          aria-label="Export progress"
-          className="absolute bottom-0 left-0 z-20 w-full animate-in rounded-none duration-300 fade-in *:data-[slot=progress-track]:h-0.5 *:data-[slot=progress-track]:bg-transparent"
-          value={recordingState.progress * 100}
-        />
-      )}
     </header>
   );
 }

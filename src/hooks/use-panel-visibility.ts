@@ -12,6 +12,7 @@ interface UsePanelVisibilityReturn {
   endInteraction: () => void;
   showPanel: () => void;
   handleMouseMove: () => void;
+  handlePointerLeave: () => void;
   handleTouchReveal: () => boolean;
 }
 
@@ -104,6 +105,13 @@ export function usePanelVisibility({
     }
   }, [isPlaying, startHideTimer]);
 
+  const handlePointerLeave = useCallback(() => {
+    // A slider drag may wander outside the player; hiding mid-drag would drop the thumb
+    if (!isPlaying || state === "interacting") return;
+    clearHideTimer();
+    setState("idle");
+  }, [isPlaying, state, clearHideTimer]);
+
   // Returns true if the touch was consumed (panel revealed), false if should proceed with toggle play
   const handleTouchReveal = useCallback((): boolean => {
     if (!isPlaying) {
@@ -129,6 +137,7 @@ export function usePanelVisibility({
     endInteraction,
     showPanel,
     handleMouseMove,
+    handlePointerLeave,
     handleTouchReveal,
   };
 }

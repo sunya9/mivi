@@ -5,7 +5,7 @@ export interface MidiNote extends NoteJSON {
   id: number;
 }
 
-interface TrackConfig {
+export interface TrackConfig {
   visible: boolean;
   color: string;
   opacity: number;
@@ -16,6 +16,8 @@ interface TrackConfig {
 
 export interface MidiTrack {
   id: string;
+  /** Position in the parsed file, so persisted settings survive reordering */
+  sourceIndex: number;
   notes: MidiNote[];
   config: TrackConfig;
 }

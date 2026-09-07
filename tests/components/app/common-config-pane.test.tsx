@@ -1,31 +1,48 @@
-import { fireEvent, screen, within } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ComponentProps } from "react";
-import { rendererConfig } from "tests/fixtures";
+import { AudioContext } from "standardized-audio-context-mock";
 import { customRender } from "tests/util";
-import { expect, test, vi } from "vitest";
+import { beforeEach, expect, test, vi } from "vitest";
 
 import { CommonConfigPane } from "@/components/app/common-config-pane";
+import { createAppContext } from "@/contexts/app-context";
+import { fileDecoders } from "@/contexts/file-decoders";
+import type { SerializedAudio } from "@/lib/audio/audio";
 import { resolutions } from "@/lib/renderers/renderer";
 
-type Props = ComponentProps<typeof CommonConfigPane>;
+const backgroundImageFile = new File(["test"], "test.png", { type: "image/png" });
 
-const mockOnChangeAudioFile = vi.fn<Props["onChangeAudioFile"]>();
-const mockOnUpdateRendererConfig = vi.fn<Props["onUpdateRendererConfig"]>();
-const mockOnChangeBackgroundImage = vi.fn<Props["onChangeBackgroundImage"]>();
+const serializedAudio: SerializedAudio = {
+  channels: [new Int16Array(1)],
+  sampleRate: 44100,
+  length: 1,
+  numberOfChannels: 1,
+  duration: 1 / 44100,
+};
 
-async function renderCommonConfigPane(props: Partial<Props> = {}) {
-  return await customRender(
-    <CommonConfigPane
-      rendererConfig={rendererConfig}
-      onChangeAudioFile={mockOnChangeAudioFile}
-      onUpdateRendererConfig={mockOnUpdateRendererConfig}
-      onChangeBackgroundImage={mockOnChangeBackgroundImage}
-      audioFilename="test.mp3"
-      backgroundImageFilename="test.png"
-      {...props}
-    />,
-  );
+vi.mock("@/contexts/file-decoders", { spy: true });
+
+beforeEach(async () => {
+  const bitmap = await createImageBitmap(new OffscreenCanvas(1, 1));
+  vi.mocked(fileDecoders.backgroundImage).mockResolvedValue(bitmap);
+  vi.mocked(fileDecoders.audio).mockResolvedValue(serializedAudio);
+});
+
+async function renderCommonConfigPane({
+  withBackgroundImage = true,
+}: { withBackgroundImage?: boolean } = {}) {
+  const appContextValue = createAppContext(new AudioContext());
+  const backgroundImage = appContextValue.fileStore.backgroundImage;
+  if (withBackgroundImage) {
+    await backgroundImage.setFile(backgroundImageFile);
+  }
+  const view = await customRender(<CommonConfigPane />, { appContextValue });
+  return {
+    ...view,
+    config: () => appContextValue.rendererConfigStore.getSnapshot(),
+    backgroundImageFile: () => backgroundImage.getSnapshot().file,
+    audioFile: () => appContextValue.fileStore.audio.getSnapshot().file,
+  };
 }
 
 test("should render basic layout", async () => {
@@ -34,32 +51,30 @@ test("should render basic layout", async () => {
   expect(screen.getByText("Common settings")).toBeInTheDocument();
 });
 
-test("should call onChangeAudioFile when audio file is selected", async () => {
-  await renderCommonConfigPane();
+test("should store the selected audio file", async () => {
+  const { audioFile } = await renderCommonConfigPane();
   const audioFileInput = screen.getByLabelText("Choose Audio file");
   const file = new File(["test"], "test.mp3", { type: "audio/mpeg" });
   fireEvent.change(audioFileInput, { target: { files: [file] } });
-  expect(mockOnChangeAudioFile).toHaveBeenCalledExactlyOnceWith(file);
+  await waitFor(() => expect(audioFile()).toBe(file));
 });
 
-test("not call onChangeAudioFile when file is not selected", async () => {
-  await renderCommonConfigPane();
+test("does not store anything when no audio file is selected", async () => {
+  const { audioFile } = await renderCommonConfigPane();
   const audioFileInput = screen.getByLabelText("Choose Audio file");
   fireEvent.change(audioFileInput, { target: { files: [] } });
-  expect(mockOnChangeAudioFile).not.toHaveBeenCalled();
+  expect(audioFile()).toBeUndefined();
 });
 
-test("should call onUpdateRendererConfig when background color is changed", async () => {
-  await renderCommonConfigPane();
+test("should update the store when background color is changed", async () => {
+  const { config } = await renderCommonConfigPane();
   const colorInput = screen.getByLabelText("Color picker");
   fireEvent.input(colorInput, { target: { value: "#ffffff" } });
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    backgroundColor: "#ffffff",
-  });
+  expect(config().backgroundColor).toEqual("#ffffff");
 });
 
-test("should call onUpdateRendererConfig when resolution is changed", async () => {
-  await renderCommonConfigPane();
+test("should update the store when resolution is changed", async () => {
+  const { config } = await renderCommonConfigPane();
   const resolutionTrigger = screen.getByRole("combobox", {
     name: "Resolution",
   });
@@ -68,99 +83,87 @@ test("should call onUpdateRendererConfig when resolution is changed", async () =
     name: resolutions[0].label,
   });
   await userEvent.click(resolutionOption);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    resolution: resolutions[0],
-  });
+  expect(config().resolution).toEqual(resolutions[0]);
 });
 
-test("should call onUpdateRendererConfig when FPS is changed", async () => {
-  await renderCommonConfigPane();
+test("should update the store when FPS is changed", async () => {
+  const { config } = await renderCommonConfigPane();
   const fpsTrigger = screen.getByRole("combobox", { name: "FPS" });
   await userEvent.click(fpsTrigger);
   const fpsOption = screen.getByRole("option", { name: "60 fps" });
   await userEvent.click(fpsOption);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    fps: 60,
-  });
+  expect(config().fps).toEqual(60);
 });
 
-test("should call onUpdateRendererConfig when format is changed", async () => {
-  await renderCommonConfigPane();
+test("should update the store when format is changed", async () => {
+  const { config } = await renderCommonConfigPane();
   const formatTrigger = screen.getByRole("combobox", { name: "Format" });
   await userEvent.click(formatTrigger);
   const formatOption = screen.getByRole("option", { name: "WebM (VP9)" });
   await userEvent.click(formatOption);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    format: "webm",
+  expect(config().format).toEqual("webm");
+});
+
+test("should store the selected background image", async () => {
+  const { backgroundImageFile: storedFile } = await renderCommonConfigPane({
+    withBackgroundImage: false,
   });
-});
-
-test("should call onChangeBackgroundImage when background image is selected", async () => {
-  await renderCommonConfigPane();
   const backgroundImageInput = screen.getByLabelText("Choose Background Image");
-  const file = new File(["test"], "test.png", { type: "image/png" });
+  const file = new File(["next"], "next.png", { type: "image/png" });
   fireEvent.change(backgroundImageInput, { target: { files: [file] } });
-  expect(mockOnChangeBackgroundImage).toHaveBeenCalledExactlyOnceWith(file);
+  await waitFor(() => expect(storedFile()).toBe(file));
 });
 
-test("should call onUpdateRendererConfig when background image fit is changed", async () => {
-  await renderCommonConfigPane();
+test("should update the store when background image fit is changed", async () => {
+  const { config } = await renderCommonConfigPane();
   const fitTrigger = screen.getByRole("combobox", { name: "Image Fit" });
   await userEvent.click(fitTrigger);
   const fitOption = screen.getByRole("option", { name: "Contain" });
   await userEvent.click(fitOption);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    backgroundImageFit: "contain",
-  });
+  expect(config().backgroundImageFit).toEqual("contain");
 });
 
-test("should call onUpdateRendererConfig when background image position is changed", async () => {
-  await renderCommonConfigPane();
+test("should update the store when background image position is changed", async () => {
+  const { config } = await renderCommonConfigPane();
   const positionTrigger = screen.getByRole("combobox", {
     name: "Image Position",
   });
   await userEvent.click(positionTrigger);
   const positionOption = screen.getByRole("option", { name: "Top Left" });
   await userEvent.click(positionOption);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    backgroundImagePosition: "top-left",
-  });
+  expect(config().backgroundImagePosition).toEqual("top-left");
 });
 
-test("should call onUpdateRendererConfig when background image repeat is changed", async () => {
-  await renderCommonConfigPane();
+test("should update the store when background image repeat is changed", async () => {
+  const { config } = await renderCommonConfigPane();
   const repeatTrigger = screen.getByRole("combobox", { name: "Image Repeat" });
   await userEvent.click(repeatTrigger);
   const repeatOption = screen.getByRole("option", { name: "Repeat" });
   await userEvent.click(repeatOption);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    backgroundImageRepeat: "repeat",
-  });
+  expect(config().backgroundImageRepeat).toEqual("repeat");
 });
 
-test("should call onUpdateRendererConfig when background image opacity is changed", async () => {
-  await renderCommonConfigPane();
+test("should update the store when background image opacity is changed", async () => {
+  const { config } = await renderCommonConfigPane();
   const group = screen.getByRole("group", { name: /Image Opacity/ });
   const opacitySlider = within(group).getByRole("slider", { hidden: true });
   opacitySlider.focus();
   await userEvent.keyboard("{arrowleft}");
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    backgroundImageOpacity: 0.99,
-  });
+  expect(config().backgroundImageOpacity).toEqual(0.99);
 });
 
 test("should clear background image when cancel button is clicked", async () => {
-  await renderCommonConfigPane({ backgroundImageFilename: "test.png" });
+  const { backgroundImageFile: storedFile } = await renderCommonConfigPane();
 
   const cancelButton = screen.getByRole("button", {
     name: "Cancel background image",
   });
   await userEvent.click(cancelButton);
-  expect(mockOnChangeBackgroundImage).toHaveBeenCalledExactlyOnceWith(undefined);
+  await waitFor(() => expect(storedFile()).toBeUndefined());
 });
 
 test("should not show background image settings when no image is selected", async () => {
-  await renderCommonConfigPane({ backgroundImageFilename: undefined });
+  await renderCommonConfigPane({ withBackgroundImage: false });
 
   expect(screen.queryByRole("combobox", { name: "Image Fit" })).not.toBeInTheDocument();
   expect(screen.queryByRole("combobox", { name: "Image Position" })).not.toBeInTheDocument();
@@ -169,19 +172,17 @@ test("should not show background image settings when no image is selected", asyn
   expect(screen.queryByRole("switch", { name: "Show Background Image" })).not.toBeInTheDocument();
 });
 
-test("should call onUpdateRendererConfig when background image enabled is toggled", async () => {
-  await renderCommonConfigPane();
+test("should update the store when background image enabled is toggled", async () => {
+  const { config } = await renderCommonConfigPane();
   const enabledSwitch = screen.getByRole("switch", {
     name: "Show Background Image",
   });
   expect(enabledSwitch).toBeInTheDocument();
   await userEvent.click(enabledSwitch);
-  expect(mockOnUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    backgroundImageEnabled: false,
-  });
+  expect(config().backgroundImageEnabled).toEqual(false);
 });
 
 test("should show background image toggle when image is selected", async () => {
-  await renderCommonConfigPane({ backgroundImageFilename: "test.png" });
+  await renderCommonConfigPane();
   expect(screen.getByRole("switch", { name: "Show Background Image" })).toBeInTheDocument();
 });

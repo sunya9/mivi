@@ -10,7 +10,6 @@ import * as standardizedAudioContextMock from "standardized-audio-context-mock";
 import { afterEach, vi } from "vitest";
 
 import { toast } from "@/components/ui/toast";
-import { closeDb } from "@/lib/file-db/file-db";
 
 vi.mock("virtual:pwa-register/react", () => ({
   useRegisterSW: vi.fn<typeof import("virtual:pwa-register/react").useRegisterSW>(() => ({
@@ -25,7 +24,6 @@ afterEach(() => {
   cleanup();
   localStorage.clear();
   indexedDB = new IDBFactory();
-  closeDb();
   vi.clearAllMocks();
 });
 

@@ -1,27 +1,32 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { AudioContext } from "standardized-audio-context-mock";
 import { testMidiTracks, midiFile } from "tests/fixtures";
-import { customRenderHook } from "tests/util";
+import { customRender, customRenderHook } from "tests/util";
 import { test, expect, vi } from "vitest";
 
+import { ConfirmDialogHost } from "@/components/app/confirm-dialog-host";
 import { toast } from "@/components/ui/toast";
+import { createAppContext } from "@/contexts/app-context";
+import { MemoryFileStorage } from "@/lib/file-store/memory-file-storage";
 import { MidiTracks } from "@/lib/midi/midi";
-import { useMidi } from "@/lib/midi/use-midi";
+import { extractMidiSettings } from "@/lib/midi/midi-settings-store";
+import { useMidi, useSetMidiFile } from "@/lib/midi/use-midi";
 
 function TestComponent() {
-  const { setMidiFile, midiTracks, ConfirmDialog } = useMidi();
+  const { setMidiFile, midiTracks } = useMidi();
   return (
     <>
       <button onClick={() => setMidiFile(midiFile)} data-testid="load-midi"></button>
       <span data-testid="midi-loaded">{midiTracks ? "loaded" : "empty"}</span>
       <span data-testid="instance-key">{midiTracks?.instanceKey ?? ""}</span>
-      {ConfirmDialog}
+      <ConfirmDialogHost />
     </>
   );
 }
 
 function renderTestComponent() {
-  return render(<TestComponent />);
+  return customRender(<TestComponent />);
 }
 
 vi.mock("@/lib/colors/tailwind-colors", () => ({
@@ -35,11 +40,25 @@ test("returns initial state", async () => {
   expect(typeof result.current.setMidiFile).toBe("function");
 });
 
-test("loads midiTracks from local storage", async () => {
-  localStorage.setItem("mivi:midi-tracks", JSON.stringify(testMidiTracks));
-  const { result } = await customRenderHook(() => useMidi());
+test("restores the stored MIDI file with its persisted settings", async () => {
+  const fileStorage = new MemoryFileStorage();
+  await fileStorage.write("midi", midiFile);
+  localStorage.setItem(
+    "mivi:midi-settings",
+    JSON.stringify({ ...extractMidiSettings(testMidiTracks), midiOffset: 1.5 }),
+  );
+  const appContextValue = createAppContext(new AudioContext(), { fileStorage });
+  const { result } = await customRenderHook(() => useMidi(), { appContextValue });
 
-  expect(result.current.midiTracks).toEqual(testMidiTracks);
+  await vi.waitFor(() => expect(result.current.midiTracks).toBeDefined());
+  const { instanceKey, ...rest } = result.current.midiTracks!;
+  const { instanceKey: _, ...expectedRest } = testMidiTracks;
+  expect(rest).toEqual({
+    ...expectedRest,
+    midiOffset: 1.5,
+    tracks: expectedRest.tracks.map((track) => ({ ...track, id: expect.any(String) })),
+  });
+  expect(typeof instanceKey).toBe("string");
 });
 
 test("loads and processes MIDI file", async () => {
@@ -51,7 +70,10 @@ test("loads and processes MIDI file", async () => {
 
   const { instanceKey, ...rest } = result.current.midiTracks!;
   const { instanceKey: _, ...expectedRest } = testMidiTracks;
-  expect(rest).toEqual(expectedRest);
+  expect(rest).toEqual({
+    ...expectedRest,
+    tracks: expectedRest.tracks.map((track) => ({ ...track, id: expect.any(String) })),
+  });
   expect(typeof instanceKey).toBe("string");
   expect(instanceKey.length).toBeGreaterThan(0);
   expect(toast.add).toHaveBeenCalledWith({ title: "MIDI file loaded", type: "success" });
@@ -73,10 +95,16 @@ test("handles MIDI file loading errors", async () => {
     type: "audio/midi",
   });
 
+  vi.spyOn(console, "error").mockImplementation(() => {});
   await act(async () => {
-    await expect(result.current.setMidiFile(mockMidiFile)).rejects.toThrow("Bad MIDI file.");
+    await result.current.setMidiFile(mockMidiFile);
   });
   expect(result.current.midiTracks).toBeUndefined();
+  expect(toast.add).toHaveBeenCalledExactlyOnceWith({
+    title: "Failed to load MIDI file",
+    description: expect.stringContaining("Bad MIDI file."),
+    type: "error",
+  });
 });
 
 test("setMidiTracks updates midiTracks", async () => {
@@ -104,7 +132,7 @@ test("setMidiTracks updates midiTracks", async () => {
 });
 
 test("shows confirm dialog when loading the same file", async () => {
-  renderTestComponent();
+  await renderTestComponent();
 
   const loadButton = screen.getByTestId("load-midi");
 
@@ -122,7 +150,7 @@ test("shows confirm dialog when loading the same file", async () => {
 });
 
 test("clicking overwrite reloads the MIDI file with new instanceKey", async () => {
-  renderTestComponent();
+  await renderTestComponent();
 
   const loadButton = screen.getByTestId("load-midi");
 
@@ -146,7 +174,7 @@ test("clicking overwrite reloads the MIDI file with new instanceKey", async () =
 });
 
 test("clicking Keep preserves the current MIDI state", async () => {
-  render(<TestComponent />);
+  await renderTestComponent();
 
   const loadButton = screen.getByTestId("load-midi");
 
@@ -167,4 +195,39 @@ test("clicking Keep preserves the current MIDI state", async () => {
   // Verify instanceKey is preserved (state unchanged)
   const updatedInstanceKey = screen.getByTestId("instance-key").textContent;
   expect(updatedInstanceKey).toBe(originalInstanceKey);
+});
+
+test("useSetMidiFile does not re-render when tracks are edited", async () => {
+  let renders = 0;
+  const { result, appContextValue } = await customRenderHook(() => {
+    renders++;
+    return useSetMidiFile();
+  });
+  const rendersAfterMount = renders;
+
+  act(() => appContextValue.midiTracksStore.set(testMidiTracks));
+  act(() => appContextValue.midiTracksStore.set({ ...testMidiTracks, midiOffset: 1 }));
+
+  expect(renders).toBe(rendersAfterMount);
+  expect(typeof result.current).toBe("function");
+});
+
+test("useSetMidiFile detects the same file without subscribing to the tracks", async () => {
+  function FileOnly() {
+    const setMidiFile = useSetMidiFile();
+    return (
+      <>
+        <button onClick={() => setMidiFile(midiFile)} data-testid="load-midi"></button>
+        <ConfirmDialogHost />
+      </>
+    );
+  }
+  const appContextValue = createAppContext(new AudioContext());
+  await customRender(<FileOnly />, { appContextValue });
+
+  await userEvent.click(screen.getByTestId("load-midi"));
+  await vi.waitFor(() => expect(appContextValue.midiTracksStore.getSnapshot()).toBeDefined());
+  await userEvent.click(screen.getByTestId("load-midi"));
+
+  expect(await screen.findByText("Same file detected")).toBeInTheDocument();
 });

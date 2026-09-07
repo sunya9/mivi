@@ -1,8 +1,8 @@
 import { releaseProxy, wrap } from "comlink";
 
-import type { StoredAudioData } from "./audio";
+import type { SerializedAudio } from "./audio";
 
-export function runDecodeWorker(file: File, signal: AbortSignal): Promise<StoredAudioData> {
+export function runDecodeWorker(file: File, signal: AbortSignal): Promise<SerializedAudio> {
   const rawWorker = new Worker(new URL("./decode-audio.worker.ts", import.meta.url), {
     type: "module",
   });

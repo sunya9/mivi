@@ -1,18 +1,21 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act, render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps, Dispatch, SetStateAction } from "react";
+import { AudioContext } from "standardized-audio-context-mock";
 import { testMidiTracks } from "tests/fixtures";
+import { customRender } from "tests/util";
 import { expect, test, vi } from "vitest";
 
-import { TrackListPane } from "@/components/app/track-list-pane";
+import { TrackListPane, TrackListPaneContent } from "@/components/app/track-list-pane";
+import { createAppContext } from "@/contexts/app-context";
 import { MidiTracks } from "@/lib/midi/midi";
 
 const mockSetMidiTracks = vi.fn<Dispatch<SetStateAction<MidiTracks | undefined>>>();
 const mockOnChangeMidiFile = vi.fn<(file: File | undefined) => void>();
 
-function renderTrackListPane(props: Partial<ComponentProps<typeof TrackListPane>> = {}) {
+function renderTrackListPane(props: Partial<ComponentProps<typeof TrackListPaneContent>> = {}) {
   return render(
-    <TrackListPane
+    <TrackListPaneContent
       setMidiTracks={mockSetMidiTracks}
       onChangeMidiFile={mockOnChangeMidiFile}
       {...props}
@@ -451,4 +454,28 @@ test("should sort disabled tracks to bottom when Sort disabled to bottom is sele
   expect(newMidiTracks.tracks[0].config.name).toBe("Enabled Track");
   expect(newMidiTracks.tracks[1].config.visible).toBe(false);
   expect(newMidiTracks.tracks[2].config.visible).toBe(false);
+});
+
+async function renderConnectedPane() {
+  const appContextValue = createAppContext(new AudioContext());
+  await customRender(<TrackListPane />, { appContextValue });
+  return appContextValue;
+}
+
+test("TrackListPane renders tracks from the store", async () => {
+  const appContextValue = await renderConnectedPane();
+  act(() => appContextValue.midiTracksStore.set(testMidiTracks));
+
+  expect(screen.getByText("Acoustic Piano - Full")).toBeInTheDocument();
+});
+
+test("TrackListPane resets the offset input when a new MIDI instance is loaded", async () => {
+  const appContextValue = await renderConnectedPane();
+  act(() => appContextValue.midiTracksStore.set({ ...testMidiTracks, midiOffset: 1.5 }));
+  expect(screen.getByRole("spinbutton", { name: "MIDI Offset (s)" })).toHaveValue(1.5);
+
+  act(() =>
+    appContextValue.midiTracksStore.set({ ...testMidiTracks, instanceKey: "next", midiOffset: 0 }),
+  );
+  expect(screen.getByRole("spinbutton", { name: "MIDI Offset (s)" })).toHaveValue(0);
 });

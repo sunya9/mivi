@@ -1,36 +1,23 @@
 import { useCallback } from "react";
 
 import { toast } from "@/components/ui/toast";
-import { errorLogWithToast } from "@/lib/error-toast";
-import { useBackgroundImageFileDb } from "@/lib/file-db/file-db-store";
+import { useFileSlot, useFileStore } from "@/lib/file-store/use-file-store";
+
+export function useSetBackgroundImageFile() {
+  const { backgroundImage } = useFileStore();
+  return useCallback(
+    async (file: File | undefined) => {
+      const loaded = await backgroundImage.setFile(file);
+      if (loaded && file) toast.add({ title: "Image file loaded", type: "success" });
+    },
+    [backgroundImage],
+  );
+}
 
 export function useBackgroundImage() {
-  const {
-    file: backgroundImageFile,
-    decoded: backgroundImageBitmap,
-    setEntry,
-  } = useBackgroundImageFileDb();
-
-  const setBackgroundImageFile = useCallback(
-    async (newFile: File | undefined) => {
-      if (!newFile) {
-        await setEntry(undefined);
-        return;
-      }
-      try {
-        const bitmap = await createImageBitmap(newFile);
-        await setEntry({ file: newFile, decoded: bitmap });
-        toast.add({ title: "Image file loaded", type: "success" });
-      } catch (error) {
-        errorLogWithToast("Failed to load background image", error);
-      }
-    },
-    [setEntry],
-  );
-
-  return {
-    backgroundImageBitmap,
-    setBackgroundImageFile,
-    backgroundImageFile,
-  };
+  const { backgroundImage } = useFileStore();
+  const { file: backgroundImageFile, decoded: backgroundImageBitmap } =
+    useFileSlot(backgroundImage);
+  const setBackgroundImageFile = useSetBackgroundImageFile();
+  return { backgroundImageBitmap, setBackgroundImageFile, backgroundImageFile };
 }

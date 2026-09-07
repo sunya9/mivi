@@ -1,33 +1,34 @@
 import { useState, useCallback, useRef } from "react";
 
 import { toast } from "@/components/ui/toast";
-import type { AudioSource } from "@/lib/audio/audio";
+import { useAppContext } from "@/contexts/app-context";
 import { errorLogWithToast } from "@/lib/error-toast";
 import {
   RecordingStatus,
   ReadyState,
   RecordingState,
 } from "@/lib/media-compositor/recording-status";
-import type { MidiTracks } from "@/lib/midi/midi";
-import type { RendererConfig } from "@/lib/renderers/renderer";
 
 import type { ActivePhase } from "./export-progress-tracker";
 import { runRecorder } from "./run-recorder-worker";
 
-export function useRecorder(resources: {
-  midiTracks?: MidiTracks;
-  audioSource?: AudioSource;
-  rendererConfig: RendererConfig;
-  backgroundImageBitmap?: ImageBitmap;
-}) {
+export function useRecorder() {
+  const { midiTracksStore, rendererConfigStore, fileStore } = useAppContext();
   const [recordingState, setRecordingState] = useState<RecordingStatus>(new ReadyState());
   const abortControllerRef = useRef<AbortController | null>(null);
   const toggleRecording = useCallback(async () => {
     if (!recordingState.isRecording) {
-      const midiTracks = resources.midiTracks;
-      const audioSource = resources.audioSource;
-      const rendererType = resources.rendererConfig.type;
-      const audioVisualizerStyle = resources.rendererConfig.audioVisualizerConfig.style;
+      // Export needs the values at the moment it starts, so read the stores instead of subscribing
+      const midiTracks = midiTracksStore.getSnapshot();
+      const rendererConfig = rendererConfigStore.getSnapshot();
+      const audio = fileStore.audio.getSnapshot();
+      const audioSource =
+        audio.file && audio.decoded
+          ? { name: audio.file.name, serialized: audio.decoded }
+          : undefined;
+      const backgroundImageBitmap = fileStore.backgroundImage.getSnapshot().decoded;
+      const rendererType = rendererConfig.type;
+      const audioVisualizerStyle = rendererConfig.audioVisualizerConfig.style;
 
       // Audio is always required
       if (!audioSource) {
@@ -57,11 +58,7 @@ export function useRecorder(resources: {
       };
 
       return runRecorder(
-        {
-          ...resources,
-          midiTracks,
-          audioSource,
-        },
+        { midiTracks, audioSource, rendererConfig, backgroundImageBitmap },
         onProgress,
         signal,
       )
@@ -71,7 +68,7 @@ export function useRecorder(resources: {
           const a = document.createElement("a");
           a.href = url;
           const exportName = midiTracks?.name ?? audioSource.name ?? "audio";
-          a.download = `mivi-${exportName}.${resources.rendererConfig.format}`;
+          a.download = `mivi-${exportName}.${rendererConfig.format}`;
           a.click();
           URL.revokeObjectURL(url);
           toast.add({ title: "Export completed", type: "success" });
@@ -91,6 +88,6 @@ export function useRecorder(resources: {
       abortControllerRef.current?.abort(new Error("Cancelled"));
       setRecordingState(new ReadyState());
     }
-  }, [recordingState.isRecording, resources]);
+  }, [recordingState.isRecording, midiTracksStore, rendererConfigStore, fileStore]);
   return { recordingState, toggleRecording };
 }

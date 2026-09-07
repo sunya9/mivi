@@ -5,6 +5,12 @@ beforeEach(async () => {
   // Clear localStorage
   localStorage.clear();
 
+  // Clear OPFS
+  const root = await navigator.storage.getDirectory();
+  for await (const name of root.keys()) {
+    await root.removeEntry(name, { recursive: true });
+  }
+
   // Clear all IndexedDB databases
   const databases = await indexedDB.databases();
   await Promise.all(

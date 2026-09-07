@@ -1,20 +1,20 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, type DragEvent } from "react";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useSetAudioFile } from "@/lib/audio/use-audio";
+import { useSetBackgroundImageFile } from "@/lib/background-image/use-background-image";
 import { errorLogWithToast } from "@/lib/error-toast";
+import { useSetMidiFile } from "@/lib/midi/use-midi";
 import { cn } from "@/lib/utils";
 
-interface Props {
-  onDropMidi: (file: File) => Promise<void>;
-  onDropAudio: (file: File) => Promise<void>;
-  onDropImage: (file: File) => Promise<void>;
-}
-
-export function useDnd({ onDropMidi, onDropAudio, onDropImage }: Props) {
+export function useDnd() {
+  const setMidiFile = useSetMidiFile();
+  const setAudioFile = useSetAudioFile();
+  const setBackgroundImageFile = useSetBackgroundImageFile();
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
+  const onDrop = useCallback(
+    async (e: DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
       const files = Array.from(e.dataTransfer.files);
@@ -23,11 +23,11 @@ export function useDnd({ onDropMidi, onDropAudio, onDropImage }: Props) {
           const fileType = file.type;
           try {
             if (fileType === "audio/midi" || fileType === "audio/x-midi") {
-              await onDropMidi(file);
+              await setMidiFile(file);
             } else if (fileType.startsWith("audio/")) {
-              await onDropAudio(file);
+              await setAudioFile(file);
             } else if (fileType.startsWith("image/")) {
-              await onDropImage(file);
+              await setBackgroundImageFile(file);
             } else {
               errorLogWithToast(`Unsupported file type: ${fileType}`);
             }
@@ -37,15 +37,15 @@ export function useDnd({ onDropMidi, onDropAudio, onDropImage }: Props) {
         }),
       );
     },
-    [onDropMidi, onDropAudio, onDropImage],
+    [setMidiFile, setAudioFile, setBackgroundImageFile],
   );
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  const onDragOver = useCallback((e: DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   }, []);
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
+  const onDragLeave = useCallback((e: DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
   }, []);
@@ -76,10 +76,5 @@ export function useDnd({ onDropMidi, onDropAudio, onDropImage }: Props) {
     [isDragging],
   );
 
-  return {
-    handleDrop,
-    handleDragOver,
-    handleDragLeave,
-    DragDropOverlay,
-  } as const;
+  return { dropZoneProps: { onDrop, onDragOver, onDragLeave }, DragDropOverlay } as const;
 }

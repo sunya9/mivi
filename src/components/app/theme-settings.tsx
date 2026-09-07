@@ -6,7 +6,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Theme, useTheme } from "@/contexts/theme-context";
+import { type Theme } from "@/lib/theme/theme-store";
+import { useTheme } from "@/lib/theme/use-theme";
 
 const themes: { value: Theme; label: string }[] = [
   { value: "light", label: "Light" },
