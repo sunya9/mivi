@@ -223,6 +223,15 @@ test("should move focus into the width input when Custom is picked", async () =>
   expect(screen.getByRole("spinbutton", { name: "Width" })).toHaveFocus();
 });
 
+test("should return focus to the trigger when the popup is dismissed while Custom is active", async () => {
+  await renderCommonConfigPane();
+  await selectResolution("Custom");
+  const trigger = screen.getByRole("combobox", { name: "Resolution" });
+  await userEvent.click(trigger);
+  await userEvent.keyboard("{Escape}");
+  expect(trigger).toHaveFocus();
+});
+
 test("should return focus to the trigger when a preset is picked", async () => {
   await renderCommonConfigPane();
   await selectResolution("Custom");
