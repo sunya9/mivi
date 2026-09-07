@@ -2,26 +2,30 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { readLicenseEntry, renderLicenseNotices } from "vite-plugins/license-notices";
+import {
+  injectLicenseNotices,
+  readDependencyEntries,
+  readLicenseEntry,
+} from "vite-plugins/license-notices";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
+let root: string;
+
+beforeEach(() => {
+  root = fs.mkdtempSync(path.join(os.tmpdir(), "license-notices-"));
+});
+
+afterEach(() => {
+  fs.rmSync(root, { recursive: true, force: true });
+});
+
+function writePackage(dir: string, pkg: Record<string, unknown>, licenseText?: string) {
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify(pkg));
+  if (licenseText !== undefined) fs.writeFileSync(path.join(dir, "LICENSE"), licenseText);
+}
+
 describe("readLicenseEntry", () => {
-  let root: string;
-
-  beforeEach(() => {
-    root = fs.mkdtempSync(path.join(os.tmpdir(), "license-notices-"));
-  });
-
-  afterEach(() => {
-    fs.rmSync(root, { recursive: true, force: true });
-  });
-
-  function writePackage(dir: string, pkg: Record<string, unknown>, licenseText?: string) {
-    fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, "package.json"), JSON.stringify(pkg));
-    if (licenseText !== undefined) fs.writeFileSync(path.join(dir, "LICENSE"), licenseText);
-  }
-
   test("resolves the owning package and its license file from a module id", () => {
     const pkgDir = path.join(root, "node_modules", ".pnpm", "foo@1.2.3", "node_modules", "foo");
     writePackage(pkgDir, { name: "foo", version: "1.2.3", license: "MPL-2.0" }, "Mozilla text\n");
@@ -54,27 +58,38 @@ describe("readLicenseEntry", () => {
   });
 });
 
-describe("renderLicenseNotices", () => {
-  test("lists packages sorted by name with their license text", () => {
-    const markdown = renderLicenseNotices([
-      { name: "zeta", version: "2.0.0", license: "MIT", text: "MIT text" },
-      { name: "alpha", version: "1.0.0", license: "MPL-2.0", text: "MPL text" },
-      { name: "beta", version: "3.0.0" },
+describe("readDependencyEntries", () => {
+  test("reads every declared dependency sorted by name", () => {
+    writePackage(root, { name: "app", dependencies: { zeta: "^2.0.0", alpha: "^1.0.0" } });
+    writePackage(path.join(root, "node_modules", "zeta"), { name: "zeta", version: "2.0.0" });
+    writePackage(
+      path.join(root, "node_modules", "alpha"),
+      { name: "alpha", version: "1.0.0", license: "MIT" },
+      "MIT text",
+    );
+
+    expect(readDependencyEntries(root)).toEqual([
+      { name: "alpha", version: "1.0.0", license: "MIT", text: "MIT text" },
+      { name: "zeta", version: "2.0.0" },
+    ]);
+  });
+
+  test("ignores dependencies that are not installed", () => {
+    writePackage(root, { name: "app", dependencies: { missing: "^1.0.0" } });
+
+    expect(readDependencyEntries(root)).toEqual([]);
+  });
+});
+
+describe("injectLicenseNotices", () => {
+  test("replaces the placeholder with the sorted entries as JSON", () => {
+    const code = injectLicenseNotices("export default __LICENSE_NOTICES__;", [
+      { name: "zeta", version: "2.0.0" },
+      { name: "alpha", version: "1.0.0", license: "MIT" },
     ]);
 
-    expect(markdown).toBe(`# Licenses
-
-The app bundles dependencies which contain the following licenses:
-
-## alpha - 1.0.0 (MPL-2.0)
-
-MPL text
-
-## beta - 3.0.0
-
-## zeta - 2.0.0 (MIT)
-
-MIT text
-`);
+    expect(code).toBe(
+      'export default [{"name":"alpha","version":"1.0.0","license":"MIT"},{"name":"zeta","version":"2.0.0"}];',
+    );
   });
 });

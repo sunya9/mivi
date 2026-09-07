@@ -55,9 +55,8 @@ export function AboutContent({ className }: Props) {
         <dd>{appVersion}</dd>
       </dl>
 
-      <p className="flex gap-4">
+      <p>
         <a href="https://github.com/sunya9/mivi">GitHub Repository</a>
-        <a href={`${import.meta.env.BASE_URL}licenses.md`}>Third-party licenses</a>
       </p>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Palette, Info, Keyboard } from "lucide-react";
+import { Palette, Info, Keyboard, ScrollText } from "lucide-react";
 import {
   useCallback,
   RefAttributes,
@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/compo
 
 import { AboutContent } from "./about-content";
 import { KeyboardShortcutsContent } from "./keyboard-shortcuts-content";
+import { LicensesContent } from "./licenses-content";
 import { ThemeSettings } from "./theme-settings";
 
 const navGroups = [
@@ -40,6 +41,7 @@ const navGroups = [
     items: [
       { value: "shortcuts" as const, name: "Shortcuts", icon: Keyboard },
       { value: "about" as const, name: "About", icon: Info },
+      { value: "licenses" as const, name: "Licenses", icon: ScrollText },
     ],
   },
 ] satisfies readonly {
@@ -147,6 +149,9 @@ function SettingsDialogContent({
               <Activity mode={modeForTab("shortcuts")}>
                 <KeyboardShortcutsContent />
               </Activity>
+              <Activity mode={modeForTab("licenses")}>
+                <LicensesContent />
+              </Activity>
             </div>
           </ScrollArea>
         </SidebarInset>
@@ -165,6 +170,7 @@ export function SettingsContent({ className }: SettingsContentProps) {
       <TabsList variant="line-indicator" className="w-full">
         <TabsTrigger value="general">General</TabsTrigger>
         <TabsTrigger value="about">About</TabsTrigger>
+        <TabsTrigger value="licenses">Licenses</TabsTrigger>
         <TabsIndicator />
       </TabsList>
       <div>
@@ -173,6 +179,9 @@ export function SettingsContent({ className }: SettingsContentProps) {
         </TabsContent>
         <TabsContent value="about" className="py-4">
           <AboutContent />
+        </TabsContent>
+        <TabsContent value="licenses" className="py-4">
+          <LicensesContent />
         </TabsContent>
       </div>
     </Tabs>

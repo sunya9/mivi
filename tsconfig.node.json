@@ -21,5 +21,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts", "pwa-assets.config.ts", "vite-plugins"]
+  "include": [
+    "vite.config.ts",
+    "pwa-assets.config.ts",
+    "vite-plugins",
+    "types/license-notices.d.ts"
+  ]
 }

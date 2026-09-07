@@ -63,6 +63,12 @@ test("SettingsDialog shows About content when tab is about", () => {
   expect(screen.getByText(/MiVi is a web application/)).toBeVisible();
 });
 
+test("SettingsDialog shows Licenses content when tab is licenses", () => {
+  renderDialog({ tab: "licenses" });
+
+  expect(screen.getByRole("heading", { name: "Licenses" })).toBeVisible();
+});
+
 test("SettingsDialog shows Shortcuts content when tab is shortcuts", () => {
   renderDialog({ tab: "shortcuts" });
 
@@ -141,11 +147,12 @@ test("SettingsDialog has accessible title and description", () => {
 
 // SettingsContent tests (for mobile inline settings)
 
-test("SettingsContent renders General and About tabs", () => {
+test("SettingsContent renders General, About, and Licenses tabs", () => {
   render(<SettingsContent />, { wrapper: LightThemeWrapper });
 
   expect(screen.getByRole("tab", { name: "General" })).toBeVisible();
   expect(screen.getByRole("tab", { name: "About" })).toBeVisible();
+  expect(screen.getByRole("tab", { name: "Licenses" })).toBeVisible();
 });
 
 test("SettingsContent does not render Shortcuts tab", () => {

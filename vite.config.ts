@@ -13,10 +13,9 @@ import { VitePWA } from "vite-plugin-pwa";
 import { configDefaults } from "vitest/config";
 import { BrowserCommand } from "vitest/node";
 
-import { createLicenseNotices } from "./vite-plugins/license-notices";
+import { createLicenseNotices } from "./vite-plugins/license-notices.ts";
 
-// The About screen links to this file, so keep the name in sync with about-content.tsx
-const licenseNotices = createLicenseNotices("licenses.md");
+const licenseNotices = createLicenseNotices();
 
 export default defineConfig(({ mode }) => ({
   plugins: [
