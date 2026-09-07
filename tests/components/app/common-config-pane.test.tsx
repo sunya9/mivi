@@ -251,6 +251,18 @@ test("should commit a custom size on Enter", async () => {
   expect(config().resolution.height).toBe(900);
 });
 
+test("should parse decimal and exponent input as full numbers", async () => {
+  const { config } = await renderCommonConfigPane();
+  await selectResolution("Custom");
+  const width = screen.getByRole("spinbutton", { name: "Width" });
+  await userEvent.clear(width);
+  await userEvent.type(width, "1000.5{Enter}");
+  expect(config().resolution.width).toBe(1002);
+  await userEvent.clear(width);
+  await userEvent.type(width, "1e3{Enter}");
+  expect(config().resolution.width).toBe(1000);
+});
+
 test("should restore the last committed size when the input is left empty", async () => {
   const { config } = await renderCommonConfigPane();
   await selectResolution("Custom");
