@@ -1,4 +1,4 @@
-import { act, screen } from "@testing-library/react";
+import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AudioContext } from "standardized-audio-context-mock";
 import { testMidiTracks, midiFile } from "tests/fixtures";
@@ -154,9 +154,8 @@ test("clicking overwrite reloads the MIDI file with new instanceKey", async () =
 
   const loadButton = screen.getByTestId("load-midi");
 
-  // Load file first time
   await userEvent.click(loadButton);
-  await screen.findByTestId("midi-loaded");
+  await waitFor(() => expect(screen.getByTestId("midi-loaded")).toHaveTextContent("loaded"));
 
   // Store the instanceKey from first load
   const originalInstanceKey = screen.getByTestId("instance-key").textContent;
@@ -168,9 +167,9 @@ test("clicking overwrite reloads the MIDI file with new instanceKey", async () =
   await screen.findByText("Same file detected");
   await userEvent.click(screen.getByRole("button", { name: "Overwrite" }));
 
-  // Verify new instanceKey is generated
-  const updatedInstanceKey = screen.getByTestId("instance-key").textContent;
-  expect(updatedInstanceKey).not.toBe(originalInstanceKey);
+  await waitFor(() =>
+    expect(screen.getByTestId("instance-key").textContent).not.toBe(originalInstanceKey),
+  );
 });
 
 test("clicking Keep preserves the current MIDI state", async () => {
@@ -178,9 +177,8 @@ test("clicking Keep preserves the current MIDI state", async () => {
 
   const loadButton = screen.getByTestId("load-midi");
 
-  // Load file first time
   await userEvent.click(loadButton);
-  await screen.findByTestId("midi-loaded");
+  await waitFor(() => expect(screen.getByTestId("midi-loaded")).toHaveTextContent("loaded"));
 
   // Store the instanceKey from first load
   const originalInstanceKey = screen.getByTestId("instance-key").textContent;
