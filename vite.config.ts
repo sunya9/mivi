@@ -13,6 +13,11 @@ import { VitePWA } from "vite-plugin-pwa";
 import { configDefaults } from "vitest/config";
 import { BrowserCommand } from "vitest/node";
 
+import { createLicenseNotices } from "./vite-plugins/license-notices";
+
+// The About screen links to this file, so keep the name in sync with about-content.tsx
+const licenseNotices = createLicenseNotices("licenses.md");
+
 export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
@@ -94,7 +99,11 @@ export default defineConfig(({ mode }) => ({
     }),
     devBranchTitlePlugin(),
     preloadFontsPlugin(["geist-latin-wght-normal.woff2"]),
+    licenseNotices.plugin(),
   ],
+  worker: {
+    plugins: () => [licenseNotices.workerPlugin()],
+  },
   build: {
     rolldownOptions: {
       output: {
