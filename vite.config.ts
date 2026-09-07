@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => ({
     tailwindcss(),
     react(),
     Unfonts({
+      inlineFontFace: true,
       fontsource: {
         families: [
           {

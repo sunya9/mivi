@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import "unfonts.css";
+import "./index.css";
 import { AudioContext } from "standardized-audio-context";
 
 import { App } from "./app";
