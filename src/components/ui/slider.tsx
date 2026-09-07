@@ -19,6 +19,26 @@ function isArray(v: SliderPrimitive.Root.Props["value"]): v is readonly number[]
   return Array.isArray(v);
 }
 
+/**
+ * Base UI measures inset thumbs once after mount and never re-measures on its own, so a slider
+ * that mounts inside a hidden container keeps an unpositioned thumb. Remount it when it appears.
+ */
+function useRemountWhenShown() {
+  const [mountKey, setMountKey] = React.useState(0);
+  const controlRef = React.useCallback((control: HTMLElement | null) => {
+    if (!control || typeof ResizeObserver === "undefined") return;
+    if (control.getClientRects().length > 0) return;
+    const observer = new ResizeObserver(() => {
+      if (control.getClientRects().length === 0) return;
+      observer.disconnect();
+      setMountKey((key) => key + 1);
+    });
+    observer.observe(control);
+    return () => observer.disconnect();
+  }, []);
+  return { mountKey, controlRef };
+}
+
 function roundToStep(value: number, step: number): number {
   const precision = Math.max(0, -Math.floor(Math.log10(step)));
   const factor = 10 ** precision;
@@ -41,8 +61,10 @@ function Slider({
   );
 
   const step = props.step ?? 1;
+  const { mountKey, controlRef } = useRemountWhenShown();
   return (
     <SliderPrimitive.Root
+      key={mountKey}
       className={cn("group data-horizontal:w-full data-vertical:h-full", className)}
       data-slot="slider"
       defaultValue={defaultValue}
@@ -64,7 +86,10 @@ function Slider({
       }}
       {...props}
     >
-      <SliderPrimitive.Control className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-horizontal:min-h-5 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col">
+      <SliderPrimitive.Control
+        ref={controlRef}
+        className="relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-horizontal:min-h-5 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col"
+      >
         <SliderPrimitive.Track
           data-slot="slider-track"
           className="relative grow overflow-hidden rounded-full bg-muted select-none group-hover:bg-foreground/5 data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1.5"
