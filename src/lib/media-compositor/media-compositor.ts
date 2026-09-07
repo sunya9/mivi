@@ -67,7 +67,7 @@ export class MediaCompositor {
       this.#rendererConfig.resolution.height,
     );
     this.#videoEncoder.configure({
-      codec: muxer.config.videoCodec(this.#rendererConfig.resolution),
+      codec: muxer.config.videoCodec(this.#rendererConfig.resolution, this.#fps),
       width: this.#canvas.width,
       height: this.#canvas.height,
       bitrate: 10_000_000,
