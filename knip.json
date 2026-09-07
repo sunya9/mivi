@@ -3,5 +3,6 @@
   "tags": ["-lintignore"],
   "ignoreIssues": {
     "src/components/ui/**": ["exports", "types"]
-  }
+  },
+  "ignoreDependencies": ["@fontsource-variable/geist", "unfonts.css"]
 }
