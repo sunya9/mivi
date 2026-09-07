@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import { execFileSync } from "child_process";
+import { basename, posix } from "path";
 
 import { codecovVitePlugin } from "@codecov/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
@@ -118,6 +119,7 @@ export default defineConfig(({ mode }) => ({
       uploadToken: process.env.CODECOV_TOKEN,
     }),
     devBranchTitlePlugin(),
+    preloadFontsPlugin(["geist-latin-wght-normal.woff2"]),
   ],
   build: {
     rolldownOptions: {
@@ -284,6 +286,43 @@ const stopHeapPolling: BrowserCommand<[]> = async () => {
   await session.detach();
   return peak;
 };
+
+/**
+ * Fonts referenced only from @font-face are fetched after the first render; preloading the
+ * subset every page needs lets it arrive before React paints text.
+ */
+function preloadFontsPlugin(fileNames: string[]): PluginOption {
+  let base = "/";
+  return {
+    name: "preload-fonts",
+    apply: "build",
+    configResolved(config) {
+      base = config.base;
+    },
+    transformIndexHtml: {
+      order: "post",
+      handler(_html, ctx) {
+        return Object.values(ctx.bundle ?? {})
+          .filter(
+            (output) =>
+              output.type === "asset" &&
+              output.originalFileNames.some((name) => fileNames.includes(basename(name))),
+          )
+          .map((output) => ({
+            tag: "link",
+            injectTo: "head-prepend",
+            attrs: {
+              rel: "preload",
+              as: "font",
+              type: "font/woff2",
+              href: posix.join(base, output.fileName),
+              crossorigin: "anonymous",
+            },
+          }));
+      },
+    },
+  };
+}
 
 function devBranchTitlePlugin(): PluginOption {
   return {
