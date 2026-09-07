@@ -44,7 +44,7 @@ async function removeEntry(dir: FileSystemDirectoryHandle, name: string): Promis
   }
 }
 
-export function isOpfsSupported(): boolean {
+function isOpfsSupported(): boolean {
   return (
     typeof navigator !== "undefined" &&
     typeof navigator.storage?.getDirectory === "function" &&

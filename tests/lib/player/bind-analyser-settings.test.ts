@@ -8,8 +8,8 @@ import { createRendererConfigStore } from "@/lib/renderers/renderer-config-store
 function setup() {
   const rendererConfigStore = createRendererConfigStore();
   const playback = createMockStore();
-  const unbind = bindAnalyserSettings(rendererConfigStore, playback);
-  return { rendererConfigStore, playback, unbind };
+  bindAnalyserSettings(rendererConfigStore, playback);
+  return { rendererConfigStore, playback };
 }
 
 test("applies the current settings on bind", () => {
@@ -38,17 +38,4 @@ test("re-applies only when the audio visualizer settings change", () => {
     fftSize: current.audioVisualizerConfig.fftSize,
     smoothingTimeConstant: 0.1,
   });
-});
-
-test("stops following after unbind", () => {
-  const { rendererConfigStore, playback, unbind } = setup();
-  unbind();
-  vi.clearAllMocks();
-
-  rendererConfigStore.set({
-    ...rendererConfig,
-    audioVisualizerConfig: { ...rendererConfig.audioVisualizerConfig, fftSize: 512 },
-  });
-
-  expect(playback.configureAnalyser).not.toHaveBeenCalled();
 });

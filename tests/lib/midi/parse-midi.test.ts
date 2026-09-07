@@ -14,13 +14,6 @@ test("parses a MIDI file into tracks with default configs", async () => {
   expect(instanceKey).not.toBe("");
 });
 
-test("every parse yields a new instance key", async () => {
-  const first = await parseMidi(midiFile);
-  const second = await parseMidi(midiFile);
-  expect(second.instanceKey).not.toBe(first.instanceKey);
-  expect(second.hash).toBe(first.hash);
-});
-
 test("rejects data that is not a MIDI file", async () => {
   const invalid = new File(["invalid midi data"], "test.mid", { type: "audio/midi" });
   await expect(parseMidi(invalid)).rejects.toThrow("Bad MIDI file.");

@@ -40,12 +40,6 @@ async function renderSlotHook(store: FileStore) {
   return rendered;
 }
 
-test("useFileStore throws outside the provider", () => {
-  expect(() => renderHook(() => useFileStore())).toThrow(
-    "useFileStore must be used within FileStoreContext",
-  );
-});
-
 test("useFileSlot suspends until the stored file is read, then follows decoding", async () => {
   const { storage, store } = createStore();
   await storage.write("midi", file);

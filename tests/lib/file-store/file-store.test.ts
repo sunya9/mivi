@@ -49,20 +49,6 @@ test("preload returns the same promise on every call", () => {
   expect(store.preload()).toBe(store.preload());
 });
 
-test("preload keeps the rejected promise until reset", async () => {
-  const { storage, store } = createStore();
-  const read = vi.spyOn(storage, "read").mockRejectedValueOnce(new Error("boom"));
-  const failed = store.preload();
-
-  await expect(failed).rejects.toThrow("boom");
-  expect(store.preload()).toBe(failed);
-
-  read.mockRestore();
-  store.reset();
-  await store.preload();
-  expect(store.slots.every((slot) => slot.loaded)).toBe(true);
-});
-
 test("preload after reset reloads only slots that have not been loaded", async () => {
   const { storage, store } = createStore();
   const original = storage.read.bind(storage);

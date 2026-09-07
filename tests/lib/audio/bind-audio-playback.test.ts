@@ -31,8 +31,8 @@ function createSlot() {
 function setup() {
   const audioSlot = createSlot();
   const playback = new AudioPlaybackStoreImpl(audioContext);
-  const unbind = bindAudioToPlayback(audioSlot, playback, audioContext);
-  return { audioSlot, playback, unbind };
+  bindAudioToPlayback(audioSlot, playback, audioContext);
+  return { audioSlot, playback };
 }
 
 test("pushes an already decoded file into the playback store on bind", async () => {
@@ -53,14 +53,5 @@ test("follows file changes, including removal", async () => {
   expect(playback.getSnapshot().duration).toBe(1);
 
   await audioSlot.setFile(undefined);
-  expect(playback.getSnapshot().duration).toBe(0);
-});
-
-test("stops following after unbind", async () => {
-  const { audioSlot, playback, unbind } = setup();
-
-  unbind();
-  await audioSlot.setFile(audioFile);
-
   expect(playback.getSnapshot().duration).toBe(0);
 });

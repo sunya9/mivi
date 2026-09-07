@@ -1,12 +1,8 @@
 import { expect, test } from "vitest";
 
-import { isOpfsSupported, OpfsFileStorage } from "@/lib/file-store/opfs-file-storage";
+import { OpfsFileStorage } from "@/lib/file-store/opfs-file-storage";
 
 const file = new File(["hello"], "hello.txt", { type: "text/plain", lastModified: 1234 });
-
-test("OPFS is available in the browser runner", () => {
-  expect(isOpfsSupported()).toBe(true);
-});
 
 test("returns undefined for a missing key", async () => {
   const storage = new OpfsFileStorage();

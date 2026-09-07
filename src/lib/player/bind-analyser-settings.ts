@@ -5,7 +5,7 @@ import type { ReadableStore } from "@/lib/store/observable-store";
 export function bindAnalyserSettings(
   rendererConfigStore: ReadableStore<RendererConfig>,
   playback: AudioPlaybackStore,
-): () => void {
+): void {
   let applied: RendererConfig["audioVisualizerConfig"] | null = null;
   const apply = () => {
     const { audioVisualizerConfig } = rendererConfigStore.getSnapshot();
@@ -15,5 +15,5 @@ export function bindAnalyserSettings(
     playback.configureAnalyser({ fftSize, smoothingTimeConstant });
   };
   apply();
-  return rendererConfigStore.subscribe(apply);
+  rendererConfigStore.subscribe(apply);
 }
