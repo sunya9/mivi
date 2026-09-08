@@ -370,6 +370,9 @@ importers:
       vite:
         specifier: ^8.2.2
         version: 8.2.2(@types/node@26.4.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0)
+      vite-plugin-devtools-json:
+        specifier: ^1.1.0
+        version: 1.1.0(vite@8.2.2(@types/node@26.4.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))
       vite-plugin-pwa:
         specifier: ^1.3.0
         version: 1.3.0(@vite-pwa/assets-generator@1.0.2(@types/node@26.4.1))(supports-color@7.2.0)(vite@8.2.2(@types/node@26.4.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))(workbox-build@7.4.1(@types/babel__core@7.20.5)(supports-color@7.2.0))(workbox-window@7.4.1)
@@ -5254,6 +5257,10 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  uuid@14.0.2:
+    resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
+    hasBin: true
+
   validate-npm-package-name@7.0.2:
     resolution: {integrity: sha512-hVDIBwsRruT73PbK7uP5ebUt+ezEtCmzZz3F59BSr2F6OVFnJ/6h8liuvdLrQ88Xmnk6/+xGGuq+pG9WwTuy3A==}
     engines: {node: ^20.17.0 || >=22.9.0}
@@ -5265,6 +5272,11 @@ packages:
   vehicles@10.0.23:
     resolution: {integrity: sha512-URb0yu5WJcCtj//o/FkguYGPjAg5Emh5ZYPTkE4FHI6rQhiUgI7IBS/b6kpPRaCqIY9DpeaVincamQAAZMgJbQ==}
     engines: {node: '>=18.2.0'}
+
+  vite-plugin-devtools-json@1.1.0:
+    resolution: {integrity: sha512-Fy9nMgMudGzDtUh1tGL7v0WAH0gsnZcZu2LFr/+1YxvYaJnxgbqRqv4jLU2tn5L9oqSaETHVCdDo9f8mSCQEZQ==}
+    peerDependencies:
+      vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
 
   vite-plugin-pwa@1.3.0:
     resolution: {integrity: sha512-c5kMgN+ITrOtHXp8PAtk2uOIEea6XjP/unCGxOWWBzQ6qa65qj/awHg0wf+QF9E/2u9vh86LqxPwzEPNbM2r5A==}
@@ -10404,6 +10416,8 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
+  uuid@14.0.2: {}
+
   validate-npm-package-name@7.0.2: {}
 
   vary@1.1.2: {}
@@ -10413,6 +10427,11 @@ snapshots:
       '@babel/runtime': 7.29.7
       decimal.js: 10.6.0
       tslib: 2.8.1
+
+  vite-plugin-devtools-json@1.1.0(vite@8.2.2(@types/node@26.4.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0)):
+    dependencies:
+      uuid: 14.0.2
+      vite: 8.2.2(@types/node@26.4.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0)
 
   vite-plugin-pwa@1.3.0(@vite-pwa/assets-generator@1.0.2(@types/node@26.4.1))(supports-color@7.2.0)(vite@8.2.2(@types/node@26.4.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))(workbox-build@7.4.1(@types/babel__core@7.20.5)(supports-color@7.2.0))(workbox-window@7.4.1):
     dependencies:

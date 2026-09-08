@@ -9,12 +9,14 @@ import { playwright } from "@vitest/browser-playwright";
 import { visualizer } from "rollup-plugin-visualizer";
 import Unfonts from "unplugin-fonts/vite";
 import { defineConfig, PluginOption } from "vite";
+import devtoolsJson from "vite-plugin-devtools-json";
 import { VitePWA } from "vite-plugin-pwa";
 import { configDefaults } from "vitest/config";
 import { BrowserCommand } from "vitest/node";
 
 export default defineConfig(({ mode }) => ({
   plugins: [
+    devtoolsJson(),
     tailwindcss(),
     react(),
     Unfonts({
