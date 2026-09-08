@@ -3,8 +3,12 @@ import { MidiTrack } from "@/lib/midi/midi";
 import { Renderer, RendererConfig } from "@/lib/renderers/renderer";
 import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-visible-note";
 import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture-renderer";
+import { computePressOffset } from "@/lib/renderers/shared/note-press";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
 import { RoughRectDrawer } from "@/lib/renderers/shared/rough-rect-drawer";
+
+// Keeps a note "touched" for a few pixels past its right edge so short notes still register
+const PLAYHEAD_TOUCH_SLACK_PX = 20;
 
 export class PianoRollRenderer extends Renderer {
   readonly #overflowFactor = 0.5;
@@ -30,14 +34,6 @@ export class PianoRollRenderer extends Renderer {
       isDurationMode: boolean;
       hasCompleted: boolean;
       wasTouchingPlayhead: boolean;
-    }
-  >();
-
-  #pressStates = new Map<
-    number,
-    {
-      startTime: number;
-      isPressed: boolean;
     }
   >();
 
@@ -67,7 +63,6 @@ export class PianoRollRenderer extends Renderer {
     if (currentTime < this.#lastCurrentTime) {
       this.#rippleStates.clear();
       this.#noteFlashStates.clear();
-      this.#pressStates.clear();
     }
     this.#lastCurrentTime = currentTime;
 
@@ -106,6 +101,7 @@ export class PianoRollRenderer extends Renderer {
       const rightEdgeTime = currentTime + (endTime - currentTime) / scale;
       const scaledOverflow =
         (this.config.pianoRollConfig.timeWindow * this.#overflowFactor) / scale;
+      const pxPerSecond = (width * scale) / this.config.pianoRollConfig.timeWindow;
 
       // Binary search to skip notes that end before the visible range
       const startIdx = findFirstVisibleNoteIndex(track.notes, leftEdgeTime - scaledOverflow);
@@ -137,48 +133,23 @@ export class PianoRollRenderer extends Renderer {
         const y = this.#noteToY(note.midi) + verticalMargin;
 
         const noteKey = note.id;
-        const isTouchingPlayhead = Math.abs(x - playheadX) < noteWidth + 20 && playheadX > x;
+        const touchEnd = noteStart + (noteWidth + PLAYHEAD_TOUCH_SLACK_PX) / pxPerSecond;
+        const isTouchingPlayhead = currentTime > noteStart && currentTime < touchEnd;
         const wasNotTouchingPlayhead = !this.#noteFlashStates.has(noteKey);
-
-        // Update press state (only when press effect is enabled)
-        if (this.config.pianoRollConfig.showNotePressEffect) {
-          if (!this.#pressStates.has(noteKey)) {
-            this.#pressStates.set(noteKey, {
-              startTime: currentTime,
-              isPressed: isTouchingPlayhead,
-            });
-          } else if (this.#pressStates.get(noteKey)!.isPressed !== isTouchingPlayhead) {
-            this.#pressStates.set(noteKey, {
-              startTime: currentTime,
-              isPressed: isTouchingPlayhead,
-            });
-          }
-        }
 
         // Draw note with effects
         this.ctx.fillStyle = track.config.color;
         this.ctx.globalAlpha = track.config.opacity;
 
-        // Calculate press offset with animation
-        let pressOffset = 0;
-        if (this.config.pianoRollConfig.showNotePressEffect) {
-          const pressState = this.#pressStates.get(noteKey)!;
-          const pressProgress = Math.min(
-            1,
-            (currentTime - pressState.startTime) /
+        const pressOffset = this.config.pianoRollConfig.showNotePressEffect
+          ? -computePressOffset(
+              noteStart,
+              touchEnd,
               this.config.pianoRollConfig.pressAnimationDuration,
-          );
-          const targetOffset = this.config.pianoRollConfig.notePressDepth;
-          const currentOffset = pressState.isPressed
-            ? pressProgress * targetOffset
-            : targetOffset * (1 - pressProgress);
-          pressOffset = -currentOffset;
-
-          // Clean up completed release animations
-          if (!pressState.isPressed && pressProgress >= 1) {
-            this.#pressStates.delete(noteKey);
-          }
-        }
+              this.config.pianoRollConfig.notePressDepth,
+              currentTime,
+            )
+          : 0;
 
         if (
           this.config.pianoRollConfig.showNoteFlash &&
