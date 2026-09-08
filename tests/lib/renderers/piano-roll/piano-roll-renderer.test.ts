@@ -69,3 +69,25 @@ test("keeps a released note at its resting y once the release animation ends", (
   }
   expect(ys).toEqual(new Set([restingY]));
 });
+
+test("sinks a pressed note by notePressDepth once the press animation completes", () => {
+  const { ctx, renderer } = setup({
+    showNotePressEffect: true,
+    notePressDepth: 4,
+    pressAnimationDuration: 0.1,
+  });
+  const restingY = noteYAt(renderer, ctx, 0);
+  expect(noteYAt(renderer, ctx, 2.2)).toBeCloseTo(restingY + 4);
+});
+
+test("renders the same y for a time no matter which direction playback reached it", () => {
+  const times = Array.from({ length: 40 }, (_, i) => 1.9 + i * 0.025);
+  const forward = setup({ showNotePressEffect: true });
+  const backward = setup({ showNotePressEffect: true });
+  const forwardYs = times.map((t) => noteYAt(forward.renderer, forward.ctx, t));
+  const backwardYs = times
+    .toReversed()
+    .map((t) => noteYAt(backward.renderer, backward.ctx, t))
+    .toReversed();
+  expect(backwardYs).toEqual(forwardYs);
+});
