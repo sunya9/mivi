@@ -27,8 +27,9 @@ import {
 import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { AboutContent } from "./about-content";
+import { AppUpdateSettings } from "./app-update-settings";
+import { GeneralSettingsContent } from "./general-settings-content";
 import { KeyboardShortcutsContent } from "./keyboard-shortcuts-content";
-import { ThemeSettings } from "./theme-settings";
 
 const navGroups = [
   {
@@ -139,7 +140,7 @@ function SettingsDialogContent({
           <ScrollArea className="relative h-107.5 max-h-107.5">
             <div className="p-4">
               <Activity mode={modeForTab("general")}>
-                <ThemeSettings />
+                <GeneralSettingsContent />
               </Activity>
               <Activity mode={modeForTab("about")}>
                 <AboutContent />
@@ -169,7 +170,9 @@ export function SettingsContent({ className }: SettingsContentProps) {
       </TabsList>
       <div>
         <TabsContent value="general" className="py-4">
-          <ThemeSettings />
+          <GeneralSettingsContent>
+            <AppUpdateSettings />
+          </GeneralSettingsContent>
         </TabsContent>
         <TabsContent value="about" className="py-4">
           <AboutContent />
