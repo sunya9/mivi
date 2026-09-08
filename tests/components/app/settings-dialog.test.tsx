@@ -2,28 +2,40 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps, useState } from "react";
 import { AudioContext } from "standardized-audio-context-mock";
+import { createMockPwaState } from "tests/pwa-mock";
 import { expect, test, vi } from "vitest";
 
 import { SettingsDialog, SettingsContent } from "@/components/app/settings-dialog";
 import { AppContext, createAppContext } from "@/contexts/app-context";
+import { PwaContext, PwaState } from "@/contexts/pwa-context";
 
 type Props = ComponentProps<typeof SettingsDialog>;
 
-// Only the app context is needed here; skipping the file-db gate keeps these renders synchronous
-function LightThemeWrapper({ children }: { children: React.ReactNode }) {
-  const [appContextValue] = useState(() =>
-    createAppContext(new AudioContext(), { defaultTheme: "light" }),
-  );
-  return <AppContext value={appContextValue}>{children}</AppContext>;
+// Only the app and PWA contexts are needed here; skipping the file-db gate keeps these renders synchronous
+function createWrapper(pwaOverrides: Partial<PwaState> = {}) {
+  return function LightThemeWrapper({ children }: { children: React.ReactNode }) {
+    const [appContextValue] = useState(() =>
+      createAppContext(new AudioContext(), { defaultTheme: "light" }),
+    );
+    const [pwaState] = useState(() => createMockPwaState(pwaOverrides));
+    return (
+      <AppContext value={appContextValue}>
+        <PwaContext value={pwaState}>{children}</PwaContext>
+      </AppContext>
+    );
+  };
 }
 
-function renderDialog(props: Partial<Props> = {}) {
+const LightThemeWrapper = createWrapper();
+const PendingUpdateWrapper = createWrapper({
+  needRefresh: [true, vi.fn<PwaState["needRefresh"][1]>()],
+});
+
+function renderDialog(props: Partial<Props> = {}, wrapper = LightThemeWrapper) {
   const onTabChange = vi.fn<Props["onTabChange"]>();
   const { rerender } = render(
     <SettingsDialog tab="general" onTabChange={onTabChange} {...props} />,
-    {
-      wrapper: LightThemeWrapper,
-    },
+    { wrapper },
   );
   return { onTabChange, rerender };
 }
@@ -54,6 +66,12 @@ test("SettingsDialog shows General content when tab is general", () => {
 
   // Theme heading should be visible in General tab
   expect(screen.getByText("Theme")).toBeVisible();
+});
+
+test("SettingsDialog leaves app updates to the footer even when an update is waiting", () => {
+  renderDialog({}, PendingUpdateWrapper);
+
+  expect(screen.queryByRole("button", { name: "Update now" })).not.toBeInTheDocument();
 });
 
 test("SettingsDialog shows About content when tab is about", () => {
@@ -158,6 +176,18 @@ test("SettingsContent shows General content by default", () => {
   render(<SettingsContent />, { wrapper: LightThemeWrapper });
 
   expect(screen.getByText("Theme")).toBeVisible();
+});
+
+test("SettingsContent offers Update now in the General tab when an update is waiting", () => {
+  render(<SettingsContent />, { wrapper: PendingUpdateWrapper });
+
+  expect(screen.getByRole("button", { name: "Update now" })).toBeVisible();
+});
+
+test("SettingsContent hides the app update control when no update is waiting", () => {
+  render(<SettingsContent />, { wrapper: LightThemeWrapper });
+
+  expect(screen.queryByText("App updates")).not.toBeInTheDocument();
 });
 
 test("SettingsContent switches to About tab when clicked", async () => {
