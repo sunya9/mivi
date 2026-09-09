@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import { useState } from "react";
 
 import { AppHeader } from "@/components/app/app-header";
@@ -25,7 +26,6 @@ import { Toaster } from "@/components/ui/toast";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
 import { useVisualizerFit } from "@/hooks/use-visualizer-fit";
-import { cn } from "@/lib/utils";
 
 const PANELS: PanelConfig[] = [
   { id: "track-list", defaultSize: 300, constraints: { minSize: 200 } },

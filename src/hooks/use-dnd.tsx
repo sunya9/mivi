@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import { useState, useCallback, useMemo, type DragEvent } from "react";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -5,7 +6,6 @@ import { useSetAudioFile } from "@/lib/audio/use-audio";
 import { useSetBackgroundImageFile } from "@/lib/background-image/use-background-image";
 import { errorLogWithToast } from "@/lib/error-toast";
 import { useSetMidiFile } from "@/lib/midi/use-midi";
-import { cn } from "@/lib/utils";
 
 export function useDnd() {
   const setMidiFile = useSetMidiFile();

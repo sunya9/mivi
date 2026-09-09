@@ -1,7 +1,7 @@
+import { cn } from "cn";
 import { useCallback, useId, useState } from "react";
 
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { cn } from "@/lib/utils";
 
 interface ColorPickerInputProps {
   value: string;

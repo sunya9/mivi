@@ -1,7 +1,7 @@
+import { cn } from "cn";
 import { useLayoutEffect, useRef } from "react";
 
 import { useAppContext } from "@/contexts/app-context";
-import { cn } from "@/lib/utils";
 
 interface Props {
   className?: string;

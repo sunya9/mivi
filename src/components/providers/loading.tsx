@@ -1,8 +1,9 @@
+import { cn } from "cn";
 import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/contexts/app-context";
-import { cn, resetConfig } from "@/lib/utils";
+import { resetConfig } from "@/lib/utils";
 
 export function Loading() {
   const { fileStore } = useAppContext();
