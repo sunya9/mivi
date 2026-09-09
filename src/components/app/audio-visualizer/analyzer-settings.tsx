@@ -8,6 +8,22 @@ export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionPr
     <>
       <Separator />
       <SliderRow
+        label={<span>Attack: {config.attackTime}ms</span>}
+        value={[config.attackTime]}
+        min={0}
+        max={300}
+        step={10}
+        onValueChange={([value]) => setConfig({ attackTime: value })}
+      />
+      <SliderRow
+        label={<span>Release: {config.releaseTime}ms</span>}
+        value={[config.releaseTime]}
+        min={0}
+        max={1000}
+        step={10}
+        onValueChange={([value]) => setConfig({ releaseTime: value })}
+      />
+      <SliderRow
         label={
           <span>
             Frequency Range: {config.minFrequency}Hz - {config.maxFrequency}Hz

@@ -14,11 +14,8 @@ function setup() {
 
 test("applies the current settings on bind", () => {
   const { playback } = setup();
-  const { fftSize, smoothingTimeConstant } = rendererConfig.audioVisualizerConfig;
-  expect(playback.configureAnalyser).toHaveBeenCalledExactlyOnceWith({
-    fftSize,
-    smoothingTimeConstant,
-  });
+  const { fftSize } = rendererConfig.audioVisualizerConfig;
+  expect(playback.configureAnalyser).toHaveBeenCalledExactlyOnceWith({ fftSize });
 });
 
 test("re-applies only when the audio visualizer settings change", () => {
@@ -32,10 +29,7 @@ test("re-applies only when the audio visualizer settings change", () => {
 
   rendererConfigStore.set({
     ...current,
-    audioVisualizerConfig: { ...current.audioVisualizerConfig, smoothingTimeConstant: 0.1 },
+    audioVisualizerConfig: { ...current.audioVisualizerConfig, fftSize: 512 },
   });
-  expect(playback.configureAnalyser).toHaveBeenCalledExactlyOnceWith({
-    fftSize: current.audioVisualizerConfig.fftSize,
-    smoothingTimeConstant: 0.1,
-  });
+  expect(playback.configureAnalyser).toHaveBeenCalledExactlyOnceWith({ fftSize: 512 });
 });

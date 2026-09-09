@@ -1,6 +1,7 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/renderers/renderer";
 
+import { calculateBandAmplitudes } from "./band-amplitudes";
 import { getGradientCoords } from "./gradient-utils";
 import type { AudioVisualizerDrawer } from "./types";
 
@@ -94,13 +95,7 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
     this.#ctx.globalAlpha = barOpacity;
     this.#ctx.fillStyle = fillStyle;
 
-    // Get frequency bins for the specified range
-    const binsPerBar = this.#calculateBinsPerBar(
-      frequencyData,
-      barCount,
-      minFrequency,
-      maxFrequency,
-    );
+    const binsPerBar = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);
 
     // Draw bars
     for (let i = 0; i < barCount; i++) {
@@ -124,47 +119,6 @@ export class BarSpectrumDrawer implements AudioVisualizerDrawer {
     }
 
     this.#ctx.restore();
-  }
-
-  /**
-   * Calculate average amplitude for each bar from frequency bins.
-   */
-  #calculateBinsPerBar(
-    frequencyData: FrequencyData,
-    barCount: number,
-    minFrequency: number,
-    maxFrequency: number,
-  ): number[] {
-    const { frequencyData: data, frequencyBinCount, nyquistFrequency } = frequencyData;
-
-    const result: number[] = [];
-
-    // Use logarithmic scale for more natural frequency distribution
-    const logMin = Math.log10(minFrequency);
-    const logMax = Math.log10(maxFrequency);
-    const logStep = (logMax - logMin) / barCount;
-
-    for (let i = 0; i < barCount; i++) {
-      // Calculate frequency range for this bar using log scale
-      const freqStart = Math.pow(10, logMin + i * logStep);
-      const freqEnd = Math.pow(10, logMin + (i + 1) * logStep);
-
-      // Convert to bin indices
-      const binStart = Math.floor((freqStart / nyquistFrequency) * frequencyBinCount);
-      const binEnd = Math.ceil((freqEnd / nyquistFrequency) * frequencyBinCount);
-
-      // Average the bins in this range
-      let sum = 0;
-      let count = 0;
-      for (let j = Math.max(0, binStart); j < Math.min(frequencyBinCount, binEnd); j++) {
-        sum += data[j];
-        count++;
-      }
-
-      result.push(count > 0 ? sum / count : 0);
-    }
-
-    return result;
   }
 
   /**

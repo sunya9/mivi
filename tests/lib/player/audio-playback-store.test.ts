@@ -348,16 +348,14 @@ test("persists volume and mute under the existing keys", () => {
   expect(createStore().store.getSnapshot()).toMatchObject({ volume: 0.4, muted: true });
 });
 
-test("configureAnalyser applies fft size and smoothing to the live analyser", () => {
-  // The mocked AnalyserNode does not derive bin counts, so observe the wrapper's setters
+test("configureAnalyser applies the fft size to the live analyser", () => {
+  // The mocked AnalyserNode does not derive bin counts, so observe the wrapper's setter
   const setFftSize = vi.spyOn(AudioAnalyzer.prototype, "fftSize", "set");
-  const setSmoothing = vi.spyOn(AudioAnalyzer.prototype, "smoothingTimeConstant", "set");
   const { store } = createStoreWithAudioBuffer();
 
-  store.configureAnalyser({ fftSize: 512, smoothingTimeConstant: 0.2 });
+  store.configureAnalyser({ fftSize: 512 });
 
   expect(setFftSize).toHaveBeenCalledWith(512);
-  expect(setSmoothing).toHaveBeenCalledWith(0.2);
 });
 
 test("pause stops playback at the position reached", async () => {

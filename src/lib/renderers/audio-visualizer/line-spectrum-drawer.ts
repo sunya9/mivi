@@ -1,6 +1,7 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/renderers/renderer";
 
+import { calculateBandAmplitudes } from "./band-amplitudes";
 import { getGradientCoords } from "./gradient-utils";
 import type { AudioVisualizerDrawer } from "./types";
 
@@ -86,12 +87,7 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
     this.#ctx.lineJoin = "round";
     this.#ctx.lineCap = "round";
 
-    const amplitudes = this.#calculateAmplitudes(
-      frequencyData,
-      barCount,
-      minFrequency,
-      maxFrequency,
-    );
+    const amplitudes = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);
 
     const points = this.#generatePoints(
       amplitudes,
@@ -188,39 +184,6 @@ export class LineSpectrumDrawer implements AudioVisualizerDrawer {
     }
 
     this.#ctx.restore();
-  }
-
-  #calculateAmplitudes(
-    frequencyData: FrequencyData,
-    barCount: number,
-    minFrequency: number,
-    maxFrequency: number,
-  ): number[] {
-    const { frequencyData: data, frequencyBinCount, nyquistFrequency } = frequencyData;
-    const result: number[] = [];
-
-    const logMin = Math.log10(minFrequency);
-    const logMax = Math.log10(maxFrequency);
-    const logStep = (logMax - logMin) / barCount;
-
-    for (let i = 0; i < barCount; i++) {
-      const freqStart = Math.pow(10, logMin + i * logStep);
-      const freqEnd = Math.pow(10, logMin + (i + 1) * logStep);
-
-      const binStart = Math.floor((freqStart / nyquistFrequency) * frequencyBinCount);
-      const binEnd = Math.ceil((freqEnd / nyquistFrequency) * frequencyBinCount);
-
-      let sum = 0;
-      let count = 0;
-      for (let j = Math.max(0, binStart); j < Math.min(frequencyBinCount, binEnd); j++) {
-        sum += data[j];
-        count++;
-      }
-
-      result.push(count > 0 ? sum / count : 0);
-    }
-
-    return result;
   }
 
   #generatePoints(

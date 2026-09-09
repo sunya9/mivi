@@ -11,8 +11,7 @@ export function bindAnalyserSettings(
     const { audioVisualizerConfig } = rendererConfigStore.getSnapshot();
     if (audioVisualizerConfig === applied) return;
     applied = audioVisualizerConfig;
-    const { fftSize, smoothingTimeConstant } = audioVisualizerConfig;
-    playback.configureAnalyser({ fftSize, smoothingTimeConstant });
+    playback.configureAnalyser({ fftSize: audioVisualizerConfig.fftSize });
   };
   apply();
   rendererConfigStore.subscribe(apply);

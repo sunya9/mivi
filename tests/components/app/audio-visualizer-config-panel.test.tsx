@@ -211,6 +211,8 @@ test.each([
   [/^Opacity/, "barOpacity"],
   [/^Height/, "height"],
   [/^Mirror Opacity/, "mirrorOpacity"],
+  [/^Attack/, "attackTime"],
+  [/^Release/, "releaseTime"],
 ])("%s slider updates %s for bars", async (label, key) => {
   await renderPane({ audioVisualizerConfig: barsConfig });
   await nudgeSlider(label);

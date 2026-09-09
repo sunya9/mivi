@@ -1,5 +1,6 @@
 import type { SerializedAudio } from "./audio";
 import type { FrequencyData, FFTSize } from "./audio-analyzer";
+import { DEFAULT_SPECTRUM_ENVELOPE, SpectrumEnvelope } from "./spectrum-envelope";
 
 export interface PrecomputedFFTData {
   /** Pre-computed frequency data for each frame */
@@ -12,14 +13,14 @@ export interface PrecomputedFFTData {
 
 interface FFTPrecomputeOptions {
   fftSize?: FFTSize;
-  smoothingTimeConstant?: number;
+  attackTime?: number;
+  releaseTime?: number;
   minDecibels?: number;
   maxDecibels?: number;
   onProgress?: (current: number, total: number) => void;
 }
 
 const DEFAULT_FFT_SIZE: FFTSize = 2048;
-const DEFAULT_SMOOTHING_TIME_CONSTANT = 0.8;
 const DEFAULT_MIN_DECIBELS = -100;
 const DEFAULT_MAX_DECIBELS = -30;
 
@@ -35,7 +36,8 @@ export function precomputeFFTData(
 ): PrecomputedFFTData {
   const {
     fftSize = DEFAULT_FFT_SIZE,
-    smoothingTimeConstant = DEFAULT_SMOOTHING_TIME_CONSTANT,
+    attackTime = DEFAULT_SPECTRUM_ENVELOPE.attackTime,
+    releaseTime = DEFAULT_SPECTRUM_ENVELOPE.releaseTime,
     minDecibels = DEFAULT_MIN_DECIBELS,
     maxDecibels = DEFAULT_MAX_DECIBELS,
   } = options;
@@ -44,27 +46,22 @@ export function precomputeFFTData(
 
   const totalFrames = Math.ceil(duration * fps);
   const samplesPerFrame = Math.floor(sampleRate / fps);
+  const envelope = new SpectrumEnvelope({ attackTime, releaseTime });
 
   const frames: FrequencyData[] = [];
 
   // Process audio frame by frame directly from serialized channels
   for (let frameIndex = 0; frameIndex < totalFrames; frameIndex++) {
-    frames.push(
-      computeFFTFrame(
-        serializedAudio,
-        frameIndex * samplesPerFrame,
-        fftSize,
-        minDecibels,
-        maxDecibels,
-      ),
+    const frame = computeFFTFrame(
+      serializedAudio,
+      frameIndex * samplesPerFrame,
+      fftSize,
+      minDecibels,
+      maxDecibels,
     );
+    frames.push(envelope.follow(frame, frameIndex / fps));
 
     options.onProgress?.(frameIndex + 1, totalFrames);
-  }
-
-  // Apply smoothing between frames (simulating smoothingTimeConstant)
-  if (smoothingTimeConstant > 0) {
-    applySmoothing(frames, smoothingTimeConstant);
   }
 
   return {
@@ -207,24 +204,6 @@ function fft(real: Float32Array, imag: Float32Array): void {
 
         angle += angleStep;
       }
-    }
-  }
-}
-
-/**
- * Apply temporal smoothing between frames.
- */
-function applySmoothing(frames: FrequencyData[], smoothingTimeConstant: number): void {
-  for (let i = 1; i < frames.length; i++) {
-    const prevFrame = frames[i - 1];
-    const currentFrame = frames[i];
-
-    for (let j = 0; j < currentFrame.frequencyData.length; j++) {
-      // Apply exponential smoothing: new = α * current + (1 - α) * previous
-      const smoothed =
-        smoothingTimeConstant * prevFrame.frequencyData[j] +
-        (1 - smoothingTimeConstant) * currentFrame.frequencyData[j];
-      currentFrame.frequencyData[j] = Math.round(smoothed);
     }
   }
 }

@@ -221,7 +221,8 @@ export class MediaCompositor {
 
     return precomputeFFTData(this.#serializedAudio, this.#fps, {
       fftSize: audioVisualizerConfig.fftSize,
-      smoothingTimeConstant: audioVisualizerConfig.smoothingTimeConstant,
+      attackTime: audioVisualizerConfig.attackTime,
+      releaseTime: audioVisualizerConfig.releaseTime,
       onProgress: (current) => this.#progress.set("FFT", current),
     });
   }
