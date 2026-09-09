@@ -87,3 +87,14 @@ test("should open the file chooser when the label is clicked", async () => {
 
   expect(onClick).toHaveBeenCalledOnce();
 });
+
+test("should open the file chooser when the Open button is clicked", async () => {
+  await renderFileButton();
+  const fileInput = screen.getByLabelText("No file selected");
+  const onClick = vi.fn<() => void>();
+  fileInput.addEventListener("click", onClick);
+
+  await userEvent.click(screen.getByRole("button", { name: "Open" }));
+
+  expect(onClick).toHaveBeenCalledOnce();
+});

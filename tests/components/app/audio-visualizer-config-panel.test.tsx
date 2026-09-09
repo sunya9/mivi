@@ -2,7 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
 import { rendererConfig } from "tests/fixtures";
-import { customRender } from "tests/util";
+import { chooseAnotherOption, customRender, nudgeSlider, pickColor } from "tests/util";
 import { expect, test, vi } from "vitest";
 
 import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
@@ -188,4 +188,105 @@ test("should show size label instead of height when style is circular", async ()
   });
   // For circular, the height slider shows "Size" instead of "Height"
   expect(screen.getByText(/Size:/)).toBeInTheDocument();
+});
+
+const barsConfig = {
+  ...audioVisualizerConfig,
+  style: "bars" as const,
+  mirror: true,
+  useGradient: true,
+};
+
+const lineSpectrumConfig = {
+  ...audioVisualizerConfig,
+  style: "lineSpectrum" as const,
+  lineSpectrumConfig: { ...audioVisualizerConfig.lineSpectrumConfig, stroke: true, fill: true },
+};
+
+test.each([
+  [/^Bar Count/, "barCount"],
+  [/^Gap/, "barGap"],
+  [/^Padding/, "barPadding"],
+  [/^Min Height/, "barMinHeight"],
+  [/^Opacity/, "barOpacity"],
+  [/^Height/, "height"],
+  [/^Mirror Opacity/, "mirrorOpacity"],
+])("%s slider updates %s for bars", async (label, key) => {
+  await renderPane({ audioVisualizerConfig: barsConfig });
+  await nudgeSlider(label);
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    audioVisualizerConfig: expect.objectContaining({ [key]: expect.any(Number) }),
+  });
+});
+
+test.each([
+  [/^Smoothness/, "tension"],
+  [/^Line Width/, "lineWidth"],
+  [/^Stroke Opacity/, "strokeOpacity"],
+  [/^Fill Opacity/, "fillOpacity"],
+])("%s slider updates lineSpectrumConfig.%s", async (label, key) => {
+  await renderPane({ audioVisualizerConfig: lineSpectrumConfig });
+  await nudgeSlider(label);
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    audioVisualizerConfig: {
+      lineSpectrumConfig: expect.objectContaining({ [key]: expect.any(Number) }),
+    },
+  });
+});
+
+test.each([
+  ["Stroke", "stroke"],
+  ["Fill", "fill"],
+])("%s switch updates lineSpectrumConfig.%s", async (label, key) => {
+  await renderPane({ audioVisualizerConfig: lineSpectrumConfig });
+  await userEvent.click(screen.getByRole("switch", { name: label }));
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    audioVisualizerConfig: { lineSpectrumConfig: { [key]: false } },
+  });
+});
+
+test("stroke color picker updates lineSpectrumConfig.strokeColor", async () => {
+  await renderPane({ audioVisualizerConfig: lineSpectrumConfig });
+  pickColor("Stroke Color", "#123456");
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    audioVisualizerConfig: { lineSpectrumConfig: { strokeColor: "#123456" } },
+  });
+});
+
+test.each([
+  ["Bar Style", "barStyle"],
+  ["Gradient Direction", "gradientDirection"],
+])("%s select updates %s", async (label, key) => {
+  await renderPane({ audioVisualizerConfig: barsConfig });
+  await chooseAnotherOption(label);
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    audioVisualizerConfig: { [key]: expect.any(String) },
+  });
+});
+
+test("use gradient switch updates useGradient", async () => {
+  await renderPane({ audioVisualizerConfig: barsConfig });
+  await userEvent.click(screen.getByRole("switch", { name: "Use Gradient" }));
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    audioVisualizerConfig: { useGradient: false },
+  });
+});
+
+test.each([
+  ["Gradient Start Color", "gradientStartColor"],
+  ["Gradient End Color", "gradientEndColor"],
+])("%s picker updates %s", async (label, key) => {
+  await renderPane({ audioVisualizerConfig: barsConfig });
+  pickColor(label, "#123456");
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    audioVisualizerConfig: { [key]: "#123456" },
+  });
+});
+
+test("single color picker updates singleColor", async () => {
+  await renderPane({ audioVisualizerConfig: { ...barsConfig, useGradient: false } });
+  pickColor("Color", "#123456");
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    audioVisualizerConfig: { singleColor: "#123456" },
+  });
 });

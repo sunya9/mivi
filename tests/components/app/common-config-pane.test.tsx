@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { AudioContext } from "standardized-audio-context-mock";
-import { customRender } from "tests/util";
+import { chooseAnotherOption, customRender } from "tests/util";
 import { beforeEach, expect, test, vi } from "vitest";
 
 import { CommonConfigPane } from "@/components/app/common-config-pane";
@@ -329,4 +329,11 @@ test("should hide custom size inputs again when a preset is picked", async () =>
   await selectResolution("1080×1920 (9:16)");
   expect(config().resolution).toMatchObject({ width: 1080, height: 1920 });
   expect(screen.queryByRole("spinbutton", { name: "Width" })).not.toBeInTheDocument();
+});
+
+test("should update the store when the audio visualizer layer is changed", async () => {
+  const { config } = await renderCommonConfigPane();
+  const before = config().audioVisualizerLayer;
+  await chooseAnotherOption("Audio Visualizer Layer");
+  expect(config().audioVisualizerLayer).not.toEqual(before);
 });

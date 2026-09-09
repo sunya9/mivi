@@ -2,7 +2,7 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
 import { testMidiTracks, rendererConfig } from "tests/fixtures";
-import { customRender } from "tests/util";
+import { chooseAnotherOption, customRender, nudgeSlider, pickColor } from "tests/util";
 import { expect, test, vi } from "vitest";
 
 import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
@@ -230,4 +230,68 @@ test("flash duration slider shown when flash mode is duration", async () => {
   expect(
     screen.getByText(`Flash Duration: ${pianoRollConfig.noteFlashDuration}sec`),
   ).toBeInTheDocument();
+});
+
+const everySectionOn = {
+  ...pianoRollConfig,
+  showPlayhead: true,
+  showNotePressEffect: true,
+  showRippleEffect: true,
+  useCustomRippleColor: true,
+  showNoteFlash: true,
+  noteFlashMode: "duration" as const,
+  showRoughEdge: true,
+  showNoiseTexture: true,
+};
+
+test.each([
+  [/^Note Vertical Margin/, "noteVerticalMargin"],
+  [/^Playhead Border Width/, "playheadWidth"],
+  [/^Playhead Border Opacity/, "playheadOpacity"],
+  [/^View Range/, "viewRangeBottom"],
+  [/^Press Depth/, "notePressDepth"],
+  [/^Press Animation Duration/, "pressAnimationDuration"],
+  [/^Ripple Duration/, "rippleDuration"],
+  [/^Ripple Radius/, "rippleRadius"],
+  [/^Flash Intensity/, "noteFlashIntensity"],
+  [/^Fade Out Duration/, "noteFlashFadeOutDuration"],
+  [/^Flash Duration/, "noteFlashDuration"],
+  [/^Rough Edge Intensity/, "roughEdgeIntensity"],
+  [/^Rough Edge Segment/, "roughEdgeSegmentLength"],
+  [/^Noise Intensity/, "noiseIntensity"],
+  [/^Noise Grain Size/, "noiseGrainSize"],
+  [/^Noise Color Variance/, "noiseColorVariance"],
+])("%s slider updates %s", async (label, key) => {
+  await renderPane({ pianoRollConfig: everySectionOn });
+  await nudgeSlider(label);
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    pianoRollConfig: expect.objectContaining({ [key]: expect.any(Number) }),
+  });
+});
+
+test.each([
+  ["Playhead Border Color", "playheadColor"],
+  ["Ripple Color", "rippleColor"],
+])("%s picker updates %s", async (label, key) => {
+  await renderPane({ pianoRollConfig: everySectionOn });
+  pickColor(label, "#123456");
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    pianoRollConfig: { [key]: "#123456" },
+  });
+});
+
+test("use custom ripple color switch updates useCustomRippleColor", async () => {
+  await renderPane({ pianoRollConfig: everySectionOn });
+  await userEvent.click(screen.getByRole("switch", { name: "Use Custom Ripple Color" }));
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    pianoRollConfig: { useCustomRippleColor: false },
+  });
+});
+
+test("flash mode select updates noteFlashMode", async () => {
+  await renderPane({ pianoRollConfig: everySectionOn });
+  await chooseAnotherOption("Flash Mode");
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    pianoRollConfig: { noteFlashMode: "on" },
+  });
 });

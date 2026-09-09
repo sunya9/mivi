@@ -253,3 +253,15 @@ test("SettingsDialog keyboard shortcut works when dialog is already open", async
 
   expect(onTabChange).toHaveBeenCalledWith("shortcuts");
 });
+
+test("SettingsDialog applies the theme chosen in the select", async () => {
+  renderDialog();
+
+  await userEvent.click(screen.getByRole("combobox", { name: "Theme" }));
+  await userEvent.click(screen.getByRole("option", { name: "Dark" }));
+  expect(document.documentElement).toHaveClass("dark");
+
+  await userEvent.click(screen.getByRole("combobox", { name: "Theme" }));
+  await userEvent.click(screen.getByRole("option", { name: "Light" }));
+  expect(document.documentElement).toHaveClass("light");
+});

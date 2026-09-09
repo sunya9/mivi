@@ -1,11 +1,15 @@
 import {
   act,
+  fireEvent,
   renderHook,
   RenderHookOptions,
   RenderHookResult,
   RenderResult,
   render as renderOriginal,
+  screen,
+  within,
 } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { AudioContext } from "standardized-audio-context-mock";
 
 import { AppContextValue, createAppContext } from "@/contexts/app-context";
@@ -98,4 +102,25 @@ export async function fetchFixtureAsFile(path: string, name: string, type: strin
   return fetch(path)
     .then((res) => res.blob())
     .then((blob) => new File([blob], name, { type }));
+}
+
+export async function nudgeSlider(name: string | RegExp) {
+  const group = screen.getByRole("group", { name });
+  const [slider] = within(group).getAllByRole("slider", { hidden: true });
+  slider.focus();
+  await userEvent.keyboard("{ArrowRight}{ArrowLeft}");
+}
+
+export function pickColor(name: string, hex: string) {
+  const textbox = screen.getByRole("textbox", { name });
+  const picker = document.getElementById(`${textbox.id}-color-picker`)!;
+  fireEvent.input(picker, { target: { value: hex } });
+}
+
+export async function chooseAnotherOption(name: string | RegExp) {
+  await userEvent.click(screen.getByRole("combobox", { name }));
+  const option = screen
+    .getAllByRole("option")
+    .find((candidate) => candidate.getAttribute("aria-selected") !== "true")!;
+  await userEvent.click(option);
 }

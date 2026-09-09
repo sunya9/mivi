@@ -2,7 +2,7 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
 import { testMidiTracks, rendererConfig } from "tests/fixtures";
-import { customRender } from "tests/util";
+import { customRender, nudgeSlider, pickColor } from "tests/util";
 import { expect, test, vi } from "vitest";
 
 import { VerticalPianoRollConfigPanel } from "@/components/app/vertical-piano-roll-config-panel";
@@ -238,4 +238,34 @@ test("flash duration slider shown when flash mode is duration", async () => {
   expect(
     screen.getByText(`Flash Duration: ${verticalPianoRollConfig.noteFlashDuration}sec`),
   ).toBeInTheDocument();
+});
+
+test.each([
+  [/^Note Margin/, "noteMargin"],
+  [/^Note Corner Radius/, "noteCornerRadius"],
+  [/^Key Press Opacity/, "keyPressOpacity"],
+  [/^Key Line Opacity/, "keyLineOpacity"],
+  [/^Octave Line Opacity/, "octaveLineOpacity"],
+  [/^Hit Line Width/, "hitLineWidth"],
+  [/^Hit Line Opacity/, "hitLineOpacity"],
+])("%s slider updates %s", async (label, key) => {
+  await renderPane();
+  await nudgeSlider(label);
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    verticalPianoRollConfig: expect.objectContaining({ [key]: expect.any(Number) }),
+  });
+});
+
+test.each([
+  ["White Key Color", "whiteKeyColor"],
+  ["Black Key Color", "blackKeyColor"],
+  ["Key Line Color", "keyLineColor"],
+  ["Octave Line Color", "octaveLineColor"],
+  ["Hit Line Color", "hitLineColor"],
+])("%s picker updates %s", async (label, key) => {
+  await renderPane();
+  pickColor(label, "#123456");
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    verticalPianoRollConfig: { [key]: "#123456" },
+  });
 });
