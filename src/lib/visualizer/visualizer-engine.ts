@@ -2,6 +2,7 @@ import { cn } from "cn";
 
 import { SerializedAudio } from "@/lib/audio/audio";
 import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
+import { SpectrumEnvelope } from "@/lib/audio/spectrum-envelope";
 import { MidiTracks } from "@/lib/midi/midi";
 import type { AudioPlaybackStore } from "@/lib/player/audio-playback-store";
 import { RendererConfig } from "@/lib/renderers/renderer";
@@ -26,6 +27,7 @@ export class VisualizerEngine {
   readonly #sources: VisualizerSources;
   readonly #controller: RendererController;
   readonly #unsubscribes: (() => void)[];
+  readonly #envelope: SpectrumEnvelope;
   #rendererConfig: RendererConfig;
   #containerSize: { width: number; height: number } | null = null;
   #frame: number | null = null;
@@ -44,6 +46,7 @@ export class VisualizerEngine {
     this.#controller = new RendererController(context);
 
     this.#rendererConfig = sources.rendererConfig.getSnapshot();
+    this.#envelope = new SpectrumEnvelope(this.#rendererConfig.audioVisualizerConfig);
     this.#controller.setRendererConfig(this.#rendererConfig);
     this.#applyAspectRatio();
     this.#controller.setBackgroundImageBitmap(sources.backgroundImage.getSnapshot());
@@ -93,6 +96,7 @@ export class VisualizerEngine {
     const previous = this.#rendererConfig;
     const config = this.#sources.rendererConfig.getSnapshot();
     this.#rendererConfig = config;
+    this.#envelope.configure(config.audioVisualizerConfig);
     this.#controller.setRendererConfig(config);
     if (previous.resolution !== config.resolution) {
       this.#applyAspectRatio();
@@ -182,13 +186,12 @@ export class VisualizerEngine {
     if (!frequencyData && usePrecomputedFft && serializedAudio) {
       frequencyData = computeFFTAtTime(serializedAudio, position, {
         fftSize: this.#rendererConfig.audioVisualizerConfig.fftSize,
-        smoothingTimeConstant: this.#rendererConfig.audioVisualizerConfig.smoothingTimeConstant,
       });
     }
     this.#controller.render(
       midiTracks?.tracks ?? [],
       position + (midiTracks?.midiOffset ?? 0),
-      frequencyData,
+      frequencyData && this.#envelope.follow(frequencyData, position),
     );
   }
 }

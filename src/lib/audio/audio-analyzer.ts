@@ -18,13 +18,11 @@ export type FFTSize = 256 | 512 | 1024 | 2048 | 4096 | 8192;
 
 interface AudioAnalyzerOptions {
   fftSize?: FFTSize;
-  smoothingTimeConstant?: number;
   minDecibels?: number;
   maxDecibels?: number;
 }
 
 const DEFAULT_FFT_SIZE: FFTSize = 2048;
-const DEFAULT_SMOOTHING_TIME_CONSTANT = 0.8;
 const DEFAULT_MIN_DECIBELS = -100;
 const DEFAULT_MAX_DECIBELS = -30;
 
@@ -41,14 +39,14 @@ export class AudioAnalyzer {
   constructor(audioContext: AudioContext, options: AudioAnalyzerOptions = {}) {
     const {
       fftSize = DEFAULT_FFT_SIZE,
-      smoothingTimeConstant = DEFAULT_SMOOTHING_TIME_CONSTANT,
       minDecibels = DEFAULT_MIN_DECIBELS,
       maxDecibels = DEFAULT_MAX_DECIBELS,
     } = options;
 
     this.#analyser = audioContext.createAnalyser();
     this.#analyser.fftSize = fftSize;
-    this.#analyser.smoothingTimeConstant = smoothingTimeConstant;
+    // Smoothing is done by SpectrumEnvelope in real time so the preview matches the export
+    this.#analyser.smoothingTimeConstant = 0;
     this.#analyser.minDecibels = minDecibels;
     this.#analyser.maxDecibels = maxDecibels;
 
@@ -74,16 +72,6 @@ export class AudioAnalyzer {
       // Note: frequencyBinCount changes, but we keep existing buffers
       // They will be reallocated on next getFrequencyData call if needed
     }
-  }
-
-  /** Get smoothing time constant */
-  get smoothingTimeConstant(): number {
-    return this.#analyser.smoothingTimeConstant;
-  }
-
-  /** Set smoothing time constant (0-1) */
-  set smoothingTimeConstant(value: number) {
-    this.#analyser.smoothingTimeConstant = Math.max(0, Math.min(1, value));
   }
 
   /** Get minimum decibels */

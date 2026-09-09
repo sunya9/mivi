@@ -1,3 +1,4 @@
+import { DEFAULT_SPECTRUM_ENVELOPE } from "@/lib/audio/spectrum-envelope";
 import { MidiTrack } from "@/lib/midi/midi";
 import { H264_MAX_MACROBLOCKS } from "@/lib/muxer/h264-level";
 
@@ -246,7 +247,8 @@ interface LineSpectrumConfig {
 export interface AudioVisualizerConfig {
   style: AudioVisualizerStyle;
   fftSize: AudioVisualizerFFTSize;
-  smoothingTimeConstant: number;
+  attackTime: number;
+  releaseTime: number;
   minFrequency: number;
   maxFrequency: number;
   barCount: number;
@@ -433,7 +435,7 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
   audioVisualizerConfig: {
     style: "none",
     fftSize: 2048,
-    smoothingTimeConstant: 0.5,
+    ...DEFAULT_SPECTRUM_ENVELOPE,
     minFrequency: 20,
     maxFrequency: 20000,
     barCount: 64,

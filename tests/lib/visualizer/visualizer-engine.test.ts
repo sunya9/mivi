@@ -123,6 +123,29 @@ test("leaves painting to the frame loop while playing", () => {
   expect(store.syncFromAudioContext).toHaveBeenCalledTimes(2);
 });
 
+test("frequency data decays across frames instead of dropping instantly", () => {
+  const { sources, store, update } = setup({ status: "playing" });
+  // 60fps matches RafStub's step size so every step paints
+  sources.rendererConfig.set({ ...rendererConfig, fps: 60 });
+  const spectrum = (value: number) => ({
+    frequencyData: new Uint8Array(4).fill(value),
+    timeDomainData: new Uint8Array(4).fill(128),
+    frequencyBinCount: 4,
+    nyquistFrequency: 22050,
+  });
+  store.getFrequencyData.mockReturnValue(spectrum(255));
+  rafStub.step();
+  store.getFrequencyData.mockReturnValue(spectrum(0));
+  update({ position: 0.02 });
+  vi.clearAllMocks();
+
+  rafStub.step();
+
+  const [, , frequencyData] = mockRender.mock.calls[0];
+  expect(frequencyData?.frequencyData[0]).toBeGreaterThan(0);
+  expect(frequencyData?.frequencyData[0]).toBeLessThan(255);
+});
+
 test("stops the loop and resets fps when playback stops", () => {
   const { engine, update } = setup({ status: "playing" });
   rafStub.step();

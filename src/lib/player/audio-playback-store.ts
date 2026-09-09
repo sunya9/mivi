@@ -60,7 +60,6 @@ export interface AudioPlaybackStore {
 
 export interface AnalyserOptions {
   fftSize: FFTSize;
-  smoothingTimeConstant: number;
 }
 
 const STORAGE_KEY_VOLUME = "mivi:volume";
@@ -339,8 +338,7 @@ export class AudioPlaybackStoreImpl
     return this.#analyser.getFrequencyData();
   };
 
-  configureAnalyser = ({ fftSize, smoothingTimeConstant }: AnalyserOptions): void => {
+  configureAnalyser = ({ fftSize }: AnalyserOptions): void => {
     this.#analyser.fftSize = fftSize;
-    this.#analyser.smoothingTimeConstant = smoothingTimeConstant;
   };
 }

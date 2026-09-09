@@ -210,21 +210,22 @@ describe("precomputeFFTData", () => {
     }
   });
 
-  it("applies smoothing when smoothingTimeConstant > 0", () => {
-    const audio = createMockSerializedAudio({ duration: 0.1 });
-    const resultWithSmoothing = precomputeFFTData(audio, 10, {
-      smoothingTimeConstant: 0.8,
-    });
-    const resultWithoutSmoothing = precomputeFFTData(audio, 10, {
-      smoothingTimeConstant: 0,
-    });
+  it("holds energy after a burst according to the release time", () => {
+    const sampleRate = 44100;
+    const channel = new Int16Array(sampleRate);
+    for (let i = 0; i < sampleRate * 0.3; i++) {
+      channel[i] = Math.round(Math.sin((2 * Math.PI * 440 * i) / sampleRate) * 32767);
+    }
+    const audio = createMockSerializedAudio({ channels: [channel] });
+    const bin = Math.round((440 / (sampleRate / 2)) * 1024);
+    const frameIndex = 6;
 
-    // Both should have same structure
-    expect(resultWithSmoothing.frames.length).toBe(resultWithoutSmoothing.frames.length);
+    const instant = precomputeFFTData(audio, 10, { attackTime: 0, releaseTime: 0 });
+    const held = precomputeFFTData(audio, 10, { attackTime: 0, releaseTime: 2000 });
 
-    // Values may differ due to smoothing
-    // Smoothing should create more continuity between frames
-    expect(resultWithSmoothing.frames.length).toBeGreaterThan(0);
+    expect(held.frames[frameIndex].frequencyData[bin]).toBeGreaterThan(
+      instant.frames[frameIndex].frequencyData[bin] + 50,
+    );
   });
 
   it("frequency data values are within 0-255 range", () => {
