@@ -2,7 +2,7 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
 import { testMidiTracks, rendererConfig } from "tests/fixtures";
-import { customRender } from "tests/util";
+import { customRender, nudgeSlider } from "tests/util";
 import { expect, test, vi } from "vitest";
 
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
@@ -35,5 +35,35 @@ test("should render Comet component", async () => {
     cometConfig: {
       fallAngle: 130,
     },
+  });
+});
+
+test.each([
+  [/^Angle Randomness/, "angleRandomness"],
+  [/^Fall Distance/, "fallDistancePercent"],
+  [/^Fall Duration/, "fallDuration"],
+  [/^Fade Out Duration/, "fadeOutDuration"],
+  [/^Comet Size/, "cometSize"],
+  [/^Start Position X/, "startPositionX"],
+  [/^Start Position Y/, "startPositionY"],
+  [/^Trail Length/, "trailLength"],
+  [/^Trail Width/, "trailWidth"],
+  [/^Trail Opacity/, "trailOpacity"],
+  [/^Note Spacing/, "spacingMargin"],
+  [/^Spacing Randomness/, "spacingRandomness"],
+  [/^View Range/, "viewRangeBottom"],
+])("%s slider updates %s", async (label, key) => {
+  await renderPane();
+  await nudgeSlider(label);
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    cometConfig: expect.objectContaining({ [key]: expect.any(Number) }),
+  });
+});
+
+test("reverse stacking switch updates reverseStacking", async () => {
+  await renderPane();
+  await userEvent.click(screen.getByRole("switch", { name: "Reverse Stacking" }));
+  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
+    cometConfig: { reverseStacking: !cometConfig.reverseStacking },
   });
 });

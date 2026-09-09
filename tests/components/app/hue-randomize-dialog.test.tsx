@@ -1,7 +1,7 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
-import { customRender } from "tests/util";
+import { customRender, nudgeSlider } from "tests/util";
 import { expect, test, vi } from "vitest";
 
 import { HueRandomizeDialog } from "@/components/app/hue-randomize-dialog";
@@ -148,4 +148,10 @@ test("clicking label focuses the corresponding slider", async () => {
 
   await expectLabelFocusesSlider("Saturation");
   await expectLabelFocusesSlider("Lightness");
+});
+
+test("saturation slider updates the displayed value", async () => {
+  await renderDialog();
+  await nudgeSlider(/^Saturation/);
+  expect(screen.getByText("99%")).toBeInTheDocument();
 });
