@@ -1,7 +1,7 @@
 import { Select as SelectPrimitive } from "@base-ui/react/select";
+import { cn } from "cn";
 
 import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { cn } from "@/lib/utils";
 
 type Props<Value, Multiple extends boolean | undefined> = SelectPrimitive.Root.Props<
   Value,

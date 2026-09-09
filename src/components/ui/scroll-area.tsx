@@ -1,6 +1,5 @@
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area";
-
-import { cn } from "@/lib/utils";
+import { cn } from "cn";
 
 interface Props extends ScrollAreaPrimitive.Root.Props {
   orientation?: "horizontal" | "vertical" | "both";

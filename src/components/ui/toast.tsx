@@ -5,6 +5,7 @@ import {
   type ToastManagerAddOptions,
   type ToastManagerUpdateOptions,
 } from "@base-ui/react/toast";
+import { cn } from "cn";
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -16,7 +17,6 @@ import {
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 export type ToastType = "success" | "info" | "warning" | "error" | "loading" | (string & {});
 

@@ -1,5 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { cn } from "cn";
 import { GripVertical } from "lucide-react";
 import React from "react";
 
@@ -8,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { MidiTrack } from "@/lib/midi/midi";
-import { cn } from "@/lib/utils";
 
 interface Props {
   track: MidiTrack;

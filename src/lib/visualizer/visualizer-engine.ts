@@ -1,10 +1,11 @@
+import { cn } from "cn";
+
 import { SerializedAudio } from "@/lib/audio/audio";
 import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
 import { MidiTracks } from "@/lib/midi/midi";
 import type { AudioPlaybackStore } from "@/lib/player/audio-playback-store";
 import { RendererConfig } from "@/lib/renderers/renderer";
 import type { ReadableStore } from "@/lib/store/observable-store";
-import { cn } from "@/lib/utils";
 import { FpsCounter } from "@/lib/visualizer/fps-counter";
 import { RendererController } from "@/lib/visualizer/renderer-controller";
 

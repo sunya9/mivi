@@ -1,12 +1,6 @@
-import { clsx, type ClassValue } from "clsx";
 import { flushSync } from "react-dom";
-import { twMerge } from "tailwind-merge";
 
 import type { FileStore } from "@/lib/file-store/file-store";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 export function formatTime(timeInSeconds: number): string {
   const minutes = Math.floor(timeInSeconds / 60);

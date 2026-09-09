@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import { useState, useCallback, useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,6 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { HSL_PRESETS, HSLPresetBase, hslToHex } from "@/lib/colors/color";
-import { cn } from "@/lib/utils";
 
 interface Props {
   open: boolean;

@@ -1,9 +1,9 @@
+import { cn } from "cn";
 import { CircleCheck, CircleX, Info } from "lucide-react";
 import { useMemo } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { checkBrowserApis } from "@/lib/browser-compat/browser-compat";
-import { cn } from "@/lib/utils";
 
 interface Props {
   className?: string;

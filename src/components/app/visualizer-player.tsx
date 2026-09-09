@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import { Maximize, Minimize } from "lucide-react";
 import { useCallback } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -16,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/contexts/app-context";
 import { usePanelVisibility } from "@/hooks/use-panel-visibility";
 import { useStore } from "@/hooks/use-store";
-import { cn } from "@/lib/utils";
 
 // ARIA widget roles where Space has a native interaction (activate, toggle, type, etc.).
 // "slider" is intentionally excluded so Space toggles playback even when a slider is focused.

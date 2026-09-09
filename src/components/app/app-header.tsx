@@ -1,5 +1,6 @@
+import { cn } from "cn";
+
 import { ExportButton } from "@/components/app/export-button";
-import { cn } from "@/lib/utils";
 
 interface Props {
   className?: string;

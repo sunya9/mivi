@@ -1,3 +1,4 @@
+import { cn } from "cn";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
 import { isEffectivelyPlaying } from "@/lib/player/audio-playback-store";
-import { cn, formatTime } from "@/lib/utils";
+import { formatTime } from "@/lib/utils";
 import { type FpsCounter } from "@/lib/visualizer/fps-counter";
 
 interface InteractionProps {

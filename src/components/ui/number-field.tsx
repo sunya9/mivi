@@ -1,8 +1,8 @@
 import { NumberField as NumberFieldPrimitive } from "@base-ui/react/number-field";
+import { cn } from "cn";
 import { MinusIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 function NumberField(props: NumberFieldPrimitive.Root.Props) {
   return <NumberFieldPrimitive.Root data-slot="number-field" {...props} />;

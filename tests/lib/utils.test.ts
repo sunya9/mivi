@@ -3,15 +3,7 @@ import { describe, it, expect, beforeEach, vi, test } from "vitest";
 
 import { FileStore } from "@/lib/file-store/file-store";
 import { MemoryFileStorage } from "@/lib/file-store/memory-file-storage";
-import { cn, formatTime, resetConfig, startViewTransition } from "@/lib/utils";
-
-describe("cn", () => {
-  it("should merge class names correctly", () => {
-    expect(cn("class1", "class2")).toBe("class1 class2");
-    expect(cn("class1", null, undefined, "class2")).toBe("class1 class2");
-    expect(cn("class1", { class2: true, class3: false })).toBe("class1 class2");
-  });
-});
+import { formatTime, resetConfig, startViewTransition } from "@/lib/utils";
 
 describe("formatTime", () => {
   it("should format time correctly", () => {
