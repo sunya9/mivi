@@ -1,4 +1,5 @@
-import type { GradientDirection } from "@/lib/renderers/renderer-config";
+import type { RendererContext } from "@/lib/renderers/renderer";
+import type { AudioVisualizerConfig, GradientDirection } from "@/lib/renderers/renderer-config";
 
 /**
  * Calculate gradient coordinates based on direction.
@@ -27,4 +28,29 @@ export function getGradientCoords(
     case "to-top-right":
       return [0, height, width, 0];
   }
+}
+
+export function resolveBaseY(position: AudioVisualizerConfig["position"], height: number): number {
+  switch (position) {
+    case "bottom":
+      return height;
+    case "top":
+      return 0;
+    case "center":
+      return height / 2;
+  }
+}
+
+export function createSpectrumFillStyle(
+  ctx: RendererContext,
+  config: AudioVisualizerConfig,
+  width: number,
+  height: number,
+): string | CanvasGradient {
+  if (!config.useGradient) return config.singleColor;
+  const [x0, y0, x1, y1] = getGradientCoords(config.gradientDirection, width, height);
+  const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+  gradient.addColorStop(0, config.gradientStartColor);
+  gradient.addColorStop(1, config.gradientEndColor);
+  return gradient;
 }
