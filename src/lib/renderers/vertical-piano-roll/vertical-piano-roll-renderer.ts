@@ -3,7 +3,7 @@ import { MidiNote } from "@/lib/midi/midi";
 import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
-import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture";
+import { createNoiseTexture } from "@/lib/renderers/shared/noise-texture";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
 import { drawRoughRect } from "@/lib/renderers/shared/rough-rect";
@@ -118,7 +118,7 @@ function drawKeyboard(
 }
 
 export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
-  const noiseTextureRenderer = new NoiseTextureRenderer(ctx);
+  const noiseTexture = createNoiseTexture(ctx);
   const maxDurations = new WeakMap<MidiNote[], number>();
   const pressed: PressedKeys = {
     colors: Array.from({ length: 128 }),
@@ -149,23 +149,10 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
     return max;
   };
 
-  const updateNoiseTexture = (cfg: VerticalPianoRollConfig) => {
-    if (!cfg.showNoiseTexture) {
-      noiseTextureRenderer.clearPatterns();
-      return;
-    }
-    noiseTextureRenderer.updatePatterns({
-      intensity: cfg.noiseIntensity,
-      grainSize: cfg.noiseGrainSize,
-      colorVariance: cfg.noiseColorVariance,
-    });
-  };
-
   return (tracks, currentTime, config) => {
     const { width, height } = config.resolution;
     const cfg = config.verticalPianoRollConfig;
 
-    updateNoiseTexture(cfg);
     const keyboard = getLayout(width, cfg);
     const hitLineY = height * (1 - cfg.keyboardHeight / 100);
     const pxPerSec = hitLineY / cfg.timeWindow;
@@ -286,9 +273,7 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
           }
           ctx.fill();
 
-          if (cfg.showNoiseTexture) {
-            noiseTextureRenderer.apply(baseColor, x, y, seed);
-          }
+          noiseTexture.apply(cfg, baseColor, x, y, seed);
 
           ctx.fillStyle = `rgba(255, 255, 255, ${note.velocity * 0.3})`;
           ctx.fill();
