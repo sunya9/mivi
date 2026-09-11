@@ -1,7 +1,7 @@
 import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 
-import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
+import { drawBackground } from "@/lib/renderers/background-renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import type { Resolution } from "@/lib/renderers/renderer";
 
@@ -60,8 +60,7 @@ test("solid color background", async () => {
     resolution,
   };
 
-  const renderer = new BackgroundRenderer(ctx, config);
-  renderer.render();
+  drawBackground(ctx, config);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("background-solid");
@@ -85,8 +84,7 @@ test("background image with cover fit", async () => {
     resolution,
   };
 
-  const renderer = new BackgroundRenderer(ctx, config, imageBitmap);
-  renderer.render();
+  drawBackground(ctx, config, imageBitmap);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("background-image-cover");
@@ -110,8 +108,7 @@ test("background image with contain fit", async () => {
     resolution,
   };
 
-  const renderer = new BackgroundRenderer(ctx, config, imageBitmap);
-  renderer.render();
+  drawBackground(ctx, config, imageBitmap);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("background-image-contain");

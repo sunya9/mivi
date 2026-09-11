@@ -2,114 +2,99 @@ import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/renderers/renderer";
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
-import type { AudioVisualizerDrawer } from "./types";
 
-/**
- * Draws a circular/radial visualization with bars emanating from a center point.
- * Creates a sun-burst effect based on frequency data.
- */
-export class CircularDrawer implements AudioVisualizerDrawer {
-  readonly #ctx: RendererContext;
-  #config: AudioVisualizerConfig;
-  readonly #resolution: Resolution;
+// Bars radiate from a center point, giving a sun-burst effect
+export function drawCircular(
+  ctx: RendererContext,
+  frequencyData: FrequencyData,
+  config: AudioVisualizerConfig,
+  resolution: Resolution,
+): void {
+  const canvasWidth = resolution.width;
+  const canvasHeight = resolution.height;
 
-  constructor(ctx: RendererContext, config: AudioVisualizerConfig, resolution: Resolution) {
-    this.#ctx = ctx;
-    this.#config = config;
-    this.#resolution = resolution;
-  }
+  const {
+    barCount,
+    barMinHeight,
+    barStyle,
+    useGradient,
+    gradientStartColor,
+    gradientEndColor,
+    singleColor,
+    barOpacity,
+    height: heightPercent,
+    mirror,
+    mirrorOpacity,
+    minFrequency,
+    maxFrequency,
+  } = config;
 
-  setConfig(config: AudioVisualizerConfig): void {
-    this.#config = config;
-  }
+  // Calculate center and radius
+  const centerX = canvasWidth / 2;
+  const centerY = canvasHeight / 2;
+  const maxRadius = (Math.min(canvasWidth, canvasHeight) * heightPercent) / 100 / 2;
+  const innerRadius = maxRadius * 0.3;
 
-  draw(frequencyData: FrequencyData): void {
-    const canvasWidth = this.#resolution.width;
-    const canvasHeight = this.#resolution.height;
+  // Calculate bar width based on circumference and bar count
+  const circumference = 2 * Math.PI * innerRadius;
+  const barWidth = Math.max(1, (circumference / barCount) * 0.6);
 
-    const {
-      barCount,
-      barMinHeight,
-      barStyle,
-      useGradient,
-      gradientStartColor,
-      gradientEndColor,
-      singleColor,
-      barOpacity,
-      height: heightPercent,
-      mirror,
-      mirrorOpacity,
-      minFrequency,
-      maxFrequency,
-    } = this.#config;
+  ctx.save();
+  ctx.globalAlpha = barOpacity;
 
-    // Calculate center and radius
-    const centerX = canvasWidth / 2;
-    const centerY = canvasHeight / 2;
-    const maxRadius = (Math.min(canvasWidth, canvasHeight) * heightPercent) / 100 / 2;
-    const innerRadius = maxRadius * 0.3;
+  const amplitudes = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);
 
-    // Calculate bar width based on circumference and bar count
-    const circumference = 2 * Math.PI * innerRadius;
-    const barWidth = Math.max(1, (circumference / barCount) * 0.6);
+  const angleStep = (Math.PI * 2) / barCount;
 
-    this.#ctx.save();
-    this.#ctx.globalAlpha = barOpacity;
+  for (let i = 0; i < barCount; i++) {
+    const amplitude = amplitudes[i];
+    const barHeight = Math.max(barMinHeight, (amplitude / 255) * (maxRadius - innerRadius));
 
-    const amplitudes = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);
+    const angle = i * angleStep - Math.PI / 2; // Start from top
 
-    const angleStep = (Math.PI * 2) / barCount;
+    // Calculate bar position
+    const x1 = centerX + Math.cos(angle) * innerRadius;
+    const y1 = centerY + Math.sin(angle) * innerRadius;
+    const x2 = centerX + Math.cos(angle) * (innerRadius + barHeight);
+    const y2 = centerY + Math.sin(angle) * (innerRadius + barHeight);
 
-    for (let i = 0; i < barCount; i++) {
-      const amplitude = amplitudes[i];
-      const barHeight = Math.max(barMinHeight, (amplitude / 255) * (maxRadius - innerRadius));
-
-      const angle = i * angleStep - Math.PI / 2; // Start from top
-
-      // Calculate bar position
-      const x1 = centerX + Math.cos(angle) * innerRadius;
-      const y1 = centerY + Math.sin(angle) * innerRadius;
-      const x2 = centerX + Math.cos(angle) * (innerRadius + barHeight);
-      const y2 = centerY + Math.sin(angle) * (innerRadius + barHeight);
-
-      // Create gradient for this bar
-      let strokeStyle: string | CanvasGradient;
-      if (useGradient) {
-        const gradient = this.#ctx.createLinearGradient(x1, y1, x2, y2);
-        gradient.addColorStop(0, gradientStartColor);
-        gradient.addColorStop(1, gradientEndColor);
-        strokeStyle = gradient;
-      } else {
-        strokeStyle = singleColor;
-      }
-
-      this.#ctx.strokeStyle = strokeStyle;
-      this.#ctx.lineWidth = barWidth;
-      this.#ctx.lineCap = barStyle === "rounded" ? "round" : "butt";
-
-      this.#ctx.beginPath();
-      this.#ctx.moveTo(x1, y1);
-      this.#ctx.lineTo(x2, y2);
-      this.#ctx.stroke();
-
-      // Draw mirror (inner reflection)
-      if (mirror) {
-        const mirrorHeight = barHeight;
-        const mx1 = centerX + Math.cos(angle) * (innerRadius - mirrorHeight);
-        const my1 = centerY + Math.sin(angle) * (innerRadius - mirrorHeight);
-        const mx2 = centerX + Math.cos(angle) * innerRadius;
-        const my2 = centerY + Math.sin(angle) * innerRadius;
-
-        this.#ctx.save();
-        this.#ctx.globalAlpha *= mirrorOpacity;
-        this.#ctx.beginPath();
-        this.#ctx.moveTo(mx1, my1);
-        this.#ctx.lineTo(mx2, my2);
-        this.#ctx.stroke();
-        this.#ctx.restore();
-      }
+    // Create gradient for this bar
+    let strokeStyle: string | CanvasGradient;
+    if (useGradient) {
+      const gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+      gradient.addColorStop(0, gradientStartColor);
+      gradient.addColorStop(1, gradientEndColor);
+      strokeStyle = gradient;
+    } else {
+      strokeStyle = singleColor;
     }
 
-    this.#ctx.restore();
+    ctx.strokeStyle = strokeStyle;
+    ctx.lineWidth = barWidth;
+    ctx.lineCap = barStyle === "rounded" ? "round" : "butt";
+
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Draw mirror (inner reflection)
+    if (mirror) {
+      const mirrorHeight = barHeight;
+      const mx1 = centerX + Math.cos(angle) * (innerRadius - mirrorHeight);
+      const my1 = centerY + Math.sin(angle) * (innerRadius - mirrorHeight);
+      const mx2 = centerX + Math.cos(angle) * innerRadius;
+      const my2 = centerY + Math.sin(angle) * innerRadius;
+
+      ctx.save();
+      ctx.globalAlpha *= mirrorOpacity;
+      ctx.beginPath();
+      ctx.moveTo(mx1, my1);
+      ctx.lineTo(mx2, my2);
+      ctx.stroke();
+      ctx.restore();
+    }
   }
+
+  ctx.restore();
 }
