@@ -4,8 +4,8 @@ import { RafStub } from "tests/raf-stub";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
 
 import { type PlaybackSnapshot } from "@/lib/player/audio-playback-store";
+import { RendererController } from "@/lib/renderers/renderer-controller";
 import { ObservableStore } from "@/lib/store/observable-store";
-import { RendererController } from "@/lib/visualizer/renderer-controller";
 import { VisualizerEngine } from "@/lib/visualizer/visualizer-engine";
 
 const rafStub = new RafStub();

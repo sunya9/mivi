@@ -2,9 +2,13 @@ import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 
 import { MidiNote, MidiTrack, getDefaultTrackConfig } from "@/lib/midi/midi";
-import { drawBackground } from "@/lib/renderers/background-renderer";
-import { RendererConfig, getDefaultRendererConfig } from "@/lib/renderers/renderer";
-import type { Resolution } from "@/lib/renderers/renderer";
+import { drawBackground } from "@/lib/renderers/background";
+import {
+  RendererConfig,
+  getDefaultRendererConfig,
+  VerticalPianoRollConfig,
+} from "@/lib/renderers/renderer-config";
+import type { Resolution } from "@/lib/renderers/resolution";
 import { createVerticalPianoRollRenderer } from "@/lib/renderers/vertical-piano-roll/vertical-piano-roll-renderer";
 
 const WIDTH = 800;
@@ -54,7 +58,7 @@ function createTestCanvas(): HTMLCanvasElement {
   return canvas;
 }
 
-function renderScene(overrides: Partial<RendererConfig["verticalPianoRollConfig"]>) {
+function renderScene(overrides: Partial<VerticalPianoRollConfig>) {
   const canvas = createTestCanvas();
   onTestFinished(() => canvas.remove());
   const ctx = canvas.getContext("2d")!;

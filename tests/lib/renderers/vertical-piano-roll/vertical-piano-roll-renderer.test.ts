@@ -2,10 +2,14 @@ import { testMidiTracks } from "tests/fixtures";
 import { expect, test, vi } from "vitest";
 
 import { MidiTrack } from "@/lib/midi/midi";
-import { RendererConfig, getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import {
+  RendererConfig,
+  getDefaultRendererConfig,
+  VerticalPianoRollConfig,
+} from "@/lib/renderers/renderer-config";
 import { createVerticalPianoRollRenderer } from "@/lib/renderers/vertical-piano-roll/vertical-piano-roll-renderer";
 
-function setup(overrides: Partial<RendererConfig["verticalPianoRollConfig"]> = {}) {
+function setup(overrides: Partial<VerticalPianoRollConfig> = {}) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   const defaults = getDefaultRendererConfig();

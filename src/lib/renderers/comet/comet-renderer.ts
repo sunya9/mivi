@@ -1,8 +1,7 @@
 import { MidiNote, MidiTrack } from "@/lib/midi/midi";
-import { RendererConfig, RendererContext, RendererFactory } from "@/lib/renderers/renderer";
+import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
+import { CometConfig } from "@/lib/renderers/renderer-config";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
-
-type CometConfig = RendererConfig["cometConfig"];
 
 interface Comet {
   startX: number;

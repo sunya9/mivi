@@ -4,11 +4,11 @@ import { FormRow } from "@/components/common/form-row";
 import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { RendererConfig } from "@/lib/renderers/renderer";
+import { RendererConfig, CometConfig } from "@/lib/renderers/renderer-config";
 import { DeepPartial } from "@/lib/type-utils";
 
 interface Props {
-  cometConfig: RendererConfig["cometConfig"];
+  cometConfig: CometConfig;
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
   minNote?: number;
   maxNote?: number;
@@ -16,8 +16,7 @@ interface Props {
 
 export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote, maxNote }: Props) {
   const setCometConfig = useCallback(
-    (cometConfig: DeepPartial<RendererConfig["cometConfig"]>) =>
-      onUpdateRendererConfig({ cometConfig }),
+    (cometConfig: DeepPartial<CometConfig>) => onUpdateRendererConfig({ cometConfig }),
     [onUpdateRendererConfig],
   );
   return (
