@@ -2,7 +2,7 @@ import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { MidiTrack } from "@/lib/midi/midi";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
-import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+import { createRenderer } from "@/lib/renderers/create-renderer";
 import {
   Renderer,
   RendererConfig,
@@ -27,13 +27,11 @@ export class RendererController {
   #currentResolution?: Resolution;
 
   setRendererConfig(rendererConfig: RendererConfig) {
-    const previousType = this.#currentRendererType;
     this.#rendererConfig = rendererConfig;
 
-    if (previousType !== rendererConfig.type || !this.#renderer) {
-      this.#buildRenderer();
-    } else {
-      this.#renderer.setConfig(rendererConfig);
+    if (this.#currentRendererType !== rendererConfig.type || !this.#renderer) {
+      this.#currentRendererType = rendererConfig.type;
+      this.#renderer = createRenderer(rendererConfig.type, this.#context);
     }
 
     // Update or create background renderer
@@ -69,12 +67,6 @@ export class RendererController {
     }
   }
 
-  #buildRenderer() {
-    if (!this.#rendererConfig) return;
-    this.#currentRendererType = this.#rendererConfig.type;
-    this.#renderer = getRendererFromConfig(this.#context, this.#rendererConfig);
-  }
-
   render(tracks: MidiTrack[], currentTime: number, frequencyData?: FrequencyData | null) {
     if (!this.#rendererConfig) return;
     const { resolution } = this.#rendererConfig;
@@ -100,7 +92,7 @@ export class RendererController {
     }
 
     // 3. Render MIDI visualizer
-    this.#renderer?.render(tracks, currentTime);
+    this.#renderer?.(tracks, currentTime, this.#rendererConfig);
 
     // 4. Render audio visualizer in front layer (over MIDI)
     if (layer === "front" && frequencyData) {

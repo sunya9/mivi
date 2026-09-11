@@ -1,6 +1,5 @@
 import { brightenHexColor } from "@/lib/colors/hex";
-import { MidiTrack } from "@/lib/midi/midi";
-import { Renderer, RendererConfig } from "@/lib/renderers/renderer";
+import { RendererConfig, RendererFactory } from "@/lib/renderers/renderer";
 import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-visible-note";
 import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture-renderer";
 import { computePressOffset } from "@/lib/renderers/shared/note-press";
@@ -10,84 +9,77 @@ import { RoughRectDrawer } from "@/lib/renderers/shared/rough-rect-drawer";
 // Keeps a note "touched" for a few pixels past its right edge so short notes still register
 const PLAYHEAD_TOUCH_SLACK_PX = 20;
 
-export class PianoRollRenderer extends Renderer {
-  readonly #overflowFactor = 0.5;
+const OVERFLOW_FACTOR = 0.5;
 
-  #lastCurrentTime: number = 0;
+interface RippleState {
+  noteStart: number;
+  noteEnd: number;
+  x: number;
+  y: number;
+  color: string;
+}
 
-  #rippleStates = new Map<
-    number,
-    {
-      noteStart: number;
-      noteEnd: number;
-      x: number;
-      y: number;
-      color: string;
+interface NoteFlashState {
+  noteStart: number;
+  color: string;
+  isDurationMode: boolean;
+  hasCompleted: boolean;
+  wasTouchingPlayhead: boolean;
+}
+
+type PianoRollConfig = RendererConfig["pianoRollConfig"];
+
+function noteToY(midi: number, height: number, cfg: PianoRollConfig): number {
+  const noteHeight = Math.max(height / 127, cfg.noteHeight);
+  const viewRangeSize = cfg.viewRangeTop - cfg.viewRangeBottom;
+  return height * ((cfg.viewRangeTop - midi) / viewRangeSize) - noteHeight / 2;
+}
+
+export const createPianoRollRenderer: RendererFactory = (ctx) => {
+  const noiseTextureRenderer = new NoiseTextureRenderer(ctx);
+  const roughRectDrawer = new RoughRectDrawer(ctx);
+  const rippleStates = new Map<number, RippleState>();
+  const noteFlashStates = new Map<number, NoteFlashState>();
+  let lastCurrentTime = 0;
+
+  const updateNoiseTexture = (cfg: PianoRollConfig) => {
+    if (!cfg.showNoiseTexture) {
+      noiseTextureRenderer.clearPatterns();
+      return;
     }
-  >();
+    noiseTextureRenderer.updatePatterns({
+      intensity: cfg.noiseIntensity,
+      grainSize: cfg.noiseGrainSize,
+      colorVariance: cfg.noiseColorVariance,
+    });
+  };
 
-  #noteFlashStates = new Map<
-    number,
-    {
-      noteStart: number;
-      color: string;
-      isDurationMode: boolean;
-      hasCompleted: boolean;
-      wasTouchingPlayhead: boolean;
+  return (tracks, currentTime, config) => {
+    if (currentTime < lastCurrentTime) {
+      rippleStates.clear();
+      noteFlashStates.clear();
     }
-  >();
+    lastCurrentTime = currentTime;
 
-  #noiseTextureRenderer: NoiseTextureRenderer;
-  #roughRectDrawer: RoughRectDrawer;
+    const cfg = config.pianoRollConfig;
+    updateNoiseTexture(cfg);
+    const { width, height } = config.resolution;
 
-  constructor(
-    ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-    config: RendererConfig,
-  ) {
-    super(ctx, config);
-    this.#noiseTextureRenderer = new NoiseTextureRenderer(ctx);
-    this.#roughRectDrawer = new RoughRectDrawer(ctx);
-  }
+    const isNoteInViewRange = (midi: number) =>
+      midi <= cfg.viewRangeTop && midi >= cfg.viewRangeBottom;
 
-  #noteToY(midi: number) {
-    const { height } = this.config.resolution;
-    const noteHeight = Math.max(height / 127, this.config.pianoRollConfig.noteHeight);
-
-    const viewRangeTop = this.config.pianoRollConfig.viewRangeTop;
-    const viewRangeBottom = this.config.pianoRollConfig.viewRangeBottom;
-    const viewRangeSize = viewRangeTop - viewRangeBottom;
-
-    return height * ((viewRangeTop - midi) / viewRangeSize) - noteHeight / 2;
-  }
-  render(tracks: MidiTrack[], currentTime: number) {
-    if (currentTime < this.#lastCurrentTime) {
-      this.#rippleStates.clear();
-      this.#noteFlashStates.clear();
-    }
-    this.#lastCurrentTime = currentTime;
-
-    // Background is now rendered by RendererController
-    this.#updateNoiseTexture();
-    const { width, height } = this.config.resolution;
-
-    const isNoteInViewRange = (midi: number) => {
-      const viewRangeTop = this.config.pianoRollConfig.viewRangeTop;
-      const viewRangeBottom = this.config.pianoRollConfig.viewRangeBottom;
-      return midi <= viewRangeTop && midi >= viewRangeBottom;
-    };
-
-    const playheadPosition = this.config.pianoRollConfig.playheadPosition / 100;
+    const playheadPosition = cfg.playheadPosition / 100;
     const playheadX = width * playheadPosition;
 
-    const startTime = currentTime - this.config.pianoRollConfig.timeWindow * playheadPosition;
-    const endTime = startTime + this.config.pianoRollConfig.timeWindow;
+    const startTime = currentTime - cfg.timeWindow * playheadPosition;
+    const endTime = startTime + cfg.timeWindow;
 
     const timeToX = (time: number, scale: number = 1) => {
       const timeFromPlayhead = time - currentTime;
       const scaledTimeFromPlayhead = timeFromPlayhead * scale;
       const adjustedTime = currentTime + scaledTimeFromPlayhead;
 
-      return width * ((adjustedTime - startTime) / this.config.pianoRollConfig.timeWindow);
+      return width * ((adjustedTime - startTime) / cfg.timeWindow);
     };
 
     // Reverse iteration so first track in list appears on top (drawn last)
@@ -99,9 +91,8 @@ export class PianoRollRenderer extends Renderer {
       const scale = track.config.scale;
       const leftEdgeTime = currentTime + (startTime - currentTime) / scale;
       const rightEdgeTime = currentTime + (endTime - currentTime) / scale;
-      const scaledOverflow =
-        (this.config.pianoRollConfig.timeWindow * this.#overflowFactor) / scale;
-      const pxPerSecond = (width * scale) / this.config.pianoRollConfig.timeWindow;
+      const scaledOverflow = (cfg.timeWindow * OVERFLOW_FACTOR) / scale;
+      const pxPerSecond = (width * scale) / cfg.timeWindow;
 
       // Binary search to skip notes that end before the visible range
       const startIdx = findFirstVisibleNoteIndex(track.notes, leftEdgeTime - scaledOverflow);
@@ -118,11 +109,11 @@ export class PianoRollRenderer extends Renderer {
 
         const x = timeToX(noteStart, track.config.scale);
         const rawNoteWidth = timeToX(noteEnd, track.config.scale) - x;
-        const baseNoteHeight = Math.max(height / 127, this.config.pianoRollConfig.noteHeight);
-        const verticalMargin = this.config.pianoRollConfig.noteVerticalMargin;
+        const baseNoteHeight = Math.max(height / 127, cfg.noteHeight);
+        const verticalMargin = cfg.noteVerticalMargin;
         const noteHeight = Math.max(0, baseNoteHeight - verticalMargin * 2) * track.config.scale;
 
-        const noteMargin = this.config.pianoRollConfig.noteMargin;
+        const noteMargin = cfg.noteMargin;
         let noteWidth;
         if (track.config.staccato) {
           noteWidth = noteHeight;
@@ -130,63 +121,59 @@ export class PianoRollRenderer extends Renderer {
           noteWidth = Math.max(0, rawNoteWidth - noteMargin * 2);
         }
 
-        const y = this.#noteToY(note.midi) + verticalMargin;
+        const y = noteToY(note.midi, height, cfg) + verticalMargin;
 
         const noteKey = note.id;
         const touchEnd = noteStart + (noteWidth + PLAYHEAD_TOUCH_SLACK_PX) / pxPerSecond;
         const isTouchingPlayhead = currentTime > noteStart && currentTime < touchEnd;
-        const wasNotTouchingPlayhead = !this.#noteFlashStates.has(noteKey);
+        const wasNotTouchingPlayhead = !noteFlashStates.has(noteKey);
 
         // Draw note with effects
-        this.ctx.fillStyle = track.config.color;
-        this.ctx.globalAlpha = track.config.opacity;
+        ctx.fillStyle = track.config.color;
+        ctx.globalAlpha = track.config.opacity;
 
-        const pressOffset = this.config.pianoRollConfig.showNotePressEffect
+        const pressOffset = cfg.showNotePressEffect
           ? -computePressOffset(
               noteStart,
               touchEnd,
-              this.config.pianoRollConfig.pressAnimationDuration,
-              this.config.pianoRollConfig.notePressDepth,
+              cfg.pressAnimationDuration,
+              cfg.notePressDepth,
               currentTime,
             )
           : 0;
 
-        if (
-          this.config.pianoRollConfig.showNoteFlash &&
-          isTouchingPlayhead &&
-          wasNotTouchingPlayhead
-        ) {
-          this.#noteFlashStates.set(noteKey, {
+        if (cfg.showNoteFlash && isTouchingPlayhead && wasNotTouchingPlayhead) {
+          noteFlashStates.set(noteKey, {
             noteStart: currentTime,
             color: track.config.color,
-            isDurationMode: this.config.pianoRollConfig.noteFlashMode === "duration",
+            isDurationMode: cfg.noteFlashMode === "duration",
             hasCompleted: false,
             wasTouchingPlayhead: true,
           });
         }
 
-        const flashState = this.#noteFlashStates.get(noteKey);
+        const flashState = noteFlashStates.get(noteKey);
         if (flashState) {
-          const fadeOutDuration = this.config.pianoRollConfig.noteFlashFadeOutDuration;
-          const flashDuration = this.config.pianoRollConfig.noteFlashDuration;
+          const fadeOutDuration = cfg.noteFlashFadeOutDuration;
+          const flashDuration = cfg.noteFlashDuration;
           const timeSinceStart = currentTime - flashState.noteStart;
 
           let intensity = 0;
 
-          if (this.config.pianoRollConfig.noteFlashMode === "on") {
+          if (cfg.noteFlashMode === "on") {
             if (isTouchingPlayhead) {
-              intensity = this.config.pianoRollConfig.noteFlashIntensity;
+              intensity = cfg.noteFlashIntensity;
               flashState.noteStart = currentTime; // Reset fade out timer while touching
             } else {
               // Fade out
               const fadeProgress = Math.min(1, timeSinceStart / fadeOutDuration);
-              intensity = this.config.pianoRollConfig.noteFlashIntensity * (1 - fadeProgress);
+              intensity = cfg.noteFlashIntensity * (1 - fadeProgress);
             }
           } else {
             // duration mode
             if (!flashState.hasCompleted) {
               const progress = Math.min(1, timeSinceStart / flashDuration);
-              intensity = this.config.pianoRollConfig.noteFlashIntensity * (1 - progress);
+              intensity = cfg.noteFlashIntensity * (1 - progress);
 
               if (progress >= 1) {
                 flashState.hasCompleted = true;
@@ -195,7 +182,7 @@ export class PianoRollRenderer extends Renderer {
           }
 
           if (intensity > 0) {
-            this.ctx.fillStyle = brightenHexColor(track.config.color, intensity);
+            ctx.fillStyle = brightenHexColor(track.config.color, intensity);
           }
 
           // Update touch state
@@ -208,123 +195,86 @@ export class PianoRollRenderer extends Renderer {
 
           // Remove effect if fade out is complete
           if (!isTouchingPlayhead && timeSinceStart >= fadeOutDuration) {
-            this.#noteFlashStates.delete(noteKey);
+            noteFlashStates.delete(noteKey);
           }
         }
 
-        if (this.config.pianoRollConfig.showRoughEdge) {
+        if (cfg.showRoughEdge) {
           const roughSeed = note.time * 1000 + note.midi;
-          this.#roughRectDrawer.draw(
+          roughRectDrawer.draw(
             x + noteMargin,
             y - pressOffset,
             noteWidth,
             noteHeight,
-            this.config.pianoRollConfig.noteCornerRadius,
-            this.config.pianoRollConfig.roughEdgeIntensity,
-            this.config.pianoRollConfig.roughEdgeSegmentLength,
+            cfg.noteCornerRadius,
+            cfg.roughEdgeIntensity,
+            cfg.roughEdgeSegmentLength,
             roughSeed,
           );
         } else {
-          this.ctx.beginPath();
-          this.ctx.roundRect(
+          ctx.beginPath();
+          ctx.roundRect(
             x + noteMargin,
             y - pressOffset,
             noteWidth,
             noteHeight,
-            this.config.pianoRollConfig.noteCornerRadius,
+            cfg.noteCornerRadius,
           );
         }
-        this.ctx.fill();
+        ctx.fill();
 
-        if (this.config.pianoRollConfig.showNoiseTexture) {
+        if (cfg.showNoiseTexture) {
           const noteSeed = note.time * 1000 + note.midi;
-          this.#noiseTextureRenderer.apply(
-            track.config.color,
-            x + noteMargin,
-            y - pressOffset,
-            noteSeed,
-          );
+          noiseTextureRenderer.apply(track.config.color, x + noteMargin, y - pressOffset, noteSeed);
         }
 
         const velocityAlpha = note.velocity / 127;
-        this.ctx.fillStyle = `rgba(255, 255, 255, ${velocityAlpha * 0.3})`;
-        this.ctx.fill();
-        this.ctx.globalAlpha = 1;
+        ctx.fillStyle = `rgba(255, 255, 255, ${velocityAlpha * 0.3})`;
+        ctx.fill();
+        ctx.globalAlpha = 1;
 
         if (
-          this.config.pianoRollConfig.showRippleEffect &&
+          cfg.showRippleEffect &&
           isTouchingPlayhead &&
           wasNotTouchingPlayhead &&
-          !this.#rippleStates.has(noteKey)
+          !rippleStates.has(noteKey)
         ) {
-          this.#rippleStates.set(noteKey, {
+          rippleStates.set(noteKey, {
             noteStart: noteStart,
             noteEnd: noteEnd,
             x: playheadX,
             y: y - pressOffset + noteHeight / 2,
-            color: this.config.pianoRollConfig.useCustomRippleColor
-              ? this.config.pianoRollConfig.rippleColor
-              : track.config.color,
+            color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
           });
         }
       }
 
-      this.ctx.shadowColor = "transparent";
-      this.ctx.shadowBlur = 0;
-      this.ctx.shadowOffsetY = 0;
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
     }
 
-    this.#rippleStates.forEach((state, noteKey) => {
-      const rippleProgress = Math.min(
-        1,
-        (currentTime - state.noteStart) / this.config.pianoRollConfig.rippleDuration,
-      );
+    rippleStates.forEach((state, noteKey) => {
+      const rippleProgress = Math.min(1, (currentTime - state.noteStart) / cfg.rippleDuration);
+      const radius = Math.max(0, cfg.rippleRadius * rippleProgress);
+      const alpha = 0.4 * (1 - rippleProgress);
+      drawRipple(ctx, state.x, state.y, radius, state.color, alpha);
 
-      this.#drawRippleEffect(state.x, state.y, state.color, rippleProgress, rippleProgress);
-
-      if (currentTime >= state.noteStart + this.config.pianoRollConfig.rippleDuration) {
-        this.#rippleStates.delete(noteKey);
+      if (currentTime >= state.noteStart + cfg.rippleDuration) {
+        rippleStates.delete(noteKey);
       }
     });
 
-    this.ctx.beginPath();
-    if (this.config.pianoRollConfig.showPlayhead) {
-      this.ctx.save();
-      this.ctx.strokeStyle = this.config.pianoRollConfig.playheadColor;
-      this.ctx.globalAlpha = this.config.pianoRollConfig.playheadOpacity;
-      this.ctx.lineWidth = this.config.pianoRollConfig.playheadWidth;
-      this.ctx.moveTo(playheadX, 0);
-      this.ctx.lineTo(playheadX, height);
-      this.ctx.stroke();
-      this.ctx.restore();
+    ctx.beginPath();
+    if (cfg.showPlayhead) {
+      ctx.save();
+      ctx.strokeStyle = cfg.playheadColor;
+      ctx.globalAlpha = cfg.playheadOpacity;
+      ctx.lineWidth = cfg.playheadWidth;
+      ctx.moveTo(playheadX, 0);
+      ctx.lineTo(playheadX, height);
+      ctx.stroke();
+      ctx.restore();
     }
-  }
-
-  #drawRippleEffect(
-    x: number,
-    y: number,
-    color: string,
-    radiusProgress: number,
-    fadeProgress: number,
-  ) {
-    const radius = Math.max(0, this.config.pianoRollConfig.rippleRadius * radiusProgress);
-    const alpha = 0.4 * (1 - fadeProgress);
-    drawRipple(this.ctx, x, y, radius, color, alpha);
-  }
-
-  #updateNoiseTexture(): void {
-    const { showNoiseTexture, noiseIntensity, noiseGrainSize, noiseColorVariance } =
-      this.config.pianoRollConfig;
-
-    if (!showNoiseTexture) {
-      this.#noiseTextureRenderer.clearPatterns();
-      return;
-    }
-
-    this.#noiseTextureRenderer.updatePatterns({
-      intensity: noiseIntensity,
-      grainSize: noiseGrainSize,
-      colorVariance: noiseColorVariance,
-    });
-  }
-}
+  };
+};

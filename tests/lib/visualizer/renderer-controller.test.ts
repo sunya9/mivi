@@ -1,37 +1,20 @@
 import { test, expect, vi, beforeEach, Mock } from "vitest";
 
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type { MidiTrack } from "@/lib/midi/midi";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
-import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+import { createRenderer } from "@/lib/renderers/create-renderer";
 import {
   getDefaultRendererConfig,
   type AudioVisualizerConfig,
+  type Renderer,
   type RendererConfig,
   type Resolution,
 } from "@/lib/renderers/renderer";
 import { RendererController } from "@/lib/visualizer/renderer-controller";
 
-const mockSetConfig = vi.fn<(config: RendererConfig) => void>();
-
-function createMidiDrawMock(impl?: (tracks: MidiTrack[], currentTime: number) => void) {
-  return vi.fn<(tracks: MidiTrack[], currentTime: number) => void>(impl);
-}
-
-vi.mock("@/lib/renderers/get-renderer", () => ({
-  getRendererFromConfig: vi.fn<
-    (
-      ctx: CanvasRenderingContext2D,
-      config: RendererConfig,
-    ) => {
-      render: Mock<(tracks: MidiTrack[], currentTime: number) => void>;
-      setConfig: Mock<(config: RendererConfig) => void>;
-    }
-  >(() => ({
-    render: createMidiDrawMock(),
-    setConfig: mockSetConfig,
-  })),
+vi.mock("@/lib/renderers/create-renderer", () => ({
+  createRenderer: vi.fn<() => Renderer>(() => vi.fn<Renderer>()),
 }));
 
 const mockBackgroundRendererRender = vi.fn<() => void>();
@@ -71,7 +54,8 @@ vi.mock("@/lib/renderers/audio-visualizer-overlay", () => {
 });
 
 let ctx: CanvasRenderingContext2D;
-let mockGetRendererFromConfig: Mock;
+let mockCreateRenderer: Mock<typeof createRenderer>;
+let mockRender: Mock<Renderer>;
 
 function createMockFrequencyData(): FrequencyData {
   return {
@@ -85,13 +69,10 @@ function createMockFrequencyData(): FrequencyData {
 beforeEach(() => {
   const canvas = document.createElement("canvas");
   ctx = canvas.getContext("2d")!;
-  mockGetRendererFromConfig = getRendererFromConfig as Mock;
-  mockGetRendererFromConfig.mockReset();
-  mockGetRendererFromConfig.mockReturnValue({
-    render: createMidiDrawMock(),
-    setConfig: mockSetConfig,
-  });
-  mockSetConfig.mockClear();
+  mockRender = vi.fn<Renderer>();
+  mockCreateRenderer = vi.mocked(createRenderer);
+  mockCreateRenderer.mockReset();
+  mockCreateRenderer.mockReturnValue(mockRender);
   mockBackgroundRendererRender.mockClear();
   mockBackgroundRendererSetConfig.mockClear();
   mockBackgroundRendererSetBackgroundImageBitmap.mockClear();
@@ -108,15 +89,15 @@ test("should accept context in constructor", () => {
 
 test("should not create renderer initially", () => {
   new RendererController(ctx);
-  expect(mockGetRendererFromConfig).not.toHaveBeenCalled();
+  expect(mockCreateRenderer).not.toHaveBeenCalled();
 });
 
-test("should create renderer when config is set", () => {
+test("should create renderer for the configured type when config is set", () => {
   const controller = new RendererController(ctx);
   const config = getDefaultRendererConfig();
   controller.setRendererConfig(config);
 
-  expect(mockGetRendererFromConfig).toHaveBeenCalledWith(ctx, config);
+  expect(mockCreateRenderer).toHaveBeenCalledWith(config.type, ctx);
 });
 
 test("should recreate renderer when renderer type changes", () => {
@@ -127,11 +108,11 @@ test("should recreate renderer when renderer type changes", () => {
   controller.setRendererConfig(config1);
   controller.setRendererConfig(config2);
 
-  expect(mockGetRendererFromConfig).toHaveBeenCalledTimes(2);
-  expect(mockGetRendererFromConfig).toHaveBeenLastCalledWith(ctx, config2);
+  expect(mockCreateRenderer).toHaveBeenCalledTimes(2);
+  expect(mockCreateRenderer).toHaveBeenLastCalledWith("comet", ctx);
 });
 
-test("should call setConfig instead of recreating when renderer type is same", () => {
+test("should keep the renderer when renderer type is same", () => {
   const controller = new RendererController(ctx);
   const config1 = getDefaultRendererConfig();
   const config2 = {
@@ -140,11 +121,9 @@ test("should call setConfig instead of recreating when renderer type is same", (
   };
 
   controller.setRendererConfig(config1);
-  mockGetRendererFromConfig.mockClear();
   controller.setRendererConfig(config2);
 
-  expect(mockGetRendererFromConfig).not.toHaveBeenCalled();
-  expect(mockSetConfig).toHaveBeenCalledWith(config2);
+  expect(mockCreateRenderer).toHaveBeenCalledTimes(1);
 });
 
 test("should not create renderer when setting bitmap without config", () => {
@@ -153,24 +132,26 @@ test("should not create renderer when setting bitmap without config", () => {
 
   controller.setBackgroundImageBitmap(mockBitmap);
 
-  expect(mockGetRendererFromConfig).not.toHaveBeenCalled();
+  expect(mockCreateRenderer).not.toHaveBeenCalled();
 });
 
-test("should call renderer.render when renderer exists", () => {
-  const mockRender = createMidiDrawMock();
-  mockGetRendererFromConfig.mockReturnValue({ render: mockRender });
-
+test("should render with the latest config", () => {
   const controller = new RendererController(ctx);
-  controller.setRendererConfig(getDefaultRendererConfig());
+  const config1 = getDefaultRendererConfig();
+  const config2 = { ...getDefaultRendererConfig(), backgroundColor: "#ffffff" };
+
+  controller.setRendererConfig(config1);
+  controller.setRendererConfig(config2);
   controller.render([], 0);
 
-  expect(mockRender).toHaveBeenCalledWith([], 0);
+  expect(mockRender).toHaveBeenCalledWith([], 0, config2);
 });
 
 test("should not throw when calling render without renderer", () => {
   const controller = new RendererController(ctx);
 
   expect(() => controller.render([], 0)).not.toThrow();
+  expect(mockRender).not.toHaveBeenCalled();
 });
 
 test("should create BackgroundRenderer when config is set", () => {
@@ -262,10 +243,9 @@ test("should render in correct order: background -> back visualizer -> midi -> f
   mockAudioVisualizerOverlayRender.mockImplementation(() => {
     callOrder.push("audioVisualizer");
   });
-  const mockMidiRender = createMidiDrawMock(() => {
+  mockRender.mockImplementation(() => {
     callOrder.push("midi");
   });
-  mockGetRendererFromConfig.mockReturnValue({ render: mockMidiRender });
 
   const controller = new RendererController(ctx);
   const config = {
@@ -289,10 +269,9 @@ test("should render in correct order: background -> midi -> front visualizer", (
   mockAudioVisualizerOverlayRender.mockImplementation(() => {
     callOrder.push("audioVisualizer");
   });
-  const mockMidiRender = createMidiDrawMock(() => {
+  mockRender.mockImplementation(() => {
     callOrder.push("midi");
   });
-  mockGetRendererFromConfig.mockReturnValue({ render: mockMidiRender });
 
   const controller = new RendererController(ctx);
   const config = {

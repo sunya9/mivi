@@ -5,7 +5,7 @@ import { MidiNote, MidiTrack, getDefaultTrackConfig } from "@/lib/midi/midi";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
 import { RendererConfig, getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import type { Resolution } from "@/lib/renderers/renderer";
-import { VerticalPianoRollRenderer } from "@/lib/renderers/vertical-piano-roll/vertical-piano-roll-renderer";
+import { createVerticalPianoRollRenderer } from "@/lib/renderers/vertical-piano-roll/vertical-piano-roll-renderer";
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -72,7 +72,7 @@ function renderScene(overrides: Partial<RendererConfig["verticalPianoRollConfig"
     },
   };
   new BackgroundRenderer(ctx, config).render();
-  new VerticalPianoRollRenderer(ctx, config).render(tracks, CAPTURE_TIME);
+  createVerticalPianoRollRenderer(ctx)(tracks, CAPTURE_TIME, config);
 }
 
 test("default settings", async () => {

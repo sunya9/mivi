@@ -2,7 +2,7 @@ import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
 import { Muxer } from "@/lib/muxer/muxer";
 import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
 import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
-import { getRendererFromConfig } from "@/lib/renderers/get-renderer";
+import { createRenderer } from "@/lib/renderers/create-renderer";
 
 import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";
 import { RecorderResources } from "./recorder-resources";
@@ -156,7 +156,7 @@ export class MediaCompositor {
       this.#rendererConfig.audioVisualizerConfig,
       this.#rendererConfig.resolution,
     );
-    const renderer = getRendererFromConfig(ctx, this.#rendererConfig);
+    const renderer = createRenderer(this.#rendererConfig.type, ctx);
     const midiOffset = this.#resources.midiTracks?.midiOffset ?? 0;
     const tracks = this.#resources.midiTracks?.tracks ?? [];
     const layer = this.#rendererConfig.audioVisualizerLayer;
@@ -171,7 +171,7 @@ export class MediaCompositor {
       const frequencyData = precomputedFFT ? getFrameAtTime(precomputedFFT, currentTime) : null;
 
       if (layer === "back") audioVisualizerOverlay.render(frequencyData);
-      renderer.render(tracks, currentTime + midiOffset);
+      renderer(tracks, currentTime + midiOffset, this.#rendererConfig);
       if (layer === "front") audioVisualizerOverlay.render(frequencyData);
 
       this.#progress.increment("Video Render");
