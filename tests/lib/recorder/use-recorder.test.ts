@@ -11,7 +11,7 @@ import type { SerializedAudio } from "@/lib/audio/audio";
 import { runRecorder } from "@/lib/media-compositor/run-recorder-worker";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
 import type { MidiTracks } from "@/lib/midi/midi";
-import type { RendererConfig } from "@/lib/renderers/renderer";
+import type { RendererConfig } from "@/lib/renderers/renderer-config";
 
 vi.mock("@/contexts/file-decoders", { spy: true });
 vi.mock("@/lib/media-compositor/run-recorder-worker", { spy: true });

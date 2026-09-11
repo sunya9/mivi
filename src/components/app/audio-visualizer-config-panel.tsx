@@ -6,7 +6,7 @@ import {
   AudioVisualizerConfig,
   RendererConfig,
   audioVisualizerStyleOptions,
-} from "@/lib/renderers/renderer";
+} from "@/lib/renderers/renderer-config";
 import { DeepPartial } from "@/lib/type-utils";
 
 import { AnalyzerSettings } from "./audio-visualizer/analyzer-settings";

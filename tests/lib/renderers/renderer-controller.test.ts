@@ -1,21 +1,22 @@
 import { test, expect, vi, beforeEach, Mock } from "vitest";
 
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer-overlay";
-import { drawBackground } from "@/lib/renderers/background-renderer";
+import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visualizer";
+import { drawBackground } from "@/lib/renderers/background";
 import { createRenderer } from "@/lib/renderers/create-renderer";
-import { getDefaultRendererConfig, type Renderer } from "@/lib/renderers/renderer";
-import { RendererController } from "@/lib/visualizer/renderer-controller";
+import type { Renderer } from "@/lib/renderers/renderer";
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
+import { RendererController } from "@/lib/renderers/renderer-controller";
 
 vi.mock("@/lib/renderers/create-renderer", () => ({
   createRenderer: vi.fn<() => Renderer>(() => vi.fn<Renderer>()),
 }));
 
-vi.mock("@/lib/renderers/background-renderer", () => ({
+vi.mock("@/lib/renderers/background", () => ({
   drawBackground: vi.fn<() => void>(),
 }));
 
-vi.mock("@/lib/renderers/audio-visualizer-overlay", () => ({
+vi.mock("@/lib/renderers/audio-visualizer/audio-visualizer", () => ({
   drawAudioVisualizer: vi.fn<() => void>(),
 }));
 

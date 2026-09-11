@@ -9,7 +9,7 @@ import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MuxerImpl } from "@/lib/muxer/muxer";
-import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
 
 async function compositeToFile(resources: RecorderResources, onProgress: (p: number) => void) {
   const opfsFile = await createOpfsExportFile(`test-export.${resources.rendererConfig.format}`);

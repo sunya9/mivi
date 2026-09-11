@@ -1,14 +1,10 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { MidiTrack } from "@/lib/midi/midi";
-import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer-overlay";
-import { drawBackground } from "@/lib/renderers/background-renderer";
+import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visualizer";
+import { drawBackground } from "@/lib/renderers/background";
 import { createRenderer } from "@/lib/renderers/create-renderer";
-import {
-  Renderer,
-  RendererConfig,
-  RendererType,
-  type RendererContext,
-} from "@/lib/renderers/renderer";
+import { Renderer, type RendererContext } from "@/lib/renderers/renderer";
+import { RendererConfig, RendererType } from "@/lib/renderers/renderer-config";
 
 export class RendererController {
   readonly #context: RendererContext;

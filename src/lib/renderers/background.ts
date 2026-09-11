@@ -1,9 +1,9 @@
+import { RendererContext } from "@/lib/renderers/renderer";
 import {
   BackgroundImageFit,
   BackgroundImagePosition,
   RendererConfig,
-  RendererContext,
-} from "./renderer";
+} from "@/lib/renderers/renderer-config";
 
 function calculateImageDimensions(
   fit: BackgroundImageFit,

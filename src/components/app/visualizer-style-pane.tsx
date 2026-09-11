@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator } from "@/components/ui/tabs";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
-import { RendererType } from "@/lib/renderers/renderer";
+import { RendererType } from "@/lib/renderers/renderer-config";
 import { useRendererConfig, useUpdateRendererConfig } from "@/lib/renderers/use-renderer-config";
 
 function useMidiNoteRange() {

@@ -1,6 +1,6 @@
 import { toMerged } from "es-toolkit";
 
-import { getDefaultRendererConfig, RendererConfig } from "@/lib/renderers/renderer";
+import { getDefaultRendererConfig, RendererConfig } from "@/lib/renderers/renderer-config";
 import { PersistedStore } from "@/lib/store/persisted-store";
 
 export type RendererConfigStore = PersistedStore<RendererConfig>;

@@ -2,7 +2,7 @@ import { testMidiTracks } from "tests/fixtures";
 import { expect, test } from "vitest";
 
 import { createRenderer } from "@/lib/renderers/create-renderer";
-import { RendererType, getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import { RendererType, getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
 
 const tracks = testMidiTracks.tracks;
 

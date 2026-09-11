@@ -1,5 +1,7 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/renderers/renderer";
+import type { RendererContext } from "@/lib/renderers/renderer";
+import type { AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
+import type { Resolution } from "@/lib/renderers/resolution";
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
 

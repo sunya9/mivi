@@ -1,9 +1,9 @@
 import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 
-import { drawBackground } from "@/lib/renderers/background-renderer";
-import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
-import type { Resolution } from "@/lib/renderers/renderer";
+import { drawBackground } from "@/lib/renderers/background";
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
+import type { Resolution } from "@/lib/renderers/resolution";
 
 const WIDTH = 800;
 const HEIGHT = 600;
