@@ -4,7 +4,7 @@ import type { AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
 import type { Resolution } from "@/lib/renderers/resolution";
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
-import { getGradientCoords } from "./gradient-utils";
+import { createSpectrumFillStyle, resolveBaseY } from "./gradient-utils";
 
 interface Point {
   x: number;
@@ -154,11 +154,6 @@ export function drawLineSpectrum(
 
   const {
     barCount,
-    useGradient,
-    gradientDirection,
-    gradientStartColor,
-    gradientEndColor,
-    singleColor,
     barOpacity,
     position,
     height: heightPercent,
@@ -179,30 +174,8 @@ export function drawLineSpectrum(
 
   const visualizerHeight = (canvasHeight * heightPercent) / 100;
 
-  let baseY: number;
-  switch (position) {
-    case "bottom":
-      baseY = canvasHeight;
-      break;
-    case "top":
-      baseY = 0;
-      break;
-    case "center":
-      baseY = canvasHeight / 2;
-      break;
-  }
-
-  // Create fill style (gradient or single color)
-  let fillStyle: string | CanvasGradient;
-  if (useGradient) {
-    const [x0, y0, x1, y1] = getGradientCoords(gradientDirection, canvasWidth, canvasHeight);
-    const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
-    gradient.addColorStop(0, gradientStartColor);
-    gradient.addColorStop(1, gradientEndColor);
-    fillStyle = gradient;
-  } else {
-    fillStyle = singleColor;
-  }
+  const baseY = resolveBaseY(position, canvasHeight);
+  const fillStyle = createSpectrumFillStyle(ctx, config, canvasWidth, canvasHeight);
 
   ctx.save();
   ctx.globalAlpha = barOpacity;
