@@ -1,7 +1,7 @@
 import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
 import { Muxer } from "@/lib/muxer/muxer";
-import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
-import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
+import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer-overlay";
+import { drawBackground } from "@/lib/renderers/background-renderer";
 import { createRenderer } from "@/lib/renderers/create-renderer";
 
 import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";
@@ -146,17 +146,9 @@ export class MediaCompositor {
     const ctx = this.#canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get context");
 
-    const backgroundRenderer = new BackgroundRenderer(
-      ctx,
-      this.#rendererConfig,
-      this.#resources.backgroundImageBitmap,
-    );
-    const audioVisualizerOverlay = new AudioVisualizerOverlay(
-      ctx,
-      this.#rendererConfig.audioVisualizerConfig,
-      this.#rendererConfig.resolution,
-    );
-    const renderer = createRenderer(this.#rendererConfig.type, ctx);
+    const config = this.#rendererConfig;
+    const backgroundImageBitmap = this.#resources.backgroundImageBitmap;
+    const renderer = createRenderer(config.type, ctx);
     const midiOffset = this.#resources.midiTracks?.midiOffset ?? 0;
     const tracks = this.#resources.midiTracks?.tracks ?? [];
     const layer = this.#rendererConfig.audioVisualizerLayer;
@@ -166,13 +158,17 @@ export class MediaCompositor {
     for (let i = 0; i < this.#totalVideoFrames; i++) {
       const currentTime = i / this.#fps;
 
-      backgroundRenderer.render();
+      drawBackground(ctx, config, backgroundImageBitmap);
 
       const frequencyData = precomputedFFT ? getFrameAtTime(precomputedFFT, currentTime) : null;
 
-      if (layer === "back") audioVisualizerOverlay.render(frequencyData);
-      renderer(tracks, currentTime + midiOffset, this.#rendererConfig);
-      if (layer === "front") audioVisualizerOverlay.render(frequencyData);
+      if (layer === "back") {
+        drawAudioVisualizer(ctx, frequencyData, config.audioVisualizerConfig, config.resolution);
+      }
+      renderer(tracks, currentTime + midiOffset, config);
+      if (layer === "front") {
+        drawAudioVisualizer(ctx, frequencyData, config.audioVisualizerConfig, config.resolution);
+      }
 
       this.#progress.increment("Video Render");
 

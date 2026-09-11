@@ -3,285 +3,256 @@ import type { AudioVisualizerConfig, RendererContext, Resolution } from "@/lib/r
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
 import { getGradientCoords } from "./gradient-utils";
-import type { AudioVisualizerDrawer } from "./types";
 
-/**
- * Draws a line spectrum visualization connecting frequency peaks with lines.
- * Creates a mountain-like silhouette from the frequency data.
- */
-export class LineSpectrumDrawer implements AudioVisualizerDrawer {
-  readonly #ctx: RendererContext;
-  #config: AudioVisualizerConfig;
-  readonly #resolution: Resolution;
+interface Point {
+  x: number;
+  y: number;
+}
 
-  constructor(ctx: RendererContext, config: AudioVisualizerConfig, resolution: Resolution) {
-    this.#ctx = ctx;
-    this.#config = config;
-    this.#resolution = resolution;
-  }
+function generatePoints(
+  amplitudes: number[],
+  barCount: number,
+  canvasWidth: number,
+  baseY: number,
+  visualizerHeight: number,
+  position: AudioVisualizerConfig["position"],
+): Point[] {
+  const points: Point[] = [];
 
-  setConfig(config: AudioVisualizerConfig): void {
-    this.#config = config;
-  }
+  for (let i = 0; i < barCount; i++) {
+    const amplitude = amplitudes[i];
+    const barHeight = (amplitude / 255) * visualizerHeight;
+    const x = (i / (barCount - 1)) * canvasWidth;
 
-  draw(frequencyData: FrequencyData): void {
-    const canvasWidth = this.#resolution.width;
-    const canvasHeight = this.#resolution.height;
-
-    const {
-      barCount,
-      useGradient,
-      gradientDirection,
-      gradientStartColor,
-      gradientEndColor,
-      singleColor,
-      barOpacity,
-      position,
-      height: heightPercent,
-      mirror,
-      mirrorOpacity,
-      minFrequency,
-      maxFrequency,
-      lineSpectrumConfig: {
-        lineWidth,
-        tension,
-        stroke,
-        strokeColor,
-        strokeOpacity,
-        fill,
-        fillOpacity,
-      },
-    } = this.#config;
-
-    const visualizerHeight = (canvasHeight * heightPercent) / 100;
-
-    let baseY: number;
+    let y: number;
     switch (position) {
       case "bottom":
-        baseY = canvasHeight;
+        y = baseY - barHeight;
         break;
       case "top":
-        baseY = 0;
+        y = barHeight;
         break;
       case "center":
-        baseY = canvasHeight / 2;
+        y = baseY - barHeight / 2;
         break;
     }
 
-    // Create fill style (gradient or single color)
-    let fillStyle: string | CanvasGradient;
-    if (useGradient) {
-      const [x0, y0, x1, y1] = getGradientCoords(gradientDirection, canvasWidth, canvasHeight);
-      const gradient = this.#ctx.createLinearGradient(x0, y0, x1, y1);
-      gradient.addColorStop(0, gradientStartColor);
-      gradient.addColorStop(1, gradientEndColor);
-      fillStyle = gradient;
-    } else {
-      fillStyle = singleColor;
-    }
-
-    this.#ctx.save();
-    this.#ctx.globalAlpha = barOpacity;
-    this.#ctx.strokeStyle = strokeColor;
-    this.#ctx.lineWidth = lineWidth;
-    this.#ctx.lineJoin = "round";
-    this.#ctx.lineCap = "round";
-
-    const amplitudes = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);
-
-    const points = this.#generatePoints(
-      amplitudes,
-      barCount,
-      canvasWidth,
-      baseY,
-      visualizerHeight,
-      position,
-    );
-
-    if (fill && stroke) {
-      // Use composite operation to clip fill to stroke area
-      this.#ctx.save();
-
-      // Draw stroke first to create the "mask"
-      this.#ctx.globalAlpha = barOpacity * strokeOpacity;
-      this.#drawLinePath(points, tension);
-
-      // Draw fill only where stroke exists
-      this.#ctx.globalCompositeOperation = "source-atop";
-      this.#ctx.globalAlpha = barOpacity * fillOpacity;
-      this.#ctx.fillStyle = fillStyle;
-      this.#drawFilledPath(points, tension, baseY);
-
-      this.#ctx.restore();
-
-      // Draw stroke again on top for clean edges
-      this.#ctx.globalAlpha = barOpacity * strokeOpacity;
-      this.#drawLinePath(points, tension);
-    } else if (fill) {
-      // Fill only (no stroke)
-      this.#ctx.save();
-      this.#ctx.globalAlpha = barOpacity * fillOpacity;
-      this.#ctx.fillStyle = fillStyle;
-      this.#drawFilledPath(points, tension, baseY);
-      this.#ctx.restore();
-    } else if (stroke) {
-      // Stroke only
-      this.#ctx.globalAlpha = barOpacity * strokeOpacity;
-      this.#drawLinePath(points, tension);
-    }
-
-    if (mirror) {
-      this.#ctx.save();
-
-      const mirrorBase = barOpacity * mirrorOpacity;
-
-      // Calculate mirror points - reflection sticks to opposite edge
-      const mirrorPoints = points.map((p) => {
-        const barHeight = Math.abs(baseY - p.y);
-        let mirrorY: number;
-        if (position === "center") {
-          // Reflect across baseline
-          mirrorY = baseY + barHeight;
-        } else if (position === "bottom") {
-          // Stick to top of canvas, pointing downward
-          mirrorY = barHeight;
-        } else {
-          // Top: stick to bottom of canvas, pointing upward
-          mirrorY = canvasHeight - barHeight;
-        }
-        return { x: p.x, y: mirrorY };
-      });
-
-      // Calculate mirror baseline for fill
-      const mirrorBaseY = position === "bottom" ? 0 : position === "top" ? canvasHeight : baseY;
-
-      if (fill && stroke) {
-        this.#ctx.save();
-
-        this.#ctx.globalAlpha = mirrorBase * strokeOpacity;
-        this.#drawLinePath(mirrorPoints, tension);
-
-        this.#ctx.globalCompositeOperation = "source-atop";
-        this.#ctx.globalAlpha = mirrorBase * fillOpacity;
-        this.#ctx.fillStyle = fillStyle;
-        this.#drawFilledPath(mirrorPoints, tension, mirrorBaseY);
-
-        this.#ctx.restore();
-
-        this.#ctx.globalAlpha = mirrorBase * strokeOpacity;
-        this.#drawLinePath(mirrorPoints, tension);
-      } else if (fill) {
-        this.#ctx.save();
-        this.#ctx.globalAlpha = mirrorBase * fillOpacity;
-        this.#ctx.fillStyle = fillStyle;
-        this.#drawFilledPath(mirrorPoints, tension, mirrorBaseY);
-        this.#ctx.restore();
-      } else if (stroke) {
-        this.#ctx.globalAlpha = mirrorBase * strokeOpacity;
-        this.#drawLinePath(mirrorPoints, tension);
-      }
-      this.#ctx.restore();
-    }
-
-    this.#ctx.restore();
+    points.push({ x, y });
   }
 
-  #generatePoints(
-    amplitudes: number[],
-    barCount: number,
-    canvasWidth: number,
-    baseY: number,
-    visualizerHeight: number,
-    position: "bottom" | "top" | "center",
-  ): { x: number; y: number }[] {
-    const points: { x: number; y: number }[] = [];
+  return points;
+}
 
-    for (let i = 0; i < barCount; i++) {
-      const amplitude = amplitudes[i];
-      const barHeight = (amplitude / 255) * visualizerHeight;
-      const x = (i / (barCount - 1)) * canvasWidth;
-
-      let y: number;
-      switch (position) {
-        case "bottom":
-          y = baseY - barHeight;
-          break;
-        case "top":
-          y = barHeight;
-          break;
-        case "center":
-          y = baseY - barHeight / 2;
-          break;
-      }
-
-      points.push({ x, y });
+function traceCurve(ctx: RendererContext, points: Point[], tension: number): void {
+  if (tension === 0 || points.length < 3) {
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
     }
+    return;
+  }
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[Math.max(0, i - 1)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(points.length - 1, i + 2)];
 
-    return points;
+    const cp1x = p1.x + ((p2.x - p0.x) * tension) / 6;
+    const cp1y = p1.y + ((p2.y - p0.y) * tension) / 6;
+    const cp2x = p2.x - ((p3.x - p1.x) * tension) / 6;
+    const cp2y = p2.y - ((p3.y - p1.y) * tension) / 6;
+
+    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+  }
+}
+
+function drawLinePath(ctx: RendererContext, points: Point[], tension: number): void {
+  if (points.length < 2) return;
+
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  traceCurve(ctx, points, tension);
+  ctx.stroke();
+}
+
+function drawFilledPath(
+  ctx: RendererContext,
+  points: Point[],
+  tension: number,
+  baseY: number,
+): void {
+  if (points.length < 2) return;
+
+  ctx.beginPath();
+
+  // Start from baseline at first point
+  ctx.moveTo(points[0].x, baseY);
+  ctx.lineTo(points[0].x, points[0].y);
+  traceCurve(ctx, points, tension);
+
+  // Close the path back to baseline
+  ctx.lineTo(points[points.length - 1].x, baseY);
+  ctx.closePath();
+  ctx.fill();
+}
+
+interface SpectrumShape {
+  points: Point[];
+  tension: number;
+  baseY: number;
+  fillStyle: string | CanvasGradient;
+  stroke: boolean;
+  strokeOpacity: number;
+  fill: boolean;
+  fillOpacity: number;
+}
+
+function drawSpectrumShape(ctx: RendererContext, baseOpacity: number, shape: SpectrumShape) {
+  const { points, tension, baseY, fillStyle, stroke, strokeOpacity, fill, fillOpacity } = shape;
+
+  if (fill && stroke) {
+    // Use composite operation to clip fill to stroke area
+    ctx.save();
+
+    // Draw stroke first to create the "mask"
+    ctx.globalAlpha = baseOpacity * strokeOpacity;
+    drawLinePath(ctx, points, tension);
+
+    // Draw fill only where stroke exists
+    ctx.globalCompositeOperation = "source-atop";
+    ctx.globalAlpha = baseOpacity * fillOpacity;
+    ctx.fillStyle = fillStyle;
+    drawFilledPath(ctx, points, tension, baseY);
+
+    ctx.restore();
+
+    // Draw stroke again on top for clean edges
+    ctx.globalAlpha = baseOpacity * strokeOpacity;
+    drawLinePath(ctx, points, tension);
+  } else if (fill) {
+    ctx.save();
+    ctx.globalAlpha = baseOpacity * fillOpacity;
+    ctx.fillStyle = fillStyle;
+    drawFilledPath(ctx, points, tension, baseY);
+    ctx.restore();
+  } else if (stroke) {
+    ctx.globalAlpha = baseOpacity * strokeOpacity;
+    drawLinePath(ctx, points, tension);
+  }
+}
+
+// Connects the frequency peaks into a mountain-like silhouette
+export function drawLineSpectrum(
+  ctx: RendererContext,
+  frequencyData: FrequencyData,
+  config: AudioVisualizerConfig,
+  resolution: Resolution,
+): void {
+  const canvasWidth = resolution.width;
+  const canvasHeight = resolution.height;
+
+  const {
+    barCount,
+    useGradient,
+    gradientDirection,
+    gradientStartColor,
+    gradientEndColor,
+    singleColor,
+    barOpacity,
+    position,
+    height: heightPercent,
+    mirror,
+    mirrorOpacity,
+    minFrequency,
+    maxFrequency,
+    lineSpectrumConfig: {
+      lineWidth,
+      tension,
+      stroke,
+      strokeColor,
+      strokeOpacity,
+      fill,
+      fillOpacity,
+    },
+  } = config;
+
+  const visualizerHeight = (canvasHeight * heightPercent) / 100;
+
+  let baseY: number;
+  switch (position) {
+    case "bottom":
+      baseY = canvasHeight;
+      break;
+    case "top":
+      baseY = 0;
+      break;
+    case "center":
+      baseY = canvasHeight / 2;
+      break;
   }
 
-  #drawLinePath(points: { x: number; y: number }[], tension: number): void {
-    if (points.length < 2) return;
-
-    this.#ctx.beginPath();
-    this.#ctx.moveTo(points[0].x, points[0].y);
-
-    if (tension === 0 || points.length < 3) {
-      for (let i = 1; i < points.length; i++) {
-        this.#ctx.lineTo(points[i].x, points[i].y);
-      }
-    } else {
-      for (let i = 0; i < points.length - 1; i++) {
-        const p0 = points[Math.max(0, i - 1)];
-        const p1 = points[i];
-        const p2 = points[i + 1];
-        const p3 = points[Math.min(points.length - 1, i + 2)];
-
-        const cp1x = p1.x + ((p2.x - p0.x) * tension) / 6;
-        const cp1y = p1.y + ((p2.y - p0.y) * tension) / 6;
-        const cp2x = p2.x - ((p3.x - p1.x) * tension) / 6;
-        const cp2y = p2.y - ((p3.y - p1.y) * tension) / 6;
-
-        this.#ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
-      }
-    }
-
-    this.#ctx.stroke();
+  // Create fill style (gradient or single color)
+  let fillStyle: string | CanvasGradient;
+  if (useGradient) {
+    const [x0, y0, x1, y1] = getGradientCoords(gradientDirection, canvasWidth, canvasHeight);
+    const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+    gradient.addColorStop(0, gradientStartColor);
+    gradient.addColorStop(1, gradientEndColor);
+    fillStyle = gradient;
+  } else {
+    fillStyle = singleColor;
   }
 
-  #drawFilledPath(points: { x: number; y: number }[], tension: number, baseY: number): void {
-    if (points.length < 2) return;
+  ctx.save();
+  ctx.globalAlpha = barOpacity;
+  ctx.strokeStyle = strokeColor;
+  ctx.lineWidth = lineWidth;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
 
-    this.#ctx.beginPath();
+  const amplitudes = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);
 
-    // Start from baseline at first point
-    this.#ctx.moveTo(points[0].x, baseY);
-    this.#ctx.lineTo(points[0].x, points[0].y);
+  const points = generatePoints(
+    amplitudes,
+    barCount,
+    canvasWidth,
+    baseY,
+    visualizerHeight,
+    position,
+  );
 
-    // Draw the curve (same as stroke path)
-    if (tension === 0 || points.length < 3) {
-      for (let i = 1; i < points.length; i++) {
-        this.#ctx.lineTo(points[i].x, points[i].y);
+  const shape = { tension, fillStyle, stroke, strokeOpacity, fill, fillOpacity };
+  drawSpectrumShape(ctx, barOpacity, { ...shape, points, baseY });
+
+  if (mirror) {
+    ctx.save();
+
+    // Calculate mirror points - reflection sticks to opposite edge
+    const mirrorPoints = points.map((p) => {
+      const barHeight = Math.abs(baseY - p.y);
+      let mirrorY: number;
+      if (position === "center") {
+        // Reflect across baseline
+        mirrorY = baseY + barHeight;
+      } else if (position === "bottom") {
+        // Stick to top of canvas, pointing downward
+        mirrorY = barHeight;
+      } else {
+        // Top: stick to bottom of canvas, pointing upward
+        mirrorY = canvasHeight - barHeight;
       }
-    } else {
-      for (let i = 0; i < points.length - 1; i++) {
-        const p0 = points[Math.max(0, i - 1)];
-        const p1 = points[i];
-        const p2 = points[i + 1];
-        const p3 = points[Math.min(points.length - 1, i + 2)];
+      return { x: p.x, y: mirrorY };
+    });
 
-        const cp1x = p1.x + ((p2.x - p0.x) * tension) / 6;
-        const cp1y = p1.y + ((p2.y - p0.y) * tension) / 6;
-        const cp2x = p2.x - ((p3.x - p1.x) * tension) / 6;
-        const cp2y = p2.y - ((p3.y - p1.y) * tension) / 6;
+    // Calculate mirror baseline for fill
+    const mirrorBaseY = position === "bottom" ? 0 : position === "top" ? canvasHeight : baseY;
 
-        this.#ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
-      }
-    }
-
-    // Close the path back to baseline
-    this.#ctx.lineTo(points[points.length - 1].x, baseY);
-    this.#ctx.closePath();
-    this.#ctx.fill();
+    drawSpectrumShape(ctx, barOpacity * mirrorOpacity, {
+      ...shape,
+      points: mirrorPoints,
+      baseY: mirrorBaseY,
+    });
+    ctx.restore();
   }
+
+  ctx.restore();
 }

@@ -2,7 +2,7 @@ import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
+import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer-overlay";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import type { AudioVisualizerConfig, Resolution } from "@/lib/renderers/renderer";
 
@@ -91,9 +91,8 @@ test("bars style - bottom position", async () => {
     height: 30,
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-bars-bottom");
@@ -116,9 +115,8 @@ test("bars style - top position with mirror", async () => {
     height: 30,
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-bars-top-mirror");
@@ -141,9 +139,8 @@ test("bars style - center position single color", async () => {
     height: 40,
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-bars-center-single-color");
@@ -176,9 +173,8 @@ test("lineSpectrum style - stroke only", async () => {
     },
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-line-stroke");
@@ -208,9 +204,8 @@ test("lineSpectrum style - fill with stroke", async () => {
     },
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-line-fill-stroke");
@@ -239,9 +234,8 @@ test("lineSpectrum style - high tension", async () => {
     },
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-line-high-tension");
@@ -265,9 +259,8 @@ test("circular style - default", async () => {
     useGradient: true,
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-circular-default");
@@ -288,9 +281,8 @@ test("circular style - high bar count", async () => {
     singleColor: "#ec4899",
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-circular-high-bars");
@@ -312,9 +304,8 @@ test("circular style - low bar count", async () => {
     gradientEndColor: "#8b5cf6",
   };
 
-  const overlay = new AudioVisualizerOverlay(ctx, config, resolution);
   const frequencyData = createTestFrequencyData();
-  overlay.render(frequencyData);
+  drawAudioVisualizer(ctx, frequencyData, config, resolution);
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-circular-low-bars");

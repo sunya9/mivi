@@ -1,30 +1,25 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { MidiTrack } from "@/lib/midi/midi";
-import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
-import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
+import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer-overlay";
+import { drawBackground } from "@/lib/renderers/background-renderer";
 import { createRenderer } from "@/lib/renderers/create-renderer";
 import {
   Renderer,
   RendererConfig,
   RendererType,
-  Resolution,
   type RendererContext,
 } from "@/lib/renderers/renderer";
 
 export class RendererController {
-  #context: RendererContext;
-  #backgroundRenderer?: BackgroundRenderer;
-  #audioVisualizerOverlay?: AudioVisualizerOverlay;
-
-  constructor(context: RendererContext) {
-    this.#context = context;
-  }
-
+  readonly #context: RendererContext;
   #renderer?: Renderer;
   #rendererConfig?: RendererConfig;
   #backgroundImageBitmap?: ImageBitmap;
   #currentRendererType?: RendererType;
-  #currentResolution?: Resolution;
+
+  constructor(context: RendererContext) {
+    this.#context = context;
+  }
 
   setRendererConfig(rendererConfig: RendererConfig) {
     this.#rendererConfig = rendererConfig;
@@ -33,45 +28,18 @@ export class RendererController {
       this.#currentRendererType = rendererConfig.type;
       this.#renderer = createRenderer(rendererConfig.type, this.#context);
     }
-
-    // Update or create background renderer
-    if (this.#backgroundRenderer) {
-      this.#backgroundRenderer.setConfig(rendererConfig);
-    } else {
-      this.#backgroundRenderer = new BackgroundRenderer(
-        this.#context,
-        rendererConfig,
-        this.#backgroundImageBitmap,
-      );
-    }
-
-    // Update or recreate audio visualizer overlay
-    if (this.#audioVisualizerOverlay) {
-      this.#audioVisualizerOverlay.setConfig(rendererConfig.audioVisualizerConfig);
-    }
-    if (!this.#audioVisualizerOverlay || this.#currentResolution !== rendererConfig.resolution) {
-      this.#audioVisualizerOverlay = new AudioVisualizerOverlay(
-        this.#context,
-        rendererConfig.audioVisualizerConfig,
-        rendererConfig.resolution,
-      );
-      this.#currentResolution = rendererConfig.resolution;
-    }
   }
 
   setBackgroundImageBitmap(backgroundImageBitmap?: ImageBitmap) {
     this.#backgroundImageBitmap = backgroundImageBitmap;
-
-    if (this.#backgroundRenderer) {
-      this.#backgroundRenderer.setBackgroundImageBitmap(backgroundImageBitmap);
-    }
   }
 
   render(tracks: MidiTrack[], currentTime: number, frequencyData?: FrequencyData | null) {
-    if (!this.#rendererConfig) return;
-    const { resolution } = this.#rendererConfig;
+    const config = this.#rendererConfig;
+    if (!config) return;
+    const { resolution, audioVisualizerConfig } = config;
     const ctx = this.#context;
-    const layer = this.#rendererConfig.audioVisualizerLayer ?? "front";
+    const layer = config.audioVisualizerLayer ?? "front";
 
     ctx.save();
     ctx.setTransform(
@@ -83,20 +51,16 @@ export class RendererController {
       0,
     );
 
-    // 1. Render background (always first)
-    this.#backgroundRenderer?.render();
+    drawBackground(ctx, config, this.#backgroundImageBitmap);
 
-    // 2. Render audio visualizer in back layer (under MIDI)
     if (layer === "back" && frequencyData) {
-      this.#audioVisualizerOverlay?.render(frequencyData);
+      drawAudioVisualizer(ctx, frequencyData, audioVisualizerConfig, resolution);
     }
 
-    // 3. Render MIDI visualizer
-    this.#renderer?.(tracks, currentTime, this.#rendererConfig);
+    this.#renderer?.(tracks, currentTime, config);
 
-    // 4. Render audio visualizer in front layer (over MIDI)
     if (layer === "front" && frequencyData) {
-      this.#audioVisualizerOverlay?.render(frequencyData);
+      drawAudioVisualizer(ctx, frequencyData, audioVisualizerConfig, resolution);
     }
 
     ctx.restore();

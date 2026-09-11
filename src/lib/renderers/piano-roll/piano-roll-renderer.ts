@@ -4,7 +4,7 @@ import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-vis
 import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture-renderer";
 import { computePressOffset } from "@/lib/renderers/shared/note-press";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
-import { RoughRectDrawer } from "@/lib/renderers/shared/rough-rect-drawer";
+import { drawRoughRect } from "@/lib/renderers/shared/rough-rect-drawer";
 
 // Keeps a note "touched" for a few pixels past its right edge so short notes still register
 const PLAYHEAD_TOUCH_SLACK_PX = 20;
@@ -37,7 +37,6 @@ function noteToY(midi: number, height: number, cfg: PianoRollConfig): number {
 
 export const createPianoRollRenderer: RendererFactory = (ctx) => {
   const noiseTextureRenderer = new NoiseTextureRenderer(ctx);
-  const roughRectDrawer = new RoughRectDrawer(ctx);
   const rippleStates = new Map<number, RippleState>();
   const noteFlashStates = new Map<number, NoteFlashState>();
   let lastCurrentTime = 0;
@@ -201,7 +200,8 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
 
         if (cfg.showRoughEdge) {
           const roughSeed = note.time * 1000 + note.midi;
-          roughRectDrawer.draw(
+          drawRoughRect(
+            ctx,
             x + noteMargin,
             y - pressOffset,
             noteWidth,

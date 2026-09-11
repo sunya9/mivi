@@ -2,7 +2,7 @@ import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 
 import { MidiNote, MidiTrack, getDefaultTrackConfig } from "@/lib/midi/midi";
-import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
+import { drawBackground } from "@/lib/renderers/background-renderer";
 import { RendererConfig, getDefaultRendererConfig } from "@/lib/renderers/renderer";
 import type { Resolution } from "@/lib/renderers/renderer";
 import { createVerticalPianoRollRenderer } from "@/lib/renderers/vertical-piano-roll/vertical-piano-roll-renderer";
@@ -71,7 +71,7 @@ function renderScene(overrides: Partial<RendererConfig["verticalPianoRollConfig"
       ...overrides,
     },
   };
-  new BackgroundRenderer(ctx, config).render();
+  drawBackground(ctx, config);
   createVerticalPianoRollRenderer(ctx)(tracks, CAPTURE_TIME, config);
 }
 
