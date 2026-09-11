@@ -2,100 +2,81 @@ import { hexLuminance } from "@/lib/colors/hex";
 import { RendererContext } from "@/lib/renderers/renderer";
 import { seededRandom } from "@/lib/seeded-random";
 
-interface NoiseTextureConfig {
-  intensity: number;
-  grainSize: number;
-  colorVariance: number;
+export interface NoiseTextureConfig {
+  showNoiseTexture: boolean;
+  noiseIntensity: number;
+  noiseGrainSize: number;
+  noiseColorVariance: number;
 }
 
-export class NoiseTextureRenderer {
-  #patternLight: CanvasPattern | null = null;
-  #patternDark: CanvasPattern | null = null;
-  #cachedIntensity: number = 0;
-  #cachedGrainSize: number = 0;
-  #cachedColorVariance: number = 0;
-  #ctx: RendererContext;
+const PATTERN_SIZE = 256;
 
-  constructor(ctx: RendererContext) {
-    this.#ctx = ctx;
-  }
+function generatePattern(
+  ctx: RendererContext,
+  cfg: NoiseTextureConfig,
+  dark: boolean,
+): CanvasPattern | null {
+  const canvas = new OffscreenCanvas(PATTERN_SIZE, PATTERN_SIZE);
+  const patternCtx = canvas.getContext("2d");
+  if (!patternCtx) return null;
 
-  updatePatterns(config: NoiseTextureConfig): void {
-    const { intensity, grainSize, colorVariance } = config;
+  const imageData = patternCtx.createImageData(PATTERN_SIZE, PATTERN_SIZE);
+  const data = imageData.data;
+  const colorValue = dark ? 0 : 255;
+  const grainsPerRow = Math.ceil(PATTERN_SIZE / cfg.noiseGrainSize);
 
-    if (
-      this.#cachedIntensity !== intensity ||
-      this.#cachedGrainSize !== grainSize ||
-      this.#cachedColorVariance !== colorVariance ||
-      this.#patternLight === null ||
-      this.#patternDark === null
-    ) {
-      this.#patternLight = this.#generatePattern(intensity, grainSize, colorVariance, false);
-      this.#patternDark = this.#generatePattern(intensity, grainSize, colorVariance, true);
-      this.#cachedIntensity = intensity;
-      this.#cachedGrainSize = grainSize;
-      this.#cachedColorVariance = colorVariance;
+  for (let y = 0; y < PATTERN_SIZE; y++) {
+    for (let x = 0; x < PATTERN_SIZE; x++) {
+      const grainX = Math.floor(x / cfg.noiseGrainSize);
+      const grainY = Math.floor(y / cfg.noiseGrainSize);
+      const grainIndex = grainY * grainsPerRow + grainX;
+      const noiseAlpha = seededRandom(grainIndex) * cfg.noiseIntensity * cfg.noiseColorVariance;
+
+      const i = (y * PATTERN_SIZE + x) * 4;
+      data[i] = colorValue;
+      data[i + 1] = colorValue;
+      data[i + 2] = colorValue;
+      data[i + 3] = Math.floor(noiseAlpha);
     }
   }
 
-  clearPatterns(): void {
-    this.#patternLight = null;
-    this.#patternDark = null;
-    this.#cachedIntensity = 0;
-    this.#cachedGrainSize = 0;
-    this.#cachedColorVariance = 0;
-  }
+  patternCtx.putImageData(imageData, 0, 0);
+  return ctx.createPattern(canvas, "repeat");
+}
 
-  apply(noteColor: string, noteX: number, noteY: number, noteSeed: number): void {
-    const luminance = hexLuminance(noteColor);
-    const pattern = luminance > 0.5 ? this.#patternDark : this.#patternLight;
+// The two patterns are expensive to build, so they are cached until the noise settings change
+export function createNoiseTexture(ctx: RendererContext) {
+  let light: CanvasPattern | null = null;
+  let dark: CanvasPattern | null = null;
+  let cacheKey = "";
 
-    if (!pattern) return;
-
-    this.#ctx.save();
-    this.#ctx.globalCompositeOperation = "source-atop";
-
-    const uniqueOffsetX = seededRandom(noteSeed) * 256;
-    const uniqueOffsetY = seededRandom(noteSeed + 12345) * 256;
-
-    pattern.setTransform(new DOMMatrix().translate(noteX + uniqueOffsetX, noteY + uniqueOffsetY));
-    this.#ctx.fillStyle = pattern;
-    this.#ctx.fill();
-    this.#ctx.restore();
-  }
-
-  #generatePattern(
-    intensity: number,
-    grainSize: number,
-    colorVariance: number,
-    dark: boolean,
-  ): CanvasPattern | null {
-    const size = 256;
-    const canvas = new OffscreenCanvas(size, size);
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-
-    const imageData = ctx.createImageData(size, size);
-    const data = imageData.data;
-    const colorValue = dark ? 0 : 255;
-
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
-        const grainX = Math.floor(x / grainSize);
-        const grainY = Math.floor(y / grainSize);
-        const grainIndex = grainY * Math.ceil(size / grainSize) + grainX;
-
-        const noiseAlpha = seededRandom(grainIndex) * intensity * colorVariance;
-
-        const i = (y * size + x) * 4;
-        data[i] = colorValue;
-        data[i + 1] = colorValue;
-        data[i + 2] = colorValue;
-        data[i + 3] = Math.floor(noiseAlpha);
+  return {
+    apply(cfg: NoiseTextureConfig, noteColor: string, x: number, y: number, seed: number): void {
+      if (!cfg.showNoiseTexture) {
+        light = null;
+        dark = null;
+        cacheKey = "";
+        return;
       }
-    }
 
-    ctx.putImageData(imageData, 0, 0);
-    return this.#ctx.createPattern(canvas, "repeat");
-  }
+      const key = `${cfg.noiseIntensity}:${cfg.noiseGrainSize}:${cfg.noiseColorVariance}`;
+      if (key !== cacheKey || !light || !dark) {
+        light = generatePattern(ctx, cfg, false);
+        dark = generatePattern(ctx, cfg, true);
+        cacheKey = key;
+      }
+
+      const pattern = hexLuminance(noteColor) > 0.5 ? dark : light;
+      if (!pattern) return;
+
+      ctx.save();
+      ctx.globalCompositeOperation = "source-atop";
+      const offsetX = seededRandom(seed) * PATTERN_SIZE;
+      const offsetY = seededRandom(seed + 12345) * PATTERN_SIZE;
+      pattern.setTransform(new DOMMatrix().translate(x + offsetX, y + offsetY));
+      ctx.fillStyle = pattern;
+      ctx.fill();
+      ctx.restore();
+    },
+  };
 }

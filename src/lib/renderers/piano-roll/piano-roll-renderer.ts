@@ -1,8 +1,7 @@
 import { brightenHexColor } from "@/lib/colors/hex";
 import { RendererFactory } from "@/lib/renderers/renderer";
-import { PianoRollConfig } from "@/lib/renderers/renderer-config";
 import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-visible-note";
-import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture";
+import { createNoiseTexture } from "@/lib/renderers/shared/noise-texture";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { computePressOffset } from "@/lib/renderers/shared/note-press";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
@@ -19,36 +18,22 @@ interface PendingRipple {
   color: string;
 }
 
-function noteToY(midi: number, height: number, cfg: PianoRollConfig): number {
-  const noteHeight = Math.max(height / 127, cfg.noteHeight);
-  const viewRangeSize = cfg.viewRangeTop - cfg.viewRangeBottom;
-  return height * ((cfg.viewRangeTop - midi) / viewRangeSize) - noteHeight / 2;
-}
-
 export const createPianoRollRenderer: RendererFactory = (ctx) => {
-  const noiseTextureRenderer = new NoiseTextureRenderer(ctx);
+  const noiseTexture = createNoiseTexture(ctx);
   const pendingRipples: PendingRipple[] = [];
-
-  const updateNoiseTexture = (cfg: PianoRollConfig) => {
-    if (!cfg.showNoiseTexture) {
-      noiseTextureRenderer.clearPatterns();
-      return;
-    }
-    noiseTextureRenderer.updatePatterns({
-      intensity: cfg.noiseIntensity,
-      grainSize: cfg.noiseGrainSize,
-      colorVariance: cfg.noiseColorVariance,
-    });
-  };
 
   return (tracks, currentTime, config) => {
     const cfg = config.pianoRollConfig;
-    updateNoiseTexture(cfg);
     pendingRipples.length = 0;
     const { width, height } = config.resolution;
 
     const isNoteInViewRange = (midi: number) =>
       midi <= cfg.viewRangeTop && midi >= cfg.viewRangeBottom;
+
+    const baseNoteHeight = Math.max(height / 127, cfg.noteHeight);
+    const viewRangeSize = cfg.viewRangeTop - cfg.viewRangeBottom;
+    const noteToY = (midi: number) =>
+      height * ((cfg.viewRangeTop - midi) / viewRangeSize) - baseNoteHeight / 2;
 
     const playheadPosition = cfg.playheadPosition / 100;
     const playheadX = width * playheadPosition;
@@ -93,26 +78,17 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
 
         if (!isNoteInViewRange(note.midi)) continue;
 
-        const x = timeToX(noteStart, track.config.scale);
-        const rawNoteWidth = timeToX(noteEnd, track.config.scale) - x;
-        const baseNoteHeight = Math.max(height / 127, cfg.noteHeight);
+        const x = timeToX(noteStart, track.config.scale) + cfg.noteMargin;
+        const rawNoteWidth = timeToX(noteEnd, track.config.scale) - x + cfg.noteMargin;
         const verticalMargin = cfg.noteVerticalMargin;
         const noteHeight = Math.max(0, baseNoteHeight - verticalMargin * 2) * track.config.scale;
-
-        const noteMargin = cfg.noteMargin;
-        let noteWidth;
-        if (track.config.staccato) {
-          noteWidth = noteHeight;
-        } else {
-          noteWidth = Math.max(0, rawNoteWidth - noteMargin * 2);
-        }
-
-        const y = noteToY(note.midi, height, cfg) + verticalMargin;
+        const noteWidth = track.config.staccato
+          ? noteHeight
+          : Math.max(0, rawNoteWidth - cfg.noteMargin * 2);
 
         const touchEnd = noteStart + (noteWidth + PLAYHEAD_TOUCH_SLACK_PX) / pxPerSecond;
-
         const pressOffset = cfg.showNotePressEffect
-          ? -computePressOffset(
+          ? computePressOffset(
               noteStart,
               touchEnd,
               cfg.pressAnimationDuration,
@@ -120,6 +96,7 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
               currentTime,
             )
           : 0;
+        const y = noteToY(note.midi) + verticalMargin + pressOffset;
 
         const flashIntensity = cfg.showNoteFlash
           ? computeFlashIntensity(cfg, noteStart, touchEnd, currentTime)
@@ -130,38 +107,28 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
             : track.config.color;
         ctx.globalAlpha = track.config.opacity;
 
+        const seed = note.time * 1000 + note.midi;
         if (cfg.showRoughEdge) {
-          const roughSeed = note.time * 1000 + note.midi;
           drawRoughRect(
             ctx,
-            x + noteMargin,
-            y - pressOffset,
+            x,
+            y,
             noteWidth,
             noteHeight,
             cfg.noteCornerRadius,
             cfg.roughEdgeIntensity,
             cfg.roughEdgeSegmentLength,
-            roughSeed,
+            seed,
           );
         } else {
           ctx.beginPath();
-          ctx.roundRect(
-            x + noteMargin,
-            y - pressOffset,
-            noteWidth,
-            noteHeight,
-            cfg.noteCornerRadius,
-          );
+          ctx.roundRect(x, y, noteWidth, noteHeight, cfg.noteCornerRadius);
         }
         ctx.fill();
 
-        if (cfg.showNoiseTexture) {
-          const noteSeed = note.time * 1000 + note.midi;
-          noiseTextureRenderer.apply(track.config.color, x + noteMargin, y - pressOffset, noteSeed);
-        }
+        noiseTexture.apply(cfg, track.config.color, x, y, seed);
 
-        const velocityAlpha = note.velocity / 127;
-        ctx.fillStyle = `rgba(255, 255, 255, ${velocityAlpha * 0.3})`;
+        ctx.fillStyle = `rgba(255, 255, 255, ${(note.velocity / 127) * 0.3})`;
         ctx.fill();
         ctx.globalAlpha = 1;
 
@@ -169,17 +136,13 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
           const progress = computeRippleProgress(cfg.rippleDuration, noteStart, currentTime);
           if (progress !== null) {
             pendingRipples.push({
-              y: y + noteHeight / 2,
+              y: y - pressOffset + noteHeight / 2,
               progress,
               color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
             });
           }
         }
       }
-
-      ctx.shadowColor = "transparent";
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetY = 0;
     }
 
     for (const ripple of pendingRipples) {
@@ -193,12 +156,12 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
       );
     }
 
-    ctx.beginPath();
     if (cfg.showPlayhead) {
       ctx.save();
       ctx.strokeStyle = cfg.playheadColor;
       ctx.globalAlpha = cfg.playheadOpacity;
       ctx.lineWidth = cfg.playheadWidth;
+      ctx.beginPath();
       ctx.moveTo(playheadX, 0);
       ctx.lineTo(playheadX, height);
       ctx.stroke();
