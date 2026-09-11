@@ -1,18 +1,17 @@
 import { brightenHexColor } from "@/lib/colors/hex";
-import { RendererConfig, RendererFactory } from "@/lib/renderers/renderer";
+import { RendererFactory } from "@/lib/renderers/renderer";
+import { PianoRollConfig } from "@/lib/renderers/renderer-config";
 import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-visible-note";
-import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture-renderer";
+import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { computePressOffset } from "@/lib/renderers/shared/note-press";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
-import { drawRoughRect } from "@/lib/renderers/shared/rough-rect-drawer";
+import { drawRoughRect } from "@/lib/renderers/shared/rough-rect";
 
 // Keeps a note "touched" for a few pixels past its right edge so short notes still register
 const PLAYHEAD_TOUCH_SLACK_PX = 20;
 
 const OVERFLOW_FACTOR = 0.5;
-
-type PianoRollConfig = RendererConfig["pianoRollConfig"];
 
 interface PendingRipple {
   y: number;

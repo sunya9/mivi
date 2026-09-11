@@ -8,7 +8,7 @@ import {
   MIN_RESOLUTION_SIZE,
   resolutionGroups,
   resolutions,
-} from "@/lib/renderers/renderer";
+} from "@/lib/renderers/resolution";
 
 const groupOf = (label: string) => resolutionGroups.find((g) => g.label === label)!.resolutions;
 

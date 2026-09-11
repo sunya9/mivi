@@ -1,6 +1,6 @@
 import { AudioSource } from "@/lib/audio/audio";
 import { MidiTracks } from "@/lib/midi/midi";
-import { RendererConfig } from "@/lib/renderers/renderer";
+import { RendererConfig } from "@/lib/renderers/renderer-config";
 
 export interface RecorderResources {
   readonly midiTracks?: MidiTracks;

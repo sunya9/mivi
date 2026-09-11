@@ -5,10 +5,10 @@ import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
 import { SpectrumEnvelope } from "@/lib/audio/spectrum-envelope";
 import { MidiTracks } from "@/lib/midi/midi";
 import type { AudioPlaybackStore } from "@/lib/player/audio-playback-store";
-import { RendererConfig } from "@/lib/renderers/renderer";
+import { RendererConfig } from "@/lib/renderers/renderer-config";
+import { RendererController } from "@/lib/renderers/renderer-controller";
 import type { ReadableStore } from "@/lib/store/observable-store";
 import { FpsCounter } from "@/lib/visualizer/fps-counter";
-import { RendererController } from "@/lib/visualizer/renderer-controller";
 
 const CANVAS_CLASS_NAME = cn(
   "max-h-full max-w-full [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-canvas]",

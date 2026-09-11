@@ -1,4 +1,4 @@
-import type { GradientDirection } from "@/lib/renderers/renderer";
+import type { GradientDirection } from "@/lib/renderers/renderer-config";
 
 /**
  * Calculate gradient coordinates based on direction.

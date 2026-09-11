@@ -8,7 +8,7 @@ import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MidiTracks } from "@/lib/midi/midi";
 import { MuxerImpl } from "@/lib/muxer/muxer";
-import { getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import { getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
 
 const DURATION_SEC = 60;
 const WIDTH = 1280;
