@@ -1,5 +1,4 @@
-import { MidiTrack } from "@/lib/midi/midi";
-import { Renderer, RendererConfig } from "@/lib/renderers/renderer";
+import { RendererConfig, RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 
 interface CometParticle {
   x: number;
@@ -19,30 +18,197 @@ interface CometTrail {
   alpha: number;
 }
 
-export class CometRenderer extends Renderer {
-  #activeComets = new Map<number, CometParticle>();
-  #lastCurrentTime: number = 0;
-  #cometAngleOffsets = new Map<number, number>();
+type CometConfig = RendererConfig["cometConfig"];
 
-  constructor(
-    ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-    config: RendererConfig,
-  ) {
-    super(ctx, config);
+function calculateCometTrail(
+  cometConfig: CometConfig,
+  width: number,
+  height: number,
+  comet: CometParticle,
+  currentTime: number,
+): CometTrail {
+  const positions: Array<{ x: number; y: number; timestamp: number }> = [];
+
+  if (currentTime < comet.startTime) {
+    // Comet hasn't started yet - no trail
+    return {
+      positions: [],
+      color: comet.color,
+      alpha: 1.0,
+    };
   }
 
-  render(tracks: MidiTrack[], currentTime: number) {
-    if (currentTime < this.#lastCurrentTime) {
-      this.#activeComets.clear();
-      this.#cometAngleOffsets.clear();
+  const totalDuration = comet.endTime - comet.startTime;
+  const currentProgress = Math.min(1.0, (currentTime - comet.startTime) / totalDuration);
+
+  // Calculate how many trail points to generate based on trail length setting
+  const trailPoints = Math.max(2, Math.floor(cometConfig.trailLength * 60));
+
+  // Calculate the time range for the trail
+  const trailDuration = cometConfig.trailLength;
+
+  // Generate trail positions going backwards in time from current position
+  const finalAngle = cometConfig.fallAngle + comet.angleOffset;
+  // Use angle directly for right-start counterclockwise rotation (same as main comet movement)
+  const angleRad = (finalAngle * Math.PI) / 180;
+
+  for (let i = 0; i < trailPoints; i++) {
+    const timeStep = (trailDuration / (trailPoints - 1)) * i;
+    const trailTime = currentTime - timeStep;
+
+    // Skip points before comet started
+    if (trailTime < comet.startTime) break;
+
+    // Calculate position at this time
+    const progress = (trailTime - comet.startTime) / totalDuration;
+
+    // Calculate distance based on screen diagonal and percentage
+    const screenDiagonal = Math.sqrt(width * width + height * height);
+    const maxDistance = screenDiagonal * (cometConfig.fallDistancePercent / 100);
+    const distance = progress * maxDistance;
+
+    const x = comet.x + Math.cos(angleRad) * distance;
+    const y = comet.y + Math.sin(angleRad) * distance;
+
+    positions.unshift({ x, y, timestamp: trailTime });
+  }
+
+  // Calculate alpha for fade out
+  let alpha = 1.0;
+  if (currentProgress >= 1.0) {
+    const fadeProgress = (currentTime - comet.endTime) / cometConfig.fadeOutDuration;
+    alpha = Math.max(0, 1.0 - fadeProgress);
+  }
+
+  return {
+    positions,
+    color: comet.color,
+    alpha,
+  };
+}
+
+function renderCometTrail(ctx: RendererContext, cometConfig: CometConfig, trail: CometTrail) {
+  if (trail.positions.length < 2) return;
+
+  ctx.save();
+  ctx.lineWidth = cometConfig.trailWidth;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  // Create a single path for the entire trail
+  ctx.beginPath();
+
+  // Move to the first position
+  ctx.moveTo(trail.positions[0].x, trail.positions[0].y);
+
+  // Create the path
+  for (let i = 1; i < trail.positions.length; i++) {
+    ctx.lineTo(trail.positions[i].x, trail.positions[i].y);
+  }
+
+  // Create gradient along the trail
+  const firstPos = trail.positions[0];
+  const lastPos = trail.positions[trail.positions.length - 1];
+
+  const gradient = ctx.createLinearGradient(
+    firstPos.x,
+    firstPos.y, // Start of gradient (tail)
+    lastPos.x,
+    lastPos.y, // End of gradient (head)
+  );
+
+  // Parse color to extract RGB values
+  const color = trail.color;
+  const baseAlpha = trail.alpha * cometConfig.trailOpacity;
+
+  // Add gradient stops with smooth alpha transition
+  gradient.addColorStop(0, `${color}00`); // Fully transparent at tail
+  gradient.addColorStop(
+    0.5,
+    `${color}${Math.floor(baseAlpha * 0.3 * 255)
+      .toString(16)
+      .padStart(2, "0")}`,
+  ); // 30% opacity at middle
+  gradient.addColorStop(
+    0.8,
+    `${color}${Math.floor(baseAlpha * 0.7 * 255)
+      .toString(16)
+      .padStart(2, "0")}`,
+  ); // 70% opacity near head
+  gradient.addColorStop(
+    1,
+    `${color}${Math.floor(baseAlpha * 255)
+      .toString(16)
+      .padStart(2, "0")}`,
+  ); // Full opacity at head
+
+  // Apply gradient and draw the path once
+  ctx.strokeStyle = gradient;
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function renderComet(
+  ctx: RendererContext,
+  cometConfig: CometConfig,
+  x: number,
+  y: number,
+  comet: CometParticle,
+  progress: number,
+  currentTime: number,
+) {
+  ctx.save();
+
+  // Calculate alpha for fade out
+  let alpha = 1.0;
+  if (progress >= 1.0) {
+    const fadeProgress = (currentTime - comet.endTime) / cometConfig.fadeOutDuration;
+    alpha = 1.0 - fadeProgress;
+  }
+
+  // Draw comet particle
+  const radius = cometConfig.cometSize * (comet.velocity / 127) * comet.trackScale;
+
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = comet.color;
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Add velocity-based glow effect
+  const glowRadius = radius * 2;
+  const glowGradient = ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
+  glowGradient.addColorStop(
+    0,
+    `${comet.color}${Math.floor(alpha * 128)
+      .toString(16)
+      .padStart(2, "0")}`,
+  );
+  glowGradient.addColorStop(1, `${comet.color}00`);
+
+  ctx.fillStyle = glowGradient;
+  ctx.beginPath();
+  ctx.arc(x, y, glowRadius, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+export const createCometRenderer: RendererFactory = (ctx) => {
+  const activeComets = new Map<number, CometParticle>();
+  const cometAngleOffsets = new Map<number, number>();
+  let lastCurrentTime = 0;
+
+  return (tracks, currentTime, config) => {
+    if (currentTime < lastCurrentTime) {
+      activeComets.clear();
+      cometAngleOffsets.clear();
     }
-    this.#lastCurrentTime = currentTime;
+    lastCurrentTime = currentTime;
 
-    // Background is now rendered by RendererController
-
-    const { width, height } = this.config.resolution;
-
-    const { cometConfig } = this.config;
+    const { width, height } = config.resolution;
+    const { cometConfig } = config;
 
     const isNoteInViewRange = (midi: number) => {
       const viewRangeTop = cometConfig.viewRangeTop;
@@ -61,18 +227,18 @@ export class CometRenderer extends Renderer {
         if (
           currentTime >= note.time &&
           currentTime <= note.time + note.duration &&
-          !this.#activeComets.has(cometKey) &&
+          !activeComets.has(cometKey) &&
           isNoteInViewRange(note.midi)
         ) {
           // Calculate angle offset for this comet if not exists
-          if (!this.#cometAngleOffsets.has(cometKey)) {
+          if (!cometAngleOffsets.has(cometKey)) {
             // Create deterministic angle offset based on note properties
             const pseudoRandomAngle = ((note.time * 54321 + note.midi * 98765) % 1000) / 1000 - 0.5;
             const randomAngleOffset = pseudoRandomAngle * 2 * cometConfig.angleRandomness;
-            this.#cometAngleOffsets.set(cometKey, randomAngleOffset);
+            cometAngleOffsets.set(cometKey, randomAngleOffset);
           }
 
-          const angleOffset = this.#cometAngleOffsets.get(cometKey)!;
+          const angleOffset = cometAngleOffsets.get(cometKey)!;
 
           // Calculate comet position based on MIDI note
           const noteRange = cometConfig.viewRangeTop - cometConfig.viewRangeBottom;
@@ -116,7 +282,7 @@ export class CometRenderer extends Renderer {
             baseStartY + normalizedMidi * height * 0.2 + spacingOffsetY + randomOffsetY;
 
           // Create comet particle with proper duration timing
-          this.#activeComets.set(cometKey, {
+          activeComets.set(cometKey, {
             x: startX,
             y: startY,
             startTime: note.time,
@@ -132,7 +298,7 @@ export class CometRenderer extends Renderer {
     });
 
     // Update and render active comets
-    this.#activeComets.forEach((comet, key) => {
+    activeComets.forEach((comet, key) => {
       // Skip if comet hasn't started yet
       if (currentTime < comet.startTime) return;
 
@@ -146,7 +312,7 @@ export class CometRenderer extends Renderer {
           (currentTime - comet.endTime) / cometConfig.fadeOutDuration,
         );
         if (fadeProgress >= 1.0) {
-          this.#activeComets.delete(key);
+          activeComets.delete(key);
           return;
         }
       }
@@ -165,180 +331,10 @@ export class CometRenderer extends Renderer {
       const currentY = comet.y + Math.sin(angleRad) * distance;
 
       // Calculate trail positions based on current time (deterministic)
-      const trail = this.#calculateCometTrail(comet, currentTime);
+      const trail = calculateCometTrail(cometConfig, width, height, comet, currentTime);
 
-      // Render trail
-      this.#renderCometTrail(trail);
-
-      // Render comet
-      this.#renderComet(currentX, currentY, comet, progress, currentTime);
+      renderCometTrail(ctx, cometConfig, trail);
+      renderComet(ctx, cometConfig, currentX, currentY, comet, progress, currentTime);
     });
-  }
-
-  #calculateCometTrail(comet: CometParticle, currentTime: number): CometTrail {
-    const { cometConfig } = this.config;
-    const { width, height } = this.config.resolution;
-    const positions: Array<{ x: number; y: number; timestamp: number }> = [];
-
-    if (currentTime < comet.startTime) {
-      // Comet hasn't started yet - no trail
-      return {
-        positions: [],
-        color: comet.color,
-        alpha: 1.0,
-      };
-    }
-
-    const totalDuration = comet.endTime - comet.startTime;
-    const currentProgress = Math.min(1.0, (currentTime - comet.startTime) / totalDuration);
-
-    // Calculate how many trail points to generate based on trail length setting
-    const trailPoints = Math.max(2, Math.floor(cometConfig.trailLength * 60));
-
-    // Calculate the time range for the trail
-    const trailDuration = cometConfig.trailLength;
-
-    // Generate trail positions going backwards in time from current position
-    const finalAngle = cometConfig.fallAngle + comet.angleOffset;
-    // Use angle directly for right-start counterclockwise rotation (same as main comet movement)
-    const angleRad = (finalAngle * Math.PI) / 180;
-
-    for (let i = 0; i < trailPoints; i++) {
-      const timeStep = (trailDuration / (trailPoints - 1)) * i;
-      const trailTime = currentTime - timeStep;
-
-      // Skip points before comet started
-      if (trailTime < comet.startTime) break;
-
-      // Calculate position at this time
-      const progress = (trailTime - comet.startTime) / totalDuration;
-
-      // Calculate distance based on screen diagonal and percentage
-      const screenDiagonal = Math.sqrt(width * width + height * height);
-      const maxDistance = screenDiagonal * (cometConfig.fallDistancePercent / 100);
-      const distance = progress * maxDistance;
-
-      const x = comet.x + Math.cos(angleRad) * distance;
-      const y = comet.y + Math.sin(angleRad) * distance;
-
-      positions.unshift({ x, y, timestamp: trailTime });
-    }
-
-    // Calculate alpha for fade out
-    let alpha = 1.0;
-    if (currentProgress >= 1.0) {
-      const fadeProgress = (currentTime - comet.endTime) / cometConfig.fadeOutDuration;
-      alpha = Math.max(0, 1.0 - fadeProgress);
-    }
-
-    return {
-      positions,
-      color: comet.color,
-      alpha,
-    };
-  }
-
-  #renderCometTrail(trail: CometTrail | undefined) {
-    if (!trail || trail.positions.length < 2) return;
-
-    const { cometConfig } = this.config;
-
-    this.ctx.save();
-    this.ctx.lineWidth = cometConfig.trailWidth;
-    this.ctx.lineCap = "round";
-    this.ctx.lineJoin = "round";
-
-    // Create a single path for the entire trail
-    this.ctx.beginPath();
-
-    // Move to the first position
-    this.ctx.moveTo(trail.positions[0].x, trail.positions[0].y);
-
-    // Create the path
-    for (let i = 1; i < trail.positions.length; i++) {
-      this.ctx.lineTo(trail.positions[i].x, trail.positions[i].y);
-    }
-
-    // Create gradient along the trail
-    const firstPos = trail.positions[0];
-    const lastPos = trail.positions[trail.positions.length - 1];
-
-    const gradient = this.ctx.createLinearGradient(
-      firstPos.x,
-      firstPos.y, // Start of gradient (tail)
-      lastPos.x,
-      lastPos.y, // End of gradient (head)
-    );
-
-    // Parse color to extract RGB values
-    const color = trail.color;
-    const baseAlpha = trail.alpha * cometConfig.trailOpacity;
-
-    // Add gradient stops with smooth alpha transition
-    gradient.addColorStop(0, `${color}00`); // Fully transparent at tail
-    gradient.addColorStop(
-      0.5,
-      `${color}${Math.floor(baseAlpha * 0.3 * 255)
-        .toString(16)
-        .padStart(2, "0")}`,
-    ); // 30% opacity at middle
-    gradient.addColorStop(
-      0.8,
-      `${color}${Math.floor(baseAlpha * 0.7 * 255)
-        .toString(16)
-        .padStart(2, "0")}`,
-    ); // 70% opacity near head
-    gradient.addColorStop(
-      1,
-      `${color}${Math.floor(baseAlpha * 255)
-        .toString(16)
-        .padStart(2, "0")}`,
-    ); // Full opacity at head
-
-    // Apply gradient and draw the path once
-    this.ctx.strokeStyle = gradient;
-    this.ctx.stroke();
-
-    this.ctx.restore();
-  }
-
-  #renderComet(x: number, y: number, comet: CometParticle, progress: number, currentTime: number) {
-    const { cometConfig } = this.config;
-
-    this.ctx.save();
-
-    // Calculate alpha for fade out
-    let alpha = 1.0;
-    if (progress >= 1.0) {
-      const fadeProgress = (currentTime - comet.endTime) / cometConfig.fadeOutDuration;
-      alpha = 1.0 - fadeProgress;
-    }
-
-    // Draw comet particle
-    const radius = cometConfig.cometSize * (comet.velocity / 127) * comet.trackScale;
-
-    this.ctx.globalAlpha = alpha;
-    this.ctx.fillStyle = comet.color;
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, radius, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    // Add velocity-based glow effect
-    const glowRadius = radius * 2;
-    const glowGradient = this.ctx.createRadialGradient(x, y, 0, x, y, glowRadius);
-    glowGradient.addColorStop(
-      0,
-      `${comet.color}${Math.floor(alpha * 128)
-        .toString(16)
-        .padStart(2, "0")}`,
-    );
-    glowGradient.addColorStop(1, `${comet.color}00`);
-
-    this.ctx.fillStyle = glowGradient;
-    this.ctx.beginPath();
-    this.ctx.arc(x, y, glowRadius, 0, Math.PI * 2);
-    this.ctx.fill();
-
-    this.ctx.restore();
-  }
-}
+  };
+};

@@ -466,15 +466,6 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
   audioVisualizerLayer: "back",
 });
 
-export abstract class Renderer {
-  constructor(
-    protected readonly ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-    protected config: RendererConfig,
-  ) {}
+export type Renderer = (tracks: MidiTrack[], currentTime: number, config: RendererConfig) => void;
 
-  setConfig(config: RendererConfig): void {
-    this.config = config;
-  }
-
-  abstract render(tracks: MidiTrack[], currentTime: number): void;
-}
+export type RendererFactory = (ctx: RendererContext) => Renderer;
