@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 
-import { BackgroundRenderer } from "@/lib/renderers/background-renderer";
+import { drawBackground } from "@/lib/renderers/background-renderer";
 import {
   getDefaultRendererConfig,
   RendererConfig,
@@ -38,13 +38,13 @@ function prepareTestRenderer(options?: {
   context.fillRect = vi.fn<(x: number, y: number, w: number, h: number) => void>();
   context.drawImage =
     vi.fn<(image: CanvasImageSource, dx: number, dy: number, dw?: number, dh?: number) => void>();
-  const renderer = new BackgroundRenderer(context, config, options?.backgroundImageBitmap);
+  const render = () => drawBackground(context, config, options?.backgroundImageBitmap);
 
-  return { context, renderer };
+  return { context, config, render };
 }
 
 test("should render", () => {
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     rendererConfig: {
       ...getDefaultRendererConfig(),
       backgroundColor: "#00ff00",
@@ -52,7 +52,7 @@ test("should render", () => {
   });
 
   context.fillStyle = "";
-  renderer.render();
+  render();
   expect(context.clearRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
   expect(context.fillStyle).toBe("#00ff00");
   expect(context.fillRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
@@ -80,7 +80,7 @@ test.each([
   },
 ])("should render with fit: $fit", async ({ fit, expected }) => {
   const imageBitmap = await prepareImage(200, 100);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     backgroundImageBitmap: imageBitmap,
     canvasSize: { width: 100, height: 100 },
     rendererConfig: {
@@ -89,7 +89,7 @@ test.each([
     },
   });
 
-  renderer.render();
+  render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
     imageBitmap,
@@ -139,7 +139,7 @@ test.each([
   },
 ])("should render with position: $position", async ({ position, expected }) => {
   const imageBitmap = await prepareImage(150, 150);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     backgroundImageBitmap: imageBitmap,
     rendererConfig: {
       ...getDefaultRendererConfig(),
@@ -147,7 +147,7 @@ test.each([
     },
   });
 
-  renderer.render();
+  render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
     imageBitmap,
@@ -188,7 +188,7 @@ const patternParameters: {
 
 test("should render with no-repeat", async () => {
   const imageBitmap = await prepareImage(150, 150);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     backgroundImageBitmap: imageBitmap,
     rendererConfig: {
       ...getDefaultRendererConfig(),
@@ -196,7 +196,7 @@ test("should render with no-repeat", async () => {
     },
   });
 
-  renderer.render();
+  render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
     imageBitmap,
@@ -209,7 +209,7 @@ test("should render with no-repeat", async () => {
 
 test.each(patternParameters)("should render with pattern: $repeat", async ({ repeat, pattern }) => {
   const imageBitmap = await prepareImage(150, 150);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     backgroundImageBitmap: imageBitmap,
     rendererConfig: {
       ...getDefaultRendererConfig(),
@@ -221,7 +221,7 @@ test.each(patternParameters)("should render with pattern: $repeat", async ({ rep
   context.createPattern = vi
     .fn<(image: CanvasImageSource, repetition: string | null) => CanvasPattern | null>()
     .mockReturnValue({ setTransform: mockSetTransform });
-  renderer.render();
+  render();
 
   expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(imageBitmap, pattern);
   expect(mockSetTransform).toHaveBeenCalledOnce();
@@ -233,7 +233,7 @@ test("should render with opacity", async () => {
   const imageBitmap = await prepareImage(150, 150);
   const config = getDefaultRendererConfig();
   config.backgroundImageOpacity = 0.5;
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     backgroundImageBitmap: imageBitmap,
     rendererConfig: config,
   });
@@ -242,7 +242,7 @@ test("should render with opacity", async () => {
   context.restore = vi.fn<() => void>();
   context.globalAlpha = 1;
 
-  renderer.render();
+  render();
 
   expect(context.save).toHaveBeenCalled();
   expect(context.globalAlpha).toBe(0.5);
@@ -254,13 +254,13 @@ test("should render with cover when imgRatio > canvasRatio (no fraction)", async
   const imageBitmap = await prepareImage(200, 100);
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "cover";
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     canvasSize: { width: 100, height: 100 },
     backgroundImageBitmap: imageBitmap,
     rendererConfig: config,
   });
 
-  renderer.render();
+  render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, -50, 0, 200, 100);
 });
@@ -269,20 +269,20 @@ test("should render with contain when imgRatio > canvasRatio (no fraction)", asy
   const imageBitmap = await prepareImage(200, 100);
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "contain";
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     canvasSize: { width: 100, height: 100 },
     backgroundImageBitmap: imageBitmap,
     rendererConfig: config,
   });
 
-  renderer.render();
+  render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 0, 25, 100, 50);
 });
 
 test("should render with contain when canvasRatio > imgRatio (no fraction)", async () => {
   const imageBitmap = await prepareImage(100, 200);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     canvasSize: { width: 200, height: 100 },
     backgroundImageBitmap: imageBitmap,
     rendererConfig: {
@@ -291,14 +291,14 @@ test("should render with contain when canvasRatio > imgRatio (no fraction)", asy
     },
   });
 
-  renderer.render();
+  render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 75, 0, 50, 100);
 });
 
 test("should render with fit: auto (original image size)", async () => {
   const imageBitmap = await prepareImage(80, 40);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     canvasSize: { width: 200, height: 100 },
     backgroundImageBitmap: imageBitmap,
     rendererConfig: {
@@ -307,7 +307,7 @@ test("should render with fit: auto (original image size)", async () => {
     },
   });
 
-  renderer.render();
+  render();
 
   // auto: draw at original size, centered
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
@@ -321,7 +321,7 @@ test("should render with fit: auto (original image size)", async () => {
 
 test("should render with fit: auto and position: top-left", async () => {
   const imageBitmap = await prepareImage(80, 40);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     canvasSize: { width: 200, height: 100 },
     backgroundImageBitmap: imageBitmap,
     rendererConfig: {
@@ -331,14 +331,14 @@ test("should render with fit: auto and position: top-left", async () => {
     },
   });
 
-  renderer.render();
+  render();
 
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(imageBitmap, 0, 0, 80, 40);
 });
 
 test("should render with fit: auto when image is larger than canvas", async () => {
   const imageBitmap = await prepareImage(400, 300);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     canvasSize: { width: 200, height: 100 },
     backgroundImageBitmap: imageBitmap,
     rendererConfig: {
@@ -347,7 +347,7 @@ test("should render with fit: auto when image is larger than canvas", async () =
     },
   });
 
-  renderer.render();
+  render();
 
   // auto: draw at original size even if larger, centered
   expect(context.drawImage).toHaveBeenCalledExactlyOnceWith(
@@ -363,27 +363,27 @@ test("throw error when unknown background image fit", async () => {
   const config = getDefaultRendererConfig();
   config.backgroundImageFit = "unknown" as BackgroundImageFit;
   const imageBitmap = await prepareImage(150, 150);
-  const { renderer } = prepareTestRenderer({
+  const { render } = prepareTestRenderer({
     rendererConfig: config,
     backgroundImageBitmap: imageBitmap,
   });
-  expect(() => renderer.render()).toThrow("Unknown background image fit: unknown");
+  expect(() => render()).toThrow("Unknown background image fit: unknown");
 });
 
 test("throw error when unknown background image position", async () => {
   const config = getDefaultRendererConfig();
   config.backgroundImagePosition = "unknown" as BackgroundImagePosition;
   const imageBitmap = await prepareImage(150, 150);
-  const { renderer } = prepareTestRenderer({
+  const { render } = prepareTestRenderer({
     rendererConfig: config,
     backgroundImageBitmap: imageBitmap,
   });
-  expect(() => renderer.render()).toThrow("Unknown background image position: unknown");
+  expect(() => render()).toThrow("Unknown background image position: unknown");
 });
 
 test("should handle null pattern", async () => {
   const imageBitmap = await prepareImage(150, 150);
-  const { context, renderer } = prepareTestRenderer({
+  const { context, render } = prepareTestRenderer({
     backgroundImageBitmap: imageBitmap,
     rendererConfig: {
       ...getDefaultRendererConfig(),
@@ -394,52 +394,33 @@ test("should handle null pattern", async () => {
   context.createPattern = vi
     .fn<(image: CanvasImageSource, repetition: string | null) => CanvasPattern | null>()
     .mockReturnValue(null);
-  renderer.render();
+  render();
 
   expect(context.createPattern).toHaveBeenCalledExactlyOnceWith(imageBitmap, "repeat");
   expect(context.fillRect).toHaveBeenCalledExactlyOnceWith(0, 0, 300, 150);
 });
 
-test("setConfig should update config", () => {
-  const { context, renderer } = prepareTestRenderer({
+test("draws with the config passed to each call", () => {
+  const { context, config } = prepareTestRenderer({
     rendererConfig: {
       ...getDefaultRendererConfig(),
       backgroundColor: "#000000",
     },
   });
 
-  const newConfig = {
-    ...getDefaultRendererConfig(),
-    backgroundColor: "#ff0000",
-  };
-  renderer.setConfig(newConfig);
-
   context.fillStyle = "";
-  renderer.render();
+  drawBackground(context, { ...config, backgroundColor: "#ff0000" });
 
   expect(context.fillStyle).toBe("#ff0000");
 });
 
-test("setBackgroundImageBitmap should update backgroundImageBitmap", async () => {
-  const { context, renderer } = prepareTestRenderer();
-
+test("draws the image passed to each call", async () => {
+  const { context, config } = prepareTestRenderer();
   const imageBitmap = await prepareImage(150, 150);
-  renderer.setBackgroundImageBitmap(imageBitmap);
 
-  renderer.render();
+  drawBackground(context, config, imageBitmap);
+  expect(context.drawImage).toHaveBeenCalledOnce();
 
-  expect(context.drawImage).toHaveBeenCalled();
-});
-
-test("setBackgroundImageBitmap with undefined should clear backgroundImageBitmap", async () => {
-  const imageBitmap = await prepareImage(150, 150);
-  const { context, renderer } = prepareTestRenderer({
-    backgroundImageBitmap: imageBitmap,
-  });
-
-  renderer.setBackgroundImageBitmap(undefined);
-
-  renderer.render();
-
-  expect(context.drawImage).not.toHaveBeenCalled();
+  drawBackground(context, config, undefined);
+  expect(context.drawImage).toHaveBeenCalledOnce();
 });

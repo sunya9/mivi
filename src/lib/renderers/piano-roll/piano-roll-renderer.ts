@@ -2,32 +2,23 @@ import { brightenHexColor } from "@/lib/colors/hex";
 import { RendererConfig, RendererFactory } from "@/lib/renderers/renderer";
 import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-visible-note";
 import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture-renderer";
+import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { computePressOffset } from "@/lib/renderers/shared/note-press";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
-import { RoughRectDrawer } from "@/lib/renderers/shared/rough-rect-drawer";
+import { drawRoughRect } from "@/lib/renderers/shared/rough-rect-drawer";
 
 // Keeps a note "touched" for a few pixels past its right edge so short notes still register
 const PLAYHEAD_TOUCH_SLACK_PX = 20;
 
 const OVERFLOW_FACTOR = 0.5;
 
-interface RippleState {
-  noteStart: number;
-  noteEnd: number;
-  x: number;
-  y: number;
-  color: string;
-}
-
-interface NoteFlashState {
-  noteStart: number;
-  color: string;
-  isDurationMode: boolean;
-  hasCompleted: boolean;
-  wasTouchingPlayhead: boolean;
-}
-
 type PianoRollConfig = RendererConfig["pianoRollConfig"];
+
+interface PendingRipple {
+  y: number;
+  progress: number;
+  color: string;
+}
 
 function noteToY(midi: number, height: number, cfg: PianoRollConfig): number {
   const noteHeight = Math.max(height / 127, cfg.noteHeight);
@@ -37,10 +28,7 @@ function noteToY(midi: number, height: number, cfg: PianoRollConfig): number {
 
 export const createPianoRollRenderer: RendererFactory = (ctx) => {
   const noiseTextureRenderer = new NoiseTextureRenderer(ctx);
-  const roughRectDrawer = new RoughRectDrawer(ctx);
-  const rippleStates = new Map<number, RippleState>();
-  const noteFlashStates = new Map<number, NoteFlashState>();
-  let lastCurrentTime = 0;
+  const pendingRipples: PendingRipple[] = [];
 
   const updateNoiseTexture = (cfg: PianoRollConfig) => {
     if (!cfg.showNoiseTexture) {
@@ -55,14 +43,9 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
   };
 
   return (tracks, currentTime, config) => {
-    if (currentTime < lastCurrentTime) {
-      rippleStates.clear();
-      noteFlashStates.clear();
-    }
-    lastCurrentTime = currentTime;
-
     const cfg = config.pianoRollConfig;
     updateNoiseTexture(cfg);
+    pendingRipples.length = 0;
     const { width, height } = config.resolution;
 
     const isNoteInViewRange = (midi: number) =>
@@ -94,8 +77,12 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
       const scaledOverflow = (cfg.timeWindow * OVERFLOW_FACTOR) / scale;
       const pxPerSecond = (width * scale) / cfg.timeWindow;
 
-      // Binary search to skip notes that end before the visible range
-      const startIdx = findFirstVisibleNoteIndex(track.notes, leftEdgeTime - scaledOverflow);
+      // A ripple outlives its note at the playhead, so notes that already scrolled off must still
+      // be visited for as long as the ripple can be visible
+      const startIdx = findFirstVisibleNoteIndex(
+        track.notes,
+        Math.min(leftEdgeTime - scaledOverflow, currentTime - cfg.rippleDuration),
+      );
 
       for (let ni = startIdx; ni < track.notes.length; ni++) {
         const note = track.notes[ni];
@@ -123,14 +110,7 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
 
         const y = noteToY(note.midi, height, cfg) + verticalMargin;
 
-        const noteKey = note.id;
         const touchEnd = noteStart + (noteWidth + PLAYHEAD_TOUCH_SLACK_PX) / pxPerSecond;
-        const isTouchingPlayhead = currentTime > noteStart && currentTime < touchEnd;
-        const wasNotTouchingPlayhead = !noteFlashStates.has(noteKey);
-
-        // Draw note with effects
-        ctx.fillStyle = track.config.color;
-        ctx.globalAlpha = track.config.opacity;
 
         const pressOffset = cfg.showNotePressEffect
           ? -computePressOffset(
@@ -142,66 +122,19 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
             )
           : 0;
 
-        if (cfg.showNoteFlash && isTouchingPlayhead && wasNotTouchingPlayhead) {
-          noteFlashStates.set(noteKey, {
-            noteStart: currentTime,
-            color: track.config.color,
-            isDurationMode: cfg.noteFlashMode === "duration",
-            hasCompleted: false,
-            wasTouchingPlayhead: true,
-          });
-        }
-
-        const flashState = noteFlashStates.get(noteKey);
-        if (flashState) {
-          const fadeOutDuration = cfg.noteFlashFadeOutDuration;
-          const flashDuration = cfg.noteFlashDuration;
-          const timeSinceStart = currentTime - flashState.noteStart;
-
-          let intensity = 0;
-
-          if (cfg.noteFlashMode === "on") {
-            if (isTouchingPlayhead) {
-              intensity = cfg.noteFlashIntensity;
-              flashState.noteStart = currentTime; // Reset fade out timer while touching
-            } else {
-              // Fade out
-              const fadeProgress = Math.min(1, timeSinceStart / fadeOutDuration);
-              intensity = cfg.noteFlashIntensity * (1 - fadeProgress);
-            }
-          } else {
-            // duration mode
-            if (!flashState.hasCompleted) {
-              const progress = Math.min(1, timeSinceStart / flashDuration);
-              intensity = cfg.noteFlashIntensity * (1 - progress);
-
-              if (progress >= 1) {
-                flashState.hasCompleted = true;
-              }
-            }
-          }
-
-          if (intensity > 0) {
-            ctx.fillStyle = brightenHexColor(track.config.color, intensity);
-          }
-
-          // Update touch state
-          if (isTouchingPlayhead !== flashState.wasTouchingPlayhead) {
-            flashState.wasTouchingPlayhead = isTouchingPlayhead;
-            if (!isTouchingPlayhead) {
-              flashState.noteStart = currentTime; // Start fade out timer
-            }
-          }
-
-          // Remove effect if fade out is complete
-          if (!isTouchingPlayhead && timeSinceStart >= fadeOutDuration) {
-            noteFlashStates.delete(noteKey);
-          }
-        }
+        const flashIntensity = cfg.showNoteFlash
+          ? computeFlashIntensity(cfg, noteStart, touchEnd, currentTime)
+          : 0;
+        ctx.fillStyle =
+          flashIntensity > 0
+            ? brightenHexColor(track.config.color, flashIntensity)
+            : track.config.color;
+        ctx.globalAlpha = track.config.opacity;
 
         if (cfg.showRoughEdge) {
           const roughSeed = note.time * 1000 + note.midi;
-          roughRectDrawer.draw(
+          drawRoughRect(
+            ctx,
             x + noteMargin,
             y - pressOffset,
             noteWidth,
@@ -233,19 +166,15 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
         ctx.fill();
         ctx.globalAlpha = 1;
 
-        if (
-          cfg.showRippleEffect &&
-          isTouchingPlayhead &&
-          wasNotTouchingPlayhead &&
-          !rippleStates.has(noteKey)
-        ) {
-          rippleStates.set(noteKey, {
-            noteStart: noteStart,
-            noteEnd: noteEnd,
-            x: playheadX,
-            y: y - pressOffset + noteHeight / 2,
-            color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
-          });
+        if (cfg.showRippleEffect) {
+          const progress = computeRippleProgress(cfg.rippleDuration, noteStart, currentTime);
+          if (progress !== null) {
+            pendingRipples.push({
+              y: y + noteHeight / 2,
+              progress,
+              color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
+            });
+          }
         }
       }
 
@@ -254,16 +183,16 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
       ctx.shadowOffsetY = 0;
     }
 
-    rippleStates.forEach((state, noteKey) => {
-      const rippleProgress = Math.min(1, (currentTime - state.noteStart) / cfg.rippleDuration);
-      const radius = Math.max(0, cfg.rippleRadius * rippleProgress);
-      const alpha = 0.4 * (1 - rippleProgress);
-      drawRipple(ctx, state.x, state.y, radius, state.color, alpha);
-
-      if (currentTime >= state.noteStart + cfg.rippleDuration) {
-        rippleStates.delete(noteKey);
-      }
-    });
+    for (const ripple of pendingRipples) {
+      drawRipple(
+        ctx,
+        playheadX,
+        ripple.y,
+        cfg.rippleRadius * ripple.progress,
+        ripple.color,
+        0.4 * (1 - ripple.progress),
+      );
+    }
 
     ctx.beginPath();
     if (cfg.showPlayhead) {

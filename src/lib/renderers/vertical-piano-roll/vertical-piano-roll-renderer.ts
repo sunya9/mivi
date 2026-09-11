@@ -3,16 +3,11 @@ import { MidiNote } from "@/lib/midi/midi";
 import { RendererConfig, RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
 import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture-renderer";
+import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
-import { RoughRectDrawer } from "@/lib/renderers/shared/rough-rect-drawer";
+import { drawRoughRect } from "@/lib/renderers/shared/rough-rect-drawer";
 
-import {
-  MIN_PRESS_DURATION,
-  computeFlashIntensity,
-  computeRippleProgress,
-  isKeyPressed,
-  resolveNoteBaseColor,
-} from "./note-effects";
+import { MIN_PRESS_DURATION, isKeyPressed, resolveNoteBaseColor } from "./note-effects";
 import { KeyboardLayout, createKeyboardLayout } from "./piano-keyboard-layout";
 
 const BLACK_KEY_HEIGHT_RATIO = 0.62;
@@ -125,7 +120,6 @@ function drawKeyboard(
 
 export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
   const noiseTextureRenderer = new NoiseTextureRenderer(ctx);
-  const roughRectDrawer = new RoughRectDrawer(ctx);
   const maxDurations = new WeakMap<MidiNote[], number>();
   const pressed: PressedKeys = {
     colors: Array.from({ length: 128 }),
@@ -276,7 +270,8 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
 
           const seed = note.time * 1000 + note.midi;
           if (cfg.showRoughEdge) {
-            roughRectDrawer.draw(
+            drawRoughRect(
+              ctx,
               x,
               y,
               noteWidth,

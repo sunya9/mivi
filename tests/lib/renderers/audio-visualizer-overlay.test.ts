@@ -1,7 +1,7 @@
 import { expect, test, vi } from "vitest";
 
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import { AudioVisualizerOverlay } from "@/lib/renderers/audio-visualizer-overlay";
+import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer-overlay";
 import {
   getDefaultRendererConfig,
   type AudioVisualizerConfig,
@@ -14,15 +14,17 @@ const defaultResolution: Resolution = {
   label: "800×600",
 };
 
-function createOverlay(config: AudioVisualizerConfig) {
+function setup(overrides: Partial<AudioVisualizerConfig>) {
   const canvas = document.createElement("canvas");
   canvas.width = 800;
   canvas.height = 600;
   const ctx = canvas.getContext("2d")!;
   ctx.save = vi.fn<() => void>();
   ctx.restore = vi.fn<() => void>();
-  const overlay = new AudioVisualizerOverlay(ctx, config, defaultResolution);
-  return { ctx, overlay };
+  const config = { ...getDefaultRendererConfig().audioVisualizerConfig, ...overrides };
+  const render = (frequencyData: FrequencyData | null) =>
+    drawAudioVisualizer(ctx, frequencyData, config, defaultResolution);
+  return { ctx, config, render };
 }
 
 function createFrequencyData(): FrequencyData {
@@ -34,87 +36,41 @@ function createFrequencyData(): FrequencyData {
   };
 }
 
-test("should create overlay with default config", () => {
-  const { overlay } = createOverlay(getDefaultRendererConfig().audioVisualizerConfig);
-  expect(overlay).toBeDefined();
-});
-
 test("should not render when style is none", () => {
-  const { ctx, overlay } = createOverlay({
-    ...getDefaultRendererConfig().audioVisualizerConfig,
-    style: "none" as const,
-  });
+  const { ctx, render } = setup({ style: "none" });
 
-  overlay.render(createFrequencyData());
+  render(createFrequencyData());
 
   expect(ctx.save).not.toHaveBeenCalled();
   expect(ctx.restore).not.toHaveBeenCalled();
 });
 
 test("should not render when frequencyData is null", () => {
-  const { ctx, overlay } = createOverlay({
-    ...getDefaultRendererConfig().audioVisualizerConfig,
-    style: "bars" as const,
-  });
+  const { ctx, render } = setup({ style: "bars" });
 
-  overlay.render(null);
+  render(null);
 
   expect(ctx.save).not.toHaveBeenCalled();
   expect(ctx.restore).not.toHaveBeenCalled();
 });
 
-test("should call save and restore when rendering bars", () => {
-  const { ctx, overlay } = createOverlay({
-    ...getDefaultRendererConfig().audioVisualizerConfig,
-    style: "bars" as const,
-  });
+test.each(["bars", "lineSpectrum", "circular"] as const)(
+  "should call save and restore when rendering %s",
+  (style) => {
+    const { ctx, render } = setup({ style });
 
-  overlay.render(createFrequencyData());
+    render(createFrequencyData());
 
-  expect(ctx.save).toHaveBeenCalled();
-  expect(ctx.restore).toHaveBeenCalled();
-});
+    expect(ctx.save).toHaveBeenCalled();
+    expect(ctx.restore).toHaveBeenCalled();
+  },
+);
 
-test("should call save and restore when rendering lineSpectrum", () => {
-  const { ctx, overlay } = createOverlay({
-    ...getDefaultRendererConfig().audioVisualizerConfig,
-    style: "lineSpectrum" as const,
-  });
+test("draws with the config passed to each call", () => {
+  const { ctx, config } = setup({ style: "none" });
 
-  overlay.render(createFrequencyData());
+  drawAudioVisualizer(ctx, createFrequencyData(), { ...config, style: "bars" }, defaultResolution);
 
-  expect(ctx.save).toHaveBeenCalled();
-  expect(ctx.restore).toHaveBeenCalled();
-});
-
-test("should call save and restore when rendering circular", () => {
-  const { ctx, overlay } = createOverlay({
-    ...getDefaultRendererConfig().audioVisualizerConfig,
-    style: "circular" as const,
-  });
-
-  overlay.render(createFrequencyData());
-
-  expect(ctx.save).toHaveBeenCalled();
-  expect(ctx.restore).toHaveBeenCalled();
-});
-
-test("setConfig should update config and propagate to drawers", () => {
-  const initialConfig = {
-    ...getDefaultRendererConfig().audioVisualizerConfig,
-    style: "none" as const,
-  };
-  const { ctx, overlay } = createOverlay(initialConfig);
-
-  const newConfig = {
-    ...initialConfig,
-    style: "bars" as const,
-  };
-  overlay.setConfig(newConfig);
-
-  overlay.render(createFrequencyData());
-
-  // Should now render since style changed from none to bars
   expect(ctx.save).toHaveBeenCalled();
   expect(ctx.restore).toHaveBeenCalled();
 });

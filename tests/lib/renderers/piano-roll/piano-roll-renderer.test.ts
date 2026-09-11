@@ -7,7 +7,7 @@ import { RendererConfig, getDefaultRendererConfig } from "@/lib/renderers/render
 const track: MidiTrack = {
   id: "t",
   sourceIndex: 0,
-  config: getDefaultTrackConfig("t"),
+  config: getDefaultTrackConfig("t", "#204080"),
   notes: [
     {
       id: 1,
@@ -38,7 +38,22 @@ function setup(overrides: Partial<RendererConfig["pianoRollConfig"]> = {}) {
     render([track], time, config);
     return vi.mocked(ctx.roundRect).mock.calls[0][1];
   };
-  return { ctx, config, render, noteYAt };
+  const fillStylesAfter = (history: number[]) => {
+    let fillStyles: string[] = [];
+    Object.defineProperty(ctx, "fillStyle", {
+      configurable: true,
+      get: () => fillStyles.at(-1) ?? "",
+      set: (value: string) => {
+        fillStyles.push(value);
+      },
+    });
+    for (const time of history) {
+      fillStyles = [];
+      render([track], time, config);
+    }
+    return fillStyles;
+  };
+  return { ctx, config, render, noteYAt, fillStylesAfter };
 }
 
 test("keeps an unpressed note at the same y across frames", () => {
@@ -101,4 +116,35 @@ test("applies the config passed to each frame without rebuilding the renderer", 
     pianoRollConfig: { ...config.pianoRollConfig, showPlayhead: true },
   });
   expect(ctx.stroke).toHaveBeenCalledTimes(1);
+});
+
+test.each([
+  { noteFlashMode: "duration" as const, history: [2.05, 2.4] },
+  { noteFlashMode: "on" as const, history: [2.05, 2.55, 2.65] },
+])(
+  "$noteFlashMode flash brightness depends only on the current time, not on rendered history",
+  ({ noteFlashMode, history }) => {
+    const flash = { showNoteFlash: true, noteFlashMode, showRippleEffect: false };
+    const target = history.at(-1)!;
+    const expected = setup(flash).fillStylesAfter([target]);
+    const actual = setup(flash).fillStylesAfter(history);
+    expect(actual).toEqual(expected);
+  },
+);
+
+test("brightens a note while it flashes", () => {
+  const scene = setup({ showNoteFlash: true, noteFlashMode: "on", showRippleEffect: false });
+  const restingStyles = scene.fillStylesAfter([1]);
+  const flashingStyles = scene.fillStylesAfter([2.2]);
+  expect(flashingStyles).not.toEqual(restingStyles);
+});
+
+test("draws the ripple at the playhead for the ripple duration after the note starts", () => {
+  const { ctx, render, config } = setup({ showRippleEffect: true, rippleDuration: 0.5 });
+  render([track], 2.3, config);
+  expect(ctx.arc).toHaveBeenCalledOnce();
+
+  vi.mocked(ctx.arc).mockClear();
+  render([track], 2.6, config);
+  expect(ctx.arc).not.toHaveBeenCalled();
 });
