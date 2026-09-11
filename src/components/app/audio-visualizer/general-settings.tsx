@@ -4,7 +4,7 @@ import { SliderRow } from "@/components/common/slider-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { audioVisualizerPositionOptions } from "@/lib/renderers/renderer";
+import { audioVisualizerPositionOptions } from "@/lib/renderers/renderer-config";
 
 import { AudioVisualizerSectionProps } from "./types";
 

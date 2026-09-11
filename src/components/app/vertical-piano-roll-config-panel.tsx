@@ -5,13 +5,13 @@ import { FormRow } from "@/components/common/form-row";
 import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { RendererConfig } from "@/lib/renderers/renderer";
+import { RendererConfig, VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
 import { DeepPartial } from "@/lib/type-utils";
 
 import { NoteEffectsConfigFields } from "./note-effects-config-fields";
 
 interface Props {
-  verticalPianoRollConfig: RendererConfig["verticalPianoRollConfig"];
+  verticalPianoRollConfig: VerticalPianoRollConfig;
   onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
   minNote?: number;
   maxNote?: number;
@@ -24,7 +24,7 @@ export function VerticalPianoRollConfigPanel({
   maxNote,
 }: Props) {
   const setConfig = useCallback(
-    (verticalPianoRollConfig: DeepPartial<RendererConfig["verticalPianoRollConfig"]>) =>
+    (verticalPianoRollConfig: DeepPartial<VerticalPianoRollConfig>) =>
       onUpdateRendererConfig({ verticalPianoRollConfig }),
     [onUpdateRendererConfig],
   );

@@ -19,11 +19,6 @@ import { Switch } from "@/components/ui/switch";
 import { useAudio } from "@/lib/audio/use-audio";
 import { useBackgroundImage } from "@/lib/background-image/use-background-image";
 import {
-  createCustomResolution,
-  CUSTOM_RESOLUTION_LABEL,
-  isCustomResolution,
-  resolutionGroups,
-  resolutions,
   FPS,
   fpsOptions,
   formatOptions,
@@ -32,7 +27,14 @@ import {
   backgroundImageFitOptions,
   audioVisualizerLayerOptions,
   RendererConfig,
-} from "@/lib/renderers/renderer";
+} from "@/lib/renderers/renderer-config";
+import {
+  createCustomResolution,
+  CUSTOM_RESOLUTION_LABEL,
+  isCustomResolution,
+  resolutionGroups,
+  resolutions,
+} from "@/lib/renderers/resolution";
 import { useRendererConfig, useUpdateRendererConfig } from "@/lib/renderers/use-renderer-config";
 import { shallowEqual } from "@/lib/store/observable-store";
 

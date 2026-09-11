@@ -2,7 +2,7 @@ import { useCallback } from "react";
 
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
-import { RendererConfig } from "@/lib/renderers/renderer";
+import { RendererConfig } from "@/lib/renderers/renderer-config";
 import { mergeShared } from "@/lib/store/merge-shared";
 import { DeepPartial } from "@/lib/type-utils";
 

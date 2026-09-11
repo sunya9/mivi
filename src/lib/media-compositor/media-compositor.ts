@@ -1,7 +1,7 @@
 import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
 import { Muxer } from "@/lib/muxer/muxer";
-import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer-overlay";
-import { drawBackground } from "@/lib/renderers/background-renderer";
+import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visualizer";
+import { drawBackground } from "@/lib/renderers/background";
 import { createRenderer } from "@/lib/renderers/create-renderer";
 
 import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";

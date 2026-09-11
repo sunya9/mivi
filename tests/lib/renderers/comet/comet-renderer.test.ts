@@ -2,7 +2,11 @@ import { expect, test, vi } from "vitest";
 
 import { MidiNote, MidiTrack, getDefaultTrackConfig } from "@/lib/midi/midi";
 import { createCometRenderer } from "@/lib/renderers/comet/comet-renderer";
-import { RendererConfig, getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import {
+  RendererConfig,
+  getDefaultRendererConfig,
+  CometConfig,
+} from "@/lib/renderers/renderer-config";
 
 function makeNote(id: number, midi: number, time: number, duration: number): MidiNote {
   return { id, midi, time, duration, velocity: 100, name: "", ticks: 0, durationTicks: 0 };
@@ -17,7 +21,7 @@ function makeTrack(notes: MidiNote[], overrides: Partial<MidiTrack["config"]> = 
   };
 }
 
-function setup(overrides: Partial<RendererConfig["cometConfig"]> = {}) {
+function setup(overrides: Partial<CometConfig> = {}) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   const defaults = getDefaultRendererConfig();

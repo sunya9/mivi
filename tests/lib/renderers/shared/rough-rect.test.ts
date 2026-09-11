@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 
-import { drawRoughRect } from "@/lib/renderers/shared/rough-rect-drawer";
+import { drawRoughRect } from "@/lib/renderers/shared/rough-rect";
 
 function setup() {
   const canvas = document.createElement("canvas");

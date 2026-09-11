@@ -1,11 +1,12 @@
 import { brightenHexColor } from "@/lib/colors/hex";
 import { MidiNote } from "@/lib/midi/midi";
-import { RendererConfig, RendererContext, RendererFactory } from "@/lib/renderers/renderer";
+import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
+import { VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
-import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture-renderer";
+import { NoiseTextureRenderer } from "@/lib/renderers/shared/noise-texture";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
-import { drawRoughRect } from "@/lib/renderers/shared/rough-rect-drawer";
+import { drawRoughRect } from "@/lib/renderers/shared/rough-rect";
 
 import { MIN_PRESS_DURATION, isKeyPressed, resolveNoteBaseColor } from "./note-effects";
 import { KeyboardLayout, createKeyboardLayout } from "./piano-keyboard-layout";
@@ -14,8 +15,6 @@ const BLACK_KEY_HEIGHT_RATIO = 0.62;
 const MIN_NOTE_HEIGHT = 2;
 const KEY_BORDER_OPACITY = 0.3;
 const OCTAVE_LABEL_OPACITY = 0.6;
-
-type VerticalPianoRollConfig = RendererConfig["verticalPianoRollConfig"];
 
 interface PendingRipple {
   x: number;

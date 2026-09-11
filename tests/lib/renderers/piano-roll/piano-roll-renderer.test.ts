@@ -2,7 +2,11 @@ import { expect, test, vi } from "vitest";
 
 import { MidiTrack, getDefaultTrackConfig } from "@/lib/midi/midi";
 import { createPianoRollRenderer } from "@/lib/renderers/piano-roll/piano-roll-renderer";
-import { RendererConfig, getDefaultRendererConfig } from "@/lib/renderers/renderer";
+import {
+  RendererConfig,
+  getDefaultRendererConfig,
+  PianoRollConfig,
+} from "@/lib/renderers/renderer-config";
 
 const track: MidiTrack = {
   id: "t",
@@ -22,7 +26,7 @@ const track: MidiTrack = {
   ],
 };
 
-function setup(overrides: Partial<RendererConfig["pianoRollConfig"]> = {}) {
+function setup(overrides: Partial<PianoRollConfig> = {}) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
   const defaults = getDefaultRendererConfig();

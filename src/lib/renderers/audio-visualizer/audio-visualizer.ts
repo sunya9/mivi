@@ -1,9 +1,11 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
+import type { RendererContext } from "@/lib/renderers/renderer";
+import type { AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
+import type { Resolution } from "@/lib/renderers/resolution";
 
-import { drawBarSpectrum } from "./audio-visualizer/bar-spectrum-drawer";
-import { drawCircular } from "./audio-visualizer/circular-drawer";
-import { drawLineSpectrum } from "./audio-visualizer/line-spectrum-drawer";
-import type { AudioVisualizerConfig, RendererContext, Resolution } from "./renderer";
+import { drawBarSpectrum } from "./bar-spectrum";
+import { drawCircular } from "./circular";
+import { drawLineSpectrum } from "./line-spectrum";
 
 export function drawAudioVisualizer(
   ctx: RendererContext,

@@ -10,7 +10,7 @@ import {
   useBackgroundImage,
   useSetBackgroundImageFile,
 } from "@/lib/background-image/use-background-image";
-import { RendererController } from "@/lib/visualizer/renderer-controller";
+import { RendererController } from "@/lib/renderers/renderer-controller";
 
 // The engine paints as soon as an entry appears; the stand-in bitmaps below are not drawable
 vi.spyOn(RendererController.prototype, "render").mockImplementation(() => {});
