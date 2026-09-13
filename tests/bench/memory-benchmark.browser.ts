@@ -156,7 +156,7 @@ function runInMemory(): Promise<BenchResult> {
       frameRate: resources.rendererConfig.fps,
       writable: memoryTarget.target,
     });
-    using compositor = new MediaCompositor(resources, muxer, () => {});
+    using compositor = new MediaCompositor(resources, muxer);
     await compositor.composite();
     return { output: memoryTarget.toBlob() };
   });
@@ -171,7 +171,7 @@ function runOpfs(): Promise<BenchResult> {
       frameRate: resources.rendererConfig.fps,
       writable: opfsFile.target,
     });
-    using compositor = new MediaCompositor(resources, muxer, () => {});
+    using compositor = new MediaCompositor(resources, muxer);
     await compositor.composite();
     return { output: await opfsFile.getFile(), cleanup: () => opfsFile.remove() };
   });

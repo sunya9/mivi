@@ -3,7 +3,7 @@ import {
   createTestSerializedAudio,
   createTestMidiTracks,
 } from "tests/fixtures/browser-fixtures";
-import { test, expect, vi } from "vitest";
+import { test, expect } from "vitest";
 
 import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
@@ -11,62 +11,25 @@ import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MuxerImpl } from "@/lib/muxer/muxer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
 
-async function compositeToFile(resources: RecorderResources, onProgress: (p: number) => void) {
+async function compositeToFile(resources: RecorderResources) {
   const opfsFile = await createOpfsExportFile(`test-export.${resources.rendererConfig.format}`);
   const muxer = new MuxerImpl({
     format: resources.rendererConfig.format,
     frameRate: resources.rendererConfig.fps,
     writable: opfsFile.target,
   });
-  using compositor = new MediaCompositor(resources, muxer, onProgress);
+  using compositor = new MediaCompositor(resources, muxer);
+  const completed = new Map<string, number>();
+  compositor.subscribe((phase, count) => completed.set(phase, count));
   await compositor.composite();
   const file = await opfsFile.getFile();
   await opfsFile.remove();
-  return file;
+  return { file, phases: compositor.phases, completed };
 }
 
-test("composite() with WebM muxer writes a valid WebM file", async () => {
-  const resources = createTestRecorderResources("webm");
-  const onProgress = vi.fn<(p: number) => void>();
-
-  const file = await compositeToFile(resources, onProgress);
-
-  expect(file).toBeInstanceOf(File);
-  expect(file.size).toBeGreaterThan(0);
-});
-
-// TODO?: composite() with MP4 muxer writes a valid MP4 file
-
-test("onProgress is called with progress value", async () => {
-  const resources = createTestRecorderResources("webm");
-  const progressValues: number[] = [];
-  const onProgress = (p: number) => progressValues.push(p);
-
-  await compositeToFile(resources, onProgress);
-
-  // onProgress is throttled at 500ms, so short tests may not capture all updates
-  expect(progressValues.length).toBeGreaterThan(0);
-  expect(progressValues[0]).toBeGreaterThan(0);
-});
-
-test("progress completes when audio visualizer is disabled", async () => {
-  const resources = createTestRecorderResources("webm");
-  // Ensure audio visualizer is disabled (default)
-  expect(resources.rendererConfig.audioVisualizerConfig.style).toBe("none");
-
-  const progressValues: number[] = [];
-  const onProgress = (p: number) => progressValues.push(p);
-
-  await compositeToFile(resources, onProgress);
-
-  // Progress should complete successfully
-  // Note: onProgress is throttled at 500ms, so we may not see all intermediate values
-  expect(progressValues.length).toBeGreaterThan(0);
-});
-
-test("progress completes when audio visualizer is enabled", async () => {
+function createVisualizerResources(): RecorderResources {
   const config = getDefaultRendererConfig();
-  const resources = {
+  return {
     midiTracks: createTestMidiTracks(),
     audioSource: {
       name: "test.mp3",
@@ -83,14 +46,52 @@ test("progress completes when audio visualizer is enabled", async () => {
       },
     },
   };
+}
 
-  const progressValues: number[] = [];
-  const onProgress = (p: number) => progressValues.push(p);
+test("composite() with WebM muxer writes a valid WebM file", async () => {
+  const resources = createTestRecorderResources("webm");
 
-  await compositeToFile(resources, onProgress);
+  const { file } = await compositeToFile(resources);
 
-  // With audio visualizer enabled, FFT phase should be processed
-  // and progress should complete successfully
-  // Note: onProgress is throttled at 500ms, so we may not capture all state changes
-  expect(progressValues.length).toBeGreaterThan(0);
+  expect(file).toBeInstanceOf(File);
+  expect(file.size).toBeGreaterThan(0);
+});
+
+// TODO?: composite() with MP4 muxer writes a valid MP4 file
+
+test("every phase reports its total once composite finishes", async () => {
+  const resources = createTestRecorderResources("webm");
+  expect(resources.rendererConfig.audioVisualizerConfig.style).toBe("none");
+
+  const { phases, completed } = await compositeToFile(resources);
+
+  expect(phases.map((p) => p.name)).toEqual([
+    "FFT",
+    "Audio Render",
+    "Audio Encode",
+    "Video Render",
+    "Video Encode",
+  ]);
+  for (const phase of phases) {
+    expect(phase.total).toBeGreaterThan(0);
+    expect(completed.get(phase.name)).toBe(phase.total);
+  }
+});
+
+test("FFT phase progresses frame by frame when the audio visualizer is enabled", async () => {
+  const seen: number[] = [];
+  const resources = createVisualizerResources();
+  const opfsFile = await createOpfsExportFile("test-export.webm");
+  const muxer = new MuxerImpl({ format: "webm", frameRate: 24, writable: opfsFile.target });
+  using compositor = new MediaCompositor(resources, muxer);
+  compositor.subscribe((phase, count) => {
+    if (phase === "FFT") seen.push(count);
+  });
+
+  await compositor.composite();
+  await opfsFile.remove();
+
+  const fft = compositor.phases.find((p) => p.name === "FFT");
+  expect(seen).toHaveLength(fft?.total ?? 0);
+  expect(seen.at(-1)).toBe(fft?.total);
 });
