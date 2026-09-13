@@ -15,7 +15,7 @@ interface PhaseTimer {
 
 export interface ActivePhase {
   name: string;
-  eta: string;
+  etaSeconds: number | undefined;
 }
 
 /**
@@ -105,26 +105,24 @@ export class ExportProgressTracker<T extends string> {
     const activePhase: ActivePhase | undefined = lastActive
       ? {
           name: lastActive.name,
-          eta: this.#getEta(lastActive.name, this.#getPhaseCompleted(lastActive), lastActive.total),
+          etaSeconds: this.#getEtaSeconds(
+            lastActive.name,
+            this.#getPhaseCompleted(lastActive),
+            lastActive.total,
+          ),
         }
       : undefined;
 
     this.#onProgress(progress, activePhase);
   }, 500);
 
-  #getEta(phaseName: T, done: number, total: number): string {
-    if (total === 0 || done === 0) return "--";
+  #getEtaSeconds(phaseName: T, done: number, total: number): number | undefined {
+    if (total === 0 || done === 0) return undefined;
     const timer = this.#timers.get(phaseName);
-    if (timer === undefined) return "--";
+    if (timer === undefined) return undefined;
     const elapsed = (performance.now() - timer.start) / 1000;
     const progressed = done - timer.baseline;
-    if (progressed <= 0 || elapsed <= 0) return "--";
-    const eta = (total - done) / (progressed / elapsed);
-    // Ceil so the countdown never shows 0s while work remains
-    const totalSec = Math.ceil(eta);
-    const min = Math.floor(totalSec / 60);
-    const sec = totalSec % 60;
-    if (min === 0) return `${sec}s`;
-    return `${min}m${sec.toString().padStart(2, "0")}s`;
+    if (progressed <= 0 || elapsed <= 0) return undefined;
+    return (total - done) / (progressed / elapsed);
   }
 }

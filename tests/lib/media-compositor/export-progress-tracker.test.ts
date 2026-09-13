@@ -101,12 +101,11 @@ test("getCompleted phase auto-starts its timer when progress is first observed",
   tracker.notify();
   flush();
 
-  // Timer started at first observation (count 1); 4 units in 2.5s → 5 remaining ≈ 3.1s → ceil 4
   const call = onProgress.mock.calls.at(-1);
-  expect(call?.[1]?.eta).toBe("4s");
+  expect(call?.[1]?.etaSeconds).toBeCloseTo(3.125);
 });
 
-test("eta stays -- until progress advances past the first observation", () => {
+test("eta is unknown until progress advances past the first observation", () => {
   const { onProgress } = setup();
   let externalCount = 0;
   const tracker = new ExportProgressTracker(onProgress);
@@ -116,81 +115,20 @@ test("eta stays -- until progress advances past the first observation", () => {
   tracker.notify();
   flush();
 
-  // No progress observed since the timer started, so rate is unknown
-  expect(onProgress).toHaveBeenCalledWith(
-    0.3,
-    expect.objectContaining({ name: "encode", eta: "--" }),
-  );
+  expect(onProgress).toHaveBeenCalledWith(0.3, { name: "encode", etaSeconds: undefined });
 });
 
-test("eta of a minute or more is NmSSs with zero-padded seconds", () => {
+test("eta is the remaining work divided by the observed rate", () => {
   const { onProgress, tracker } = setup();
   tracker.addPhase({ name: "render", total: 100 });
 
   tracker.increment("render");
-  // 10s elapsed with 2/100 done → ETA = (10/0.02)*0.98 = 490s = 8m10s
   vi.advanceTimersByTime(10_000);
   tracker.increment("render");
   flush();
 
   const call = onProgress.mock.calls.at(-1);
-  expect(call?.[1]?.eta).toBe("8m10s");
-});
-
-test("eta under a minute drops the minutes part", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 10 });
-
-  tracker.increment("render");
-  // 10s elapsed with 2/10 done → 8 remaining at 0.2/s → 40s
-  vi.advanceTimersByTime(10_000);
-  tracker.increment("render");
-  flush();
-
-  const call = onProgress.mock.calls.at(-1);
-  expect(call?.[1]?.eta).toBe("40s");
-});
-
-test("standalone seconds are not zero-padded", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 10 });
-
-  tracker.increment("render");
-  // 3s elapsed with 7/10 done → 3 remaining at 7/3 per s ≈ 1.3s → ceil 2
-  vi.advanceTimersByTime(3000);
-  tracker.set("render", 7);
-  flush();
-
-  const call = onProgress.mock.calls.at(-1);
-  expect(call?.[1]?.eta).toBe("2s");
-});
-
-test("eta never shows 0s while work remains", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 10 });
-
-  tracker.increment("render");
-  // 1s elapsed with 9/10 done → 1 remaining at 9/s ≈ 0.11s → ceil 1
-  vi.advanceTimersByTime(1000);
-  tracker.set("render", 9);
-  flush();
-
-  const call = onProgress.mock.calls.at(-1);
-  expect(call?.[1]?.eta).toBe("1s");
-});
-
-test("eta that rounds up to a full minute carries into minutes", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 10 });
-
-  tracker.increment("render");
-  // 14.875s elapsed with 2/10 done → 8 remaining → 59.5s → ceil 60 → 1m00s
-  vi.advanceTimersByTime(14_875);
-  tracker.increment("render");
-  flush();
-
-  const call = onProgress.mock.calls.at(-1);
-  expect(call?.[1]?.eta).toBe("1m00s");
+  expect(call?.[1]?.etaSeconds).toBeCloseTo(490);
 });
 
 test("activePhase is undefined when no phase is in progress", () => {

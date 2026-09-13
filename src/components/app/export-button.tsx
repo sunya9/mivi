@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Spinner } from "@/components/ui/spinner";
+import { formatEta } from "@/lib/media-compositor/format-eta";
 import { useRecorder } from "@/lib/media-compositor/use-recorder";
 import { startViewTransition } from "@/lib/utils";
 
@@ -21,7 +22,7 @@ export function ExportButton() {
     <>
       {recordingState.type === "recording" && recordingState.activePhase && (
         <span className="hidden text-muted-foreground tabular-nums md:inline md:text-xs">
-          {recordingState.activePhase.name} — {recordingState.activePhase.eta}
+          {recordingState.activePhase.name} — {formatEta(recordingState.activePhase.etaSeconds)}
         </span>
       )}
       <Button
