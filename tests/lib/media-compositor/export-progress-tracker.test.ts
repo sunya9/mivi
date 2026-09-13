@@ -5,10 +5,10 @@ import {
   type ActivePhase,
 } from "@/lib/media-compositor/export-progress-tracker";
 
-function setup() {
+function setup(phases: { name: string; total: number }[]) {
   vi.useFakeTimers();
   const onProgress = vi.fn<(progress: number, activePhase?: ActivePhase) => void>();
-  const tracker = new ExportProgressTracker(onProgress);
+  const tracker = new ExportProgressTracker(phases, onProgress);
   return { onProgress, tracker };
 }
 
@@ -20,85 +20,62 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-test("reports 0 progress initially when no work is done", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 10 });
-  tracker.notify();
-  flush();
+test("reports the fraction of a single phase", () => {
+  const { onProgress, tracker } = setup([{ name: "render", total: 4 }]);
 
-  expect(onProgress).toHaveBeenCalledWith(0, undefined);
-});
-
-test("reports progress across single phase", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 4 });
-
-  tracker.increment("render");
-  tracker.increment("render");
+  tracker.set("render", 2);
   flush();
 
   expect(onProgress).toHaveBeenCalledWith(0.5, expect.objectContaining({ name: "render" }));
 });
 
-test("reports progress across multiple phases", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 5 });
-  tracker.addPhase({ name: "encode", total: 5 });
+test("reports the fraction of all phases combined", () => {
+  const { onProgress, tracker } = setup([
+    { name: "render", total: 5 },
+    { name: "encode", total: 5 },
+  ]);
 
-  tracker.complete("render");
+  tracker.set("render", 5);
   tracker.set("encode", 3);
   flush();
 
-  // 5 + 3 = 8 out of 10
   expect(onProgress).toHaveBeenCalledWith(0.8, expect.objectContaining({ name: "encode" }));
 });
 
-test("complete marks phase as fully done", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 100 });
+test("the last declared phase still in progress is the active one", () => {
+  const { onProgress, tracker } = setup([
+    { name: "render", total: 5 },
+    { name: "encode", total: 5 },
+  ]);
 
-  tracker.complete("render");
+  tracker.set("encode", 1);
+  tracker.set("render", 2);
+  flush();
+
+  expect(onProgress).toHaveBeenCalledWith(0.3, expect.objectContaining({ name: "encode" }));
+});
+
+test("a finished run reports 1 with no active phase", () => {
+  const { onProgress, tracker } = setup([
+    { name: "render", total: 5 },
+    { name: "encode", total: 5 },
+  ]);
+
+  tracker.set("render", 5);
+  tracker.set("encode", 5);
   flush();
 
   expect(onProgress).toHaveBeenCalledWith(1, undefined);
 });
 
-test("set sets absolute progress", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 10 });
+test("the phase timer starts when progress is first observed", () => {
+  const { onProgress, tracker } = setup([{ name: "encode", total: 10 }]);
 
-  tracker.set("render", 7);
-  flush();
-
-  expect(onProgress).toHaveBeenCalledWith(0.7, expect.objectContaining({ name: "render" }));
-});
-
-test("getCompleted overrides internal count", () => {
-  const { onProgress } = setup();
-  let externalCount = 0;
-  const tracker = new ExportProgressTracker(onProgress);
-  tracker.addPhase({ name: "encode", total: 10, getCompleted: () => externalCount });
-
-  externalCount = 5;
-  tracker.notify();
-  flush();
-
-  expect(onProgress).toHaveBeenCalledWith(0.5, expect.objectContaining({ name: "encode" }));
-});
-
-test("getCompleted phase auto-starts its timer when progress is first observed", () => {
-  const { onProgress } = setup();
-  let externalCount = 0;
-  const tracker = new ExportProgressTracker(onProgress);
-  tracker.addPhase({ name: "encode", total: 10, getCompleted: () => externalCount });
-
-  externalCount = 1;
-  tracker.notify();
+  tracker.set("encode", 1);
   flush();
 
   vi.advanceTimersByTime(2000);
-  externalCount = 5;
-  tracker.notify();
+  tracker.set("encode", 5);
   flush();
 
   const call = onProgress.mock.calls.at(-1);
@@ -106,46 +83,34 @@ test("getCompleted phase auto-starts its timer when progress is first observed",
 });
 
 test("eta is unknown until progress advances past the first observation", () => {
-  const { onProgress } = setup();
-  let externalCount = 0;
-  const tracker = new ExportProgressTracker(onProgress);
-  tracker.addPhase({ name: "encode", total: 10, getCompleted: () => externalCount });
+  const { onProgress, tracker } = setup([{ name: "encode", total: 10 }]);
 
-  externalCount = 3;
-  tracker.notify();
+  tracker.set("encode", 3);
   flush();
 
   expect(onProgress).toHaveBeenCalledWith(0.3, { name: "encode", etaSeconds: undefined });
 });
 
 test("eta is the remaining work divided by the observed rate", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 100 });
+  const { onProgress, tracker } = setup([{ name: "render", total: 100 }]);
 
-  tracker.increment("render");
+  tracker.set("render", 1);
   vi.advanceTimersByTime(10_000);
-  tracker.increment("render");
+  tracker.set("render", 2);
   flush();
 
   const call = onProgress.mock.calls.at(-1);
-  expect(call?.[1]?.etaSeconds).toBeCloseTo(490);
+  expect(call?.[1]?.etaSeconds).toBeCloseTo(980);
 });
 
-test("activePhase is undefined when no phase is in progress", () => {
-  const { onProgress, tracker } = setup();
-  tracker.addPhase({ name: "render", total: 5 });
-  tracker.addPhase({ name: "encode", total: 5 });
+test("reports are throttled", () => {
+  const { onProgress, tracker } = setup([{ name: "render", total: 10 }]);
 
-  // Nothing started
-  tracker.notify();
+  tracker.set("render", 1);
+  tracker.set("render", 2);
+  tracker.set("render", 3);
   flush();
-  expect(onProgress).toHaveBeenCalledWith(0, undefined);
 
-  onProgress.mockClear();
-
-  // All complete
-  tracker.complete("render");
-  tracker.complete("encode");
-  flush();
-  expect(onProgress).toHaveBeenCalledWith(1, undefined);
+  expect(onProgress).toHaveBeenCalledTimes(2);
+  expect(onProgress).toHaveBeenLastCalledWith(0.3, expect.objectContaining({ name: "render" }));
 });

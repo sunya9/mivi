@@ -4,13 +4,19 @@ import { createRenderer } from "@/lib/renderers/create-renderer";
 import { drawFrame } from "@/lib/renderers/draw-frame";
 
 import { EncodeQueue } from "./encode-queue";
-import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";
 import { RecorderResources } from "./recorder-resources";
 
 const frameSize = 20;
 const maxEncodeQueueSize = 6;
 
-type ExportPhase = "FFT" | "Audio Render" | "Audio Encode" | "Video Render" | "Video Encode";
+export type ExportPhase = "FFT" | "Audio Render" | "Audio Encode" | "Video Render" | "Video Encode";
+
+export interface ExportPhasePlan {
+  name: ExportPhase;
+  total: number;
+}
+
+export type PhaseProgressListener = (phase: ExportPhase, completed: number) => void;
 
 export class MediaCompositor {
   readonly #videoQueue: EncodeQueue<Parameters<VideoEncoder["encode"]>>;
@@ -18,31 +24,21 @@ export class MediaCompositor {
   readonly #canvas: OffscreenCanvas;
   readonly #resources: RecorderResources;
   readonly #muxer: Muxer;
-  readonly #progress: ExportProgressTracker<ExportPhase>;
+  readonly #listeners = new Set<PhaseProgressListener>();
   readonly #abort = new AbortController();
+  readonly phases: readonly ExportPhasePlan[];
 
-  constructor(
-    resources: RecorderResources,
-    muxer: Muxer,
-    onProgress: (progress: number, activePhase?: ActivePhase) => void,
-  ) {
+  constructor(resources: RecorderResources, muxer: Muxer) {
     this.#resources = resources;
     this.#muxer = muxer;
 
-    this.#progress = new ExportProgressTracker(onProgress);
-    this.#progress.addPhase({ name: "FFT", total: this.#totalVideoFrames });
-    this.#progress.addPhase({ name: "Audio Render", total: this.#totalAudioFrames });
-    this.#progress.addPhase({
-      name: "Audio Encode",
-      total: this.#totalAudioFrames,
-      getCompleted: () => this.#audioQueue.completed,
-    });
-    this.#progress.addPhase({ name: "Video Render", total: this.#totalVideoFrames });
-    this.#progress.addPhase({
-      name: "Video Encode",
-      total: this.#totalVideoFrames,
-      getCompleted: () => this.#videoQueue.completed,
-    });
+    this.phases = [
+      { name: "FFT", total: this.#totalVideoFrames },
+      { name: "Audio Render", total: this.#totalAudioFrames },
+      { name: "Audio Encode", total: this.#totalAudioFrames },
+      { name: "Video Render", total: this.#totalVideoFrames },
+      { name: "Video Encode", total: this.#totalVideoFrames },
+    ];
 
     const onError = (error: unknown) => this.#abort.abort(error);
 
@@ -56,7 +52,9 @@ export class MediaCompositor {
       numberOfChannels: this.#serializedAudio.numberOfChannels,
       bitrate: 192_000,
     });
-    this.#audioQueue = new EncodeQueue(audioEncoder, this.#onDequeue);
+    this.#audioQueue = new EncodeQueue(audioEncoder, () =>
+      this.#emit("Audio Encode", this.#audioQueue.completed),
+    );
 
     const videoEncoder = new VideoEncoder({
       output: (chunk, metadata) => void muxer.addVideoChunk(chunk, metadata).catch(onError),
@@ -73,10 +71,19 @@ export class MediaCompositor {
       bitrate: 10_000_000,
       framerate: this.#fps,
     });
-    this.#videoQueue = new EncodeQueue(videoEncoder, this.#onDequeue);
+    this.#videoQueue = new EncodeQueue(videoEncoder, () =>
+      this.#emit("Video Encode", this.#videoQueue.completed),
+    );
   }
 
-  #onDequeue = () => this.#progress.notify();
+  subscribe(listener: PhaseProgressListener): () => void {
+    this.#listeners.add(listener);
+    return () => this.#listeners.delete(listener);
+  }
+
+  #emit(phase: ExportPhase, completed: number) {
+    for (const listener of this.#listeners) listener(phase, completed);
+  }
 
   get #rendererConfig() {
     return this.#resources.rendererConfig;
@@ -130,7 +137,7 @@ export class MediaCompositor {
         data: frameData,
       });
 
-      this.#progress.increment("Audio Render");
+      this.#emit("Audio Render", i + 1);
       this.#audioQueue.encode(audioData);
       audioData.close();
     }
@@ -160,7 +167,7 @@ export class MediaCompositor {
         backgroundImageBitmap,
       });
 
-      this.#progress.increment("Video Render");
+      this.#emit("Video Render", i + 1);
 
       const frame = new VideoFrame(this.#canvas, {
         timestamp: currentTime * 1_000_000,
@@ -182,7 +189,7 @@ export class MediaCompositor {
   #precomputeFFT() {
     const { audioVisualizerConfig } = this.#rendererConfig;
     if (audioVisualizerConfig.style === "none") {
-      this.#progress.complete("FFT");
+      this.#emit("FFT", this.#totalVideoFrames);
       return null;
     }
 
@@ -190,7 +197,7 @@ export class MediaCompositor {
       fftSize: audioVisualizerConfig.fftSize,
       attackTime: audioVisualizerConfig.attackTime,
       releaseTime: audioVisualizerConfig.releaseTime,
-      onProgress: (current) => this.#progress.set("FFT", current),
+      onProgress: (current) => this.#emit("FFT", current),
     });
   }
 
