@@ -8,10 +8,10 @@ import { afterEach, expect, test, vi } from "vitest";
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
 import type { FileDecoders } from "@/lib/file-store/file-store";
 import { type MidiTracks } from "@/lib/midi/midi";
+import { resolutions } from "@/lib/muxer/resolution";
 import { type PlaybackSnapshot } from "@/lib/player/audio-playback-store";
 import { RendererConfig } from "@/lib/renderers/renderer-config";
 import { RendererController } from "@/lib/renderers/renderer-controller";
-import { resolutions } from "@/lib/renderers/resolution";
 
 const mockRender = vi.spyOn(RendererController.prototype, "render");
 const mockSetRendererConfig = vi.spyOn(RendererController.prototype, "setRendererConfig");

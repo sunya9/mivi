@@ -1,19 +1,20 @@
 import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
-import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
+import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-index";
 import { maxNoteDuration } from "@/lib/renderers/shared/max-note-duration";
 import { createNoiseTexture } from "@/lib/renderers/shared/noise-texture";
 import { drawNoteBody, noteSeed } from "@/lib/renderers/shared/note-body";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { PendingRipple, drawPendingRipples } from "@/lib/renderers/shared/ripple";
 
-import { MIN_PRESS_DURATION, isKeyPressed, resolveNoteBaseColor } from "./note-effects";
+import { MIN_PRESS_DURATION, isKeyPressed, resolveNoteBaseColor } from "./piano-key";
 import { KeyboardLayout, createKeyboardLayout } from "./piano-keyboard-layout";
 
 const BLACK_KEY_HEIGHT_RATIO = 0.62;
 const MIN_NOTE_HEIGHT = 2;
 const KEY_BORDER_OPACITY = 0.3;
 const OCTAVE_LABEL_OPACITY = 0.6;
+const NOTE_PASSES = [false, true] as const;
 
 interface PressedKeys {
   colors: (string | undefined)[];
@@ -172,7 +173,7 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
     // Black keys sit in front of white keys, so black-key notes of every track are drawn in a
     // second pass on top. Within a pass the first track in the list is drawn last (on top) and
     // wins the key color.
-    for (const drawBlackKeys of [false, true]) {
+    for (const drawBlackKeys of NOTE_PASSES) {
       for (let ti = tracks.length - 1; ti >= 0; ti--) {
         const track = tracks[ti];
         if (!track.config.visible) continue;

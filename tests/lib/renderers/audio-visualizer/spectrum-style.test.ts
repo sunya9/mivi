@@ -4,7 +4,7 @@ import {
   createSpectrumFillStyle,
   getGradientCoords,
   resolveBaseY,
-} from "@/lib/renderers/audio-visualizer/gradient-utils";
+} from "@/lib/renderers/audio-visualizer/spectrum-style";
 import { GradientDirection, getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
 
 const width = 100;

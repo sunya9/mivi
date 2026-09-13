@@ -1,5 +1,8 @@
 import type { RendererContext } from "@/lib/renderers/renderer";
-import type { AudioVisualizerConfig, GradientDirection } from "@/lib/renderers/renderer-config";
+import {
+  type AudioVisualizerConfig,
+  type GradientDirection,
+} from "@/lib/renderers/renderer-config";
 
 /**
  * Calculate gradient coordinates based on direction.

@@ -6,7 +6,7 @@ import {
   MAX_RESOLUTION_SIZE,
   MIN_RESOLUTION_SIZE,
   Resolution,
-} from "@/lib/renderers/resolution";
+} from "@/lib/muxer/resolution";
 
 interface SizeInputProps {
   ref?: React.Ref<HTMLInputElement>;

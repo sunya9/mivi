@@ -1,15 +1,16 @@
+import type { FPS, VideoFormat } from "@/lib/muxer/video-format";
 import type {
-  AudioVisualizerBarStyle,
-  AudioVisualizerLayer,
-  AudioVisualizerPosition,
-  AudioVisualizerStyle,
   BackgroundImageFit,
   BackgroundImagePosition,
   BackgroundImageRepeat,
-  FPS,
-  GradientDirection,
-  PianoRollConfig,
-  VideoFormat,
+} from "@/lib/renderers/background";
+import {
+  type AudioVisualizerBarStyle,
+  type AudioVisualizerLayer,
+  type AudioVisualizerPosition,
+  type AudioVisualizerStyle,
+  type GradientDirection,
+  type PianoRollConfig,
 } from "@/lib/renderers/renderer-config";
 
 interface Option<T> {

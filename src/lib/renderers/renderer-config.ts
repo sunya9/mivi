@@ -1,5 +1,7 @@
-import { DEFAULT_SPECTRUM_ENVELOPE } from "@/lib/audio/spectrum-envelope";
-import { Resolution, resolutions } from "@/lib/renderers/resolution";
+import { DEFAULT_SPECTRUM_ENVELOPE, SpectrumEnvelopeOptions } from "@/lib/audio/spectrum-envelope";
+import { DEFAULT_RESOLUTION, Resolution } from "@/lib/muxer/resolution";
+import { FPS, VideoFormat } from "@/lib/muxer/video-format";
+import { BackgroundConfig } from "@/lib/renderers/background";
 
 export interface NoteEffectsConfig {
   showRippleEffect: boolean;
@@ -24,7 +26,6 @@ export interface NoteEffectsConfig {
 export interface PianoRollConfig extends NoteEffectsConfig {
   noteMargin: number;
   noteVerticalMargin: number;
-  gridColor: string;
   showPlayhead: boolean;
   playheadPosition: number;
   playheadColor: string;
@@ -112,11 +113,9 @@ interface LineSpectrumConfig {
   fillOpacity: number;
 }
 
-export interface AudioVisualizerConfig {
+export interface AudioVisualizerConfig extends SpectrumEnvelopeOptions {
   style: AudioVisualizerStyle;
   fftSize: AudioVisualizerFFTSize;
-  attackTime: number;
-  releaseTime: number;
   minFrequency: number;
   maxFrequency: number;
   barCount: number;
@@ -137,31 +136,9 @@ export interface AudioVisualizerConfig {
   lineSpectrumConfig: LineSpectrumConfig;
 }
 
-export type FPS = 24 | 30 | 60;
-export type VideoFormat = "webm" | "mp4";
-export type BackgroundImageFit = "auto" | "cover" | "contain";
-export type BackgroundImagePosition =
-  | "top-left"
-  | "top"
-  | "top-right"
-  | "left"
-  | "center"
-  | "right"
-  | "bottom-left"
-  | "bottom"
-  | "bottom-right";
-export type BackgroundImageRepeat = "repeat" | "no-repeat" | "repeat-x" | "repeat-y";
-
-export interface RendererConfig {
+export interface RendererConfig extends BackgroundConfig {
   type: RendererType;
-  backgroundColor: string;
-  backgroundImageEnabled: boolean;
   backgroundImageUrl: string;
-  backgroundImageFit: BackgroundImageFit;
-  backgroundImagePosition: BackgroundImagePosition;
-  backgroundImageRepeat: BackgroundImageRepeat;
-  backgroundImageOpacity: number;
-  resolution: Resolution;
   // Last size entered for Custom, restored when Custom is picked again
   customResolution?: Resolution;
   fps: FPS;
@@ -202,14 +179,13 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
   backgroundImagePosition: "center",
   backgroundImageRepeat: "no-repeat",
   backgroundImageOpacity: 1,
-  resolution: resolutions[1],
+  resolution: DEFAULT_RESOLUTION,
   fps: 30,
   format: "mp4",
   pianoRollConfig: {
     ...getDefaultNoteEffectsConfig(),
     noteMargin: 2,
     noteVerticalMargin: 1,
-    gridColor: "#ffffff",
     showPlayhead: true,
     playheadPosition: 50,
     playheadColor: "#ffffff",

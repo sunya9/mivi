@@ -1,9 +1,28 @@
+import { Resolution } from "@/lib/muxer/resolution";
 import { RendererContext } from "@/lib/renderers/renderer";
-import {
-  BackgroundImageFit,
-  BackgroundImagePosition,
-  RendererConfig,
-} from "@/lib/renderers/renderer-config";
+
+export type BackgroundImageFit = "auto" | "cover" | "contain";
+export type BackgroundImagePosition =
+  | "top-left"
+  | "top"
+  | "top-right"
+  | "left"
+  | "center"
+  | "right"
+  | "bottom-left"
+  | "bottom"
+  | "bottom-right";
+export type BackgroundImageRepeat = "repeat" | "no-repeat" | "repeat-x" | "repeat-y";
+
+export interface BackgroundConfig {
+  backgroundColor: string;
+  backgroundImageEnabled: boolean;
+  backgroundImageFit: BackgroundImageFit;
+  backgroundImagePosition: BackgroundImagePosition;
+  backgroundImageRepeat: BackgroundImageRepeat;
+  backgroundImageOpacity: number;
+  resolution: Resolution;
+}
 
 function calculateImageDimensions(
   fit: BackgroundImageFit,
@@ -98,7 +117,7 @@ function adjustImagePosition(
 // Always the first layer of a frame: clears the canvas, then paints the color and image
 export function drawBackground(
   ctx: RendererContext,
-  config: RendererConfig,
+  config: BackgroundConfig,
   backgroundImageBitmap?: ImageBitmap,
 ): void {
   const { width, height } = config.resolution;

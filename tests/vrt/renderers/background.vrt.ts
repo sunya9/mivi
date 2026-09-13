@@ -1,9 +1,9 @@
 import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 
+import type { Resolution } from "@/lib/muxer/resolution";
 import { drawBackground } from "@/lib/renderers/background";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
-import type { Resolution } from "@/lib/renderers/resolution";
 
 const WIDTH = 800;
 const HEIGHT = 600;
