@@ -1,8 +1,11 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 
+// One buffer for every frame: the drawers consume the amplitudes before the next call
+const amplitudes: number[] = [];
+
 /**
  * Average frequency bins into log-spaced bands between minFrequency and maxFrequency.
- * Returns one amplitude (0-255) per band.
+ * Returns one amplitude (0-255) per band in a buffer that the next call overwrites.
  */
 export function calculateBandAmplitudes(
   frequencyData: FrequencyData,
@@ -15,19 +18,18 @@ export function calculateBandAmplitudes(
   const logMin = Math.log10(minFrequency);
   const logStep = (Math.log10(maxFrequency) - logMin) / bandCount;
 
-  const result: number[] = [];
+  amplitudes.length = bandCount;
   for (let i = 0; i < bandCount; i++) {
     const binStart = Math.pow(10, logMin + i * logStep) * binsPerHz;
     const binEnd = Math.pow(10, logMin + (i + 1) * logStep) * binsPerHz;
     // Low bands are narrower than a bin, so several of them would otherwise
     // read the same bin and form plateaus; sample the spectrum between bins instead
-    result.push(
+    amplitudes[i] =
       binEnd - binStart < 1
         ? interpolateBin(data, frequencyBinCount, (binStart + binEnd) / 2)
-        : averageBins(data, frequencyBinCount, binStart, binEnd),
-    );
+        : averageBins(data, frequencyBinCount, binStart, binEnd);
   }
-  return result;
+  return amplitudes;
 }
 
 function interpolateBin(data: Uint8Array, binCount: number, position: number): number {

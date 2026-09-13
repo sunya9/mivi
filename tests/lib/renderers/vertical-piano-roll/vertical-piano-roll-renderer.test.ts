@@ -7,7 +7,18 @@ import {
   getDefaultRendererConfig,
   VerticalPianoRollConfig,
 } from "@/lib/renderers/renderer-config";
+import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-index";
 import { createVerticalPianoRollRenderer } from "@/lib/renderers/vertical-piano-roll/vertical-piano-roll-renderer";
+
+vi.mock("@/lib/renderers/shared/find-first-note-index", async (importOriginal) => {
+  const original =
+    await importOriginal<typeof import("@/lib/renderers/shared/find-first-note-index")>();
+  return {
+    findFirstNoteIndexFrom: vi.fn<typeof original.findFirstNoteIndexFrom>(
+      original.findFirstNoteIndexFrom,
+    ),
+  };
+});
 
 function setup(overrides: Partial<VerticalPianoRollConfig> = {}) {
   const canvas = document.createElement("canvas");
@@ -23,6 +34,13 @@ function setup(overrides: Partial<VerticalPianoRollConfig> = {}) {
   const render = (frameTracks: MidiTrack[], time: number) => renderFrame(frameTracks, time, config);
   return { ctx, render };
 }
+
+test("scans each track's notes once per frame", () => {
+  const { render } = setup();
+  vi.mocked(findFirstNoteIndexFrom).mockClear();
+  render(tracks, 1.1);
+  expect(findFirstNoteIndexFrom).toHaveBeenCalledTimes(tracks.length);
+});
 
 const tracks = testMidiTracks.tracks;
 

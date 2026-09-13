@@ -1,3 +1,4 @@
+import { MidiNote, MidiTrack } from "@/lib/midi/midi";
 import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-index";
@@ -14,7 +15,8 @@ const BLACK_KEY_HEIGHT_RATIO = 0.62;
 const MIN_NOTE_HEIGHT = 2;
 const KEY_BORDER_OPACITY = 0.3;
 const OCTAVE_LABEL_OPACITY = 0.6;
-const NOTE_PASSES = [false, true] as const;
+
+type PianoKey = KeyboardLayout["keys"][number];
 
 interface PressedKeys {
   colors: (string | undefined)[];
@@ -117,6 +119,8 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
     opacities: Array.from({ length: 128 }),
   };
   const pendingRipples: PendingRipple[] = [];
+  const deferredNotes: MidiNote[] = [];
+  const deferredTracks: MidiTrack[] = [];
   let layout: KeyboardLayout | undefined;
   let layoutKey = "";
 
@@ -170,81 +174,91 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
     ctx.rect(0, 0, width, hitLineY);
     ctx.clip();
 
-    // Black keys sit in front of white keys, so black-key notes of every track are drawn in a
-    // second pass on top. Within a pass the first track in the list is drawn last (on top) and
-    // wins the key color.
-    for (const drawBlackKeys of NOTE_PASSES) {
-      for (let ti = tracks.length - 1; ti >= 0; ti--) {
-        const track = tracks[ti];
-        if (!track.config.visible) continue;
+    const drawNote = (note: MidiNote, track: MidiTrack, key: PianoKey) => {
+      const noteEnd = note.time + note.duration;
+      const noteWidth = Math.max(0, key.width - cfg.noteMargin * 2);
+      const bottom = timeToY(note.time) - cfg.noteVerticalMargin;
+      const noteHeight = Math.max(
+        MIN_NOTE_HEIGHT,
+        track.config.staccato ? noteWidth : bottom - timeToY(noteEnd) - cfg.noteVerticalMargin,
+      );
+      const y = bottom - noteHeight;
+      if (y >= hitLineY) return;
 
-        const startIdx = findFirstNoteIndexFrom(
-          track.notes,
-          currentTime - lookback - maxNoteDuration(track.notes),
-        );
+      const x = key.x + cfg.noteMargin;
+      // Anything below the hit line is clipped anyway; keep just enough for the corners
+      const visibleHeight = Math.min(
+        noteHeight,
+        hitLineY - y + cfg.noteCornerRadius + cfg.roughEdgeIntensity,
+      );
+      const cornerRadius = Math.min(cfg.noteCornerRadius, noteWidth / 2, visibleHeight / 2);
 
-        for (let ni = startIdx; ni < track.notes.length; ni++) {
-          const note = track.notes[ni];
-          if (note.time > topEdgeTime) break;
+      drawNoteBody(ctx, noiseTexture, cfg, {
+        x,
+        y,
+        width: noteWidth,
+        height: visibleHeight,
+        cornerRadius,
+        baseColor: resolveNoteBaseColor(track.config.color, key.isBlack, cfg),
+        flashIntensity: cfg.showNoteFlash
+          ? computeFlashIntensity(cfg, note.time, noteEnd, currentTime)
+          : 0,
+        opacity: track.config.opacity,
+        velocity: note.velocity,
+        seed: noteSeed(note),
+      });
+    };
 
-          const key = keyboard.byMidi[note.midi];
-          if (!key) continue;
+    // Black keys sit in front of white keys, so black-key notes are held back and drawn after
+    // every white-key note. Within each group the first track in the list is drawn last (on top)
+    // and wins the key color.
+    deferredNotes.length = 0;
+    deferredTracks.length = 0;
+    for (let ti = tracks.length - 1; ti >= 0; ti--) {
+      const track = tracks[ti];
+      if (!track.config.visible) continue;
 
-          const noteEnd = note.time + note.duration;
+      const startIdx = findFirstNoteIndexFrom(
+        track.notes,
+        currentTime - lookback - maxNoteDuration(track.notes),
+      );
 
-          if (!drawBlackKeys && isKeyPressed(note.time, noteEnd, currentTime)) {
-            pressed.colors[note.midi] = track.config.color;
-            pressed.opacities[note.midi] = track.config.opacity;
+      for (let ni = startIdx; ni < track.notes.length; ni++) {
+        const note = track.notes[ni];
+        if (note.time > topEdgeTime) break;
+
+        const key = keyboard.byMidi[note.midi];
+        if (!key) continue;
+
+        if (isKeyPressed(note.time, note.time + note.duration, currentTime)) {
+          pressed.colors[note.midi] = track.config.color;
+          pressed.opacities[note.midi] = track.config.opacity;
+        }
+
+        if (cfg.showRippleEffect) {
+          const progress = computeRippleProgress(cfg.rippleDuration, note.time, currentTime);
+          if (progress !== null) {
+            pendingRipples.push({
+              x: key.x + key.width / 2,
+              y: hitLineY,
+              progress,
+              color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
+              opacity: track.config.opacity,
+            });
           }
+        }
 
-          if (!drawBlackKeys && cfg.showRippleEffect) {
-            const progress = computeRippleProgress(cfg.rippleDuration, note.time, currentTime);
-            if (progress !== null) {
-              pendingRipples.push({
-                x: key.x + key.width / 2,
-                y: hitLineY,
-                progress,
-                color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
-                opacity: track.config.opacity,
-              });
-            }
-          }
-
-          if (key.isBlack !== drawBlackKeys) continue;
-
-          const noteWidth = Math.max(0, key.width - cfg.noteMargin * 2);
-          const bottom = timeToY(note.time) - cfg.noteVerticalMargin;
-          const noteHeight = Math.max(
-            MIN_NOTE_HEIGHT,
-            track.config.staccato ? noteWidth : bottom - timeToY(noteEnd) - cfg.noteVerticalMargin,
-          );
-          const y = bottom - noteHeight;
-          if (y >= hitLineY) continue;
-
-          const x = key.x + cfg.noteMargin;
-          // Anything below the hit line is clipped anyway; keep just enough for the corners
-          const visibleHeight = Math.min(
-            noteHeight,
-            hitLineY - y + cfg.noteCornerRadius + cfg.roughEdgeIntensity,
-          );
-          const cornerRadius = Math.min(cfg.noteCornerRadius, noteWidth / 2, visibleHeight / 2);
-
-          drawNoteBody(ctx, noiseTexture, cfg, {
-            x,
-            y,
-            width: noteWidth,
-            height: visibleHeight,
-            cornerRadius,
-            baseColor: resolveNoteBaseColor(track.config.color, key.isBlack, cfg),
-            flashIntensity: cfg.showNoteFlash
-              ? computeFlashIntensity(cfg, note.time, noteEnd, currentTime)
-              : 0,
-            opacity: track.config.opacity,
-            velocity: note.velocity,
-            seed: noteSeed(note),
-          });
+        if (key.isBlack) {
+          deferredNotes.push(note);
+          deferredTracks.push(track);
+        } else {
+          drawNote(note, track, key);
         }
       }
+    }
+    for (let i = 0; i < deferredNotes.length; i++) {
+      const note = deferredNotes[i];
+      drawNote(note, deferredTracks[i], keyboard.byMidi[note.midi]!);
     }
 
     ctx.globalAlpha = 1;

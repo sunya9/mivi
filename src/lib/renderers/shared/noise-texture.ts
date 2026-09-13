@@ -50,22 +50,33 @@ export type NoiseTexture = ReturnType<typeof createNoiseTexture>;
 export function createNoiseTexture(ctx: RendererContext) {
   let light: CanvasPattern | null = null;
   let dark: CanvasPattern | null = null;
-  let cacheKey = "";
+  let cachedIntensity = NaN;
+  let cachedGrainSize = NaN;
+  let cachedColorVariance = NaN;
+  // apply() runs once per drawn note, so the translation is written into one matrix
+  let transform: DOMMatrix | undefined;
 
   return {
     apply(cfg: NoiseTextureConfig, noteColor: string, x: number, y: number, seed: number): void {
       if (!cfg.showNoiseTexture) {
         light = null;
         dark = null;
-        cacheKey = "";
+        cachedIntensity = NaN;
         return;
       }
 
-      const key = `${cfg.noiseIntensity}:${cfg.noiseGrainSize}:${cfg.noiseColorVariance}`;
-      if (key !== cacheKey || !light || !dark) {
+      if (
+        !light ||
+        !dark ||
+        cfg.noiseIntensity !== cachedIntensity ||
+        cfg.noiseGrainSize !== cachedGrainSize ||
+        cfg.noiseColorVariance !== cachedColorVariance
+      ) {
         light = generatePattern(ctx, cfg, false);
         dark = generatePattern(ctx, cfg, true);
-        cacheKey = key;
+        cachedIntensity = cfg.noiseIntensity;
+        cachedGrainSize = cfg.noiseGrainSize;
+        cachedColorVariance = cfg.noiseColorVariance;
       }
 
       const pattern = hexLuminance(noteColor) > 0.5 ? dark : light;
@@ -73,9 +84,10 @@ export function createNoiseTexture(ctx: RendererContext) {
 
       ctx.save();
       ctx.globalCompositeOperation = "source-atop";
-      const offsetX = seededRandom(seed) * PATTERN_SIZE;
-      const offsetY = seededRandom(seed + 12345) * PATTERN_SIZE;
-      pattern.setTransform(new DOMMatrix().translate(x + offsetX, y + offsetY));
+      transform ??= new DOMMatrix();
+      transform.e = x + seededRandom(seed) * PATTERN_SIZE;
+      transform.f = y + seededRandom(seed + 12345) * PATTERN_SIZE;
+      pattern.setTransform(transform);
       ctx.fillStyle = pattern;
       ctx.fill();
       ctx.restore();

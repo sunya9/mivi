@@ -71,3 +71,20 @@ test("textures only the note shape by compositing on top of it", () => {
   expect(ctx.restore).toHaveBeenCalledOnce();
   expect(vi.mocked(ctx.fill)).toHaveBeenCalledOnce();
 });
+
+test("keeps the patterns when equal settings arrive as a new object", () => {
+  const { ctx, noise } = setup();
+  noise.apply(enabled, "#204080", 0, 0, 1);
+  noise.apply({ ...enabled }, "#204080", 0, 0, 1);
+  expect(ctx.createPattern).toHaveBeenCalledTimes(2);
+});
+
+test("positions every note with one reused transform instead of a fresh matrix", () => {
+  const { ctx, noise } = setup();
+  noise.apply(enabled, "#204080", 0, 0, 1);
+  noise.apply(enabled, "#204080", 10, 10, 2);
+  const [pattern] = vi.mocked(ctx.createPattern).mock.results.map((r) => r.value as CanvasPattern);
+  const transforms = vi.mocked(pattern.setTransform).mock.calls.map(([m]) => m);
+  expect(transforms).toHaveLength(2);
+  expect(transforms[0]).toBe(transforms[1]);
+});
