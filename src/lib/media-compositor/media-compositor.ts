@@ -1,8 +1,7 @@
 import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
 import { Muxer } from "@/lib/muxer/muxer";
-import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visualizer";
-import { drawBackground } from "@/lib/renderers/background";
 import { createRenderer } from "@/lib/renderers/create-renderer";
+import { drawFrame } from "@/lib/renderers/draw-frame";
 
 import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";
 import { RecorderResources } from "./recorder-resources";
@@ -151,24 +150,20 @@ export class MediaCompositor {
     const renderer = createRenderer(config.type, ctx);
     const midiOffset = this.#resources.midiTracks?.midiOffset ?? 0;
     const tracks = this.#resources.midiTracks?.tracks ?? [];
-    const layer = this.#rendererConfig.audioVisualizerLayer;
 
     const precomputedFFT = this.#precomputeFFT();
 
     for (let i = 0; i < this.#totalVideoFrames; i++) {
       const currentTime = i / this.#fps;
 
-      drawBackground(ctx, config, backgroundImageBitmap);
-
-      const frequencyData = precomputedFFT ? getFrameAtTime(precomputedFFT, currentTime) : null;
-
-      if (layer === "back") {
-        drawAudioVisualizer(ctx, frequencyData, config.audioVisualizerConfig, config.resolution);
-      }
-      renderer(tracks, currentTime + midiOffset, config);
-      if (layer === "front") {
-        drawAudioVisualizer(ctx, frequencyData, config.audioVisualizerConfig, config.resolution);
-      }
+      drawFrame(ctx, {
+        config,
+        renderer,
+        tracks,
+        currentTime: currentTime + midiOffset,
+        frequencyData: precomputedFFT ? getFrameAtTime(precomputedFFT, currentTime) : null,
+        backgroundImageBitmap,
+      });
 
       this.#progress.increment("Video Render");
 

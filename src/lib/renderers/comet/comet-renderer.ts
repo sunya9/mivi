@@ -2,6 +2,7 @@ import { MidiNote, MidiTrack } from "@/lib/midi/midi";
 import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { CometConfig } from "@/lib/renderers/renderer-config";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
+import { isMidiInViewRange } from "@/lib/renderers/shared/view-range";
 
 interface Comet {
   startX: number;
@@ -141,9 +142,6 @@ export const createCometRenderer: RendererFactory = (ctx) => (tracks, currentTim
   const cfg = config.cometConfig;
   const lifetime = cfg.fallDuration + cfg.fadeOutDuration;
 
-  const isNoteInViewRange = (midi: number) =>
-    midi <= cfg.viewRangeTop && midi >= cfg.viewRangeBottom;
-
   for (const track of tracks) {
     if (!track.config.visible) continue;
 
@@ -151,7 +149,7 @@ export const createCometRenderer: RendererFactory = (ctx) => (tracks, currentTim
     for (let ni = startIdx; ni < track.notes.length; ni++) {
       const note = track.notes[ni];
       if (note.time > currentTime) break;
-      if (!isNoteInViewRange(note.midi)) continue;
+      if (!isMidiInViewRange(note.midi, cfg)) continue;
 
       const elapsed = currentTime - note.time;
       const fadeProgress = (elapsed - cfg.fallDuration) / cfg.fadeOutDuration;

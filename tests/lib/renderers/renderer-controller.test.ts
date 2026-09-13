@@ -1,10 +1,9 @@
 import { test, expect, vi, beforeEach, Mock } from "vitest";
 
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visualizer";
-import { drawBackground } from "@/lib/renderers/background";
 import { createRenderer } from "@/lib/renderers/create-renderer";
-import type { Renderer } from "@/lib/renderers/renderer";
+import { drawFrame } from "@/lib/renderers/draw-frame";
+import { type Renderer } from "@/lib/renderers/renderer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
 import { RendererController } from "@/lib/renderers/renderer-controller";
 
@@ -12,19 +11,14 @@ vi.mock("@/lib/renderers/create-renderer", () => ({
   createRenderer: vi.fn<() => Renderer>(() => vi.fn<Renderer>()),
 }));
 
-vi.mock("@/lib/renderers/background", () => ({
-  drawBackground: vi.fn<() => void>(),
-}));
-
-vi.mock("@/lib/renderers/audio-visualizer/audio-visualizer", () => ({
-  drawAudioVisualizer: vi.fn<() => void>(),
+vi.mock("@/lib/renderers/draw-frame", () => ({
+  drawFrame: vi.fn<() => void>(),
 }));
 
 let ctx: CanvasRenderingContext2D;
 let mockCreateRenderer: Mock<typeof createRenderer>;
 let mockRender: Mock<Renderer>;
-const mockDrawBackground = vi.mocked(drawBackground);
-const mockDrawAudioVisualizer = vi.mocked(drawAudioVisualizer);
+const mockDrawFrame = vi.mocked(drawFrame);
 
 function createMockFrequencyData(): FrequencyData {
   return {
@@ -42,13 +36,7 @@ beforeEach(() => {
   mockCreateRenderer = vi.mocked(createRenderer);
   mockCreateRenderer.mockReset();
   mockCreateRenderer.mockReturnValue(mockRender);
-  mockDrawBackground.mockReset();
-  mockDrawAudioVisualizer.mockReset();
-});
-
-test("should accept context in constructor", () => {
-  const controller = new RendererController(ctx);
-  expect(controller).toBeDefined();
+  mockDrawFrame.mockReset();
 });
 
 test("should not create renderer initially", () => {
@@ -66,11 +54,8 @@ test("should create renderer for the configured type when config is set", () => 
 
 test("should recreate renderer when renderer type changes", () => {
   const controller = new RendererController(ctx);
-  const config1 = getDefaultRendererConfig();
-  const config2 = { ...getDefaultRendererConfig(), type: "comet" as const };
-
-  controller.setRendererConfig(config1);
-  controller.setRendererConfig(config2);
+  controller.setRendererConfig(getDefaultRendererConfig());
+  controller.setRendererConfig({ ...getDefaultRendererConfig(), type: "comet" });
 
   expect(mockCreateRenderer).toHaveBeenCalledTimes(2);
   expect(mockCreateRenderer).toHaveBeenLastCalledWith("comet", ctx);
@@ -78,164 +63,78 @@ test("should recreate renderer when renderer type changes", () => {
 
 test("should keep the renderer when renderer type is same", () => {
   const controller = new RendererController(ctx);
-  const config1 = getDefaultRendererConfig();
-  const config2 = {
-    ...getDefaultRendererConfig(),
-    backgroundColor: "#ffffff",
-  };
-
-  controller.setRendererConfig(config1);
-  controller.setRendererConfig(config2);
+  controller.setRendererConfig(getDefaultRendererConfig());
+  controller.setRendererConfig({ ...getDefaultRendererConfig(), backgroundColor: "#ffffff" });
 
   expect(mockCreateRenderer).toHaveBeenCalledTimes(1);
 });
 
 test("should not create renderer when setting bitmap without config", () => {
   const controller = new RendererController(ctx);
-  const mockBitmap = {} as ImageBitmap;
-
-  controller.setBackgroundImageBitmap(mockBitmap);
+  controller.setBackgroundImageBitmap({} as ImageBitmap);
 
   expect(mockCreateRenderer).not.toHaveBeenCalled();
-});
-
-test("should render with the latest config", () => {
-  const controller = new RendererController(ctx);
-  const config1 = getDefaultRendererConfig();
-  const config2 = { ...getDefaultRendererConfig(), backgroundColor: "#ffffff" };
-
-  controller.setRendererConfig(config1);
-  controller.setRendererConfig(config2);
-  controller.render([], 0);
-
-  expect(mockRender).toHaveBeenCalledWith([], 0, config2);
 });
 
 test("should draw nothing without config", () => {
   const controller = new RendererController(ctx);
 
   expect(() => controller.render([], 0)).not.toThrow();
-  expect(mockRender).not.toHaveBeenCalled();
-  expect(mockDrawBackground).not.toHaveBeenCalled();
-  expect(mockDrawAudioVisualizer).not.toHaveBeenCalled();
+  expect(mockDrawFrame).not.toHaveBeenCalled();
 });
 
-test("should draw the background with the latest config and no bitmap by default", () => {
+test("should draw a frame with the latest config, the renderer and the frequency data", () => {
   const controller = new RendererController(ctx);
   const config1 = getDefaultRendererConfig();
   const config2 = { ...getDefaultRendererConfig(), backgroundColor: "#ffffff" };
+  const frequencyData = createMockFrequencyData();
 
   controller.setRendererConfig(config1);
   controller.setRendererConfig(config2);
-  controller.render([], 0);
+  controller.render([], 1.5, frequencyData);
 
-  expect(mockDrawBackground).toHaveBeenCalledExactlyOnceWith(ctx, config2, undefined);
+  expect(mockDrawFrame).toHaveBeenCalledExactlyOnceWith(ctx, {
+    config: config2,
+    renderer: mockRender,
+    tracks: [],
+    currentTime: 1.5,
+    frequencyData,
+    backgroundImageBitmap: undefined,
+  });
 });
 
-test("should draw the background with the bitmap set after the config", () => {
-  const controller = new RendererController(ctx);
-  const config = getDefaultRendererConfig();
-  const mockBitmap = {} as ImageBitmap;
-
-  controller.setRendererConfig(config);
-  controller.setBackgroundImageBitmap(mockBitmap);
-  controller.render([], 0);
-
-  expect(mockDrawBackground).toHaveBeenCalledExactlyOnceWith(ctx, config, mockBitmap);
-});
-
-test("should draw the background with the bitmap set before the config", () => {
-  const controller = new RendererController(ctx);
-  const config = getDefaultRendererConfig();
-  const mockBitmap = {} as ImageBitmap;
-
-  controller.setBackgroundImageBitmap(mockBitmap);
-  controller.setRendererConfig(config);
-  controller.render([], 0);
-
-  expect(mockDrawBackground).toHaveBeenCalledExactlyOnceWith(ctx, config, mockBitmap);
-});
-
-test.each(["front", "back"] as const)(
-  "should draw the audio visualizer when layer is %s and frequencyData exists",
-  (audioVisualizerLayer) => {
+test.each(["before", "after"] as const)(
+  "should draw the background bitmap set %s the config",
+  (when) => {
     const controller = new RendererController(ctx);
-    const config = { ...getDefaultRendererConfig(), audioVisualizerLayer };
+    const config = getDefaultRendererConfig();
+    const bitmap = {} as ImageBitmap;
+
+    if (when === "before") controller.setBackgroundImageBitmap(bitmap);
     controller.setRendererConfig(config);
+    if (when === "after") controller.setBackgroundImageBitmap(bitmap);
+    controller.render([], 0);
 
-    const frequencyData = createMockFrequencyData();
-    controller.render([], 0, frequencyData);
-
-    expect(mockDrawAudioVisualizer).toHaveBeenCalledExactlyOnceWith(
+    expect(mockDrawFrame).toHaveBeenCalledExactlyOnceWith(
       ctx,
-      frequencyData,
-      config.audioVisualizerConfig,
-      config.resolution,
+      expect.objectContaining({ config, backgroundImageBitmap: bitmap }),
     );
   },
 );
 
-test.each([null, undefined])(
-  "should not draw the audio visualizer when frequencyData is %s",
-  (frequencyData) => {
-    const controller = new RendererController(ctx);
-    const config = {
-      ...getDefaultRendererConfig(),
-      audioVisualizerLayer: "front" as const,
-    };
-    controller.setRendererConfig(config);
-    controller.render([], 0, frequencyData);
-
-    expect(mockDrawAudioVisualizer).not.toHaveBeenCalled();
-  },
-);
-
-test("should draw the audio visualizer with the latest config", () => {
-  const controller = new RendererController(ctx);
-  const config1 = getDefaultRendererConfig();
-  const config2 = {
+test("should scale the canvas to the configured resolution around the frame", () => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 400;
+  canvas.height = 300;
+  const scaledCtx = canvas.getContext("2d")!;
+  const controller = new RendererController(scaledCtx);
+  controller.setRendererConfig({
     ...getDefaultRendererConfig(),
-    audioVisualizerConfig: {
-      ...getDefaultRendererConfig().audioVisualizerConfig,
-      style: "bars" as const,
-    },
-  };
+    resolution: { width: 800, height: 600, label: "800×600" },
+  });
+  controller.render([], 0);
 
-  controller.setRendererConfig(config1);
-  controller.setRendererConfig(config2);
-  const frequencyData = createMockFrequencyData();
-  controller.render([], 0, frequencyData);
-
-  expect(mockDrawAudioVisualizer).toHaveBeenCalledExactlyOnceWith(
-    ctx,
-    frequencyData,
-    config2.audioVisualizerConfig,
-    config2.resolution,
-  );
+  expect(scaledCtx.setTransform).toHaveBeenCalledWith(0.5, 0, 0, 0.5, 0, 0);
+  expect(scaledCtx.save).toHaveBeenCalledOnce();
+  expect(scaledCtx.restore).toHaveBeenCalledOnce();
 });
-
-test.each([
-  { audioVisualizerLayer: "back" as const, order: ["background", "audioVisualizer", "midi"] },
-  { audioVisualizerLayer: "front" as const, order: ["background", "midi", "audioVisualizer"] },
-])(
-  "should render in order $order when layer is $audioVisualizerLayer",
-  ({ audioVisualizerLayer, order }) => {
-    const callOrder: string[] = [];
-
-    mockDrawBackground.mockImplementation(() => {
-      callOrder.push("background");
-    });
-    mockDrawAudioVisualizer.mockImplementation(() => {
-      callOrder.push("audioVisualizer");
-    });
-    mockRender.mockImplementation(() => {
-      callOrder.push("midi");
-    });
-
-    const controller = new RendererController(ctx);
-    controller.setRendererConfig({ ...getDefaultRendererConfig(), audioVisualizerLayer });
-    controller.render([], 0, createMockFrequencyData());
-
-    expect(callOrder).toEqual(order);
-  },
-);

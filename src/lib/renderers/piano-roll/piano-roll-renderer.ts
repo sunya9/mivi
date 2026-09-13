@@ -7,6 +7,7 @@ import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/sh
 import { computePressOffset } from "@/lib/renderers/shared/note-press";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
 import { drawRoughRect } from "@/lib/renderers/shared/rough-rect";
+import { isMidiInViewRange } from "@/lib/renderers/shared/view-range";
 
 // Keeps a note "touched" for a few pixels past its right edge so short notes still register
 const PLAYHEAD_TOUCH_SLACK_PX = 20;
@@ -27,9 +28,6 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
     const cfg = config.pianoRollConfig;
     pendingRipples.length = 0;
     const { width, height } = config.resolution;
-
-    const isNoteInViewRange = (midi: number) =>
-      midi <= cfg.viewRangeTop && midi >= cfg.viewRangeBottom;
 
     const baseNoteHeight = Math.max(height / 127, cfg.noteHeight);
     const viewRangeSize = cfg.viewRangeTop - cfg.viewRangeBottom;
@@ -79,7 +77,7 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
         if (noteStart > rightEdgeTime + scaledOverflow) break;
 
         if (noteEnd < cullBefore) continue;
-        if (!isNoteInViewRange(note.midi)) continue;
+        if (!isMidiInViewRange(note.midi, cfg)) continue;
 
         const x = timeToX(noteStart, track.config.scale) + cfg.noteMargin;
         const rawNoteWidth = timeToX(noteEnd, track.config.scale) - x + cfg.noteMargin;
