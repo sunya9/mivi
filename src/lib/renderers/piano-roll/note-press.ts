@@ -1,4 +1,5 @@
-// Pure function of time so scrubbing or reverse playback lands on the same frame as forward playback
+// Pure function of time so scrubbing or reverse playback lands on the same frame as forward playback.
+// The release ramp is anchored to pressEnd so the note is back at rest the moment the playhead leaves it.
 export function computePressOffset(
   pressStart: number,
   pressEnd: number,
@@ -6,13 +7,10 @@ export function computePressOffset(
   depth: number,
   currentTime: number,
 ): number {
-  if (currentTime < pressStart) return 0;
+  if (currentTime < pressStart || currentTime >= pressEnd) return 0;
 
   const ramp = (elapsed: number) =>
     animationDuration > 0 ? Math.min(1, elapsed / animationDuration) : 1;
 
-  if (currentTime < pressEnd) return depth * ramp(currentTime - pressStart);
-
-  const depthAtRelease = depth * ramp(pressEnd - pressStart);
-  return depthAtRelease * (1 - ramp(currentTime - pressEnd));
+  return depth * Math.min(ramp(currentTime - pressStart), ramp(pressEnd - currentTime));
 }
