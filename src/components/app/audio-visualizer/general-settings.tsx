@@ -1,10 +1,10 @@
+import { audioVisualizerPositionOptions } from "@/components/app/renderer-options";
 import { FormRow } from "@/components/common/form-row";
 import { SelectRow } from "@/components/common/select-row";
 import { SliderRow } from "@/components/common/slider-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { audioVisualizerPositionOptions } from "@/lib/renderers/renderer-config";
 
 import { AudioVisualizerSectionProps } from "./types";
 

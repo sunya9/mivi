@@ -1,12 +1,9 @@
 import { useCallback } from "react";
 
+import { audioVisualizerStyleOptions } from "@/components/app/renderer-options";
 import { SelectRow } from "@/components/common/select-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
-import {
-  AudioVisualizerConfig,
-  RendererConfig,
-  audioVisualizerStyleOptions,
-} from "@/lib/renderers/renderer-config";
+import { AudioVisualizerConfig, RendererConfig } from "@/lib/renderers/renderer-config";
 import { DeepPartial } from "@/lib/type-utils";
 
 import { AnalyzerSettings } from "./audio-visualizer/analyzer-settings";

@@ -1,3 +1,4 @@
+import { gradientDirectionOptions } from "@/components/app/renderer-options";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
 import { SelectRow } from "@/components/common/select-row";
@@ -5,7 +6,6 @@ import { SliderRow } from "@/components/common/slider-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { gradientDirectionOptions } from "@/lib/renderers/renderer-config";
 
 import { AudioVisualizerSectionProps } from "./types";
 

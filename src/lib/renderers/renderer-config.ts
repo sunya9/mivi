@@ -87,11 +87,11 @@ export interface CometConfig {
 }
 export type RendererType = "none" | "pianoRoll" | "verticalPianoRoll" | "comet";
 
-// Audio Visualizer Types
 type AudioVisualizerFFTSize = 512 | 1024 | 2048 | 4096;
-type AudioVisualizerPosition = "bottom" | "top" | "center";
-type AudioVisualizerBarStyle = "rounded" | "sharp";
+export type AudioVisualizerPosition = "bottom" | "top" | "center";
+export type AudioVisualizerBarStyle = "rounded" | "sharp";
 export type AudioVisualizerStyle = "none" | "bars" | "lineSpectrum" | "circular";
+export type AudioVisualizerLayer = "front" | "back";
 export type GradientDirection =
   | "to-right"
   | "to-bottom-right"
@@ -101,54 +101,6 @@ export type GradientDirection =
   | "to-top-left"
   | "to-top"
   | "to-top-right";
-
-export const audioVisualizerStyleOptions = [
-  { value: "none", label: "None" },
-  { value: "bars", label: "Bars" },
-  { value: "lineSpectrum", label: "Line Spectrum" },
-  { value: "circular", label: "Circular" },
-] as const satisfies readonly { value: AudioVisualizerStyle; label: string }[];
-
-export const audioVisualizerPositionOptions = [
-  { value: "top", label: "Top" },
-  { value: "center", label: "Center" },
-  { value: "bottom", label: "Bottom" },
-] as const satisfies readonly {
-  value: AudioVisualizerPosition;
-  label: string;
-}[];
-
-export const audioVisualizerBarStyleOptions = [
-  { value: "rounded", label: "Rounded" },
-  { value: "sharp", label: "Sharp" },
-] as const satisfies readonly {
-  value: AudioVisualizerBarStyle;
-  label: string;
-}[];
-
-export const gradientDirectionOptions = [
-  { value: "to-right", label: "→ Right" },
-  { value: "to-bottom-right", label: "↘ Bottom Right" },
-  { value: "to-bottom", label: "↓ Bottom" },
-  { value: "to-bottom-left", label: "↙ Bottom Left" },
-  { value: "to-left", label: "← Left" },
-  { value: "to-top-left", label: "↖ Top Left" },
-  { value: "to-top", label: "↑ Top" },
-  { value: "to-top-right", label: "↗ Top Right" },
-] as const satisfies readonly { value: GradientDirection; label: string }[];
-
-export const audioVisualizerLayerOptions = [
-  { value: "front", label: "Front (over MIDI)" },
-  { value: "back", label: "Back (under MIDI)" },
-] as const satisfies readonly { value: AudioVisualizerLayer; label: string }[];
-
-export const noteFlashModeOptions = [
-  { value: "on", label: "On" },
-  { value: "duration", label: "Duration" },
-] as const satisfies readonly {
-  value: PianoRollConfig["noteFlashMode"];
-  label: string;
-}[];
 
 interface LineSpectrumConfig {
   lineWidth: number;
@@ -185,49 +137,20 @@ export interface AudioVisualizerConfig {
   lineSpectrumConfig: LineSpectrumConfig;
 }
 
-type AudioVisualizerLayer = "front" | "back";
-
-export const fpsOptions = [
-  { value: 24, label: "24 fps" },
-  { value: 30, label: "30 fps" },
-  { value: 60, label: "60 fps" },
-] as const;
-
-export const formatOptions = [
-  { value: "webm", label: "WebM (VP9)" },
-  { value: "mp4", label: "MP4 (H.264)" },
-] as const;
-
-export type FPS = (typeof fpsOptions)[number]["value"];
-export type VideoFormat = (typeof formatOptions)[number]["value"];
-
-export const backgroundImageFitOptions = [
-  { value: "auto", label: "Auto" },
-  { value: "cover", label: "Cover" },
-  { value: "contain", label: "Contain" },
-] as const;
-export type BackgroundImageFit = (typeof backgroundImageFitOptions)[number]["value"];
-
-export const backgroundImagePositions = [
-  { value: "top-left", label: "Top Left" },
-  { value: "top", label: "Top" },
-  { value: "top-right", label: "Top Right" },
-  { value: "left", label: "Left" },
-  { value: "center", label: "Center" },
-  { value: "right", label: "Right" },
-  { value: "bottom-left", label: "Bottom Left" },
-  { value: "bottom", label: "Bottom" },
-  { value: "bottom-right", label: "Bottom Right" },
-] as const;
-export type BackgroundImagePosition = (typeof backgroundImagePositions)[number]["value"];
-
-export const backgroundImageRepeats = [
-  { value: "repeat", label: "Repeat" },
-  { value: "no-repeat", label: "No Repeat" },
-  { value: "repeat-x", label: "Repeat X" },
-  { value: "repeat-y", label: "Repeat Y" },
-] as const;
-export type BackgroundImageRepeat = (typeof backgroundImageRepeats)[number]["value"];
+export type FPS = 24 | 30 | 60;
+export type VideoFormat = "webm" | "mp4";
+export type BackgroundImageFit = "auto" | "cover" | "contain";
+export type BackgroundImagePosition =
+  | "top-left"
+  | "top"
+  | "top-right"
+  | "left"
+  | "center"
+  | "right"
+  | "bottom-left"
+  | "bottom"
+  | "bottom-right";
+export type BackgroundImageRepeat = "repeat" | "no-repeat" | "repeat-x" | "repeat-y";
 
 export interface RendererConfig {
   type: RendererType;

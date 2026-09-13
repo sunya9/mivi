@@ -2,7 +2,7 @@ import { act } from "@testing-library/react";
 import { customRenderHook } from "tests/util";
 import { test, expect, vi } from "vitest";
 
-import { useRendererConfig, useUpdateRendererConfig } from "@/lib/renderers/use-renderer-config";
+import { useRendererConfig, useUpdateRendererConfig } from "@/hooks/use-renderer-config";
 import { shallowEqual } from "@/lib/store/observable-store";
 
 test("updates config with partial changes", async () => {
