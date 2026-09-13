@@ -45,6 +45,8 @@ function generatePattern(
 }
 
 // The two patterns are expensive to build, so they are cached until the noise settings change
+export type NoiseTexture = ReturnType<typeof createNoiseTexture>;
+
 export function createNoiseTexture(ctx: RendererContext) {
   let light: CanvasPattern | null = null;
   let dark: CanvasPattern | null = null;

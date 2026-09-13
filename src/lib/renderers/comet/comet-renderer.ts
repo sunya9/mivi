@@ -2,6 +2,7 @@ import { MidiNote, MidiTrack } from "@/lib/midi/midi";
 import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { CometConfig } from "@/lib/renderers/renderer-config";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
+import { noteSeed } from "@/lib/renderers/shared/note-body";
 import { isMidiInViewRange } from "@/lib/renderers/shared/view-range";
 
 interface Comet {
@@ -11,6 +12,7 @@ interface Comet {
   maxDistance: number;
   color: string;
   radius: number;
+  opacity: number;
 }
 
 interface Point {
@@ -44,7 +46,7 @@ function computeComet(
   const baseStartY = height * (cfg.startPositionY / 100);
 
   // Spread parallel trajectories apart along the perpendicular of the fall direction
-  const noteHash = (note.time * 1000 + note.midi) % 100;
+  const noteHash = noteSeed(note) % 100;
   const spacingSign = cfg.reverseStacking ? -1 : 1;
   const spacingDistance = spacingSign * noteHash * cfg.spacingMargin * 0.1;
   const pseudoRandom = ((note.time * 12345 + note.midi * 67890) % 1000) / 1000 - 0.5;
@@ -60,7 +62,8 @@ function computeComet(
     angleRad,
     maxDistance: screenDiagonal * (cfg.fallDistancePercent / 100),
     color: track.config.color,
-    radius: cfg.cometSize * (note.velocity / 127) * track.config.scale,
+    radius: cfg.cometSize * note.velocity * track.config.scale,
+    opacity: track.config.opacity,
   };
 }
 
@@ -123,12 +126,7 @@ function drawHead(ctx: RendererContext, comet: Comet, at: Point, alpha: number):
 
   const glowRadius = comet.radius * 2;
   const glow = ctx.createRadialGradient(at.x, at.y, 0, at.x, at.y, glowRadius);
-  glow.addColorStop(
-    0,
-    `${comet.color}${Math.floor(alpha * 128)
-      .toString(16)
-      .padStart(2, "0")}`,
-  );
+  glow.addColorStop(0, `${comet.color}${alphaHex(alpha / 2)}`);
   glow.addColorStop(1, `${comet.color}00`);
   ctx.fillStyle = glow;
   ctx.beginPath();
@@ -142,7 +140,9 @@ export const createCometRenderer: RendererFactory = (ctx) => (tracks, currentTim
   const cfg = config.cometConfig;
   const lifetime = cfg.fallDuration + cfg.fadeOutDuration;
 
-  for (const track of tracks) {
+  // Reverse iteration so first track in list appears on top (drawn last)
+  for (let ti = tracks.length - 1; ti >= 0; ti--) {
+    const track = tracks[ti];
     if (!track.config.visible) continue;
 
     const startIdx = findFirstNoteIndexFrom(track.notes, currentTime - lifetime);
@@ -154,10 +154,10 @@ export const createCometRenderer: RendererFactory = (ctx) => (tracks, currentTim
       const elapsed = currentTime - note.time;
       const fadeProgress = (elapsed - cfg.fallDuration) / cfg.fadeOutDuration;
       if (fadeProgress >= 1) continue;
-      const alpha = fadeProgress > 0 ? 1 - fadeProgress : 1;
+      const comet = computeComet(note, track, cfg, width, height);
+      const alpha = (fadeProgress > 0 ? 1 - fadeProgress : 1) * comet.opacity;
       const progress = Math.min(1, elapsed / cfg.fallDuration);
 
-      const comet = computeComet(note, track, cfg, width, height);
       drawTrail(ctx, cfg, comet, elapsed, alpha);
       drawHead(ctx, comet, positionAt(comet, progress), alpha);
     }
