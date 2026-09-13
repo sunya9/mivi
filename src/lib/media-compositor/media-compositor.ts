@@ -3,6 +3,7 @@ import { Muxer } from "@/lib/muxer/muxer";
 import { createRenderer } from "@/lib/renderers/create-renderer";
 import { drawFrame } from "@/lib/renderers/draw-frame";
 
+import { EncodeQueue } from "./encode-queue";
 import { ExportProgressTracker, type ActivePhase } from "./export-progress-tracker";
 import { RecorderResources } from "./recorder-resources";
 
@@ -12,8 +13,8 @@ const maxEncodeQueueSize = 6;
 type ExportPhase = "FFT" | "Audio Render" | "Audio Encode" | "Video Render" | "Video Encode";
 
 export class MediaCompositor {
-  readonly #videoEncoder: VideoEncoder;
-  readonly #audioEncoder: AudioEncoder;
+  readonly #videoQueue: EncodeQueue<Parameters<VideoEncoder["encode"]>>;
+  readonly #audioQueue: EncodeQueue<Parameters<AudioEncoder["encode"]>>;
   readonly #canvas: OffscreenCanvas;
   readonly #resources: RecorderResources;
   readonly #muxer: Muxer;
@@ -34,30 +35,30 @@ export class MediaCompositor {
     this.#progress.addPhase({
       name: "Audio Encode",
       total: this.#totalAudioFrames,
-      getCompleted: () => this.#audioEncodeCount - this.#audioEncoder.encodeQueueSize,
+      getCompleted: () => this.#audioQueue.completed,
     });
     this.#progress.addPhase({ name: "Video Render", total: this.#totalVideoFrames });
     this.#progress.addPhase({
       name: "Video Encode",
       total: this.#totalVideoFrames,
-      getCompleted: () => this.#videoEncodeCount - this.#videoEncoder.encodeQueueSize,
+      getCompleted: () => this.#videoQueue.completed,
     });
 
     const onError = (error: unknown) => this.#abort.abort(error);
 
-    this.#audioEncoder = new AudioEncoder({
+    const audioEncoder = new AudioEncoder({
       output: (chunk, metadata) => void muxer.addAudioChunk(chunk, metadata).catch(onError),
       error: onError,
     });
-    this.#audioEncoder.configure({
+    audioEncoder.configure({
       codec: muxer.config.audioCodec,
       sampleRate: this.#serializedAudio.sampleRate,
       numberOfChannels: this.#serializedAudio.numberOfChannels,
       bitrate: 192_000,
     });
-    this.#audioEncoder.addEventListener("dequeue", this.#onDequeue);
+    this.#audioQueue = new EncodeQueue(audioEncoder, this.#onDequeue);
 
-    this.#videoEncoder = new VideoEncoder({
+    const videoEncoder = new VideoEncoder({
       output: (chunk, metadata) => void muxer.addVideoChunk(chunk, metadata).catch(onError),
       error: onError,
     });
@@ -65,19 +66,15 @@ export class MediaCompositor {
       this.#rendererConfig.resolution.width,
       this.#rendererConfig.resolution.height,
     );
-    this.#videoEncoder.configure({
+    videoEncoder.configure({
       codec: muxer.config.videoCodec(this.#rendererConfig.resolution, this.#fps),
       width: this.#canvas.width,
       height: this.#canvas.height,
       bitrate: 10_000_000,
       framerate: this.#fps,
     });
-    this.#videoEncoder.addEventListener("dequeue", this.#onDequeue);
+    this.#videoQueue = new EncodeQueue(videoEncoder, this.#onDequeue);
   }
-
-  // Encode counters (tracks calls to encode(), not completions)
-  #audioEncodeCount = 0;
-  #videoEncodeCount = 0;
 
   #onDequeue = () => this.#progress.notify();
 
@@ -105,7 +102,7 @@ export class MediaCompositor {
     this.#renderAudio();
     await this.#renderVideo();
 
-    await Promise.all([this.#videoEncoder.flush(), this.#audioEncoder.flush()]);
+    await Promise.all([this.#videoQueue.flush(), this.#audioQueue.flush()]);
     await this.#muxer.finalize();
   }
 
@@ -134,10 +131,8 @@ export class MediaCompositor {
       });
 
       this.#progress.increment("Audio Render");
-      this.#audioEncoder.encode(audioData);
+      this.#audioQueue.encode(audioData);
       audioData.close();
-      this.#audioEncodeCount++;
-      this.#progress.increment("Audio Encode");
     }
   }
 
@@ -171,36 +166,17 @@ export class MediaCompositor {
         timestamp: currentTime * 1_000_000,
         duration: (1 / this.#fps) * 1_000_000,
       });
-      this.#videoEncoder.encode(frame, { keyFrame: i % 60 === 0 });
+      this.#videoQueue.encode(frame, { keyFrame: i % 60 === 0 });
       frame.close();
-      this.#videoEncodeCount++;
-      this.#progress.increment("Video Encode");
 
       // --- Backpressure control logic ---
       // If the encoder's queue size exceeds the threshold,
       // pause the loop (yield) until the GPU processes some frames and emits a 'dequeue' event.
-      if (this.#videoEncoder.encodeQueueSize > maxEncodeQueueSize) {
+      if (this.#videoQueue.pending > maxEncodeQueueSize) {
         // oxlint-disable-next-line no-await-in-loop -- backpressure requires sequential await
-        await this.#nextDequeue();
+        await this.#videoQueue.nextDequeue(this.#abort.signal);
       }
     }
-  }
-
-  #nextDequeue(): Promise<void> {
-    const { signal } = this.#abort;
-    return new Promise<void>((resolve, reject) => {
-      signal.throwIfAborted();
-      const onAbort = () => reject(signal.reason as Error);
-      signal.addEventListener("abort", onAbort, { once: true });
-      this.#videoEncoder.addEventListener(
-        "dequeue",
-        () => {
-          signal.removeEventListener("abort", onAbort);
-          resolve();
-        },
-        { once: true, signal },
-      );
-    });
   }
 
   #precomputeFFT() {
@@ -219,9 +195,7 @@ export class MediaCompositor {
   }
 
   [Symbol.dispose](): void {
-    this.#videoEncoder.removeEventListener("dequeue", this.#onDequeue);
-    this.#audioEncoder.removeEventListener("dequeue", this.#onDequeue);
-    if (this.#audioEncoder.state !== "closed") this.#audioEncoder.close();
-    if (this.#videoEncoder.state !== "closed") this.#videoEncoder.close();
+    this.#audioQueue.close();
+    this.#videoQueue.close();
   }
 }
