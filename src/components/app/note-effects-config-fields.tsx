@@ -7,11 +7,11 @@ import { SliderRow } from "@/components/common/slider-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { NoteEffectsConfigValues, noteFlashModeOptions } from "@/lib/renderers/renderer-config";
+import { NoteEffectsConfig, noteFlashModeOptions } from "@/lib/renderers/renderer-config";
 
 interface Props {
-  config: NoteEffectsConfigValues;
-  onChange: (partial: Partial<NoteEffectsConfigValues>) => void;
+  config: NoteEffectsConfig;
+  onChange: (partial: Partial<NoteEffectsConfig>) => void;
   afterRipple?: ReactNode;
 }
 

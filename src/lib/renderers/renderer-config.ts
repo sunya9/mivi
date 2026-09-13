@@ -1,7 +1,7 @@
 import { DEFAULT_SPECTRUM_ENVELOPE } from "@/lib/audio/spectrum-envelope";
 import { Resolution, resolutions } from "@/lib/renderers/resolution";
 
-export interface NoteEffectsConfigValues {
+export interface NoteEffectsConfig {
   showRippleEffect: boolean;
   rippleDuration: number;
   rippleRadius: number;
@@ -21,7 +21,7 @@ export interface NoteEffectsConfigValues {
   noiseColorVariance: number;
 }
 
-export interface PianoRollConfig extends NoteEffectsConfigValues {
+export interface PianoRollConfig extends NoteEffectsConfig {
   noteMargin: number;
   noteVerticalMargin: number;
   gridColor: string;
@@ -40,7 +40,7 @@ export interface PianoRollConfig extends NoteEffectsConfigValues {
   pressAnimationDuration: number;
 }
 
-export interface VerticalPianoRollConfig extends NoteEffectsConfigValues {
+export interface VerticalPianoRollConfig extends NoteEffectsConfig {
   timeWindow: number;
   viewRangeTop: number;
   viewRangeBottom: number;
@@ -250,7 +250,7 @@ export interface RendererConfig {
   audioVisualizerLayer: AudioVisualizerLayer;
 }
 
-const getDefaultNoteEffectsConfig = (): NoteEffectsConfigValues => ({
+const getDefaultNoteEffectsConfig = (): NoteEffectsConfig => ({
   showRippleEffect: true,
   rippleDuration: 0.5,
   rippleRadius: 50,

@@ -1,11 +1,12 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import { MidiTrack } from "@/lib/midi/midi";
-import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visualizer";
-import { drawBackground } from "@/lib/renderers/background";
 import { createRenderer } from "@/lib/renderers/create-renderer";
+import { drawFrame } from "@/lib/renderers/draw-frame";
 import { Renderer, type RendererContext } from "@/lib/renderers/renderer";
 import { RendererConfig, RendererType } from "@/lib/renderers/renderer-config";
 
+// Holds what the preview needs between frames: the latest config, the bitmap and a renderer
+// that survives config edits so its per-instance caches are kept
 export class RendererController {
   readonly #context: RendererContext;
   #renderer?: Renderer;
@@ -32,10 +33,10 @@ export class RendererController {
 
   render(tracks: MidiTrack[], currentTime: number, frequencyData?: FrequencyData | null) {
     const config = this.#rendererConfig;
-    if (!config) return;
-    const { resolution, audioVisualizerConfig } = config;
+    const renderer = this.#renderer;
+    if (!config || !renderer) return;
     const ctx = this.#context;
-    const layer = config.audioVisualizerLayer ?? "front";
+    const { resolution } = config;
 
     ctx.save();
     ctx.setTransform(
@@ -46,19 +47,14 @@ export class RendererController {
       0,
       0,
     );
-
-    drawBackground(ctx, config, this.#backgroundImageBitmap);
-
-    if (layer === "back" && frequencyData) {
-      drawAudioVisualizer(ctx, frequencyData, audioVisualizerConfig, resolution);
-    }
-
-    this.#renderer?.(tracks, currentTime, config);
-
-    if (layer === "front" && frequencyData) {
-      drawAudioVisualizer(ctx, frequencyData, audioVisualizerConfig, resolution);
-    }
-
+    drawFrame(ctx, {
+      config,
+      renderer,
+      tracks,
+      currentTime,
+      frequencyData,
+      backgroundImageBitmap: this.#backgroundImageBitmap,
+    });
     ctx.restore();
   }
 }
