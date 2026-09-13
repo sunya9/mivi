@@ -27,14 +27,15 @@ import { Switch } from "@/components/ui/switch";
 import { useRendererConfig, useUpdateRendererConfig } from "@/hooks/use-renderer-config";
 import { useAudio } from "@/lib/audio/use-audio";
 import { useBackgroundImage } from "@/lib/background-image/use-background-image";
-import { FPS, RendererConfig } from "@/lib/renderers/renderer-config";
 import {
   createCustomResolution,
   CUSTOM_RESOLUTION_LABEL,
   isCustomResolution,
   resolutionGroups,
   resolutions,
-} from "@/lib/renderers/resolution";
+} from "@/lib/muxer/resolution";
+import type { FPS } from "@/lib/muxer/video-format";
+import { RendererConfig } from "@/lib/renderers/renderer-config";
 import { shallowEqual } from "@/lib/store/observable-store";
 
 const resolutionItems = [...resolutions, { label: CUSTOM_RESOLUTION_LABEL }].map(({ label }) => ({

@@ -15,8 +15,8 @@ import {
 } from "mediabunny";
 
 import { getH264CodecString } from "@/lib/muxer/h264-level";
-import { VideoFormat } from "@/lib/renderers/renderer-config";
-import { Resolution } from "@/lib/renderers/resolution";
+import { Resolution } from "@/lib/muxer/resolution";
+import type { VideoFormat } from "@/lib/muxer/video-format";
 
 interface Config {
   outputFormat: OutputFormat;

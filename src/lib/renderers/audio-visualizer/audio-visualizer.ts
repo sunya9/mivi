@@ -1,7 +1,7 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
+import type { Resolution } from "@/lib/muxer/resolution";
 import type { RendererContext } from "@/lib/renderers/renderer";
-import type { AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
-import type { Resolution } from "@/lib/renderers/resolution";
+import { type AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
 
 import { drawBarSpectrum } from "./bar-spectrum";
 import { drawCircular } from "./circular";

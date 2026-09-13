@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 
 import { MidiNote } from "@/lib/midi/midi";
-import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
+import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-index";
 
 function makeNote(id: number, time: number): MidiNote {
   return {

@@ -4,7 +4,7 @@ import {
   MIN_PRESS_DURATION,
   isKeyPressed,
   resolveNoteBaseColor,
-} from "@/lib/renderers/vertical-piano-roll/note-effects";
+} from "@/lib/renderers/vertical-piano-roll/piano-key";
 
 test("key is pressed while the note sounds", () => {
   expect(isKeyPressed(1, 1.5, 1.2)).toBe(true);

@@ -18,7 +18,7 @@ export interface Frame {
 export function drawFrame(ctx: RendererContext, frame: Frame): void {
   const { config, renderer, tracks, currentTime, frequencyData, backgroundImageBitmap } = frame;
   const { audioVisualizerConfig, resolution } = config;
-  const layer = config.audioVisualizerLayer ?? "front";
+  const layer = config.audioVisualizerLayer;
 
   drawBackground(ctx, config, backgroundImageBitmap);
 

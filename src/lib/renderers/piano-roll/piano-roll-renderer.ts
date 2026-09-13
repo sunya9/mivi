@@ -1,16 +1,17 @@
+import { computePressOffset } from "@/lib/renderers/piano-roll/note-press";
 import { RendererFactory } from "@/lib/renderers/renderer";
-import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
+import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-index";
 import { maxNoteDuration } from "@/lib/renderers/shared/max-note-duration";
 import { createNoiseTexture } from "@/lib/renderers/shared/noise-texture";
 import { drawNoteBody, noteSeed } from "@/lib/renderers/shared/note-body";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
-import { computePressOffset } from "@/lib/renderers/shared/note-press";
 import { PendingRipple, drawPendingRipples } from "@/lib/renderers/shared/ripple";
 import { isMidiInViewRange } from "@/lib/renderers/shared/view-range";
 
 // Keeps a note "touched" for a few pixels past its right edge so short notes still register
 const PLAYHEAD_TOUCH_SLACK_PX = 20;
 
+// Notes are still visited this far past both screen edges so effects anchored to them can finish
 const OVERFLOW_FACTOR = 0.5;
 
 export const createPianoRollRenderer: RendererFactory = (ctx) => {
@@ -33,7 +34,7 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
     const startTime = currentTime - cfg.timeWindow * playheadPosition;
     const endTime = startTime + cfg.timeWindow;
 
-    const timeToX = (time: number, scale: number = 1) => {
+    const timeToX = (time: number, scale: number) => {
       const timeFromPlayhead = time - currentTime;
       const scaledTimeFromPlayhead = timeFromPlayhead * scale;
       const adjustedTime = currentTime + scaledTimeFromPlayhead;
@@ -73,7 +74,8 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
         if (!isMidiInViewRange(note.midi, cfg)) continue;
 
         const x = timeToX(noteStart, track.config.scale) + cfg.noteMargin;
-        const rawNoteWidth = timeToX(noteEnd, track.config.scale) - x + cfg.noteMargin;
+        const rawNoteWidth =
+          timeToX(noteEnd, track.config.scale) - timeToX(noteStart, track.config.scale);
         const verticalMargin = cfg.noteVerticalMargin;
         const noteHeight = Math.max(0, baseNoteHeight - verticalMargin * 2) * track.config.scale;
         const noteWidth = track.config.staccato

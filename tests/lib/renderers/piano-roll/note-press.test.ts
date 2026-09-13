@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 
-import { computePressOffset } from "@/lib/renderers/shared/note-press";
+import { computePressOffset } from "@/lib/renderers/piano-roll/note-press";
 
 const depth = 4;
 const duration = 0.1;

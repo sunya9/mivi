@@ -1,14 +1,13 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
+import type { Resolution } from "@/lib/muxer/resolution";
 import type { RendererContext } from "@/lib/renderers/renderer";
-import type { AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
-import type { Resolution } from "@/lib/renderers/resolution";
+import { type AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
-import { createSpectrumFillStyle, resolveBaseY } from "./gradient-utils";
+import { createSpectrumFillStyle, resolveBaseY } from "./spectrum-style";
 
 type CornerRadii = [number, number, number, number];
 
-// radii: [topLeft, topRight, bottomRight, bottomLeft]
 function drawRoundedRect(
   ctx: RendererContext,
   x: number,
@@ -109,10 +108,8 @@ export function drawBarSpectrum(
     maxFrequency,
   } = config;
 
-  // Calculate visualizer area
   const visualizerHeight = (canvasHeight * heightPercent) / 100;
 
-  // Calculate bar dimensions to fill the width
   const paddingWidth = (canvasWidth * barPadding) / 100;
   const availableWidth = canvasWidth - paddingWidth * 2;
   const totalGapWidth = (availableWidth * barGap) / 100;
@@ -129,10 +126,8 @@ export function drawBarSpectrum(
 
   const binsPerBar = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);
 
-  // Draw bars
   for (let i = 0; i < barCount; i++) {
     const amplitude = binsPerBar[i];
-    // Normalize amplitude (0-255) to height
     const barHeight = Math.max(barMinHeight, (amplitude / 255) * visualizerHeight);
 
     const x = startX + i * (barWidth + gapWidth);

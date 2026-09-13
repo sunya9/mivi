@@ -8,7 +8,7 @@ import { CommonConfigPane } from "@/components/app/common-config-pane";
 import { createAppContext } from "@/contexts/app-context";
 import { fileDecoders } from "@/contexts/file-decoders";
 import type { SerializedAudio } from "@/lib/audio/audio";
-import { resolutions } from "@/lib/renderers/resolution";
+import { resolutions } from "@/lib/muxer/resolution";
 
 const backgroundImageFile = new File(["test"], "test.png", { type: "image/png" });
 

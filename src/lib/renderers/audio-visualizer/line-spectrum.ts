@@ -1,10 +1,10 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
+import type { Resolution } from "@/lib/muxer/resolution";
 import type { RendererContext } from "@/lib/renderers/renderer";
-import type { AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
-import type { Resolution } from "@/lib/renderers/resolution";
+import { type AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
-import { createSpectrumFillStyle, resolveBaseY } from "./gradient-utils";
+import { createSpectrumFillStyle, resolveBaseY } from "./spectrum-style";
 
 interface Point {
   x: number;
@@ -86,12 +86,10 @@ function drawFilledPath(
 
   ctx.beginPath();
 
-  // Start from baseline at first point
   ctx.moveTo(points[0].x, baseY);
   ctx.lineTo(points[0].x, points[0].y);
   traceCurve(ctx, points, tension);
 
-  // Close the path back to baseline
   ctx.lineTo(points[points.length - 1].x, baseY);
   ctx.closePath();
   ctx.fill();
@@ -115,11 +113,9 @@ function drawSpectrumShape(ctx: RendererContext, baseOpacity: number, shape: Spe
     // Use composite operation to clip fill to stroke area
     ctx.save();
 
-    // Draw stroke first to create the "mask"
     ctx.globalAlpha = baseOpacity * strokeOpacity;
     drawLinePath(ctx, points, tension);
 
-    // Draw fill only where stroke exists
     ctx.globalCompositeOperation = "source-atop";
     ctx.globalAlpha = baseOpacity * fillOpacity;
     ctx.fillStyle = fillStyle;
@@ -127,7 +123,6 @@ function drawSpectrumShape(ctx: RendererContext, baseOpacity: number, shape: Spe
 
     ctx.restore();
 
-    // Draw stroke again on top for clean edges
     ctx.globalAlpha = baseOpacity * strokeOpacity;
     drawLinePath(ctx, points, tension);
   } else if (fill) {
@@ -201,24 +196,19 @@ export function drawLineSpectrum(
   if (mirror) {
     ctx.save();
 
-    // Calculate mirror points - reflection sticks to opposite edge
     const mirrorPoints = points.map((p) => {
       const barHeight = Math.abs(baseY - p.y);
       let mirrorY: number;
       if (position === "center") {
-        // Reflect across baseline
         mirrorY = baseY + barHeight;
       } else if (position === "bottom") {
-        // Stick to top of canvas, pointing downward
         mirrorY = barHeight;
       } else {
-        // Top: stick to bottom of canvas, pointing upward
         mirrorY = canvasHeight - barHeight;
       }
       return { x: p.x, y: mirrorY };
     });
 
-    // Calculate mirror baseline for fill
     const mirrorBaseY = position === "bottom" ? 0 : position === "top" ? canvasHeight : baseY;
 
     drawSpectrumShape(ctx, barOpacity * mirrorOpacity, {

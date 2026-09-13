@@ -1,13 +1,12 @@
 import { expect, test, vi } from "vitest";
 
 import { drawBackground } from "@/lib/renderers/background";
-import {
-  getDefaultRendererConfig,
-  RendererConfig,
+import type {
   BackgroundImageFit,
   BackgroundImagePosition,
   BackgroundImageRepeat,
-} from "@/lib/renderers/renderer-config";
+} from "@/lib/renderers/background";
+import { getDefaultRendererConfig, RendererConfig } from "@/lib/renderers/renderer-config";
 
 function prepareImage(width: number, height: number) {
   return window.createImageBitmap(new OffscreenCanvas(width, height));

@@ -1,7 +1,7 @@
 import { MidiNote, MidiTrack } from "@/lib/midi/midi";
 import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { CometConfig } from "@/lib/renderers/renderer-config";
-import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
+import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-index";
 import { noteSeed } from "@/lib/renderers/shared/note-body";
 import { isMidiInViewRange } from "@/lib/renderers/shared/view-range";
 

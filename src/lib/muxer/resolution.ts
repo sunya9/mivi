@@ -11,12 +11,18 @@ export type ResolutionGroup = {
   resolutions: Resolution[];
 };
 
+export const DEFAULT_RESOLUTION: Resolution = {
+  width: 1280,
+  height: 720,
+  label: "1280×720 (16:9)",
+};
+
 export const resolutionGroups: ResolutionGroup[] = [
   {
     label: "Landscape",
     resolutions: [
       { width: 1920, height: 1080, label: "1920×1080 (16:9)" },
-      { width: 1280, height: 720, label: "1280×720 (16:9)" },
+      DEFAULT_RESOLUTION,
       { width: 854, height: 480, label: "854×480 (16:9)" },
       { width: 1440, height: 1080, label: "1440×1080 (4:3)" },
       { width: 1024, height: 768, label: "1024×768 (4:3)" },

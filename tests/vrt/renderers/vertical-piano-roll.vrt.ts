@@ -2,13 +2,13 @@ import { expect, test, onTestFinished } from "vitest";
 import { page } from "vitest/browser";
 
 import { MidiNote, MidiTrack, getDefaultTrackConfig } from "@/lib/midi/midi";
+import type { Resolution } from "@/lib/muxer/resolution";
 import { drawBackground } from "@/lib/renderers/background";
 import {
   RendererConfig,
   getDefaultRendererConfig,
   VerticalPianoRollConfig,
 } from "@/lib/renderers/renderer-config";
-import type { Resolution } from "@/lib/renderers/resolution";
 import { createVerticalPianoRollRenderer } from "@/lib/renderers/vertical-piano-roll/vertical-piano-roll-renderer";
 
 const WIDTH = 800;
