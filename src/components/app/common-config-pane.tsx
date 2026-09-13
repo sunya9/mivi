@@ -2,6 +2,14 @@ import { Fieldset } from "@base-ui/react/fieldset";
 import { memo, useRef } from "react";
 
 import { CustomResolutionFields } from "@/components/app/custom-resolution-fields";
+import {
+  fpsOptions,
+  formatOptions,
+  backgroundImagePositions,
+  backgroundImageRepeats,
+  backgroundImageFitOptions,
+  audioVisualizerLayerOptions,
+} from "@/components/app/renderer-options";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FileButton } from "@/components/common/file-button";
 import { FormRow } from "@/components/common/form-row";
@@ -16,18 +24,10 @@ import {
   SelectSeparator,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useRendererConfig, useUpdateRendererConfig } from "@/hooks/use-renderer-config";
 import { useAudio } from "@/lib/audio/use-audio";
 import { useBackgroundImage } from "@/lib/background-image/use-background-image";
-import {
-  FPS,
-  fpsOptions,
-  formatOptions,
-  backgroundImagePositions,
-  backgroundImageRepeats,
-  backgroundImageFitOptions,
-  audioVisualizerLayerOptions,
-  RendererConfig,
-} from "@/lib/renderers/renderer-config";
+import { FPS, RendererConfig } from "@/lib/renderers/renderer-config";
 import {
   createCustomResolution,
   CUSTOM_RESOLUTION_LABEL,
@@ -35,7 +35,6 @@ import {
   resolutionGroups,
   resolutions,
 } from "@/lib/renderers/resolution";
-import { useRendererConfig, useUpdateRendererConfig } from "@/lib/renderers/use-renderer-config";
 import { shallowEqual } from "@/lib/store/observable-store";
 
 const resolutionItems = [...resolutions, { label: CUSTOM_RESOLUTION_LABEL }].map(({ label }) => ({

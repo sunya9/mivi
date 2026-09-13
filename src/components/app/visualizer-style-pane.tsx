@@ -9,9 +9,9 @@ import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator } from "@/components/ui/tabs";
 import { useAppContext } from "@/contexts/app-context";
+import { useRendererConfig, useUpdateRendererConfig } from "@/hooks/use-renderer-config";
 import { useStore } from "@/hooks/use-store";
 import { RendererType } from "@/lib/renderers/renderer-config";
-import { useRendererConfig, useUpdateRendererConfig } from "@/lib/renderers/use-renderer-config";
 
 function useMidiNoteRange() {
   const { midiTracksStore } = useAppContext();
