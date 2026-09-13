@@ -49,8 +49,8 @@ test("switches to the recording UI and reports progress", async () => {
   expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument();
 
   const onProgress = vi.mocked(runRecorder).mock.calls[0][1];
-  act(() => onProgress(0.5, { name: "Video Encode", eta: "00:10" }));
+  act(() => onProgress(0.5, { name: "Video Encode", etaSeconds: 70 }));
 
   expect(screen.getByRole("progressbar")).toHaveValue(50);
-  expect(screen.getByText(/Video Encode/)).toBeInTheDocument();
+  expect(screen.getByText("Video Encode — 1m10s")).toBeInTheDocument();
 });
