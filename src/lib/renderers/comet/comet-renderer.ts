@@ -75,6 +75,10 @@ function positionAt(comet: Comet, progress: number): Point {
   };
 }
 
+// Trail samples are written oldest-first into these buffers; every comet on screen reuses them
+const trailXs: number[] = [];
+const trailYs: number[] = [];
+
 function drawTrail(
   ctx: RendererContext,
   cfg: CometConfig,
@@ -83,13 +87,20 @@ function drawTrail(
   alpha: number,
 ): void {
   const trailPoints = Math.max(2, Math.floor(cfg.trailLength * 60));
-  const positions: Point[] = [];
-  for (let i = 0; i < trailPoints; i++) {
-    const trailElapsed = elapsed - (cfg.trailLength / (trailPoints - 1)) * i;
-    if (trailElapsed < 0) break;
-    positions.unshift(positionAt(comet, trailElapsed / cfg.fallDuration));
+  const step = cfg.trailLength / (trailPoints - 1);
+  const count = Math.min(trailPoints, Math.floor(elapsed / step) + 1);
+  if (count < 2) return;
+
+  trailXs.length = count;
+  trailYs.length = count;
+  const cos = Math.cos(comet.angleRad);
+  const sin = Math.sin(comet.angleRad);
+  for (let i = 0; i < count; i++) {
+    const trailElapsed = elapsed - step * i;
+    const distance = (trailElapsed / cfg.fallDuration) * comet.maxDistance;
+    trailXs[count - 1 - i] = comet.startX + cos * distance;
+    trailYs[count - 1 - i] = comet.startY + sin * distance;
   }
-  if (positions.length < 2) return;
 
   ctx.save();
   ctx.lineWidth = cfg.trailWidth;
@@ -97,14 +108,17 @@ function drawTrail(
   ctx.lineJoin = "round";
 
   ctx.beginPath();
-  ctx.moveTo(positions[0].x, positions[0].y);
-  for (let i = 1; i < positions.length; i++) {
-    ctx.lineTo(positions[i].x, positions[i].y);
+  ctx.moveTo(trailXs[0], trailYs[0]);
+  for (let i = 1; i < count; i++) {
+    ctx.lineTo(trailXs[i], trailYs[i]);
   }
 
-  const tail = positions[0];
-  const head = positions[positions.length - 1];
-  const gradient = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y);
+  const gradient = ctx.createLinearGradient(
+    trailXs[0],
+    trailYs[0],
+    trailXs[count - 1],
+    trailYs[count - 1],
+  );
   const baseAlpha = alpha * cfg.trailOpacity;
   gradient.addColorStop(0, `${comet.color}00`);
   gradient.addColorStop(0.5, `${comet.color}${alphaHex(baseAlpha * 0.3)}`);

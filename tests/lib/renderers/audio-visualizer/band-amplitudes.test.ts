@@ -52,3 +52,11 @@ test("returns one amplitude per band", () => {
   const data = createFrequencyData(() => 0);
   expect(calculateBandAmplitudes(data, 32, 20, 20000)).toHaveLength(32);
 });
+
+test("reuses one output buffer across frames", () => {
+  const data = createFrequencyData(() => 100);
+  const first = calculateBandAmplitudes(data, 32, 20, 20000);
+  const second = calculateBandAmplitudes(data, 16, 20, 20000);
+  expect(second).toBe(first);
+  expect(second).toHaveLength(16);
+});

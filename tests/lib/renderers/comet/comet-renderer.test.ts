@@ -77,6 +77,23 @@ test("moves the comet along the fall angle over time", () => {
   expect(laterY).toBeCloseTo(startY);
 });
 
+test("traces the trail from where the comet was a trail length ago up to its head", () => {
+  const { ctx, render, config } = setup({ fallAngle: 0, angleRandomness: 0, trailLength: 1 });
+  render([track], 2, config);
+  const [[startX, startY]] = vi.mocked(ctx.arc).mock.calls;
+  vi.mocked(ctx.arc).mockClear();
+  vi.mocked(ctx.moveTo).mockClear();
+  vi.mocked(ctx.lineTo).mockClear();
+
+  render([track], 3, config);
+  const [[headX, headY]] = vi.mocked(ctx.arc).mock.calls;
+  const [[tailX, tailY]] = vi.mocked(ctx.moveTo).mock.calls;
+  const [lastX, lastY] = vi.mocked(ctx.lineTo).mock.calls.at(-1)!;
+  expect([tailX, tailY]).toEqual([startX, startY]);
+  expect([lastX, lastY]).toEqual([headX, headY]);
+  expect(vi.mocked(ctx.lineTo).mock.calls.length).toBe(59);
+});
+
 test("skips notes outside the view range", () => {
   const { arcsAfter } = setup({ viewRangeBottom: 70, viewRangeTop: 80 });
   expect(arcsAfter([track], [2.2])).toHaveLength(0);
