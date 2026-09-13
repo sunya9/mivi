@@ -157,6 +157,18 @@ test("keeps drawing a long note while shorter notes after it have already ended"
   expect(ctx.roundRect).toHaveBeenCalledOnce();
 });
 
+test("overlays the velocity at its normalized strength", () => {
+  const { fillStylesAfter } = setup({ showNoteFlash: false, showRippleEffect: false });
+  expect(fillStylesAfter([2.2])).toContain("rgba(255, 255, 255, 0.3)");
+});
+
+test("ripples fade with the track opacity", () => {
+  const { ctx, render, config } = setup({ showRippleEffect: true });
+  const transparent = { ...track, config: { ...track.config, opacity: 0 } };
+  render([transparent], 2.3, config);
+  expect(ctx.arc).not.toHaveBeenCalled();
+});
+
 test("draws the ripple at the playhead for the ripple duration after the note starts", () => {
   const { ctx, render, config } = setup({ showRippleEffect: true, rippleDuration: 0.5 });
   render([track], 2.3, config);

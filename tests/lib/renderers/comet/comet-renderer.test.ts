@@ -9,7 +9,7 @@ import {
 } from "@/lib/renderers/renderer-config";
 
 function makeNote(id: number, midi: number, time: number, duration: number): MidiNote {
-  return { id, midi, time, duration, velocity: 100, name: "", ticks: 0, durationTicks: 0 };
+  return { id, midi, time, duration, velocity: 1, name: "", ticks: 0, durationTicks: 0 };
 }
 
 function makeTrack(notes: MidiNote[], overrides: Partial<MidiTrack["config"]> = {}): MidiTrack {
@@ -94,4 +94,42 @@ test("only visits notes whose comet can still be visible", () => {
   const lifetime = 2 + 0.5;
   const expectedNotes = many.notes.filter((n) => n.time <= 4 && n.time > 4 - lifetime);
   expect(visible.length).toBe(expectedNotes.length * 2);
+});
+
+test("sizes the head by comet size, normalized velocity and track scale", () => {
+  const { arcsAfter } = setup({ cometSize: 8 });
+  const halfVelocity = makeTrack([{ ...track.notes[0], velocity: 0.5 }], { scale: 2 });
+  const [[, , radius]] = arcsAfter([halfVelocity], [2]);
+  expect(radius).toBe(8);
+});
+
+test("honours the track opacity", () => {
+  const { ctx, render, config } = setup();
+  const alphas: number[] = [];
+  Object.defineProperty(ctx, "globalAlpha", {
+    configurable: true,
+    get: () => alphas.at(-1) ?? 1,
+    set: (value: number) => {
+      alphas.push(value);
+    },
+  });
+  render([makeTrack(track.notes, { opacity: 0.5 })], 2.2, config);
+  expect(alphas).toContain(0.5);
+  expect(alphas).not.toContain(1);
+});
+
+test("draws the first track last so it appears on top", () => {
+  const { ctx, render, config } = setup();
+  const fillStyles: string[] = [];
+  Object.defineProperty(ctx, "fillStyle", {
+    configurable: true,
+    get: () => fillStyles.at(-1) ?? "",
+    set: (value: string | CanvasGradient) => {
+      if (typeof value === "string") fillStyles.push(value);
+    },
+  });
+  const top = { ...makeTrack(track.notes, { color: "#aaaaaa" }), id: "top" };
+  const bottom = { ...makeTrack(track.notes, { color: "#bbbbbb" }), id: "bottom" };
+  render([top, bottom], 2.2, config);
+  expect(fillStyles).toEqual(["#bbbbbb", "#aaaaaa"]);
 });

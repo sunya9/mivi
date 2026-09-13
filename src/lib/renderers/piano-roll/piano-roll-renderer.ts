@@ -1,24 +1,17 @@
-import { brightenHexColor } from "@/lib/colors/hex";
 import { RendererFactory } from "@/lib/renderers/renderer";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
 import { maxNoteDuration } from "@/lib/renderers/shared/max-note-duration";
 import { createNoiseTexture } from "@/lib/renderers/shared/noise-texture";
+import { drawNoteBody, noteSeed } from "@/lib/renderers/shared/note-body";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { computePressOffset } from "@/lib/renderers/shared/note-press";
-import { drawRipple } from "@/lib/renderers/shared/ripple";
-import { drawRoughRect } from "@/lib/renderers/shared/rough-rect";
+import { PendingRipple, drawPendingRipples } from "@/lib/renderers/shared/ripple";
 import { isMidiInViewRange } from "@/lib/renderers/shared/view-range";
 
 // Keeps a note "touched" for a few pixels past its right edge so short notes still register
 const PLAYHEAD_TOUCH_SLACK_PX = 20;
 
 const OVERFLOW_FACTOR = 0.5;
-
-interface PendingRipple {
-  y: number;
-  progress: number;
-  color: string;
-}
 
 export const createPianoRollRenderer: RendererFactory = (ctx) => {
   const noiseTexture = createNoiseTexture(ctx);
@@ -99,63 +92,38 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
           : 0;
         const y = noteToY(note.midi) + verticalMargin + pressOffset;
 
-        const flashIntensity = cfg.showNoteFlash
-          ? computeFlashIntensity(cfg, noteStart, touchEnd, currentTime)
-          : 0;
-        ctx.fillStyle =
-          flashIntensity > 0
-            ? brightenHexColor(track.config.color, flashIntensity)
-            : track.config.color;
-        ctx.globalAlpha = track.config.opacity;
-
-        const seed = note.time * 1000 + note.midi;
-        if (cfg.showRoughEdge) {
-          drawRoughRect(
-            ctx,
-            x,
-            y,
-            noteWidth,
-            noteHeight,
-            cfg.noteCornerRadius,
-            cfg.roughEdgeIntensity,
-            cfg.roughEdgeSegmentLength,
-            seed,
-          );
-        } else {
-          ctx.beginPath();
-          ctx.roundRect(x, y, noteWidth, noteHeight, cfg.noteCornerRadius);
-        }
-        ctx.fill();
-
-        noiseTexture.apply(cfg, track.config.color, x, y, seed);
-
-        ctx.fillStyle = `rgba(255, 255, 255, ${(note.velocity / 127) * 0.3})`;
-        ctx.fill();
+        drawNoteBody(ctx, noiseTexture, cfg, {
+          x,
+          y,
+          width: noteWidth,
+          height: noteHeight,
+          cornerRadius: cfg.noteCornerRadius,
+          baseColor: track.config.color,
+          flashIntensity: cfg.showNoteFlash
+            ? computeFlashIntensity(cfg, noteStart, touchEnd, currentTime)
+            : 0,
+          opacity: track.config.opacity,
+          velocity: note.velocity,
+          seed: noteSeed(note),
+        });
         ctx.globalAlpha = 1;
 
         if (cfg.showRippleEffect) {
           const progress = computeRippleProgress(cfg.rippleDuration, noteStart, currentTime);
           if (progress !== null) {
             pendingRipples.push({
+              x: playheadX,
               y: y - pressOffset + noteHeight / 2,
               progress,
               color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
+              opacity: track.config.opacity,
             });
           }
         }
       }
     }
 
-    for (const ripple of pendingRipples) {
-      drawRipple(
-        ctx,
-        playheadX,
-        ripple.y,
-        cfg.rippleRadius * ripple.progress,
-        ripple.color,
-        0.4 * (1 - ripple.progress),
-      );
-    }
+    drawPendingRipples(ctx, pendingRipples, cfg.rippleRadius);
 
     if (cfg.showPlayhead) {
       ctx.save();

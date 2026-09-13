@@ -1,12 +1,11 @@
-import { brightenHexColor } from "@/lib/colors/hex";
 import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
 import { maxNoteDuration } from "@/lib/renderers/shared/max-note-duration";
 import { createNoiseTexture } from "@/lib/renderers/shared/noise-texture";
+import { drawNoteBody, noteSeed } from "@/lib/renderers/shared/note-body";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
-import { drawRipple } from "@/lib/renderers/shared/ripple";
-import { drawRoughRect } from "@/lib/renderers/shared/rough-rect";
+import { PendingRipple, drawPendingRipples } from "@/lib/renderers/shared/ripple";
 
 import { MIN_PRESS_DURATION, isKeyPressed, resolveNoteBaseColor } from "./note-effects";
 import { KeyboardLayout, createKeyboardLayout } from "./piano-keyboard-layout";
@@ -15,13 +14,6 @@ const BLACK_KEY_HEIGHT_RATIO = 0.62;
 const MIN_NOTE_HEIGHT = 2;
 const KEY_BORDER_OPACITY = 0.3;
 const OCTAVE_LABEL_OPACITY = 0.6;
-
-interface PendingRipple {
-  x: number;
-  progress: number;
-  color: string;
-  opacity: number;
-}
 
 interface PressedKeys {
   colors: (string | undefined)[];
@@ -209,6 +201,7 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
             if (progress !== null) {
               pendingRipples.push({
                 x: key.x + key.width / 2,
+                y: hitLineY,
                 progress,
                 color: cfg.useCustomRippleColor ? cfg.rippleColor : track.config.color,
                 opacity: track.config.opacity,
@@ -235,37 +228,20 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
           );
           const cornerRadius = Math.min(cfg.noteCornerRadius, noteWidth / 2, visibleHeight / 2);
 
-          const baseColor = resolveNoteBaseColor(track.config.color, key.isBlack, cfg);
-          const flashIntensity = cfg.showNoteFlash
-            ? computeFlashIntensity(cfg, note.time, noteEnd, currentTime)
-            : 0;
-          ctx.fillStyle =
-            flashIntensity > 0 ? brightenHexColor(baseColor, flashIntensity) : baseColor;
-          ctx.globalAlpha = track.config.opacity;
-
-          const seed = note.time * 1000 + note.midi;
-          if (cfg.showRoughEdge) {
-            drawRoughRect(
-              ctx,
-              x,
-              y,
-              noteWidth,
-              visibleHeight,
-              cornerRadius,
-              cfg.roughEdgeIntensity,
-              cfg.roughEdgeSegmentLength,
-              seed,
-            );
-          } else {
-            ctx.beginPath();
-            ctx.roundRect(x, y, noteWidth, visibleHeight, cornerRadius);
-          }
-          ctx.fill();
-
-          noiseTexture.apply(cfg, baseColor, x, y, seed);
-
-          ctx.fillStyle = `rgba(255, 255, 255, ${note.velocity * 0.3})`;
-          ctx.fill();
+          drawNoteBody(ctx, noiseTexture, cfg, {
+            x,
+            y,
+            width: noteWidth,
+            height: visibleHeight,
+            cornerRadius,
+            baseColor: resolveNoteBaseColor(track.config.color, key.isBlack, cfg),
+            flashIntensity: cfg.showNoteFlash
+              ? computeFlashIntensity(cfg, note.time, noteEnd, currentTime)
+              : 0,
+            opacity: track.config.opacity,
+            velocity: note.velocity,
+            seed: noteSeed(note),
+          });
         }
       }
     }
@@ -284,15 +260,6 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
       ctx.restore();
     }
 
-    for (const ripple of pendingRipples) {
-      drawRipple(
-        ctx,
-        ripple.x,
-        hitLineY,
-        cfg.rippleRadius * ripple.progress,
-        ripple.color,
-        0.4 * (1 - ripple.progress) * ripple.opacity,
-      );
-    }
+    drawPendingRipples(ctx, pendingRipples, cfg.rippleRadius);
   };
 };
