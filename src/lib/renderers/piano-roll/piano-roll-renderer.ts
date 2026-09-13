@@ -1,6 +1,7 @@
 import { brightenHexColor } from "@/lib/colors/hex";
 import { RendererFactory } from "@/lib/renderers/renderer";
-import { findFirstVisibleNoteIndex } from "@/lib/renderers/shared/find-first-visible-note";
+import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
+import { maxNoteDuration } from "@/lib/renderers/shared/max-note-duration";
 import { createNoiseTexture } from "@/lib/renderers/shared/noise-texture";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { computePressOffset } from "@/lib/renderers/shared/note-press";
@@ -63,9 +64,10 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
 
       // A ripple outlives its note at the playhead, so notes that already scrolled off must still
       // be visited for as long as the ripple can be visible
-      const startIdx = findFirstVisibleNoteIndex(
+      const cullBefore = Math.min(leftEdgeTime - scaledOverflow, currentTime - cfg.rippleDuration);
+      const startIdx = findFirstNoteIndexFrom(
         track.notes,
-        Math.min(leftEdgeTime - scaledOverflow, currentTime - cfg.rippleDuration),
+        cullBefore - maxNoteDuration(track.notes),
       );
 
       for (let ni = startIdx; ni < track.notes.length; ni++) {
@@ -76,6 +78,7 @@ export const createPianoRollRenderer: RendererFactory = (ctx) => {
         // Notes are sorted by time; if start exceeds right edge, all remaining are off-screen
         if (noteStart > rightEdgeTime + scaledOverflow) break;
 
+        if (noteEnd < cullBefore) continue;
         if (!isNoteInViewRange(note.midi)) continue;
 
         const x = timeToX(noteStart, track.config.scale) + cfg.noteMargin;

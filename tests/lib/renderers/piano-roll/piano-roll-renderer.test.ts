@@ -143,6 +143,20 @@ test("brightens a note while it flashes", () => {
   expect(flashingStyles).not.toEqual(restingStyles);
 });
 
+test("keeps drawing a long note while shorter notes after it have already ended", () => {
+  const { ctx, render, config } = setup({ timeWindow: 5, playheadPosition: 50 });
+  const sustained = {
+    ...track,
+    notes: [
+      { ...track.notes[0], id: 1, midi: 60, time: 0, duration: 10 },
+      { ...track.notes[0], id: 2, midi: 62, time: 1, duration: 0.1 },
+      { ...track.notes[0], id: 3, midi: 64, time: 2, duration: 0.1 },
+    ],
+  };
+  render([sustained], 8, config);
+  expect(ctx.roundRect).toHaveBeenCalledOnce();
+});
+
 test("draws the ripple at the playhead for the ripple duration after the note starts", () => {
   const { ctx, render, config } = setup({ showRippleEffect: true, rippleDuration: 0.5 });
   render([track], 2.3, config);

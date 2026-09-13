@@ -1,8 +1,8 @@
 import { brightenHexColor } from "@/lib/colors/hex";
-import { MidiNote } from "@/lib/midi/midi";
 import { RendererContext, RendererFactory } from "@/lib/renderers/renderer";
 import { VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
 import { findFirstNoteIndexFrom } from "@/lib/renderers/shared/find-first-note-from";
+import { maxNoteDuration } from "@/lib/renderers/shared/max-note-duration";
 import { createNoiseTexture } from "@/lib/renderers/shared/noise-texture";
 import { computeFlashIntensity, computeRippleProgress } from "@/lib/renderers/shared/note-effects";
 import { drawRipple } from "@/lib/renderers/shared/ripple";
@@ -119,7 +119,6 @@ function drawKeyboard(
 
 export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
   const noiseTexture = createNoiseTexture(ctx);
-  const maxDurations = new WeakMap<MidiNote[], number>();
   const pressed: PressedKeys = {
     colors: Array.from({ length: 128 }),
     opacities: Array.from({ length: 128 }),
@@ -135,18 +134,6 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
       layoutKey = key;
     }
     return layout;
-  };
-
-  const getMaxDuration = (notes: MidiNote[]): number => {
-    let max = maxDurations.get(notes);
-    if (max === undefined) {
-      max = 0;
-      for (const note of notes) {
-        if (note.duration > max) max = note.duration;
-      }
-      maxDurations.set(notes, max);
-    }
-    return max;
   };
 
   return (tracks, currentTime, config) => {
@@ -198,8 +185,10 @@ export const createVerticalPianoRollRenderer: RendererFactory = (ctx) => {
         const track = tracks[ti];
         if (!track.config.visible) continue;
 
-        const maxDuration = getMaxDuration(track.notes);
-        const startIdx = findFirstNoteIndexFrom(track.notes, currentTime - lookback - maxDuration);
+        const startIdx = findFirstNoteIndexFrom(
+          track.notes,
+          currentTime - lookback - maxNoteDuration(track.notes),
+        );
 
         for (let ni = startIdx; ni < track.notes.length; ni++) {
           const note = track.notes[ni];
