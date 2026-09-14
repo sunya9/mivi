@@ -1,3 +1,5 @@
+import { AudioSample, AudioSampleSource, BufferTarget, Output, WavOutputFormat } from "mediabunny";
+
 import { SerializedAudio } from "@/lib/audio/audio";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MidiTracks } from "@/lib/midi/midi";
@@ -16,6 +18,24 @@ export function createTestSerializedAudio(): SerializedAudio {
   }
 
   return { channels, duration, length, sampleRate, numberOfChannels: 2 };
+}
+
+export async function createTestAudioFile(serialized: SerializedAudio): Promise<File> {
+  const { channels, numberOfChannels, sampleRate, length } = serialized;
+  const target = new BufferTarget();
+  const output = new Output({ format: new WavOutputFormat(), target });
+  const source = new AudioSampleSource({ codec: "pcm-s16" });
+  output.addAudioTrack(source);
+  await output.start();
+
+  const data = new Int16Array(numberOfChannels * length);
+  channels.forEach((channel, i) => data.set(channel, i * length));
+  await source.add(
+    new AudioSample({ data, format: "s16-planar", numberOfChannels, sampleRate, timestamp: 0 }),
+  );
+  await output.finalize();
+  if (!target.buffer) throw new Error("WAV output was not finalized");
+  return new File([target.buffer], "test.wav", { type: "audio/wav" });
 }
 
 export function createTestMidiTracks(): MidiTracks {
@@ -66,12 +86,14 @@ function createTestRendererConfig(format: VideoFormat): RendererConfig {
   };
 }
 
-export function createTestRecorderResources(format: VideoFormat): RecorderResources {
+export async function createTestRecorderResources(format: VideoFormat): Promise<RecorderResources> {
+  const serialized = createTestSerializedAudio();
   return {
     midiTracks: createTestMidiTracks(),
     audioSource: {
-      name: "test.mp3",
-      serialized: createTestSerializedAudio(),
+      name: "test.wav",
+      file: await createTestAudioFile(serialized),
+      serialized,
     },
     rendererConfig: createTestRendererConfig(format),
   };

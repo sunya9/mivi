@@ -7,9 +7,7 @@ import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { startRecording } from "@/lib/media-compositor/recorder.worker";
-import { MuxerImpl } from "@/lib/muxer/muxer";
 
-vi.mock("@/lib/muxer/muxer");
 vi.mock("@/lib/media-compositor/media-compositor");
 vi.mock("@/lib/media-compositor/opfs-target");
 
@@ -22,18 +20,13 @@ const mockOpfsFile = {
 };
 vi.mocked(createOpfsExportFile).mockResolvedValue(mockOpfsFile);
 
-test("should create MuxerImpl with mp4 format", async () => {
+test("names the OPFS export file after the mp4 format", async () => {
   await startRecording(resources, mockOnProgress);
 
   expect(createOpfsExportFile).toHaveBeenCalledWith("export.mp4");
-  expect(MuxerImpl).toHaveBeenCalledExactlyOnceWith({
-    format: "mp4",
-    frameRate: resources.rendererConfig.fps,
-    writable: mockOpfsFile.target,
-  });
 });
 
-test("should create MuxerImpl with webm format", async () => {
+test("names the OPFS export file after the webm format", async () => {
   const webmResources: RecorderResources = {
     ...resources,
     rendererConfig: {
@@ -44,14 +37,16 @@ test("should create MuxerImpl with webm format", async () => {
 
   await startRecording(webmResources, mockOnProgress);
 
-  expect(MuxerImpl).toHaveBeenCalledWith({
-    format: "webm",
-    frameRate: webmResources.rendererConfig.fps,
-    writable: mockOpfsFile.target,
-  });
+  expect(createOpfsExportFile).toHaveBeenCalledWith("export.webm");
 });
 
-test("should return the OPFS-backed file after compositing", async () => {
+test("hands the OPFS target to the compositor", async () => {
+  await startRecording(resources, mockOnProgress);
+
+  expect(MediaCompositor).toHaveBeenCalledWith(resources, mockOpfsFile.target);
+});
+
+test("returns the OPFS-backed file after compositing", async () => {
   MediaCompositor.prototype.composite = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
   const result = await startRecording(resources, mockOnProgress);
 

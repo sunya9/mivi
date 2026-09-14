@@ -1,15 +1,28 @@
+import {
+  ALL_FORMATS,
+  BlobSource,
+  CanvasSource,
+  Conversion,
+  Input,
+  Output,
+  Quality,
+  StreamTarget,
+  type ConversionAudioOptions,
+  type StreamTargetChunk,
+} from "mediabunny";
+
 import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
-import { Muxer } from "@/lib/muxer/muxer";
+import { OUTPUT_FORMATS, type OutputFormatConfig } from "@/lib/muxer/output-format";
 import { createRenderer } from "@/lib/renderers/create-renderer";
 import { drawFrame } from "@/lib/renderers/draw-frame";
 
-import { EncodeQueue } from "./encode-queue";
 import { RecorderResources } from "./recorder-resources";
 
-const frameSize = 20;
-const maxEncodeQueueSize = 6;
+const keyFrameEveryFrames = 60;
+const videoBitrate = 10_000_000;
+const audioBitrate = 192_000;
 
-export type ExportPhase = "FFT" | "Audio Render" | "Audio Encode" | "Video Render" | "Video Encode";
+export type ExportPhase = "FFT" | "Audio" | "Video Render" | "Video Encode";
 
 export interface ExportPhasePlan {
   name: ExportPhase;
@@ -19,61 +32,43 @@ export interface ExportPhasePlan {
 export type PhaseProgressListener = (phase: ExportPhase, completed: number) => void;
 
 export class MediaCompositor {
-  readonly #videoQueue: EncodeQueue<Parameters<VideoEncoder["encode"]>>;
-  readonly #audioQueue: EncodeQueue<Parameters<AudioEncoder["encode"]>>;
-  readonly #canvas: OffscreenCanvas;
   readonly #resources: RecorderResources;
-  readonly #muxer: Muxer;
+  readonly #outputFormat: OutputFormatConfig;
+  readonly #canvas: OffscreenCanvas;
+  readonly #output: Output;
+  readonly #video: CanvasSource;
   readonly #listeners = new Set<PhaseProgressListener>();
-  readonly #abort = new AbortController();
   readonly phases: readonly ExportPhasePlan[];
+  #audioConversion: Conversion | undefined;
+  #encodedVideoFrames = 0;
 
-  constructor(resources: RecorderResources, muxer: Muxer) {
+  constructor(resources: RecorderResources, writable: WritableStream<StreamTargetChunk>) {
     this.#resources = resources;
-    this.#muxer = muxer;
 
     this.phases = [
       { name: "FFT", total: this.#totalVideoFrames },
-      { name: "Audio Render", total: this.#totalAudioFrames },
-      { name: "Audio Encode", total: this.#totalAudioFrames },
+      { name: "Audio", total: this.#duration },
       { name: "Video Render", total: this.#totalVideoFrames },
       { name: "Video Encode", total: this.#totalVideoFrames },
     ];
 
-    const onError = (error: unknown) => this.#abort.abort(error);
+    const { resolution, format } = this.#rendererConfig;
+    this.#outputFormat = OUTPUT_FORMATS[format];
 
-    const audioEncoder = new AudioEncoder({
-      output: (chunk, metadata) => void muxer.addAudioChunk(chunk, metadata).catch(onError),
-      error: onError,
+    this.#canvas = new OffscreenCanvas(resolution.width, resolution.height);
+    this.#video = new CanvasSource(this.#canvas, {
+      codec: this.#outputFormat.videoCodec,
+      quality: new Quality({ bitrate: videoBitrate }),
+      fullCodecString: this.#outputFormat.videoCodecString(resolution, this.#fps),
+      keyFrameInterval: keyFrameEveryFrames / this.#fps,
+      onEncodedPacket: () => this.#emit("Video Encode", ++this.#encodedVideoFrames),
     });
-    audioEncoder.configure({
-      codec: muxer.config.audioCodec,
-      sampleRate: this.#serializedAudio.sampleRate,
-      numberOfChannels: this.#serializedAudio.numberOfChannels,
-      bitrate: 192_000,
-    });
-    this.#audioQueue = new EncodeQueue(audioEncoder, () =>
-      this.#emit("Audio Encode", this.#audioQueue.completed),
-    );
 
-    const videoEncoder = new VideoEncoder({
-      output: (chunk, metadata) => void muxer.addVideoChunk(chunk, metadata).catch(onError),
-      error: onError,
+    this.#output = new Output({
+      format: this.#outputFormat.outputFormat,
+      target: new StreamTarget(writable),
     });
-    this.#canvas = new OffscreenCanvas(
-      this.#rendererConfig.resolution.width,
-      this.#rendererConfig.resolution.height,
-    );
-    videoEncoder.configure({
-      codec: muxer.config.videoCodec(this.#rendererConfig.resolution, this.#fps),
-      width: this.#canvas.width,
-      height: this.#canvas.height,
-      bitrate: 10_000_000,
-      framerate: this.#fps,
-    });
-    this.#videoQueue = new EncodeQueue(videoEncoder, () =>
-      this.#emit("Video Encode", this.#videoQueue.completed),
-    );
+    this.#output.addVideoTrack(this.#video, { frameRate: this.#fps });
   }
 
   subscribe(listener: PhaseProgressListener): () => void {
@@ -100,47 +95,52 @@ export class MediaCompositor {
   get #totalVideoFrames() {
     return Math.ceil(this.#duration * this.#fps);
   }
-  get #totalAudioFrames() {
-    return Math.ceil((this.#duration * 1000) / frameSize);
-  }
 
   async composite() {
-    await this.#muxer.start();
-    this.#renderAudio();
-    await this.#renderVideo();
-
-    await Promise.all([this.#videoQueue.flush(), this.#audioQueue.flush()]);
-    await this.#muxer.finalize();
+    const input = new Input({
+      source: new BlobSource(this.#resources.audioSource.file),
+      formats: ALL_FORMATS,
+    });
+    const audio = await this.#initAudioConversion(input);
+    try {
+      await this.#output.start();
+      await audio.execute();
+      this.#emit("Audio", this.#duration);
+      await this.#renderVideo();
+      await this.#output.finalize();
+    } finally {
+      input.dispose();
+    }
   }
 
-  #renderAudio() {
-    const { sampleRate, numberOfChannels, channels, length } = this.#serializedAudio;
-    const samplesPerFrame = (sampleRate * frameSize) / 1000;
+  async #initAudioConversion(input: Input) {
+    const track = await input.getPrimaryAudioTrack();
+    if (!track) throw new Error("No audio track found in file");
 
-    for (let i = 0; i < this.#totalAudioFrames; i++) {
-      const startSample = i * samplesPerFrame;
-      const endSample = Math.min((i + 1) * samplesPerFrame, length);
-      const timestamp = Math.floor((startSample / sampleRate) * 1_000_000);
-      const frameSamples = endSample - startSample;
-      const frameData = new Int16Array(numberOfChannels * frameSamples);
+    const supportedCodecs = this.#outputFormat.outputFormat.getSupportedAudioCodecs();
+    const audio: ConversionAudioOptions =
+      track.codec !== null && supportedCodecs.includes(track.codec)
+        ? {}
+        : {
+            codec: this.#outputFormat.audioCodec,
+            quality: new Quality({ bitrate: audioBitrate }),
+          };
 
-      for (let channel = 0; channel < numberOfChannels; channel++) {
-        frameData.set(channels[channel].subarray(startSample, endSample), channel * frameSamples);
-      }
-
-      const audioData = new AudioData({
-        timestamp,
-        numberOfChannels,
-        numberOfFrames: frameSamples,
-        sampleRate,
-        format: "s16-planar",
-        data: frameData,
-      });
-
-      this.#emit("Audio Render", i + 1);
-      this.#audioQueue.encode(audioData);
-      audioData.close();
+    const conversion = await Conversion.init({
+      input,
+      output: this.#output,
+      composable: true,
+      video: { discard: true },
+      audio,
+    });
+    if (!conversion.utilizedTracks.includes(track)) {
+      const discarded = conversion.discardedTracks.find((d) => d.track === track);
+      throw new Error(`Audio track cannot be exported: ${discarded?.reason ?? "unknown"}`);
     }
+    conversion.onProgress = (_, processedTime) =>
+      this.#emit("Audio", Math.min(processedTime, this.#duration));
+    this.#audioConversion = conversion;
+    return conversion;
   }
 
   async #renderVideo() {
@@ -152,11 +152,12 @@ export class MediaCompositor {
     const renderer = createRenderer(config.type, ctx);
     const midiOffset = this.#resources.midiTracks?.midiOffset ?? 0;
     const tracks = this.#resources.midiTracks?.tracks ?? [];
+    const frameDuration = 1 / this.#fps;
 
     const precomputedFFT = this.#precomputeFFT();
 
     for (let i = 0; i < this.#totalVideoFrames; i++) {
-      const currentTime = i / this.#fps;
+      const currentTime = i * frameDuration;
 
       drawFrame(ctx, {
         config,
@@ -166,24 +167,12 @@ export class MediaCompositor {
         frequencyData: precomputedFFT ? getFrameAtTime(precomputedFFT, currentTime) : null,
         backgroundImageBitmap,
       });
-
       this.#emit("Video Render", i + 1);
 
-      const frame = new VideoFrame(this.#canvas, {
-        timestamp: currentTime * 1_000_000,
-        duration: (1 / this.#fps) * 1_000_000,
-      });
-      this.#videoQueue.encode(frame, { keyFrame: i % 60 === 0 });
-      frame.close();
-
-      // --- Backpressure control logic ---
-      // If the encoder's queue size exceeds the threshold,
-      // pause the loop (yield) until the GPU processes some frames and emits a 'dequeue' event.
-      if (this.#videoQueue.pending > maxEncodeQueueSize) {
-        // oxlint-disable-next-line no-await-in-loop -- backpressure requires sequential await
-        await this.#videoQueue.nextDequeue(this.#abort.signal);
-      }
+      // oxlint-disable-next-line no-await-in-loop -- add() resolves once the encoder and writer can take more
+      await this.#video.add(currentTime, frameDuration);
     }
+    this.#video.close();
   }
 
   #precomputeFFT() {
@@ -202,7 +191,9 @@ export class MediaCompositor {
   }
 
   [Symbol.dispose](): void {
-    this.#audioQueue.close();
-    this.#videoQueue.close();
+    if (this.#output.state === "pending" || this.#output.state === "started") {
+      void this.#audioConversion?.cancel();
+      void this.#output.cancel();
+    }
   }
 }

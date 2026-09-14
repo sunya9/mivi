@@ -8,5 +8,6 @@ export interface SerializedAudio {
 
 export interface AudioSource {
   readonly name: string;
+  readonly file: File;
   readonly serialized: SerializedAudio;
 }
