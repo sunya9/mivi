@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/contexts/app-context";
 import { usePanelVisibility } from "@/hooks/use-panel-visibility";
 import { useStore } from "@/hooks/use-store";
+import { PLAYER_HOTKEYS_SCOPE } from "@/lib/hotkeys";
 
 // ARIA widget roles where Space has a native interaction (activate, toggle, type, etc.).
 // "slider" is intentionally excluded so Space toggles playback even when a slider is focused.
@@ -95,6 +96,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
       togglePlay();
     },
     {
+      scopes: [PLAYER_HOTKEYS_SCOPE],
       enableOnFormTags: ["input"],
       ignoreEventWhen: (e) => {
         const target = e.target;
@@ -118,6 +120,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
       toggleMute();
       showPanel();
     },
+    { scopes: [PLAYER_HOTKEYS_SCOPE] },
     [toggleMute, showPanel],
   );
 
@@ -143,7 +146,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
   useHotkeys(
     "left,right",
     (e) => seekBy(e.key === "ArrowLeft" ? -0.1 : 0.1),
-    { ignoreEventWhen: isInteractiveWidgetFocused },
+    { scopes: [PLAYER_HOTKEYS_SCOPE], ignoreEventWhen: isInteractiveWidgetFocused },
     [seekBy],
   );
 
@@ -154,6 +157,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
       if (e.repeat) return;
       seekBy(e.key === "j" || e.key === "J" ? -10 : 10);
     },
+    { scopes: [PLAYER_HOTKEYS_SCOPE] },
     [seekBy],
   );
 
@@ -166,7 +170,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
       store.setVolume(Math.max(0, Math.min(1, volume + delta)));
       showPanel();
     },
-    { ignoreEventWhen: isInteractiveWidgetFocused },
+    { scopes: [PLAYER_HOTKEYS_SCOPE], ignoreEventWhen: isInteractiveWidgetFocused },
     [store, showPanel],
   );
 
@@ -177,7 +181,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
       store.seek(0);
       showPanel();
     },
-    { ignoreEventWhen: isInteractiveWidgetFocused },
+    { scopes: [PLAYER_HOTKEYS_SCOPE], ignoreEventWhen: isInteractiveWidgetFocused },
     [store, showPanel],
   );
 
@@ -188,7 +192,11 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
       store.seek(store.getSnapshot().duration);
       showPanel();
     },
-    { preventDefault: true, ignoreEventWhen: isInteractiveWidgetFocused },
+    {
+      scopes: [PLAYER_HOTKEYS_SCOPE],
+      preventDefault: true,
+      ignoreEventWhen: isInteractiveWidgetFocused,
+    },
     [store, showPanel],
   );
 

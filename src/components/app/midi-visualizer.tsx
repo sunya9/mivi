@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogPortal } from "@/components/ui/dialog";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
+import { PLAYER_HOTKEYS_SCOPE } from "@/lib/hotkeys";
 import { startViewTransition } from "@/lib/utils";
 
 const PLAYER_LABEL = "Midi Visualizer Player";
@@ -72,6 +73,7 @@ export function MidiVisualizer({ containerRef }: Props) {
       e.preventDefault();
       setExpandedAnimation((prev) => !prev);
     },
+    { scopes: [PLAYER_HOTKEYS_SCOPE] },
     [setExpandedAnimation],
   );
 

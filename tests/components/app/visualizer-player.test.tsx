@@ -5,6 +5,7 @@ import { createMockAppContext, customRender } from "tests/util";
 import { expect, test, vi } from "vitest";
 
 import { VisualizerPlayer } from "@/components/app/visualizer-player";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { type PlaybackSnapshot } from "@/lib/player/audio-playback-store";
 
 async function renderPlayer(props?: {
@@ -81,4 +82,29 @@ test("keeps the controls when a touch pointer leaves while playing", async () =>
 test("keeps the controls visible while a control inside has focus", async () => {
   await renderPlayer({ snapshot: { status: "playing" } });
   expect(getControls().className).toContain("focus-within:translate-y-0");
+});
+
+test("ignores player shortcuts while a modal dialog is open", async () => {
+  const store = createMockStore();
+  const appContextValue = createMockAppContext(store);
+  await customRender(
+    <>
+      <VisualizerPlayer expanded={false} onToggleExpanded={vi.fn<() => void>()} />
+      <Dialog defaultOpen>
+        <DialogContent>
+          <DialogTitle>Settings</DialogTitle>
+        </DialogContent>
+      </Dialog>
+    </>,
+    { appContextValue },
+  );
+
+  await userEvent.keyboard("m");
+  expect(store.toggleMute).not.toHaveBeenCalled();
+
+  await userEvent.keyboard("{arrowright}j{home}");
+  expect(store.seek).not.toHaveBeenCalled();
+
+  await userEvent.keyboard("{arrowup}");
+  expect(store.setVolume).not.toHaveBeenCalled();
 });

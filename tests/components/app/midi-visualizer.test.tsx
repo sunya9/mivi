@@ -6,6 +6,7 @@ import { createMockAppContext, customRender } from "tests/util";
 import { afterEach, expect, test, vi } from "vitest";
 
 import { MidiVisualizer } from "@/components/app/midi-visualizer";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { FileDecoders } from "@/lib/file-store/file-store";
 import { type MidiTracks } from "@/lib/midi/midi";
 import { resolutions } from "@/lib/muxer/resolution";
@@ -230,6 +231,37 @@ test("should work without View Transitions API support", async () => {
   const expandButton = screen.getByRole("button", { name: /Maximize/i });
   await userEvent.click(expandButton);
   expect(getExpandedPlayer()).toBeInTheDocument();
+});
+
+test("keeps player shortcuts active inside the expanded player", async () => {
+  const { store } = await renderVisualizer();
+  await userEvent.click(findExpandButton());
+  expect(getExpandedPlayer()).toBeInTheDocument();
+
+  await userEvent.keyboard("m");
+
+  expect(store.toggleMute).toHaveBeenCalledOnce();
+});
+
+test("ignores the F key while a modal dialog is open", async () => {
+  const store = createMockStore();
+  const appContextValue = createMockAppContext(store);
+  appContextValue.rendererConfigStore.set(rendererConfig);
+  await customRender(
+    <>
+      <MidiVisualizer />
+      <Dialog defaultOpen>
+        <DialogContent>
+          <DialogTitle>Settings</DialogTitle>
+        </DialogContent>
+      </Dialog>
+    </>,
+    { appContextValue },
+  );
+
+  await userEvent.keyboard("f");
+
+  expect(queryExpandedPlayer()).not.toBeInTheDocument();
 });
 
 // --- Canvas invalidation tests ---
