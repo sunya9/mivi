@@ -76,6 +76,34 @@ test.each([
   },
 );
 
+test("only the primary audio track of a multi-track file is exported", async () => {
+  const resources = await createTestRecorderResources("mp4", { audioTracks: 2 });
+
+  const { file } = await compositeToFile(resources);
+
+  const input = new Input({ formats: ALL_FORMATS, source: new BlobSource(file) });
+  expect(await input.getAudioTracks()).toHaveLength(1);
+});
+
+test("audio is advanced in lockstep with video rendering", async () => {
+  const resources = await createTestRecorderResources("webm", { duration: 3 });
+  const opfsFile = await createOpfsExportFile("test-export.webm");
+  using compositor = new MediaCompositor(resources, opfsFile.target);
+  const sequence: { phase: string; completed: number }[] = [];
+  compositor.subscribe((phase, completed) => sequence.push({ phase, completed }));
+
+  await compositor.composite();
+  await opfsFile.remove();
+
+  const audioTotal = compositor.phases.find((p) => p.name === "Audio")?.total ?? 0;
+  const firstVideoFrame = sequence.findIndex((e) => e.phase === "Video Render");
+  const audioAfterVideo = sequence
+    .slice(firstVideoFrame)
+    .filter((e) => e.phase === "Audio" && e.completed < audioTotal);
+  expect(firstVideoFrame).toBeGreaterThan(-1);
+  expect(audioAfterVideo.length).toBeGreaterThan(0);
+});
+
 test("every phase reports its total once composite finishes", async () => {
   const resources = await createTestRecorderResources("webm");
   expect(resources.rendererConfig.audioVisualizerConfig.style).toBe("none");
