@@ -1,9 +1,11 @@
 import { Suspense } from "react";
+import { HotkeysProvider } from "react-hotkeys-hook";
 
 import { FileStoreGate } from "@/components/providers/file-store-gate";
 import { AppContext, AppContextValue } from "@/contexts/app-context";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { FileStoreContext } from "@/lib/file-store/use-file-store";
+import { PLAYER_HOTKEYS_SCOPE } from "@/lib/hotkeys";
 
 import { createMockPwaState } from "./pwa-mock";
 
@@ -23,9 +25,11 @@ export function TestProviders({
     <FileStoreContext value={appContextValue.fileStore}>
       <AppContext value={appContextValue}>
         <PwaContext value={pwaState}>
-          <Suspense fallback={null}>
-            <FileStoreGate>{children}</FileStoreGate>
-          </Suspense>
+          <HotkeysProvider initiallyActiveScopes={[PLAYER_HOTKEYS_SCOPE]}>
+            <Suspense fallback={null}>
+              <FileStoreGate>{children}</FileStoreGate>
+            </Suspense>
+          </HotkeysProvider>
         </PwaContext>
       </AppContext>
     </FileStoreContext>

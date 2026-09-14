@@ -4,6 +4,13 @@ import { XIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
+import { useSuspendHotkeysScope } from "@/hooks/use-suspend-hotkeys-scope";
+import { PLAYER_HOTKEYS_SCOPE } from "@/lib/hotkeys";
+
+function SuspendPlayerHotkeys() {
+  useSuspendHotkeysScope(PLAYER_HOTKEYS_SCOPE);
+  return null;
+}
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
@@ -53,6 +60,7 @@ function DialogContent({
         )}
         {...props}
       >
+        <SuspendPlayerHotkeys />
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close
