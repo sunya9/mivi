@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
+import { useMessages } from "@/lib/locale/use-messages";
 import { isEffectivelyPlaying } from "@/lib/player/audio-playback-store";
 import { formatTime } from "@/lib/utils";
 import { type FpsCounter } from "@/lib/visualizer/fps-counter";
@@ -15,12 +16,13 @@ interface InteractionProps {
 }
 
 export function SeekSlider({ onInteractionStart, onInteractionEnd }: InteractionProps) {
+  const m = useMessages();
   const { audioPlaybackStore: store } = useAppContext();
   const position = useStore(store, (snapshot) => snapshot.position);
   const duration = useStore(store, (snapshot) => snapshot.duration);
   return (
     <Slider
-      aria-label="Seek position"
+      aria-label={m.player_seek_position()}
       thumbAlignment="center"
       max={duration || Infinity}
       value={[position]}
@@ -54,6 +56,7 @@ export function SeekSlider({ onInteractionStart, onInteractionEnd }: Interaction
 }
 
 export function PlayPauseButton() {
+  const m = useMessages();
   const { audioPlaybackStore: store } = useAppContext();
   const playing = useStore(store, isEffectivelyPlaying);
   return (
@@ -61,7 +64,7 @@ export function PlayPauseButton() {
       onClick={store.togglePlay}
       variant="ghost-secondary"
       size="icon-lg"
-      aria-label={playing ? "Pause" : "Play"}
+      aria-label={playing ? m.player_pause() : m.player_play()}
     >
       {playing ? <Pause /> : <Play />}
     </Button>
@@ -69,6 +72,7 @@ export function PlayPauseButton() {
 }
 
 export function MuteButton() {
+  const m = useMessages();
   const { audioPlaybackStore: store } = useAppContext();
   const muted = useStore(store, (snapshot) => snapshot.muted);
   return (
@@ -77,7 +81,7 @@ export function MuteButton() {
       size="icon-lg"
       onClick={store.toggleMute}
       aria-pressed={muted}
-      aria-label={muted ? "Unmute" : "Mute"}
+      aria-label={muted ? m.player_unmute() : m.player_mute()}
     >
       {muted ? <VolumeX /> : <Volume2 />}
     </Button>
@@ -85,6 +89,7 @@ export function MuteButton() {
 }
 
 export function VolumeSlider({ onInteractionStart, onInteractionEnd }: InteractionProps) {
+  const m = useMessages();
   const { audioPlaybackStore: store } = useAppContext();
   const volume = useStore(store, (snapshot) => snapshot.volume);
   return (
@@ -99,7 +104,7 @@ export function VolumeSlider({ onInteractionStart, onInteractionEnd }: Interacti
         store.setVolume(value);
         onInteractionEnd();
       }}
-      aria-label="Volume"
+      aria-label={m.player_volume()}
       className="basis-24 **:data-[slot=slider-track]:bg-muted/30"
     />
   );

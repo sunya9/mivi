@@ -1,14 +1,15 @@
 import { proxy, releaseProxy, wrap } from "comlink";
 
 import type { ActivePhase } from "./export-progress-tracker";
+import type { ExportPhase } from "./media-compositor";
 import { RecorderResources } from "./recorder-resources";
 
 export function runRecorder(
   resources: RecorderResources,
-  onChangeRecordingStatus: (progress: number, activePhase?: ActivePhase) => void,
+  onChangeRecordingStatus: (progress: number, activePhase?: ActivePhase<ExportPhase>) => void,
   signal: AbortSignal,
 ) {
-  const onProgress = proxy((progress: number, activePhase?: ActivePhase) => {
+  const onProgress = proxy((progress: number, activePhase?: ActivePhase<ExportPhase>) => {
     if (signal.aborted) return;
     onChangeRecordingStatus(progress, activePhase);
   });

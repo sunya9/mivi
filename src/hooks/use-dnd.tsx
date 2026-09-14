@@ -5,9 +5,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useSetAudioFile } from "@/lib/audio/use-audio";
 import { useSetBackgroundImageFile } from "@/lib/background-image/use-background-image";
 import { errorLogWithToast } from "@/lib/error-toast";
+import { useMessages } from "@/lib/locale/use-messages";
 import { useSetMidiFile } from "@/lib/midi/use-midi";
 
 export function useDnd() {
+  const m = useMessages();
   const setMidiFile = useSetMidiFile();
   const setAudioFile = useSetAudioFile();
   const setBackgroundImageFile = useSetBackgroundImageFile();
@@ -29,15 +31,15 @@ export function useDnd() {
             } else if (fileType.startsWith("image/")) {
               await setBackgroundImageFile(file);
             } else {
-              errorLogWithToast(`Unsupported file type: ${fileType}`);
+              errorLogWithToast(m.dnd_unsupported_file_type({ type: fileType }));
             }
           } catch (error) {
-            errorLogWithToast("Error processing dropped file:", error);
+            errorLogWithToast(m.dnd_error_processing(), error);
           }
         }),
       );
     },
-    [setMidiFile, setAudioFile, setBackgroundImageFile],
+    [m, setMidiFile, setAudioFile, setBackgroundImageFile],
   );
 
   const onDragOver = useCallback((e: DragEvent) => {
@@ -60,20 +62,20 @@ export function useDnd() {
         >
           <Card>
             <CardHeader>
-              <CardTitle>Drop Files Here</CardTitle>
+              <CardTitle>{m.dnd_drop_title()}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p>Supported file formats:</p>
+              <p>{m.dnd_supported_formats()}</p>
               <ul className="mt-2 list-disc pl-4">
-                <li>MIDI files (.mid, .midi)</li>
-                <li>Audio files (.mp3, .wav, etc.)</li>
-                <li>Image files (.png, .jpg, etc.)</li>
+                <li>{m.dnd_midi_files()}</li>
+                <li>{m.dnd_audio_files()}</li>
+                <li>{m.dnd_image_files()}</li>
               </ul>
             </CardContent>
           </Card>
         </div>
       ),
-    [isDragging],
+    [isDragging, m],
   );
 
   return { dropZoneProps: { onDrop, onDragOver, onDragLeave }, DragDropOverlay } as const;

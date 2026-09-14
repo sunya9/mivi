@@ -26,6 +26,7 @@ import { Toaster } from "@/components/ui/toast";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
 import { useVisualizerFit } from "@/hooks/use-visualizer-fit";
+import { useMessages } from "@/lib/locale/use-messages";
 
 const PANELS: PanelConfig[] = [
   { id: "track-list", defaultSize: 300, constraints: { minSize: 200 } },
@@ -34,6 +35,7 @@ const PANELS: PanelConfig[] = [
 ];
 
 export function App() {
+  const m = useMessages();
   const { rendererConfigStore } = useAppContext();
   const resolution = useStore(rendererConfigStore, (config) => config.resolution);
 
@@ -82,7 +84,7 @@ export function App() {
             orientation="horizontal"
             panelId="track-list"
             side="before"
-            aria-label="Resize track list panel"
+            aria-label={m.layout_resize_track_list()}
             className="area-[sep-h1]"
             getOptimalSizeForFit={(sizes) => getCenterFitSize("track-list", sizes)}
           />
@@ -92,7 +94,7 @@ export function App() {
             orientation="vertical"
             panelId="visualizer"
             side="before"
-            aria-label="Resize visualizer panel"
+            aria-label={m.layout_resize_visualizer()}
             className="area-[sep-v]"
             getOptimalSizeForFit={getVisualizerOptimalHeight}
           />
@@ -114,7 +116,7 @@ export function App() {
             orientation="horizontal"
             panelId="style"
             side="after"
-            aria-label="Resize style panel"
+            aria-label={m.layout_resize_style()}
             className="area-[sep-h2]"
             getOptimalSizeForFit={(sizes) => getCenterFitSize("style", sizes)}
           />

@@ -3,32 +3,16 @@ import { cn } from "cn";
 import { ListMusic, Music, Palette, Settings } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { useMessages } from "@/lib/locale/use-messages";
 import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 
 const tabs = [
-  {
-    value: "tracks",
-    label: "Tracks",
-    icon: () => <ListMusic className="size-5" />,
-  },
-  {
-    value: "visualizer",
-    label: "Audio/Bg",
-    icon: () => <Music className="size-5" />,
-  },
-  {
-    value: "style",
-    label: "Style",
-    icon: () => <Palette className="size-5" />,
-  },
-  {
-    value: "settings",
-    label: "Settings",
-    icon: () => <Settings className="size-5" />,
-  },
+  { value: "tracks", icon: () => <ListMusic className="size-5" /> },
+  { value: "visualizer", icon: () => <Music className="size-5" /> },
+  { value: "style", icon: () => <Palette className="size-5" /> },
+  { value: "settings", icon: () => <Settings className="size-5" /> },
 ] as const satisfies readonly {
   value: string;
-  label: string;
   icon: () => ReactNode;
 }[];
 
@@ -41,17 +25,24 @@ interface MobileBottomNavProps {
 }
 
 export function MobileBottomNav({ value, onValueChange, className }: MobileBottomNavProps) {
+  const m = useMessages();
   const {
     needRefresh: [showUpdateIndicator],
   } = usePwaContext();
+  const labels: Record<MobileTabValue, string> = {
+    tracks: m.nav_tracks(),
+    visualizer: m.nav_audio_bg(),
+    style: m.nav_style(),
+    settings: m.nav_settings(),
+  };
   return (
     <TabsPrimitive.Root
-      render={<nav aria-label="Sections" />}
+      render={<nav aria-label={m.nav_sections()} />}
       value={value}
       onValueChange={(v: MobileTabValue) => onValueChange(v)}
       className={cn("border-t border-border bg-background drop-shadow", className)}
     >
-      <TabsPrimitive.List className="relative grid grid-cols-4" aria-label="Sections">
+      <TabsPrimitive.List className="relative grid grid-cols-4" aria-label={m.nav_sections()}>
         <TabsPrimitive.Indicator className="absolute inset-y-0 right-(--active-tab-right) left-(--active-tab-left) -z-10 m-1 rounded-md bg-secondary transition-all" />
         {tabs.map((tab) => {
           const hasUpdateIndicator = tab.value === "settings" && showUpdateIndicator;
@@ -73,8 +64,8 @@ export function MobileBottomNav({ value, onValueChange, className }: MobileBotto
                   </span>
                 )}
               </span>
-              <span>{tab.label}</span>
-              {hasUpdateIndicator && <span className="sr-only">Update available</span>}
+              <span>{labels[tab.value]}</span>
+              {hasUpdateIndicator && <span className="sr-only">{m.update_available()}</span>}
             </TabsPrimitive.Tab>
           );
         })}

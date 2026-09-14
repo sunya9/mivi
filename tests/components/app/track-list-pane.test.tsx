@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { ComponentProps, Dispatch, SetStateAction } from "react";
 import { AudioContext } from "standardized-audio-context-mock";
 import { testMidiTracks } from "tests/fixtures";
+import { AppContextWrapper } from "tests/test-providers";
 import { customRender } from "tests/util";
 import { expect, test, vi } from "vitest";
 
@@ -20,6 +21,7 @@ function renderTrackListPane(props: Partial<ComponentProps<typeof TrackListPaneC
       onChangeMidiFile={mockOnChangeMidiFile}
       {...props}
     />,
+    { wrapper: AppContextWrapper },
   );
 }
 

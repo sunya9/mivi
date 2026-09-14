@@ -4,5 +4,6 @@
     "stylesheet": "./src/index.css",
     "functions": ["clsx", "cn"]
   },
-  "sortImports": true
+  "sortImports": true,
+  "ignorePatterns": ["src/paraglide/**"]
 }

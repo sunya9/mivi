@@ -5,10 +5,10 @@ import { CustomResolutionFields } from "@/components/app/custom-resolution-field
 import {
   fpsOptions,
   formatOptions,
-  backgroundImagePositions,
-  backgroundImageRepeats,
-  backgroundImageFitOptions,
-  audioVisualizerLayerOptions,
+  getBackgroundImagePositionOptions,
+  getBackgroundImageRepeatOptions,
+  getBackgroundImageFitOptions,
+  getAudioVisualizerLayerOptions,
 } from "@/components/app/renderer-options";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FileButton } from "@/components/common/file-button";
@@ -27,21 +27,18 @@ import { Switch } from "@/components/ui/switch";
 import { useRendererConfig, useUpdateRendererConfig } from "@/hooks/use-renderer-config";
 import { useAudio } from "@/lib/audio/use-audio";
 import { useBackgroundImage } from "@/lib/background-image/use-background-image";
+import { useMessages } from "@/lib/locale/use-messages";
 import {
   createCustomResolution,
   CUSTOM_RESOLUTION_LABEL,
   isCustomResolution,
+  type ResolutionGroup,
   resolutionGroups,
   resolutions,
 } from "@/lib/muxer/resolution";
 import type { FPS } from "@/lib/muxer/video-format";
 import { RendererConfig } from "@/lib/renderers/renderer-config";
 import { shallowEqual } from "@/lib/store/observable-store";
-
-const resolutionItems = [...resolutions, { label: CUSTOM_RESOLUTION_LABEL }].map(({ label }) => ({
-  value: label,
-  label,
-}));
 
 const selectCommonConfig = ({
   backgroundColor,
@@ -70,7 +67,21 @@ const selectCommonConfig = ({
 });
 
 export const CommonConfigPane = memo(function CommonConfigPane() {
+  const m = useMessages();
   const rendererConfig = useRendererConfig(selectCommonConfig, shallowEqual);
+  const backgroundImageFitOptions = getBackgroundImageFitOptions();
+  const backgroundImagePositions = getBackgroundImagePositionOptions();
+  const backgroundImageRepeats = getBackgroundImageRepeatOptions();
+  const audioVisualizerLayerOptions = getAudioVisualizerLayerOptions();
+  const resolutionGroupLabels: Record<ResolutionGroup["key"], string> = {
+    landscape: m.resolution_group_landscape(),
+    portrait: m.resolution_group_portrait(),
+    square: m.resolution_group_square(),
+  };
+  const resolutionItems = [
+    ...resolutions.map(({ label }) => ({ value: label, label })),
+    { value: CUSTOM_RESOLUTION_LABEL, label: m.resolution_custom() },
+  ];
   const onUpdateRendererConfig = useUpdateRendererConfig();
   const { audioFile, setAudioFile, isDecoding, cancelDecode } = useAudio();
   const { backgroundImageFile, setBackgroundImageFile } = useBackgroundImage();
@@ -86,7 +97,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
     <Card variant="transparent">
       <CardHeader>
         <CardTitle>
-          <h2>Audio Settings</h2>
+          <h2>{m.audio_settings_heading()}</h2>
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-2">
@@ -95,9 +106,9 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             filename={audioFile?.name}
             setFile={setAudioFile}
             accept="audio/*"
-            label="Audio file"
-            placeholder="Choose Audio file"
-            cancelLabel="Cancel audio file"
+            label={m.audio_file_label()}
+            placeholder={m.audio_file_choose()}
+            cancelLabel={m.audio_file_cancel()}
             loading={isDecoding}
             onCancel={cancelDecode}
           />
@@ -106,12 +117,12 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
 
       <CardHeader>
         <CardTitle>
-          <h2>Common settings</h2>
+          <h2>{m.common_settings_heading()}</h2>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <FormRow
-          label={<span>Background Color</span>}
+          label={<span>{m.background_color()}</span>}
           controller={({ id }) => (
             <ColorPickerInput
               id={id}
@@ -121,7 +132,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
           )}
         />
         <FormRow
-          label={<span>Show Background Image</span>}
+          label={<span>{m.show_background_image()}</span>}
           controller={({ id }) => (
             <Switch
               id={id}
@@ -137,15 +148,15 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             filename={backgroundImageFilename}
             setFile={setBackgroundImageFile}
             accept="image/*"
-            label="Background image"
-            placeholder="Choose Background Image"
-            cancelLabel="Cancel background image"
+            label={m.background_image_label()}
+            placeholder={m.background_image_choose()}
+            cancelLabel={m.background_image_cancel()}
           />
         )}
         {rendererConfig.backgroundImageEnabled && backgroundImageFilename && (
           <>
             <SelectRow
-              label={<span>Image Fit</span>}
+              label={<span>{m.image_fit()}</span>}
               value={rendererConfig.backgroundImageFit}
               onValueChange={(value) =>
                 onUpdateRendererConfig({
@@ -153,7 +164,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
                 })
               }
               items={backgroundImageFitOptions}
-              placeholder="Select image fit"
+              placeholder={m.image_fit_placeholder()}
             >
               <SelectContent>
                 {backgroundImageFitOptions.map((fit) => (
@@ -164,7 +175,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
               </SelectContent>
             </SelectRow>
             <SelectRow
-              label={<span>Image Position</span>}
+              label={<span>{m.image_position()}</span>}
               value={rendererConfig.backgroundImagePosition}
               onValueChange={(value) =>
                 onUpdateRendererConfig({
@@ -172,7 +183,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
                 })
               }
               items={backgroundImagePositions}
-              placeholder="Select image position"
+              placeholder={m.image_position_placeholder()}
             >
               <SelectContent>
                 {backgroundImagePositions.map((position) => (
@@ -183,7 +194,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
               </SelectContent>
             </SelectRow>
             <SelectRow
-              label={<span>Image Repeat</span>}
+              label={<span>{m.image_repeat()}</span>}
               value={rendererConfig.backgroundImageRepeat}
               onValueChange={(value) =>
                 onUpdateRendererConfig({
@@ -191,7 +202,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
                 })
               }
               items={backgroundImageRepeats}
-              placeholder="Select image repeat"
+              placeholder={m.image_repeat_placeholder()}
             >
               <SelectContent>
                 {backgroundImageRepeats.map((repeat) => (
@@ -202,7 +213,9 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
               </SelectContent>
             </SelectRow>
             <SliderRow
-              label={<span>Image Opacity: {rendererConfig.backgroundImageOpacity}</span>}
+              label={
+                <span>{m.image_opacity({ value: rendererConfig.backgroundImageOpacity })}</span>
+              }
               min={0}
               max={1}
               step={0.01}
@@ -216,7 +229,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
           </>
         )}
         <SelectRow
-          label="Resolution"
+          label={m.resolution()}
           value={rendererConfig.resolution.label}
           onValueChange={(value) => {
             if (value == null) return;
@@ -233,12 +246,12 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             focusCustomOnCloseRef.current = true;
           }}
           items={resolutionItems}
-          placeholder="Select resolution"
+          placeholder={m.resolution_placeholder()}
         >
           <SelectContent finalFocus={focusAfterResolutionClose}>
             {resolutionGroups.map((group) => (
-              <SelectGroup key={group.label}>
-                <SelectLabel>{group.label}</SelectLabel>
+              <SelectGroup key={group.key}>
+                <SelectLabel>{resolutionGroupLabels[group.key]}</SelectLabel>
                 {group.resolutions.map((resolution) => (
                   <SelectItem key={resolution.label} value={resolution.label}>
                     {resolution.label}
@@ -248,13 +261,13 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             ))}
             <SelectSeparator />
             <SelectGroup>
-              <SelectItem value={CUSTOM_RESOLUTION_LABEL}>{CUSTOM_RESOLUTION_LABEL}</SelectItem>
+              <SelectItem value={CUSTOM_RESOLUTION_LABEL}>{m.resolution_custom()}</SelectItem>
             </SelectGroup>
           </SelectContent>
         </SelectRow>
         {isCustomResolution(rendererConfig.resolution) && (
           <Fieldset.Root className="flex items-center justify-between">
-            <Fieldset.Legend className="flex-1">Custom Size</Fieldset.Legend>
+            <Fieldset.Legend className="flex-1">{m.resolution_custom_size()}</Fieldset.Legend>
             <CustomResolutionFields
               widthInputRef={customWidthInputRef}
               resolution={rendererConfig.resolution}
@@ -265,7 +278,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
           </Fieldset.Root>
         )}
         <SelectRow
-          label={<span>FPS</span>}
+          label={<span>{m.fps()}</span>}
           value={rendererConfig.fps.toString()}
           onValueChange={(value) => {
             if (value == null) return;
@@ -276,7 +289,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             value: o.value.toString(),
             label: o.label,
           }))}
-          placeholder="Select frame rate"
+          placeholder={m.fps_placeholder()}
         >
           <SelectContent>
             {fpsOptions.map((option) => (
@@ -287,11 +300,11 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
           </SelectContent>
         </SelectRow>
         <SelectRow
-          label={<span>Format</span>}
+          label={<span>{m.video_format()}</span>}
           value={rendererConfig.format}
           onValueChange={(value) => onUpdateRendererConfig({ format: value ?? undefined })}
           items={formatOptions}
-          placeholder="Select video format"
+          placeholder={m.video_format_placeholder()}
         >
           <SelectContent align="end">
             {formatOptions.map((option) => (
@@ -302,7 +315,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
           </SelectContent>
         </SelectRow>
         <SelectRow
-          label={<span>Audio Visualizer Layer</span>}
+          label={<span>{m.audio_visualizer_layer()}</span>}
           value={rendererConfig.audioVisualizerLayer}
           onValueChange={(value) =>
             onUpdateRendererConfig({
@@ -310,7 +323,7 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             })
           }
           items={audioVisualizerLayerOptions}
-          placeholder="Select layer"
+          placeholder={m.audio_visualizer_layer_placeholder()}
         >
           <SelectContent align="end">
             {audioVisualizerLayerOptions.map((option) => (

@@ -280,6 +280,9 @@ importers:
       '@codecov/vite-plugin':
         specifier: ^2.0.1
         version: 2.0.1(vite@8.3.0(@types/node@26.5.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))
+      '@inlang/paraglide-js':
+        specifier: ^2.25.2
+        version: 2.25.2(typescript@7.0.2)(vite@8.3.0(@types/node@26.5.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))
       '@testing-library/dom':
         specifier: ^10.4.1
         version: 10.4.1
@@ -1283,6 +1286,25 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@inlang/paraglide-js@2.25.2':
+    resolution: {integrity: sha512-kbCTHFToIUxecg55BZ596w/Ve7xKruwi/GXeApVa5qMemm+hGQFwXo6ai16/XYztQbjM0wM3oUH/83p9BYIc5g==}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=5.6'
+      vite: '>=5.0.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+      vite:
+        optional: true
+
+  '@inlang/recommend-sherlock@0.2.1':
+    resolution: {integrity: sha512-ckv8HvHy/iTqaVAEKrr+gnl+p3XFNwe5D2+6w6wJk2ORV2XkcRkKOJ/XsTUJbPSiyi4PI+p+T3bqbmNx/rDUlg==}
+
+  '@inlang/sdk@3.0.5':
+    resolution: {integrity: sha512-kJBivhj3AeM8Mt1AnmLt48B+OYMGkXXu7Duw+UcWmk4VxqqF/Glm9y/BCcWQWMGi6mj7U40qvW7y7wVyHeVhMA==}
+    engines: {node: '>=20.0.0'}
+
   '@inquirer/ansi@2.0.7':
     resolution: {integrity: sha512-3eTuUO1vH2cZm2ZKHeQxnOqlTi9EfZDGgIe3BL3I4u+rJHocr9Fz86M4fjYABPvFnQG/gGK551HqDiIcETwU6Q==}
     engines: {node: '>=23.5.0 || ^22.13.0 || ^20.17.0'}
@@ -1340,6 +1362,29 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@lix-js/sdk-darwin-arm64@0.16.1':
+    resolution: {integrity: sha512-BKUerxQ5DV1o9L8n3uxZMTdUyjNGDLyh4zoYCQ1sakeAa2mQbb4aYnhYrpJT8Ob+zA5B/IZMQfphz6zOSrXNcw==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@lix-js/sdk-linux-arm64@0.16.1':
+    resolution: {integrity: sha512-rJ5qtFStX+BlU7NXtTVJjRl5mumzFRJs6UcJTui/ib9M6d1nw9wTtRwB/DuFACExRrnDQkmqL9W7Ulm14Mluyw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@lix-js/sdk-linux-x64@0.16.1':
+    resolution: {integrity: sha512-xZxSKMiGFWFXbV+QFEfa0K+EBvgE7WIn32imVKQC/ZMfUnPH4SmdN2FbdS7qe2TAKdx38qUdI8mvcnrhNZ8nAw==}
+    cpu: [x64]
+    os: [linux]
+
+  '@lix-js/sdk-win32-x64@0.16.1':
+    resolution: {integrity: sha512-1H84YqSd6VhzyUl5hdW4106QCnhO0NE9xRfT6ci6JvU/opNC9JWiOyKLboqlJWkupSIW9VlfL5Cwza6fZs5mLw==}
+    cpu: [x64]
+    os: [win32]
+
+  '@lix-js/sdk@0.16.1':
+    resolution: {integrity: sha512-TphGW47tPJ52n8Umk46j56veeaz/uLoS9m1pWYWs0UnnbItsntu6hW/alxW/OX1WZA7vXk7d1OP6qIbmluc+kA==}
 
   '@modelcontextprotocol/sdk@1.30.0':
     resolution: {integrity: sha512-xKd8OIzlqNzcqcNumGAa6g+PW2kjD5vrpcKOnfldAUPP3j7lnqMPwlTXQm8gF+UwH72z0lqaRbjr9hqGz0eITA==}
@@ -2228,6 +2273,9 @@ packages:
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
 
+  '@sinclair/typebox@0.31.30':
+    resolution: {integrity: sha512-MGsM7bVmHg3sUKCphlu3SGQ+T+5JTbygZWYArfKQCW5anJeACHeqLhcnf+R7XlCWZ+QR3C8JTBx3kCKJTN69ow==}
+
   '@sindresorhus/merge-streams@4.0.0':
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
@@ -2695,11 +2743,6 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  acorn@8.17.0:
-    resolution: {integrity: sha512-xRQbDb9BnwDafYNn6Vwl839DYVjqXYb1XVGtWAZ1kcDc6iwAL4hg3B1dZlRiuENFeO2H53gFG3in621AdERVAg==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
-
   acorn@8.18.0:
     resolution: {integrity: sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==}
     engines: {node: '>=0.4.0'}
@@ -2767,6 +2810,9 @@ packages:
 
   array-flatten@3.0.0:
     resolution: {integrity: sha512-zPMVc3ZYlGLNk4mpK1NzP2wg0ml9t7fUgDsayR5Y5rSzxQilzR9FGu/EH2jQOcKSAeAfWeylyW8juy3OkWRvNA==}
+
+  array-timsort@1.0.3:
+    resolution: {integrity: sha512-/+3GRL7dDAGEfM6TseQk/U+mi18TU2Ms9I3UlLdUMhz2hbvGNTKdj9xniwXfUqgYhHxRx0+8UnKkvlNwVU+cWQ==}
 
   arraybuffer.prototype.slice@1.0.4:
     resolution: {integrity: sha512-BNoCY6SXXPQ7gF2opIP4GBE+Xw7U+pHMYKuzjgCN3GwiaIR09UUeKfheyIry77QtrCBlC0KK0q5/TER/tYh3PQ==}
@@ -2975,6 +3021,10 @@ packages:
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
+  comment-json@4.6.2:
+    resolution: {integrity: sha512-R2rze/hDX30uul4NZoIZ76ImSJLFxn/1/ZxtKC1L77y2X1k+yYu1joKbAtMA2Fg3hZrTOiw0I5mwVMo0cf250w==}
+    engines: {node: '>= 6'}
+
   common-tags@1.8.2:
     resolution: {integrity: sha512-gk/Z852D2Wtb//0I+kRFNKKE9dIIVirjoqPoA1wJU+XePVXZfGeBpk45+A1rKO4Q43prqWBNY/MiIeRLbPWUaA==}
     engines: {node: '>=4.0.0'}
@@ -2985,6 +3035,10 @@ packages:
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
+
+  consola@3.4.0:
+    resolution: {integrity: sha512-EiPU8G6dQG0GFHNR8ljnZFki/8a+cQwEQ+7wpxdChl02Q8HXlwEZWD5lqAF8vC2sEC3Tehr8hy7vErz88LHyUA==}
+    engines: {node: ^14.18.0 || >=16.10.0}
 
   consola@3.4.2:
     resolution: {integrity: sha512-5IKcdX0nnYavi6G7TtOhwkYzyjfJlatbjMjuLSfE2kYT5pMDOilZ4OvMhi637CcDICTmz3wARPoyhqyX1Y+XvA==}
@@ -3944,6 +3998,10 @@ packages:
     resolution: {integrity: sha512-22wnEnv4do2fvoeJsxpFCG/MBxReNxoCVBccaCl7suUJsG+F0UvxI9ycxZ9YgtLHSSjrZl5tOas0JZ/R1vJ93g==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
+
+  kysely@0.28.17:
+    resolution: {integrity: sha512-nbD8lB9EB3wNdMhOCdx5Li8DxnLbvKByylRLcJ1h+4SkrowVeECAyZlyiKMThF7xFdRz0jSQ2MoJr+wXux2y0Q==}
+    engines: {node: '>=20.0.0'}
 
   lefthook-darwin-arm64@2.1.12:
     resolution: {integrity: sha512-GSUjqaCuxAYlPOovbjXEWE3HAIa/xOQkTTmZ937zieQldjPLTaC7+s5FHoxKywn+D9riBlofkDqG7Z4f5zzmPA==}
@@ -5245,6 +5303,9 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
+  urlpattern-polyfill@10.1.0:
+    resolution: {integrity: sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw==}
+
   use-sync-external-store@1.6.0:
     resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
     peerDependencies:
@@ -5256,6 +5317,14 @@ packages:
   uuid@14.0.2:
     resolution: {integrity: sha512-xZe/16rV4aa+HGSOCiY2YeLT1OybRLrrkL/Rqaq7p7GMVXjFh+6wN4oMYgjFmnSnhY8t6Xpdl2l9qmnHYuMHwQ==}
     hasBin: true
+
+  valibot@1.5.0:
+    resolution: {integrity: sha512-nil6AkP2TChWL43Z5uJ6GTxX01CUA+g8LWUM+N/rB9NBbkUMaUsi9PUNzlUPgoKASgmx9f7eGOYpJ04/fSa6FQ==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   validate-npm-package-name@7.0.2:
     resolution: {integrity: sha512-hVDIBwsRruT73PbK7uP5ebUt+ezEtCmzZz3F59BSr2F6OVFnJ/6h8liuvdLrQ88Xmnk6/+xGGuq+pG9WwTuy3A==}
@@ -6603,6 +6672,32 @@ snapshots:
   '@img/sharp-win32-x64@0.35.4':
     optional: true
 
+  '@inlang/paraglide-js@2.25.2(typescript@7.0.2)(vite@8.3.0(@types/node@26.5.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0))':
+    dependencies:
+      '@inlang/recommend-sherlock': 0.2.1
+      '@inlang/sdk': 3.0.5
+      commander: 11.1.0
+      consola: 3.4.0
+      jiti: 2.7.0
+      json5: 2.2.3
+      unplugin: 2.3.11
+      urlpattern-polyfill: 10.1.0
+      valibot: 1.5.0(typescript@7.0.2)
+    optionalDependencies:
+      typescript: 7.0.2
+      vite: 8.3.0(@types/node@26.5.1)(jiti@2.7.0)(terser@5.49.0)(yaml@2.9.0)
+
+  '@inlang/recommend-sherlock@0.2.1':
+    dependencies:
+      comment-json: 4.6.2
+
+  '@inlang/sdk@3.0.5':
+    dependencies:
+      '@lix-js/sdk': 0.16.1
+      '@sinclair/typebox': 0.31.30
+      kysely: 0.28.17
+      uuid: 14.0.2
+
   '@inquirer/ansi@2.0.7':
     optional: true
 
@@ -6660,6 +6755,27 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@lix-js/sdk-darwin-arm64@0.16.1':
+    optional: true
+
+  '@lix-js/sdk-linux-arm64@0.16.1':
+    optional: true
+
+  '@lix-js/sdk-linux-x64@0.16.1':
+    optional: true
+
+  '@lix-js/sdk-win32-x64@0.16.1':
+    optional: true
+
+  '@lix-js/sdk@0.16.1':
+    dependencies:
+      fflate: 0.8.3
+    optionalDependencies:
+      '@lix-js/sdk-darwin-arm64': 0.16.1
+      '@lix-js/sdk-linux-arm64': 0.16.1
+      '@lix-js/sdk-linux-x64': 0.16.1
+      '@lix-js/sdk-win32-x64': 0.16.1
 
   '@modelcontextprotocol/sdk@1.30.0(supports-color@7.2.0)(zod@3.25.76)':
     dependencies:
@@ -7207,6 +7323,8 @@ snapshots:
 
   '@sec-ant/readable-stream@0.4.1': {}
 
+  '@sinclair/typebox@0.31.30': {}
+
   '@sindresorhus/merge-streams@4.0.0': {}
 
   '@tailwindcss/node@4.3.3':
@@ -7645,8 +7763,6 @@ snapshots:
 
   acorn@8.16.0: {}
 
-  acorn@8.17.0: {}
-
   acorn@8.18.0: {}
 
   ajv-formats@2.1.1(ajv@8.20.0):
@@ -7699,6 +7815,8 @@ snapshots:
       is-array-buffer: 3.0.5
 
   array-flatten@3.0.0: {}
+
+  array-timsort@1.0.3: {}
 
   arraybuffer.prototype.slice@1.0.4:
     dependencies:
@@ -7909,6 +8027,11 @@ snapshots:
 
   commander@2.20.3: {}
 
+  comment-json@4.6.2:
+    dependencies:
+      array-timsort: 1.0.3
+      esprima: 4.0.1
+
   common-tags@1.8.2: {}
 
   conf@10.2.0:
@@ -7925,6 +8048,8 @@ snapshots:
       semver: 7.8.5
 
   confbox@0.1.8: {}
+
+  consola@3.4.0: {}
 
   consola@3.4.2: {}
 
@@ -8937,6 +9062,8 @@ snapshots:
       yaml: 2.9.0
       zod: 4.4.3
 
+  kysely@0.28.17: {}
+
   lefthook-darwin-arm64@2.1.12:
     optional: true
 
@@ -9191,7 +9318,7 @@ snapshots:
 
   mlly@1.8.2:
     dependencies:
-      acorn: 8.17.0
+      acorn: 8.18.0
       pathe: 2.0.3
       pkg-types: 1.3.1
       ufo: 1.6.3
@@ -10370,7 +10497,7 @@ snapshots:
   unplugin@2.3.11:
     dependencies:
       '@jridgewell/remapping': 2.3.5
-      acorn: 8.17.0
+      acorn: 8.18.0
       picomatch: 4.0.7
       webpack-virtual-modules: 0.6.2
 
@@ -10395,6 +10522,8 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
+  urlpattern-polyfill@10.1.0: {}
+
   use-sync-external-store@1.6.0(react@19.3.0):
     dependencies:
       react: 19.3.0
@@ -10402,6 +10531,10 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@14.0.2: {}
+
+  valibot@1.5.0(typescript@7.0.2):
+    optionalDependencies:
+      typescript: 7.0.2
 
   validate-npm-package-name@7.0.2: {}
 

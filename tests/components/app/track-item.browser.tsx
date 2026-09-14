@@ -1,23 +1,27 @@
 import { DndContext } from "@dnd-kit/core";
 import { SortableContext } from "@dnd-kit/sortable";
+import { AudioContext } from "standardized-audio-context";
 import { createTestMidiTracks } from "tests/fixtures/browser-fixtures";
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 
 import { TrackItem } from "@/components/app/track-item";
+import { AppContext, createAppContext } from "@/contexts/app-context";
 
 import "@/index.css";
 
 async function renderAt(width: number) {
   const track = createTestMidiTracks().tracks[0];
   await page.render(
-    <div className="@container" style={{ width }}>
-      <DndContext>
-        <SortableContext items={[track.id]}>
-          <TrackItem track={track} index={0} onUpdateTrackConfig={() => {}} />
-        </SortableContext>
-      </DndContext>
-    </div>,
+    <AppContext value={createAppContext(new AudioContext())}>
+      <div className="@container" style={{ width }}>
+        <DndContext>
+          <SortableContext items={[track.id]}>
+            <TrackItem track={track} index={0} onUpdateTrackConfig={() => {}} />
+          </SortableContext>
+        </DndContext>
+      </div>
+    </AppContext>,
   );
   const top = (element: Element) => element.getBoundingClientRect().top;
   const [opacityLabel, scaleLabel] = document.querySelectorAll('[data-slot="slider-label"]');

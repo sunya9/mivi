@@ -5,6 +5,7 @@ import { FormRow } from "@/components/common/form-row";
 import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { useMessages } from "@/lib/locale/use-messages";
 import { RendererConfig, VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
 import { DeepPartial } from "@/lib/type-utils";
 
@@ -23,6 +24,7 @@ export function VerticalPianoRollConfigPanel({
   minNote,
   maxNote,
 }: Props) {
+  const m = useMessages();
   const setConfig = useCallback(
     (verticalPianoRollConfig: DeepPartial<VerticalPianoRollConfig>) =>
       onUpdateRendererConfig({ verticalPianoRollConfig }),
@@ -31,7 +33,7 @@ export function VerticalPianoRollConfigPanel({
   return (
     <>
       <SliderRow
-        label={<span>Time Window: {config.timeWindow}s</span>}
+        label={<span>{m.time_window({ value: config.timeWindow })}</span>}
         value={[config.timeWindow]}
         min={0.5}
         max={10}
@@ -39,7 +41,7 @@ export function VerticalPianoRollConfigPanel({
         onValueChange={([value]) => setConfig({ timeWindow: value })}
       />
       <SliderRow
-        label={<span>Keyboard Height: {config.keyboardHeight}%</span>}
+        label={<span>{m.keyboard_height({ value: config.keyboardHeight })}</span>}
         value={[config.keyboardHeight]}
         min={5}
         max={40}
@@ -50,11 +52,11 @@ export function VerticalPianoRollConfigPanel({
         label={
           <span className="flex flex-wrap gap-x-2">
             <span>
-              View Range: {config.viewRangeBottom} - {config.viewRangeTop}
+              {m.view_range({ bottom: config.viewRangeBottom, top: config.viewRangeTop })}
             </span>
             {minNote !== undefined && maxNote !== undefined && (
               <span className="text-muted-foreground">
-                (Detected range: {minNote} - {maxNote})
+                {m.detected_range({ min: minNote, max: maxNote })}
               </span>
             )}
           </span>
@@ -66,7 +68,7 @@ export function VerticalPianoRollConfigPanel({
         onValueChange={([bottom, top]) => setConfig({ viewRangeBottom: bottom, viewRangeTop: top })}
       />
       <SliderRow
-        label={<span>Note Margin: {config.noteMargin}px</span>}
+        label={<span>{m.note_margin({ value: config.noteMargin })}</span>}
         value={[config.noteMargin]}
         min={0}
         max={5}
@@ -74,7 +76,7 @@ export function VerticalPianoRollConfigPanel({
         onValueChange={([value]) => setConfig({ noteMargin: value })}
       />
       <SliderRow
-        label={<span>Note Vertical Margin: {config.noteVerticalMargin}px</span>}
+        label={<span>{m.note_vertical_margin({ value: config.noteVerticalMargin })}</span>}
         value={[config.noteVerticalMargin]}
         min={0}
         max={10}
@@ -82,7 +84,7 @@ export function VerticalPianoRollConfigPanel({
         onValueChange={([value]) => setConfig({ noteVerticalMargin: value })}
       />
       <SliderRow
-        label={<span>Note Corner Radius: {config.noteCornerRadius}px</span>}
+        label={<span>{m.note_corner_radius({ value: config.noteCornerRadius })}</span>}
         value={[config.noteCornerRadius]}
         min={0}
         max={10}
@@ -90,7 +92,7 @@ export function VerticalPianoRollConfigPanel({
         onValueChange={([value]) => setConfig({ noteCornerRadius: value })}
       />
       <FormRow
-        label={<span>Darken Black Key Notes</span>}
+        label={<span>{m.darken_black_key_notes()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -102,7 +104,9 @@ export function VerticalPianoRollConfigPanel({
       {config.darkenBlackKeyNotes && (
         <SliderRow
           label={
-            <span>Black Key Note Darkness: {Math.round(config.blackKeyNoteDarkness * 100)}%</span>
+            <span>
+              {m.black_key_note_darkness({ value: Math.round(config.blackKeyNoteDarkness * 100) })}
+            </span>
           }
           value={[config.blackKeyNoteDarkness]}
           min={0.05}
@@ -113,7 +117,7 @@ export function VerticalPianoRollConfigPanel({
       )}
       <Separator />
       <FormRow
-        label={<span>White Key Color</span>}
+        label={<span>{m.white_key_color()}</span>}
         controller={({ id }) => (
           <ColorPickerInput
             id={id}
@@ -123,7 +127,7 @@ export function VerticalPianoRollConfigPanel({
         )}
       />
       <FormRow
-        label={<span>Black Key Color</span>}
+        label={<span>{m.black_key_color()}</span>}
         controller={({ id }) => (
           <ColorPickerInput
             id={id}
@@ -133,7 +137,7 @@ export function VerticalPianoRollConfigPanel({
         )}
       />
       <FormRow
-        label={<span>Key Press Highlight</span>}
+        label={<span>{m.key_press_highlight()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -144,7 +148,9 @@ export function VerticalPianoRollConfigPanel({
       />
       {config.showKeyPressHighlight && (
         <SliderRow
-          label={<span>Key Press Opacity: {Math.round(config.keyPressOpacity * 100)}%</span>}
+          label={
+            <span>{m.key_press_opacity({ value: Math.round(config.keyPressOpacity * 100) })}</span>
+          }
           value={[config.keyPressOpacity]}
           min={0.1}
           max={1}
@@ -153,7 +159,7 @@ export function VerticalPianoRollConfigPanel({
         />
       )}
       <FormRow
-        label={<span>Octave Labels</span>}
+        label={<span>{m.octave_labels()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -163,7 +169,7 @@ export function VerticalPianoRollConfigPanel({
         )}
       />
       <FormRow
-        label={<span>Key Lines</span>}
+        label={<span>{m.key_lines()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -174,7 +180,7 @@ export function VerticalPianoRollConfigPanel({
       />
       {config.showKeyLines && (
         <FormRow
-          label={<span>Key Line Color</span>}
+          label={<span>{m.key_line_color()}</span>}
           controller={({ id }) => (
             <ColorPickerInput
               id={id}
@@ -186,7 +192,9 @@ export function VerticalPianoRollConfigPanel({
       )}
       {config.showKeyLines && (
         <SliderRow
-          label={<span>Key Line Opacity: {Math.round(config.keyLineOpacity * 100)}%</span>}
+          label={
+            <span>{m.key_line_opacity({ value: Math.round(config.keyLineOpacity * 100) })}</span>
+          }
           value={[config.keyLineOpacity]}
           min={0}
           max={0.3}
@@ -195,7 +203,7 @@ export function VerticalPianoRollConfigPanel({
         />
       )}
       <FormRow
-        label={<span>Octave Lines</span>}
+        label={<span>{m.octave_lines()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -206,7 +214,7 @@ export function VerticalPianoRollConfigPanel({
       />
       {config.showOctaveLines && (
         <FormRow
-          label={<span>Octave Line Color</span>}
+          label={<span>{m.octave_line_color()}</span>}
           controller={({ id }) => (
             <ColorPickerInput
               id={id}
@@ -218,7 +226,11 @@ export function VerticalPianoRollConfigPanel({
       )}
       {config.showOctaveLines && (
         <SliderRow
-          label={<span>Octave Line Opacity: {Math.round(config.octaveLineOpacity * 100)}%</span>}
+          label={
+            <span>
+              {m.octave_line_opacity({ value: Math.round(config.octaveLineOpacity * 100) })}
+            </span>
+          }
           value={[config.octaveLineOpacity]}
           min={0}
           max={0.5}
@@ -228,7 +240,7 @@ export function VerticalPianoRollConfigPanel({
       )}
       <Separator />
       <FormRow
-        label={<span>Hit Line</span>}
+        label={<span>{m.hit_line()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -240,7 +252,7 @@ export function VerticalPianoRollConfigPanel({
       {config.showHitLine && (
         <>
           <FormRow
-            label={<span>Hit Line Color</span>}
+            label={<span>{m.hit_line_color()}</span>}
             controller={({ id }) => (
               <ColorPickerInput
                 id={id}
@@ -250,7 +262,7 @@ export function VerticalPianoRollConfigPanel({
             )}
           />
           <SliderRow
-            label={<span>Hit Line Width: {config.hitLineWidth}px</span>}
+            label={<span>{m.hit_line_width({ value: config.hitLineWidth })}</span>}
             value={[config.hitLineWidth]}
             min={1}
             max={10}
@@ -258,7 +270,9 @@ export function VerticalPianoRollConfigPanel({
             onValueChange={([value]) => setConfig({ hitLineWidth: value })}
           />
           <SliderRow
-            label={<span>Hit Line Opacity: {Math.round(config.hitLineOpacity * 100)}%</span>}
+            label={
+              <span>{m.hit_line_opacity({ value: Math.round(config.hitLineOpacity * 100) })}</span>
+            }
             value={[config.hitLineOpacity]}
             min={0}
             max={1}

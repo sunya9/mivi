@@ -1,8 +1,9 @@
 import { useCallback } from "react";
 
-import { audioVisualizerStyleOptions } from "@/components/app/renderer-options";
+import { getAudioVisualizerStyleOptions } from "@/components/app/renderer-options";
 import { SelectRow } from "@/components/common/select-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
+import { useMessages } from "@/lib/locale/use-messages";
 import { AudioVisualizerConfig, RendererConfig } from "@/lib/renderers/renderer-config";
 import { DeepPartial } from "@/lib/type-utils";
 
@@ -21,12 +22,14 @@ export function AudioVisualizerConfigPanel({
   audioVisualizerConfig,
   onUpdateRendererConfig,
 }: Props) {
+  const m = useMessages();
   const setConfig = useCallback(
     (config: DeepPartial<AudioVisualizerConfig>) =>
       onUpdateRendererConfig({ audioVisualizerConfig: config }),
     [onUpdateRendererConfig],
   );
 
+  const audioVisualizerStyleOptions = getAudioVisualizerStyleOptions();
   const style = audioVisualizerConfig.style;
   const isEnabled = style !== "none";
   const isCircular = style === "circular";
@@ -36,11 +39,11 @@ export function AudioVisualizerConfigPanel({
   return (
     <>
       <SelectRow
-        label={<span>Style</span>}
+        label={<span>{m.common_style()}</span>}
         value={style}
         onValueChange={(value) => setConfig({ style: value ?? undefined })}
         items={audioVisualizerStyleOptions}
-        placeholder="Select style"
+        placeholder={m.av_style_placeholder()}
       >
         <SelectContent align="end">
           {audioVisualizerStyleOptions.map((option) => (

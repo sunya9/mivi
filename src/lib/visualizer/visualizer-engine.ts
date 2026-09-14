@@ -9,6 +9,7 @@ import { RendererConfig } from "@/lib/renderers/renderer-config";
 import { RendererController } from "@/lib/renderers/renderer-controller";
 import type { ReadableStore } from "@/lib/store/observable-store";
 import { FpsCounter } from "@/lib/visualizer/fps-counter";
+import { m } from "@/paraglide/messages";
 
 const CANVAS_CLASS_NAME = cn(
   "max-h-full max-w-full [html:active-view-transition-type(canvas-expand)_&]:[view-transition-name:visualizer-canvas]",
@@ -40,7 +41,7 @@ export class VisualizerEngine {
     this.canvas = document.createElement("canvas");
     this.canvas.className = CANVAS_CLASS_NAME;
     this.canvas.setAttribute("role", "img");
-    this.canvas.setAttribute("aria-label", "Visualized Midi");
+    this.canvas.setAttribute("aria-label", m.player_canvas_label());
     const context = this.canvas.getContext("2d");
     if (!context) throw new Error("Failed to get canvas context");
     this.#controller = new RendererController(context);

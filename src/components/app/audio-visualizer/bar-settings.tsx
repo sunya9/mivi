@@ -1,8 +1,9 @@
-import { audioVisualizerBarStyleOptions } from "@/components/app/renderer-options";
+import { getAudioVisualizerBarStyleOptions } from "@/components/app/renderer-options";
 import { SelectRow } from "@/components/common/select-row";
 import { SliderRow } from "@/components/common/slider-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useMessages } from "@/lib/locale/use-messages";
 import { AudioVisualizerStyle } from "@/lib/renderers/renderer-config";
 
 import { AudioVisualizerSectionProps } from "./types";
@@ -12,11 +13,13 @@ export function BarSettings({
   setConfig,
   style,
 }: AudioVisualizerSectionProps & { style: AudioVisualizerStyle }) {
+  const m = useMessages();
+  const audioVisualizerBarStyleOptions = getAudioVisualizerBarStyleOptions();
   return (
     <>
       <Separator />
       <SliderRow
-        label={<span>Bar Count: {config.barCount}</span>}
+        label={<span>{m.av_bar_count({ value: config.barCount })}</span>}
         value={[config.barCount]}
         min={16}
         max={256}
@@ -26,7 +29,7 @@ export function BarSettings({
       {style === "bars" && (
         <>
           <SliderRow
-            label={<span>Gap: {config.barGap}%</span>}
+            label={<span>{m.av_bar_gap({ value: config.barGap })}</span>}
             value={[config.barGap]}
             min={0}
             max={80}
@@ -34,7 +37,7 @@ export function BarSettings({
             onValueChange={([value]) => setConfig({ barGap: value })}
           />
           <SliderRow
-            label={<span>Padding: {config.barPadding}%</span>}
+            label={<span>{m.av_bar_padding({ value: config.barPadding })}</span>}
             value={[config.barPadding]}
             min={0}
             max={40}
@@ -46,11 +49,11 @@ export function BarSettings({
       {(style === "bars" || style === "circular") && (
         <>
           <SelectRow
-            label={<span>Bar Style</span>}
+            label={<span>{m.av_bar_style()}</span>}
             value={config.barStyle}
             onValueChange={(value) => setConfig({ barStyle: value ?? undefined })}
             items={audioVisualizerBarStyleOptions}
-            placeholder="Select style"
+            placeholder={m.av_style_placeholder()}
           >
             <SelectContent align="end">
               {audioVisualizerBarStyleOptions.map((option) => (
@@ -61,7 +64,7 @@ export function BarSettings({
             </SelectContent>
           </SelectRow>
           <SliderRow
-            label={<span>Min Height: {config.barMinHeight}px</span>}
+            label={<span>{m.av_bar_min_height({ value: config.barMinHeight })}</span>}
             value={[config.barMinHeight]}
             min={0}
             max={10}

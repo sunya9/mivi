@@ -8,6 +8,7 @@ import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { useMessages } from "@/lib/locale/use-messages";
 import { MidiTrack } from "@/lib/midi/midi";
 
 interface Props {
@@ -21,6 +22,7 @@ export const TrackItem = React.memo(function TrackItem({
   onUpdateTrackConfig,
   index,
 }: Props) {
+  const m = useMessages();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: track.id,
   });
@@ -45,7 +47,7 @@ export const TrackItem = React.memo(function TrackItem({
         {...attributes}
         {...listeners}
         className="cursor-grab touch-none text-muted-foreground area-[drag] hover:text-foreground active:cursor-grabbing"
-        aria-label="Drag to reorder"
+        aria-label={m.track_drag_to_reorder()}
       >
         <GripVertical className="size-4" />
       </button>
@@ -70,10 +72,10 @@ export const TrackItem = React.memo(function TrackItem({
             value={track.config.color}
             onChange={(value) => onUpdateTrackConfig(index, { color: value })}
             className="area-[color]"
-            aria-label="Note color"
+            aria-label={m.track_note_color()}
           />
           <Slider
-            label={<>Opacity: {Math.round(track.config.opacity * 100)}%</>}
+            label={m.opacity({ value: Math.round(track.config.opacity * 100) })}
             labelClassName="text-end text-xs text-muted-foreground tabular-nums area-[opacity-label] @max-[340px]:text-start"
             className="contents"
             controlClassName="w-16 area-[opacity]"
@@ -91,10 +93,10 @@ export const TrackItem = React.memo(function TrackItem({
               checked={track.config.staccato}
               onCheckedChange={(checked) => onUpdateTrackConfig(index, { staccato: !!checked })}
             />
-            Staccato
+            {m.track_staccato()}
           </label>
           <Slider
-            label={<>Scale: {Math.round(track.config.scale * 100)}%</>}
+            label={m.track_scale({ value: Math.round(track.config.scale * 100) })}
             labelClassName="text-end text-xs text-muted-foreground tabular-nums area-[scale-label] @max-[340px]:text-start"
             className="contents"
             controlClassName="w-16 area-[scale]"

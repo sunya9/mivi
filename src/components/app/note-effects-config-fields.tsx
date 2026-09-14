@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 
-import { noteFlashModeOptions } from "@/components/app/renderer-options";
+import { getNoteFlashModeOptions } from "@/components/app/renderer-options";
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
 import { SelectRow } from "@/components/common/select-row";
@@ -8,6 +8,7 @@ import { SliderRow } from "@/components/common/slider-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { useMessages } from "@/lib/locale/use-messages";
 import { NoteEffectsConfig } from "@/lib/renderers/renderer-config";
 
 interface Props {
@@ -17,10 +18,12 @@ interface Props {
 }
 
 export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props) {
+  const m = useMessages();
+  const noteFlashModeOptions = getNoteFlashModeOptions();
   return (
     <>
       <FormRow
-        label={<span>Ripple Effect</span>}
+        label={<span>{m.ripple_effect()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -32,7 +35,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       {config.showRippleEffect && (
         <>
           <FormRow
-            label={<span>Use Custom Ripple Color</span>}
+            label={<span>{m.ripple_use_custom_color()}</span>}
             controller={({ id }) => (
               <Switch
                 id={id}
@@ -43,7 +46,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
           />
           {config.useCustomRippleColor && (
             <FormRow
-              label={<span>Ripple Color</span>}
+              label={<span>{m.ripple_color()}</span>}
               controller={({ id }) => (
                 <ColorPickerInput
                   id={id}
@@ -54,7 +57,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
             />
           )}
           <SliderRow
-            label={<span>Ripple Duration: {config.rippleDuration}sec</span>}
+            label={<span>{m.ripple_duration({ value: config.rippleDuration })}</span>}
             value={[config.rippleDuration]}
             min={0.1}
             max={2}
@@ -62,7 +65,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
             onValueChange={([value]) => onChange({ rippleDuration: value })}
           />
           <SliderRow
-            label={<span>Ripple Radius: {config.rippleRadius}px</span>}
+            label={<span>{m.ripple_radius({ value: config.rippleRadius })}</span>}
             value={[config.rippleRadius]}
             min={10}
             max={100}
@@ -79,7 +82,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       )}
       <Separator />
       <FormRow
-        label={<span>Note Flash Effect</span>}
+        label={<span>{m.note_flash_effect()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -91,7 +94,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       {config.showNoteFlash && (
         <>
           <SliderRow
-            label={<span>Flash Intensity: {config.noteFlashIntensity}</span>}
+            label={<span>{m.note_flash_intensity({ value: config.noteFlashIntensity })}</span>}
             value={[config.noteFlashIntensity]}
             min={0}
             max={1}
@@ -99,7 +102,11 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
             onValueChange={([value]) => onChange({ noteFlashIntensity: value })}
           />
           <SliderRow
-            label={<span>Fade Out Duration: {config.noteFlashFadeOutDuration}sec</span>}
+            label={
+              <span>
+                {m.note_flash_fade_out_duration({ value: config.noteFlashFadeOutDuration })}
+              </span>
+            }
             value={[config.noteFlashFadeOutDuration]}
             min={0.1}
             max={1}
@@ -107,14 +114,14 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
             onValueChange={([value]) => onChange({ noteFlashFadeOutDuration: value })}
           />
           <SelectRow
-            label={<span>Flash Mode</span>}
+            label={<span>{m.note_flash_mode()}</span>}
             value={config.noteFlashMode}
             onValueChange={(value) => {
               if (!value) return;
               onChange({ noteFlashMode: value });
             }}
             items={noteFlashModeOptions}
-            placeholder="Select flash mode"
+            placeholder={m.note_flash_mode_placeholder()}
           >
             <SelectContent align="end">
               {noteFlashModeOptions.map((option) => (
@@ -126,7 +133,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
           </SelectRow>
           {config.noteFlashMode === "duration" && (
             <SliderRow
-              label={<span>Flash Duration: {config.noteFlashDuration}sec</span>}
+              label={<span>{m.note_flash_duration({ value: config.noteFlashDuration })}</span>}
               value={[config.noteFlashDuration]}
               min={0.1}
               max={2}
@@ -138,7 +145,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       )}
       <Separator />
       <FormRow
-        label={<span>Rough Edge</span>}
+        label={<span>{m.rough_edge()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -150,7 +157,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       {config.showRoughEdge && (
         <>
           <SliderRow
-            label={<span>Rough Edge Intensity: {config.roughEdgeIntensity}px</span>}
+            label={<span>{m.rough_edge_intensity({ value: config.roughEdgeIntensity })}</span>}
             value={[config.roughEdgeIntensity]}
             min={0.1}
             max={5}
@@ -158,7 +165,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
             onValueChange={([value]) => onChange({ roughEdgeIntensity: value })}
           />
           <SliderRow
-            label={<span>Rough Edge Segment: {config.roughEdgeSegmentLength}px</span>}
+            label={<span>{m.rough_edge_segment({ value: config.roughEdgeSegmentLength })}</span>}
             value={[config.roughEdgeSegmentLength]}
             min={2}
             max={16}
@@ -169,7 +176,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       )}
       <Separator />
       <FormRow
-        label={<span>Noise Texture</span>}
+        label={<span>{m.noise_texture()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -181,7 +188,9 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
       {config.showNoiseTexture && (
         <>
           <SliderRow
-            label={<span>Noise Intensity: {Math.round(config.noiseIntensity * 100)}%</span>}
+            label={
+              <span>{m.noise_intensity({ value: Math.round(config.noiseIntensity * 100) })}</span>
+            }
             value={[config.noiseIntensity]}
             min={0.01}
             max={0.5}
@@ -189,7 +198,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
             onValueChange={([value]) => onChange({ noiseIntensity: value })}
           />
           <SliderRow
-            label={<span>Noise Grain Size: {config.noiseGrainSize}px</span>}
+            label={<span>{m.noise_grain_size({ value: config.noiseGrainSize })}</span>}
             value={[config.noiseGrainSize]}
             min={1}
             max={16}
@@ -197,7 +206,7 @@ export function NoteEffectsConfigFields({ config, onChange, afterRipple }: Props
             onValueChange={([value]) => onChange({ noiseGrainSize: value })}
           />
           <SliderRow
-            label={<span>Noise Color Variance: {config.noiseColorVariance}</span>}
+            label={<span>{m.noise_color_variance({ value: config.noiseColorVariance })}</span>}
             value={[config.noiseColorVariance]}
             min={1}
             max={100}

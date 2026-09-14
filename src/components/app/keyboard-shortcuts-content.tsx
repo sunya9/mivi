@@ -1,55 +1,46 @@
 import { Kbd } from "@/components/ui/kbd";
-
-interface ShortcutItem {
-  key: string;
-  description: string;
-}
-
-interface ShortcutGroup {
-  label: string;
-  shortcuts: ShortcutItem[];
-}
-
-const shortcutGroups: ShortcutGroup[] = [
-  {
-    label: "Playback",
-    shortcuts: [
-      { key: "Space", description: "Play / Pause" },
-      { key: "M", description: "Mute / Unmute" },
-    ],
-  },
-  {
-    label: "Seeking",
-    shortcuts: [
-      { key: "←", description: "Seek backward 0.1s" },
-      { key: "→", description: "Seek forward 0.1s" },
-      { key: "J", description: "Seek backward 10s" },
-      { key: "L", description: "Seek forward 10s" },
-      { key: "Home / 0", description: "Jump to beginning" },
-      { key: "End", description: "Jump to end" },
-    ],
-  },
-  {
-    label: "Volume",
-    shortcuts: [
-      { key: "↑", description: "Volume up" },
-      { key: "↓", description: "Volume down" },
-    ],
-  },
-  {
-    label: "View",
-    shortcuts: [
-      { key: "F", description: "Toggle expand / collapse" },
-      { key: "Esc", description: "Exit expanded view" },
-      { key: "?", description: "Show shortcuts" },
-    ],
-  },
-];
+import { useMessages } from "@/lib/locale/use-messages";
 
 export function KeyboardShortcutsContent() {
+  const m = useMessages();
+  const shortcutGroups = [
+    {
+      label: m.shortcuts_group_playback(),
+      shortcuts: [
+        { key: "Space", description: m.shortcut_play_pause() },
+        { key: "M", description: m.shortcut_mute_unmute() },
+      ],
+    },
+    {
+      label: m.shortcuts_group_seeking(),
+      shortcuts: [
+        { key: "←", description: m.shortcut_seek_backward_short() },
+        { key: "→", description: m.shortcut_seek_forward_short() },
+        { key: "J", description: m.shortcut_seek_backward_long() },
+        { key: "L", description: m.shortcut_seek_forward_long() },
+        { key: "Home / 0", description: m.shortcut_jump_to_beginning() },
+        { key: "End", description: m.shortcut_jump_to_end() },
+      ],
+    },
+    {
+      label: m.shortcuts_group_volume(),
+      shortcuts: [
+        { key: "↑", description: m.shortcut_volume_up() },
+        { key: "↓", description: m.shortcut_volume_down() },
+      ],
+    },
+    {
+      label: m.shortcuts_group_view(),
+      shortcuts: [
+        { key: "F", description: m.shortcut_toggle_expand() },
+        { key: "Esc", description: m.shortcut_exit_expanded() },
+        { key: "?", description: m.shortcut_show_shortcuts() },
+      ],
+    },
+  ];
   return (
     <div className="space-y-4">
-      <h2 className="hidden text-lg font-semibold md:block">Keyboard Shortcuts</h2>
+      <h2 className="hidden text-lg font-semibold md:block">{m.shortcuts_heading()}</h2>
       {shortcutGroups.map((group) => (
         <div key={group.label} className="space-y-2">
           <h3 className="text-sm font-medium text-muted-foreground">{group.label}</h3>

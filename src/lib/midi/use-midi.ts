@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/toast";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
 import { hashArrayBuffer } from "@/lib/hash";
+import { m } from "@/paraglide/messages";
 
 /** Reads the tracks on demand so callers do not re-render on every edit */
 export function useSetMidiFile() {
@@ -18,11 +19,10 @@ export function useSetMidiFile() {
       const newHash = await hashArrayBuffer(await midiFile.arrayBuffer());
       if (midiTracksStore.getSnapshot()?.hash === newHash) {
         const shouldOverwrite = await confirmStore.confirm({
-          title: "Same file detected",
-          description:
-            "The same MIDI file is already loaded. Do you want to overwrite the current settings (offset, track settings, etc.)?",
-          confirmLabel: "Overwrite",
-          cancelLabel: "Keep",
+          title: m.midi_same_file_title(),
+          description: m.midi_same_file_description(),
+          confirmLabel: m.midi_same_file_overwrite(),
+          cancelLabel: m.midi_same_file_keep(),
           variant: "default",
         });
         if (!shouldOverwrite) return;
@@ -30,7 +30,7 @@ export function useSetMidiFile() {
         midiSettingsStore.set(undefined);
       }
       const loaded = await fileStore.midi.setFile(midiFile);
-      if (loaded) toast.add({ title: "MIDI file loaded", type: "success" });
+      if (loaded) toast.add({ title: m.toast_midi_loaded(), type: "success" });
     },
     [confirmStore, fileStore, midiSettingsStore, midiTracksStore],
   );

@@ -12,50 +12,57 @@ import {
   type GradientDirection,
   type PianoRollConfig,
 } from "@/lib/renderers/renderer-config";
+import { m } from "@/paraglide/messages";
 
 interface Option<T> {
   value: T;
   label: string;
 }
 
-export const audioVisualizerStyleOptions = [
-  { value: "none", label: "None" },
-  { value: "bars", label: "Bars" },
-  { value: "lineSpectrum", label: "Line Spectrum" },
-  { value: "circular", label: "Circular" },
-] as const satisfies readonly Option<AudioVisualizerStyle>[];
+export const getAudioVisualizerStyleOptions = () =>
+  [
+    { value: "none", label: m.common_none() },
+    { value: "bars", label: m.av_style_bars() },
+    { value: "lineSpectrum", label: m.av_style_line_spectrum() },
+    { value: "circular", label: m.av_style_circular() },
+  ] as const satisfies readonly Option<AudioVisualizerStyle>[];
 
-export const audioVisualizerPositionOptions = [
-  { value: "top", label: "Top" },
-  { value: "center", label: "Center" },
-  { value: "bottom", label: "Bottom" },
-] as const satisfies readonly Option<AudioVisualizerPosition>[];
+export const getAudioVisualizerPositionOptions = () =>
+  [
+    { value: "top", label: m.position_top() },
+    { value: "center", label: m.position_center() },
+    { value: "bottom", label: m.position_bottom() },
+  ] as const satisfies readonly Option<AudioVisualizerPosition>[];
 
-export const audioVisualizerBarStyleOptions = [
-  { value: "rounded", label: "Rounded" },
-  { value: "sharp", label: "Sharp" },
-] as const satisfies readonly Option<AudioVisualizerBarStyle>[];
+export const getAudioVisualizerBarStyleOptions = () =>
+  [
+    { value: "rounded", label: m.av_bar_style_rounded() },
+    { value: "sharp", label: m.av_bar_style_sharp() },
+  ] as const satisfies readonly Option<AudioVisualizerBarStyle>[];
 
-export const gradientDirectionOptions = [
-  { value: "to-right", label: "→ Right" },
-  { value: "to-bottom-right", label: "↘ Bottom Right" },
-  { value: "to-bottom", label: "↓ Bottom" },
-  { value: "to-bottom-left", label: "↙ Bottom Left" },
-  { value: "to-left", label: "← Left" },
-  { value: "to-top-left", label: "↖ Top Left" },
-  { value: "to-top", label: "↑ Top" },
-  { value: "to-top-right", label: "↗ Top Right" },
-] as const satisfies readonly Option<GradientDirection>[];
+export const getGradientDirectionOptions = () =>
+  [
+    { value: "to-right", label: m.gradient_to_right() },
+    { value: "to-bottom-right", label: m.gradient_to_bottom_right() },
+    { value: "to-bottom", label: m.gradient_to_bottom() },
+    { value: "to-bottom-left", label: m.gradient_to_bottom_left() },
+    { value: "to-left", label: m.gradient_to_left() },
+    { value: "to-top-left", label: m.gradient_to_top_left() },
+    { value: "to-top", label: m.gradient_to_top() },
+    { value: "to-top-right", label: m.gradient_to_top_right() },
+  ] as const satisfies readonly Option<GradientDirection>[];
 
-export const audioVisualizerLayerOptions = [
-  { value: "front", label: "Front (over MIDI)" },
-  { value: "back", label: "Back (under MIDI)" },
-] as const satisfies readonly Option<AudioVisualizerLayer>[];
+export const getAudioVisualizerLayerOptions = () =>
+  [
+    { value: "front", label: m.audio_visualizer_layer_front() },
+    { value: "back", label: m.audio_visualizer_layer_back() },
+  ] as const satisfies readonly Option<AudioVisualizerLayer>[];
 
-export const noteFlashModeOptions = [
-  { value: "on", label: "On" },
-  { value: "duration", label: "Duration" },
-] as const satisfies readonly Option<PianoRollConfig["noteFlashMode"]>[];
+export const getNoteFlashModeOptions = () =>
+  [
+    { value: "on", label: m.note_flash_mode_on() },
+    { value: "duration", label: m.note_flash_mode_duration() },
+  ] as const satisfies readonly Option<PianoRollConfig["noteFlashMode"]>[];
 
 export const fpsOptions = [
   { value: 24, label: "24 fps" },
@@ -68,27 +75,30 @@ export const formatOptions = [
   { value: "mp4", label: "MP4 (H.264)" },
 ] as const satisfies readonly Option<VideoFormat>[];
 
-export const backgroundImageFitOptions = [
-  { value: "auto", label: "Auto" },
-  { value: "cover", label: "Cover" },
-  { value: "contain", label: "Contain" },
-] as const satisfies readonly Option<BackgroundImageFit>[];
+export const getBackgroundImageFitOptions = () =>
+  [
+    { value: "auto", label: m.image_fit_auto() },
+    { value: "cover", label: m.image_fit_cover() },
+    { value: "contain", label: m.image_fit_contain() },
+  ] as const satisfies readonly Option<BackgroundImageFit>[];
 
-export const backgroundImagePositions = [
-  { value: "top-left", label: "Top Left" },
-  { value: "top", label: "Top" },
-  { value: "top-right", label: "Top Right" },
-  { value: "left", label: "Left" },
-  { value: "center", label: "Center" },
-  { value: "right", label: "Right" },
-  { value: "bottom-left", label: "Bottom Left" },
-  { value: "bottom", label: "Bottom" },
-  { value: "bottom-right", label: "Bottom Right" },
-] as const satisfies readonly Option<BackgroundImagePosition>[];
+export const getBackgroundImagePositionOptions = () =>
+  [
+    { value: "top-left", label: m.position_top_left() },
+    { value: "top", label: m.position_top() },
+    { value: "top-right", label: m.position_top_right() },
+    { value: "left", label: m.position_left() },
+    { value: "center", label: m.position_center() },
+    { value: "right", label: m.position_right() },
+    { value: "bottom-left", label: m.position_bottom_left() },
+    { value: "bottom", label: m.position_bottom() },
+    { value: "bottom-right", label: m.position_bottom_right() },
+  ] as const satisfies readonly Option<BackgroundImagePosition>[];
 
-export const backgroundImageRepeats = [
-  { value: "repeat", label: "Repeat" },
-  { value: "no-repeat", label: "No Repeat" },
-  { value: "repeat-x", label: "Repeat X" },
-  { value: "repeat-y", label: "Repeat Y" },
-] as const satisfies readonly Option<BackgroundImageRepeat>[];
+export const getBackgroundImageRepeatOptions = () =>
+  [
+    { value: "repeat", label: m.image_repeat_repeat() },
+    { value: "no-repeat", label: m.image_repeat_none() },
+    { value: "repeat-x", label: m.image_repeat_x() },
+    { value: "repeat-y", label: m.image_repeat_y() },
+  ] as const satisfies readonly Option<BackgroundImageRepeat>[];

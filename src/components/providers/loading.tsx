@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useAppContext } from "@/contexts/app-context";
+import { useMessages } from "@/lib/locale/use-messages";
 import { resetConfig } from "@/lib/utils";
 
 export function Loading() {
+  const m = useMessages();
   const { fileStore } = useAppContext();
   const [showReset, setShowReset] = useState(false);
   useEffect(() => {
@@ -23,16 +25,14 @@ export function Loading() {
         aria-hidden
       ></div>
       <p role="status" className="text-muted-foreground">
-        Loading...
+        {m.common_loading()}
       </p>
 
       <div className={cn({ invisible: !showReset })} aria-hidden={!showReset}>
-        <p className="text-muted-foreground">
-          If nothing appears after a few seconds, please try resetting.
-        </p>
+        <p className="text-muted-foreground">{m.loading_hint()}</p>
         <p className="mt-2 text-center">
           <Button variant="outline" onClick={() => resetConfig(fileStore)}>
-            Reset configuration
+            {m.error_reset_configuration()}
           </Button>
         </p>
       </div>

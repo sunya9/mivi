@@ -7,6 +7,7 @@ import { ConfirmStore } from "@/lib/confirm/confirm-store";
 import type { FileStorage } from "@/lib/file-store/file-storage";
 import { FileStore } from "@/lib/file-store/file-store";
 import { createFileStorage } from "@/lib/file-store/opfs-file-storage";
+import { LocaleStore } from "@/lib/locale/locale-store";
 import { bindMidiTracks } from "@/lib/midi/bind-midi-tracks";
 import { createMidiSettingsStore, type MidiSettingsStore } from "@/lib/midi/midi-settings-store";
 import { createMidiTracksStore, type MidiTracksStore } from "@/lib/midi/midi-tracks-store";
@@ -30,6 +31,7 @@ export interface AppContextValue {
   midiSettingsStore: MidiSettingsStore;
   visualizerEngine: VisualizerEngine;
   themeStore: ThemeStore;
+  localeStore: LocaleStore;
   confirmStore: ConfirmStore;
 }
 
@@ -42,6 +44,7 @@ export function createAppContext(
   audioContext: AudioContext,
   options: AppContextOptions = {},
 ): AppContextValue {
+  const localeStore = new LocaleStore();
   const fileStore = new FileStore(options.fileStorage ?? createFileStorage(), fileDecoders);
   const audioPlaybackStore = new AudioPlaybackStoreImpl(audioContext);
   bindAudioToPlayback(fileStore.audio, audioPlaybackStore, audioContext);
@@ -67,6 +70,7 @@ export function createAppContext(
     midiSettingsStore,
     visualizerEngine,
     themeStore,
+    localeStore,
     confirmStore,
   };
 }

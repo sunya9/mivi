@@ -2,6 +2,7 @@ import type { SerializedAudio } from "@/lib/audio/audio";
 import { FileSlot, type FileDecoder } from "@/lib/file-store/file-slot";
 import type { FileStorage } from "@/lib/file-store/file-storage";
 import type { MidiTracks } from "@/lib/midi/midi";
+import { m } from "@/paraglide/messages";
 
 export interface FileDecoders {
   midi: FileDecoder<MidiTracks>;
@@ -20,16 +21,21 @@ export class FileStore {
 
   constructor(storage: FileStorage, decoders: FileDecoders) {
     this.#storage = storage;
-    this.midi = new FileSlot({ key: "midi", label: "MIDI file", storage, decode: decoders.midi });
+    this.midi = new FileSlot({
+      key: "midi",
+      label: m.file_kind_midi,
+      storage,
+      decode: decoders.midi,
+    });
     this.audio = new FileSlot({
       key: "audio",
-      label: "audio file",
+      label: m.file_kind_audio,
       storage,
       decode: decoders.audio,
     });
     this.backgroundImage = new FileSlot({
       key: "background-image",
-      label: "background image",
+      label: m.file_kind_background_image,
       storage,
       decode: decoders.backgroundImage,
     });

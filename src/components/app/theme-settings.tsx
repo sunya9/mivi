@@ -8,32 +8,33 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useMessages } from "@/lib/locale/use-messages";
 import { type Theme } from "@/lib/theme/theme-store";
 import { useTheme } from "@/lib/theme/use-theme";
 
-const themes: { value: Theme; label: string }[] = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
-] as const;
-
 export function ThemeSettings() {
+  const m = useMessages();
   const { theme, setTheme } = useTheme();
+  const themes: { value: Theme; label: string }[] = [
+    { value: "light", label: m.theme_light() },
+    { value: "dark", label: m.theme_dark() },
+    { value: "system", label: m.theme_system() },
+  ];
 
   return (
     <Field.Root render={<Item />}>
       <ItemContent>
         <Field.Label nativeLabel={false} render={<ItemTitle />}>
-          Theme
+          {m.settings_theme_label()}
         </Field.Label>
         <Field.Description render={<ItemDescription />}>
-          Select the color theme for the application.
+          {m.settings_theme_description()}
         </Field.Description>
       </ItemContent>
       <ItemActions>
         <Select value={theme} onValueChange={(value) => value && setTheme(value)} items={themes}>
           <SelectTrigger>
-            <SelectValue placeholder="Select theme" />
+            <SelectValue placeholder={m.settings_theme_placeholder()} />
           </SelectTrigger>
           <SelectContent align="end">
             {themes.map((option) => (

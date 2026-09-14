@@ -8,14 +8,15 @@ export interface ConfirmOptions {
   variant?: "default" | "destructive";
 }
 
-export type ConfirmSnapshot = Required<ConfirmOptions> & { open: boolean };
+export type ConfirmSnapshot = ConfirmOptions & {
+  open: boolean;
+  variant: NonNullable<ConfirmOptions["variant"]>;
+};
 
 const CLOSED: ConfirmSnapshot = {
   open: false,
   title: "",
   description: "",
-  confirmLabel: "Confirm",
-  cancelLabel: "Cancel",
   variant: "default",
 };
 

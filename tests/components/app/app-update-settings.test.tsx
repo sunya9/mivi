@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMockPwaState } from "tests/pwa-mock";
+import { AppContextWrapper } from "tests/test-providers";
 import { expect, test, vi } from "vitest";
 
 import { AppUpdateSettings } from "@/components/app/app-update-settings";
@@ -11,6 +12,7 @@ function renderSettings(pwaState?: Partial<PwaState>) {
     <PwaContext value={createMockPwaState(pwaState)}>
       <AppUpdateSettings />
     </PwaContext>,
+    { wrapper: AppContextWrapper },
   );
 }
 

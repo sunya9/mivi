@@ -1,4 +1,5 @@
 import type { ActivePhase } from "./export-progress-tracker";
+import type { ExportPhase } from "./media-compositor";
 
 interface BaseRecordingState {
   readonly type: string;
@@ -15,7 +16,7 @@ export class RecordingState implements BaseRecordingState {
   readonly isRecording = true;
   constructor(
     readonly progress: number, // 0 ~ 1
-    readonly activePhase?: ActivePhase,
+    readonly activePhase?: ActivePhase<ExportPhase>,
   ) {}
 }
 export type RecordingStatus = ReadyState | RecordingState;

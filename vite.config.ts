@@ -3,6 +3,7 @@ import { execFileSync } from "child_process";
 import { basename, posix } from "path";
 
 import { codecovVitePlugin } from "@codecov/vite-plugin";
+import { paraglideVitePlugin } from "@inlang/paraglide-js";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { playwright } from "@vitest/browser-playwright";
@@ -19,6 +20,12 @@ export default defineConfig(({ mode }) => ({
     devtoolsJson(),
     tailwindcss(),
     react(),
+    paraglideVitePlugin({
+      project: "./project.inlang",
+      outdir: "./src/paraglide",
+      emitTsDeclarations: true,
+      strategy: ["baseLocale"],
+    }),
     Unfonts({
       inlineFontFace: true,
       fontsource: {
@@ -139,7 +146,12 @@ export default defineConfig(({ mode }) => ({
     },
     coverage: {
       include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: [...(configDefaults.coverage.exclude || []), "src/components/ui/**", "dev-dist"],
+      exclude: [
+        ...(configDefaults.coverage.exclude || []),
+        "src/components/ui/**",
+        "src/paraglide/**",
+        "dev-dist",
+      ],
     },
     projects: [
       {

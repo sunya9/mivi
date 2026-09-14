@@ -2,6 +2,7 @@ import { cn } from "cn";
 import { useCallback, useId, useState } from "react";
 
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { useMessages } from "@/lib/locale/use-messages";
 
 interface ColorPickerInputProps {
   value: string;
@@ -39,6 +40,7 @@ export function ColorPickerInput({
   id,
   disabled,
 }: ColorPickerInputProps) {
+  const m = useMessages();
   const generatedId = useId();
   const textInputId = id ?? generatedId;
   const colorPickerId = `${textInputId}-color-picker`;
@@ -115,7 +117,7 @@ export function ColorPickerInput({
             type="color"
             value={value}
             onChange={handleNativePickerChange}
-            aria-label={ariaLabel ? `${ariaLabel} picker` : "Color picker"}
+            aria-label={ariaLabel ? m.color_picker_for({ label: ariaLabel }) : m.color_picker()}
             className="absolute inset-0 cursor-pointer opacity-0"
             disabled={disabled}
             tabIndex={-1}

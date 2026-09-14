@@ -9,6 +9,7 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
+import { useMessages } from "@/lib/locale/use-messages";
 
 interface Props {
   filename: string | undefined;
@@ -31,6 +32,7 @@ export function FileButton({
   loading,
   onCancel,
 }: Props) {
+  const m = useMessages();
   const onChangeFile = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       e.preventDefault();
@@ -53,12 +55,14 @@ export function FileButton({
       </label>
       {loading ? (
         <InputGroup className="w-64">
-          <InputGroupText className="min-w-0 flex-1 truncate pl-2.5">Loading...</InputGroupText>
+          <InputGroupText className="min-w-0 flex-1 truncate pl-2.5">
+            {m.common_loading()}
+          </InputGroupText>
           <InputGroupAddon>
             <Spinner />
           </InputGroupAddon>
           <InputGroupAddon align="inline-end">
-            <InputGroupButton onClick={onCancel}>Cancel</InputGroupButton>
+            <InputGroupButton onClick={onCancel}>{m.common_cancel()}</InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
       ) : (
@@ -87,7 +91,7 @@ export function FileButton({
                 <CircleXIcon />
               </InputGroupButton>
             )}
-            <InputGroupButton onClick={handleClick}>Open</InputGroupButton>
+            <InputGroupButton onClick={handleClick}>{m.common_open()}</InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
       )}

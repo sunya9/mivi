@@ -8,8 +8,10 @@ import {
   ReadyState,
   RecordingState,
 } from "@/lib/media-compositor/recording-status";
+import { m } from "@/paraglide/messages";
 
 import type { ActivePhase } from "./export-progress-tracker";
+import type { ExportPhase } from "./media-compositor";
 import { runRecorder } from "./run-recorder-worker";
 
 export function useRecorder() {
@@ -32,7 +34,7 @@ export function useRecorder() {
 
       // Audio is always required
       if (!audioSource) {
-        errorLogWithToast("Please select an audio file.");
+        errorLogWithToast(m.export_error_no_audio());
         return;
       }
 
@@ -40,18 +42,18 @@ export function useRecorder() {
       const needsMidi = rendererType !== "none";
       const hasAudioVisualizer = audioVisualizerStyle !== "none";
       if (needsMidi && !midiTracks) {
-        errorLogWithToast("Please select a MIDI file.");
+        errorLogWithToast(m.export_error_no_midi());
         return;
       }
       if (!needsMidi && !hasAudioVisualizer) {
-        errorLogWithToast("Please enable audio visualizer or select a MIDI visualization style.");
+        errorLogWithToast(m.export_error_nothing_to_render());
         return;
       }
       const abortController = new AbortController();
       abortControllerRef.current = abortController;
       const signal = abortController.signal;
       setRecordingState(new RecordingState(0));
-      const onProgress = (progress: number, activePhase?: ActivePhase) => {
+      const onProgress = (progress: number, activePhase?: ActivePhase<ExportPhase>) => {
         setRecordingState(
           progress < 1 ? new RecordingState(progress, activePhase) : new ReadyState(),
         );
@@ -71,14 +73,14 @@ export function useRecorder() {
           a.download = `mivi-${exportName}.${rendererConfig.format}`;
           a.click();
           URL.revokeObjectURL(url);
-          toast.add({ title: "Export completed", type: "success" });
+          toast.add({ title: m.export_completed(), type: "success" });
         })
         .catch((error) => {
           if (signal.aborted) {
-            toast.add({ title: "Export cancelled", type: "info" });
+            toast.add({ title: m.export_cancelled(), type: "info" });
             return;
           }
-          errorLogWithToast("Failed during recording", error);
+          errorLogWithToast(m.export_failed(), error);
         })
         .finally(() => {
           abortControllerRef.current = null;
