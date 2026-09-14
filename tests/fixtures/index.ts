@@ -140,6 +140,7 @@ const resources: RecorderResources = {
   midiTracks: testMidiTracks,
   audioSource: {
     name: "test.mp3",
+    file: audioFile,
     serialized: {
       channels: [new Int16Array(1), new Int16Array(1)],
       duration: 1,

@@ -24,7 +24,7 @@ export function useRecorder() {
       const audio = fileStore.audio.getSnapshot();
       const audioSource =
         audio.file && audio.decoded
-          ? { name: audio.file.name, serialized: audio.decoded }
+          ? { name: audio.file.name, file: audio.file, serialized: audio.decoded }
           : undefined;
       const backgroundImageBitmap = fileStore.backgroundImage.getSnapshot().decoded;
       const rendererType = rendererConfig.type;

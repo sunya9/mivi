@@ -1,4 +1,5 @@
 import type { StreamTargetChunk } from "mediabunny";
+import { createTestAudioFile } from "tests/fixtures/browser-fixtures";
 import { test, expect } from "vitest";
 import { commands } from "vitest/browser";
 
@@ -7,7 +8,6 @@ import { MediaCompositor } from "@/lib/media-compositor/media-compositor";
 import { createOpfsExportFile } from "@/lib/media-compositor/opfs-target";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
 import { MidiTracks } from "@/lib/midi/midi";
-import { MuxerImpl } from "@/lib/muxer/muxer";
 import { getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
 
 const DURATION_SEC = 60;
@@ -63,10 +63,11 @@ function createBenchMidiTracks(): MidiTracks {
   };
 }
 
-function createBenchResources(): RecorderResources {
+async function createBenchResources(): Promise<RecorderResources> {
+  const serialized = createBenchAudio();
   return {
     midiTracks: createBenchMidiTracks(),
-    audioSource: { name: "bench.mp3", serialized: createBenchAudio() },
+    audioSource: { name: "bench.wav", file: await createTestAudioFile(serialized), serialized },
     rendererConfig: {
       ...getDefaultRendererConfig(),
       resolution: { width: WIDTH, height: HEIGHT, label: `${WIDTH}×${HEIGHT}` },
@@ -150,13 +151,8 @@ async function measureExport(
 function runInMemory(): Promise<BenchResult> {
   return measureExport(async () => {
     const memoryTarget = createInMemoryTarget();
-    const resources = createBenchResources();
-    const muxer = new MuxerImpl({
-      format: resources.rendererConfig.format,
-      frameRate: resources.rendererConfig.fps,
-      writable: memoryTarget.target,
-    });
-    using compositor = new MediaCompositor(resources, muxer);
+    const resources = await createBenchResources();
+    using compositor = new MediaCompositor(resources, memoryTarget.target);
     await compositor.composite();
     return { output: memoryTarget.toBlob() };
   });
@@ -165,13 +161,8 @@ function runInMemory(): Promise<BenchResult> {
 function runOpfs(): Promise<BenchResult> {
   return measureExport(async () => {
     const opfsFile = await createOpfsExportFile("bench.webm");
-    const resources = createBenchResources();
-    const muxer = new MuxerImpl({
-      format: resources.rendererConfig.format,
-      frameRate: resources.rendererConfig.fps,
-      writable: opfsFile.target,
-    });
-    using compositor = new MediaCompositor(resources, muxer);
+    const resources = await createBenchResources();
+    using compositor = new MediaCompositor(resources, opfsFile.target);
     await compositor.composite();
     return { output: await opfsFile.getFile(), cleanup: () => opfsFile.remove() };
   });

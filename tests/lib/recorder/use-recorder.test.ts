@@ -24,7 +24,7 @@ const serializedAudio: SerializedAudio = {
   duration: 100 / 44100,
 };
 
-const expectedAudioSource = { name: audioFile.name, serialized: serializedAudio };
+const expectedAudioSource = { name: audioFile.name, file: audioFile, serialized: serializedAudio };
 
 async function renderRecorder(
   overrides: { audio?: boolean; midiTracks?: MidiTracks; rendererConfig?: RendererConfig } = {},
