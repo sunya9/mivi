@@ -1,8 +1,9 @@
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { HotkeysProvider } from "react-hotkeys-hook";
+import { AudioContext } from "standardized-audio-context-mock";
 
 import { FileStoreGate } from "@/components/providers/file-store-gate";
-import { AppContext, AppContextValue } from "@/contexts/app-context";
+import { AppContext, AppContextValue, createAppContext } from "@/contexts/app-context";
 import { PwaContext, PwaState } from "@/contexts/pwa-context";
 import { FileStoreContext } from "@/lib/file-store/use-file-store";
 import { PLAYER_HOTKEYS_SCOPE } from "@/lib/hotkeys";
@@ -34,4 +35,9 @@ export function TestProviders({
       </AppContext>
     </FileStoreContext>
   );
+}
+
+export function AppContextWrapper({ children }: { children: React.ReactNode }) {
+  const [appContextValue] = useState(() => createAppContext(new AudioContext()));
+  return <AppContext value={appContextValue}>{children}</AppContext>;
 }

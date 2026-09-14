@@ -2,9 +2,11 @@ import { RefreshCw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
+import { useMessages } from "@/lib/locale/use-messages";
 import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 
 export function AppUpdateSettings() {
+  const m = useMessages();
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
@@ -16,15 +18,15 @@ export function AppUpdateSettings() {
     <Item>
       <ItemContent>
         <ItemTitle>
-          App updates
+          {m.app_update_title()}
           <span aria-hidden className="inline-flex size-2.5 rounded-full bg-primary" />
         </ItemTitle>
-        <ItemDescription>A new version is available.</ItemDescription>
+        <ItemDescription>{m.app_update_available()}</ItemDescription>
       </ItemContent>
       <ItemActions>
         <Button size="sm" onClick={() => updateServiceWorker()}>
           <RefreshCw />
-          Update now
+          {m.app_update_now()}
         </Button>
       </ItemActions>
     </Item>

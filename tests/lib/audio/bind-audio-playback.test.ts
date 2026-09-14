@@ -22,7 +22,7 @@ const serializedAudio: SerializedAudio = {
 function createSlot() {
   return new FileSlot<SerializedAudio>({
     key: "audio",
-    label: "audio file",
+    label: () => "audio file",
     storage: new MemoryFileStorage(),
     decode: async () => serializedAudio,
   });

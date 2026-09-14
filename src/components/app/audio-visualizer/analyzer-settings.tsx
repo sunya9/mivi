@@ -1,14 +1,16 @@
 import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
+import { useMessages } from "@/lib/locale/use-messages";
 
 import { AudioVisualizerSectionProps } from "./types";
 
 export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionProps) {
+  const m = useMessages();
   return (
     <>
       <Separator />
       <SliderRow
-        label={<span>Attack: {config.attackTime}ms</span>}
+        label={<span>{m.av_attack({ value: config.attackTime })}</span>}
         value={[config.attackTime]}
         min={0}
         max={300}
@@ -16,7 +18,7 @@ export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionPr
         onValueChange={([value]) => setConfig({ attackTime: value })}
       />
       <SliderRow
-        label={<span>Release: {config.releaseTime}ms</span>}
+        label={<span>{m.av_release({ value: config.releaseTime })}</span>}
         value={[config.releaseTime]}
         min={0}
         max={1000}
@@ -26,7 +28,7 @@ export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionPr
       <SliderRow
         label={
           <span>
-            Frequency Range: {config.minFrequency}Hz - {config.maxFrequency}Hz
+            {m.av_frequency_range({ min: config.minFrequency, max: config.maxFrequency })}
           </span>
         }
         value={[config.minFrequency, config.maxFrequency]}

@@ -3,6 +3,7 @@ import { SortableContext } from "@dnd-kit/sortable";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { testMidiTracks } from "tests/fixtures";
+import { AppContextWrapper } from "tests/test-providers";
 import { expect, vi, test, beforeEach } from "vitest";
 
 import { TrackItem } from "@/components/app/track-item";
@@ -19,6 +20,7 @@ function renderWithDndContext(ui: React.ReactElement, trackId: string = mockTrac
     <DndContext>
       <SortableContext items={[trackId]}>{ui}</SortableContext>
     </DndContext>,
+    { wrapper: AppContextWrapper },
   );
 }
 

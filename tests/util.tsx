@@ -16,6 +16,7 @@ import { AppContextValue, createAppContext } from "@/contexts/app-context";
 import { ConfirmStore } from "@/lib/confirm/confirm-store";
 import { type FileDecoders, FileStore } from "@/lib/file-store/file-store";
 import { MemoryFileStorage } from "@/lib/file-store/memory-file-storage";
+import { LocaleStore } from "@/lib/locale/locale-store";
 import { createMidiSettingsStore } from "@/lib/midi/midi-settings-store";
 import { createMidiTracksStore } from "@/lib/midi/midi-tracks-store";
 import { type AudioPlaybackStore } from "@/lib/player/audio-playback-store";
@@ -72,6 +73,7 @@ export function createMockAppContext(
       createVisualizerSources({ rendererConfigStore, midiTracksStore, fileStore }),
     ),
     themeStore: new ThemeStore("light"),
+    localeStore: new LocaleStore(),
     confirmStore: new ConfirmStore(),
   };
 }

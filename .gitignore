@@ -30,3 +30,6 @@ test-report.junit.xml
 
 # VRT diff images and attachments (baselines in __screenshots__ are committed)
 .vitest-attachments/
+
+# paraglide-js
+src/paraglide

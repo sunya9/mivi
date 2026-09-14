@@ -5,6 +5,7 @@ import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useMessages } from "@/lib/locale/use-messages";
 import { usePwaContext } from "@/lib/pwa/use-pwa-context";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export const FooterPanel = memo(function FooterPanel({ onOpenSettings, ...props }: Props) {
+  const m = useMessages();
   const {
     needRefresh: [needRefresh],
     updateServiceWorker,
@@ -39,7 +41,7 @@ export const FooterPanel = memo(function FooterPanel({ onOpenSettings, ...props 
               className="hidden md:inline-flex"
             >
               <Download />
-              Install app
+              {m.install_app()}
             </Button>
           )}
           {needRefresh && (
@@ -49,7 +51,7 @@ export const FooterPanel = memo(function FooterPanel({ onOpenSettings, ...props 
               render={
                 <button onClick={() => updateServiceWorker()}>
                   <RefreshCw className="group-hover:animate-spin" />
-                  Update available
+                  {m.update_available()}
                 </button>
               }
             />
@@ -57,7 +59,7 @@ export const FooterPanel = memo(function FooterPanel({ onOpenSettings, ...props 
 
           <Button variant="ghost" onClick={onOpenSettings} size="sm" className="md:ml-auto">
             <Settings />
-            Settings
+            {m.common_settings()}
           </Button>
         </CardContent>
       </Card>

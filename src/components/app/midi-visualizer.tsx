@@ -9,16 +9,17 @@ import { Dialog, DialogClose, DialogPortal } from "@/components/ui/dialog";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
 import { PLAYER_HOTKEYS_SCOPE } from "@/lib/hotkeys";
+import { useMessages } from "@/lib/locale/use-messages";
 import { startViewTransition } from "@/lib/utils";
-
-const PLAYER_LABEL = "Midi Visualizer Player";
 
 interface Props {
   containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 export function MidiVisualizer({ containerRef }: Props) {
+  const m = useMessages();
   const { rendererConfigStore } = useAppContext();
+  const playerLabel = m.player_label();
   const { width, height } = useStore(rendererConfigStore, (config) => config.resolution);
   const regionRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
@@ -85,7 +86,7 @@ export function MidiVisualizer({ containerRef }: Props) {
         ref={setRegionRef}
         tabIndex={-1}
         className="flex h-full w-full items-center justify-center outline-none"
-        aria-label={PLAYER_LABEL}
+        aria-label={playerLabel}
         role="region"
       >
         {!expanded && player}
@@ -99,7 +100,7 @@ export function MidiVisualizer({ containerRef }: Props) {
               initialFocus={popupRef}
               finalFocus={false}
               onClick={closeExpanded}
-              aria-label={PLAYER_LABEL}
+              aria-label={playerLabel}
               aria-modal
               className="fixed inset-0 z-30 flex items-center justify-center outline-none"
             >
@@ -109,7 +110,7 @@ export function MidiVisualizer({ containerRef }: Props) {
                     size="icon"
                     variant="ghost"
                     className="absolute top-2 right-2 z-50 size-12 rounded-full p-2 sm:top-10 sm:right-10 sm:size-16"
-                    aria-label="Close"
+                    aria-label={m.common_close()}
                   />
                 }
               >

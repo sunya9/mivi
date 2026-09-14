@@ -18,6 +18,7 @@ import { useAppContext } from "@/contexts/app-context";
 import { usePanelVisibility } from "@/hooks/use-panel-visibility";
 import { useStore } from "@/hooks/use-store";
 import { PLAYER_HOTKEYS_SCOPE } from "@/lib/hotkeys";
+import { useMessages } from "@/lib/locale/use-messages";
 
 // ARIA widget roles where Space has a native interaction (activate, toggle, type, etc.).
 // "slider" is intentionally excluded so Space toggles playback even when a slider is focused.
@@ -46,6 +47,7 @@ interface Props {
 }
 
 export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
+  const m = useMessages();
   const { audioPlaybackStore: store, visualizerEngine: engine } = useAppContext();
   // Only the playing flag drives this component; position updates every frame and is consumed
   // by the small controls below so the canvas host does not re-render per frame
@@ -224,7 +226,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
             "light",
           )}
           role="group"
-          aria-label="Midi Visualizer Controls"
+          aria-label={m.player_controls_label()}
         >
           <SeekSlider onInteractionStart={startInteraction} onInteractionEnd={endInteraction} />
           <div className="flex items-center gap-2 p-1">
@@ -240,7 +242,7 @@ export function VisualizerPlayer({ expanded, onToggleExpanded }: Props) {
               aria-haspopup="dialog"
               aria-expanded={expanded}
               size="icon-lg"
-              aria-label={expanded ? "Minimize" : "Maximize"}
+              aria-label={expanded ? m.player_minimize() : m.player_maximize()}
             >
               {expanded ? <Minimize /> : <Maximize />}
             </Button>

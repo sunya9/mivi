@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator } from "@/compo
 import { useAppContext } from "@/contexts/app-context";
 import { useRendererConfig, useUpdateRendererConfig } from "@/hooks/use-renderer-config";
 import { useStore } from "@/hooks/use-store";
+import { useMessages } from "@/lib/locale/use-messages";
 import { RendererType } from "@/lib/renderers/renderer-config";
 
 function useMidiNoteRange() {
@@ -65,26 +66,36 @@ function AudioVisualizerSection() {
 
 interface RendererOption {
   value: RendererType;
-  label: string;
   Section?: () => React.ReactNode;
 }
 
 const RENDERER_OPTIONS: RendererOption[] = [
-  { value: "none", label: "None" },
-  { value: "pianoRoll", label: "Piano Roll", Section: PianoRollSection },
-  { value: "verticalPianoRoll", label: "Vertical Piano Roll", Section: VerticalPianoRollSection },
-  { value: "comet", label: "Comet", Section: CometSection },
+  { value: "none" },
+  { value: "pianoRoll", Section: PianoRollSection },
+  { value: "verticalPianoRoll", Section: VerticalPianoRollSection },
+  { value: "comet", Section: CometSection },
 ];
 
 export function VisualizerStylePane() {
+  const m = useMessages();
   const type = useRendererConfig((config) => config.type);
   const onUpdateRendererConfig = useUpdateRendererConfig();
   const Section = RENDERER_OPTIONS.find((option) => option.value === type)?.Section;
+  const rendererLabels: Record<RendererType, string> = {
+    none: m.common_none(),
+    pianoRoll: m.renderer_piano_roll(),
+    verticalPianoRoll: m.renderer_vertical_piano_roll(),
+    comet: m.renderer_comet(),
+  };
+  const rendererItems = RENDERER_OPTIONS.map(({ value }) => ({
+    value,
+    label: rendererLabels[value],
+  }));
   return (
     <Tabs defaultValue="visualizer" className="h-full gap-0 pt-4">
-      <TabsList variant="line-indicator" className="mx-6 flex w-auto" aria-label="Style">
-        <TabsTrigger value="visualizer">MIDI Style</TabsTrigger>
-        <TabsTrigger value="audio">Audio Style</TabsTrigger>
+      <TabsList variant="line-indicator" className="mx-6 flex w-auto" aria-label={m.common_style()}>
+        <TabsTrigger value="visualizer">{m.style_tab_midi()}</TabsTrigger>
+        <TabsTrigger value="audio">{m.style_tab_audio()}</TabsTrigger>
         <TabsIndicator />
       </TabsList>
       <TabsContent value="visualizer" className="overflow-hidden">
@@ -92,17 +103,17 @@ export function VisualizerStylePane() {
           <Card variant="transparent">
             <CardContent className="space-y-4">
               <SelectRow
-                label={<span>Style</span>}
+                label={<span>{m.common_style()}</span>}
                 value={type}
                 onValueChange={(value) => onUpdateRendererConfig({ type: value ?? undefined })}
-                items={RENDERER_OPTIONS}
-                placeholder="Select visualization style"
+                items={rendererItems}
+                placeholder={m.style_placeholder()}
                 valueClassName="display w-auto"
               >
                 <SelectContent align="end">
                   {RENDERER_OPTIONS.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
-                      {option.label}
+                      {rendererLabels[option.value]}
                     </SelectItem>
                   ))}
                 </SelectContent>

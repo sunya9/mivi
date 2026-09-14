@@ -11,7 +11,7 @@
     "browser": true,
     "node": true
   },
-  "ignorePatterns": ["dist", "dev-dist", "coverage"],
+  "ignorePatterns": ["dist", "dev-dist", "coverage", "src/paraglide"],
   "rules": {
     "react-hooks/exhaustive-deps": "warn",
     "react/only-export-components": [

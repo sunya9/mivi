@@ -38,6 +38,7 @@ import {
   getRandomTailwindColor,
   getRandomTailwindColorPalette,
 } from "@/lib/colors/tailwind-colors";
+import { useMessages } from "@/lib/locale/use-messages";
 import { MidiTrack, MidiTracks } from "@/lib/midi/midi";
 import { useMidi } from "@/lib/midi/use-midi";
 
@@ -80,6 +81,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
   midiFilename,
   onChangeMidiFile,
 }: Props) {
+  const m = useMessages();
   const [hslDialogOpen, setHslDialogOpen] = useState(false);
 
   const randomizeColorsHue = useRandomizeColorsHue(setMidiTracks);
@@ -99,7 +101,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
     <Card variant="transparent">
       <CardHeader>
         <CardTitle>
-          <h2>Tracks</h2>
+          <h2>{m.tracks_heading()}</h2>
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-1 gap-2">
@@ -107,15 +109,15 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
           filename={midiFilename}
           setFile={onChangeMidiFile}
           accept=".mid,.midi"
-          label="MIDI file"
-          placeholder="Choose MIDI file"
-          cancelLabel="Cancel MIDI file"
+          label={m.midi_file_label()}
+          placeholder={m.midi_file_choose()}
+          cancelLabel={m.midi_file_cancel()}
         />
       </CardContent>
       {midiTracks && (
         <CardContent>
           <FormRow
-            label="MIDI Offset (s)"
+            label={m.midi_offset()}
             controller={({ id }) => (
               <NumberField
                 id={id}
@@ -124,9 +126,9 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
                 onValueChange={(value) => onMidiOffsetChange(value ?? 0)}
               >
                 <NumberFieldGroup className="w-32">
-                  <NumberFieldDecrement aria-label="Decrease offset" />
+                  <NumberFieldDecrement aria-label={m.midi_offset_decrease()} />
                   <NumberFieldInput />
-                  <NumberFieldIncrement aria-label="Increase offset" />
+                  <NumberFieldIncrement aria-label={m.midi_offset_increase()} />
                 </NumberFieldGroup>
               </NumberField>
             )}
@@ -137,7 +139,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
         <CardContent>
           <Menubar>
             <MenubarMenu>
-              <MenubarTrigger>Color preset</MenubarTrigger>
+              <MenubarTrigger>{m.track_menu_color_preset()}</MenubarTrigger>
               <MenubarContent>
                 <MenubarItem
                   onClick={() =>
@@ -147,7 +149,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
                     })
                   }
                 >
-                  All white
+                  {m.track_menu_all_white()}
                 </MenubarItem>
                 <MenubarItem
                   onClick={() =>
@@ -157,7 +159,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
                     })
                   }
                 >
-                  All black
+                  {m.track_menu_all_black()}
                 </MenubarItem>
                 <MenubarSeparator />
                 <MenubarItem
@@ -168,7 +170,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
                     })
                   }
                 >
-                  Randomize (colorful)
+                  {m.track_menu_randomize_colorful()}
                 </MenubarItem>
                 <MenubarItem
                   onClick={() =>
@@ -178,13 +180,15 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
                     })
                   }
                 >
-                  Randomize (gradient)
+                  {m.track_menu_randomize_gradient()}
                 </MenubarItem>
-                <MenubarItem onClick={() => setHslDialogOpen(true)}>Randomize (Hue)...</MenubarItem>
+                <MenubarItem onClick={() => setHslDialogOpen(true)}>
+                  {m.track_menu_randomize_hue()}
+                </MenubarItem>
               </MenubarContent>
             </MenubarMenu>
             <MenubarMenu>
-              <MenubarTrigger>Track</MenubarTrigger>
+              <MenubarTrigger>{m.track_menu_track()}</MenubarTrigger>
               <MenubarContent>
                 <MenubarItem
                   onClick={() =>
@@ -194,7 +198,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
                     })
                   }
                 >
-                  Disable all
+                  {m.track_menu_disable_all()}
                 </MenubarItem>
                 <MenubarItem
                   onClick={() =>
@@ -204,7 +208,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
                     })
                   }
                 >
-                  Enable all
+                  {m.track_menu_enable_all()}
                 </MenubarItem>
                 <MenubarSeparator />
                 <MenubarItem
@@ -215,7 +219,7 @@ export const TrackListPaneContent = React.memo(function TrackListPaneContent({
                     })
                   }
                 >
-                  Sort disabled to bottom
+                  {m.track_menu_sort_disabled_to_bottom()}
                 </MenubarItem>
               </MenubarContent>
             </MenubarMenu>

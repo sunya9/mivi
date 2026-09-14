@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
 import { createMockPwaState } from "tests/pwa-mock";
+import { AppContextWrapper } from "tests/test-providers";
 import { expect, test, vi } from "vitest";
 
 import { MobileBottomNav } from "@/components/app/mobile-bottom-nav";
@@ -15,6 +16,7 @@ function renderNav(props: Partial<Props> = {}, pwaState?: Partial<PwaState>) {
     <PwaContext value={createMockPwaState(pwaState)}>
       <MobileBottomNav value="tracks" onValueChange={onValueChange} {...props} />
     </PwaContext>,
+    { wrapper: AppContextWrapper },
   );
   return { onValueChange, container };
 }

@@ -6,22 +6,24 @@ import {
   isCustomResolution,
   MAX_RESOLUTION_SIZE,
   MIN_RESOLUTION_SIZE,
+  type ResolutionGroup,
   resolutionGroups,
   resolutions,
 } from "@/lib/muxer/resolution";
 
-const groupOf = (label: string) => resolutionGroups.find((g) => g.label === label)!.resolutions;
+const groupOf = (key: ResolutionGroup["key"]) =>
+  resolutionGroups.find((g) => g.key === key)!.resolutions;
 
 test("every landscape preset has a rotated portrait counterpart", () => {
-  const landscape = groupOf("Landscape");
-  const portrait = groupOf("Portrait");
+  const landscape = groupOf("landscape");
+  const portrait = groupOf("portrait");
   expect(portrait.map(({ width, height }) => ({ width, height }))).toEqual(
     landscape.map(({ width, height }) => ({ width: height, height: width })),
   );
 });
 
 test("portrait labels flip the aspect ratio", () => {
-  expect(groupOf("Portrait").map((r) => r.label)).toEqual([
+  expect(groupOf("portrait").map((r) => r.label)).toEqual([
     "1080×1920 (9:16)",
     "720×1280 (9:16)",
     "480×854 (9:16)",

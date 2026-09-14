@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
+import { useMessages } from "@/lib/locale/use-messages";
 import {
   createCustomResolution,
   MAX_RESOLUTION_SIZE,
@@ -60,6 +61,7 @@ interface Props {
 }
 
 export function CustomResolutionFields({ widthInputRef, resolution, onChange }: Props) {
+  const m = useMessages();
   const commitWidth = useCallback(
     (width: number) => {
       const next = createCustomResolution(width, resolution.height, "width");
@@ -80,13 +82,18 @@ export function CustomResolutionFields({ widthInputRef, resolution, onChange }: 
     <div className="flex items-center gap-1.5">
       <SizeInput
         ref={widthInputRef}
-        label="Width"
+        label={m.common_width()}
         prefix="W"
         value={resolution.width}
         onCommit={commitWidth}
       />
       <span className="text-muted-foreground">×</span>
-      <SizeInput label="Height" prefix="H" value={resolution.height} onCommit={commitHeight} />
+      <SizeInput
+        label={m.common_height()}
+        prefix="H"
+        value={resolution.height}
+        onCommit={commitHeight}
+      />
     </div>
   );
 }

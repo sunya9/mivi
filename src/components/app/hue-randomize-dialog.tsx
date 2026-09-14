@@ -15,6 +15,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { HSL_PRESETS, HSLPresetBase, hslToHex } from "@/lib/colors/color";
+import { useMessages } from "@/lib/locale/use-messages";
 
 interface Props {
   open: boolean;
@@ -44,6 +45,7 @@ function Content({
   onOpenChange: (open: boolean) => void;
   onConfirm: (saturation: number, lightness: number) => void;
 }) {
+  const m = useMessages();
   const [savedSL, setSavedSL] = useLocalStorage<HueRandomizeSL>("mivi:hue-randomize-sl");
   const [saturation, setSaturation] = useState(savedSL?.s ?? 100);
   const [lightness, setLightness] = useState(savedSL?.l ?? 50);
@@ -67,8 +69,8 @@ function Content({
   return (
     <>
       <DialogHeader>
-        <DialogTitle>Randomize Hue</DialogTitle>
-        <DialogDescription>Set saturation and lightness for random hue colors</DialogDescription>
+        <DialogTitle>{m.hue_dialog_title()}</DialogTitle>
+        <DialogDescription>{m.hue_dialog_description()}</DialogDescription>
       </DialogHeader>
 
       <div className="space-y-6 py-4">
@@ -85,7 +87,7 @@ function Content({
 
         {/* Preset buttons */}
         <div className="space-y-2">
-          <div className="text-sm">Presets</div>
+          <div className="text-sm">{m.hue_presets()}</div>
           <ButtonGroup>
             {HSL_PRESETS.map((preset) => (
               <Button
@@ -108,7 +110,7 @@ function Content({
           max={100}
           step={1}
           onValueChange={setSaturation}
-          label="Saturation"
+          label={m.hue_saturation()}
         />
 
         {/* Lightness slider */}
@@ -118,13 +120,13 @@ function Content({
           max={100}
           step={1}
           onValueChange={setLightness}
-          label="Lightness"
+          label={m.hue_lightness()}
         />
       </div>
 
       <DialogFooter>
-        <DialogClose render={<Button variant="outline">Cancel</Button>} />
-        <Button onClick={handleConfirm}>Apply</Button>
+        <DialogClose render={<Button variant="outline">{m.common_cancel()}</Button>} />
+        <Button onClick={handleConfirm}>{m.common_apply()}</Button>
       </DialogFooter>
     </>
   );

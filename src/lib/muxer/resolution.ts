@@ -7,7 +7,7 @@ export type Resolution = {
 };
 
 export type ResolutionGroup = {
-  label: string;
+  key: "landscape" | "portrait" | "square";
   resolutions: Resolution[];
 };
 
@@ -19,7 +19,7 @@ export const DEFAULT_RESOLUTION: Resolution = {
 
 export const resolutionGroups: ResolutionGroup[] = [
   {
-    label: "Landscape",
+    key: "landscape",
     resolutions: [
       { width: 1920, height: 1080, label: "1920×1080 (16:9)" },
       DEFAULT_RESOLUTION,
@@ -29,7 +29,7 @@ export const resolutionGroups: ResolutionGroup[] = [
     ],
   },
   {
-    label: "Portrait",
+    key: "portrait",
     resolutions: [
       { width: 1080, height: 1920, label: "1080×1920 (9:16)" },
       { width: 720, height: 1280, label: "720×1280 (9:16)" },
@@ -39,7 +39,7 @@ export const resolutionGroups: ResolutionGroup[] = [
     ],
   },
   {
-    label: "Square",
+    key: "square",
     resolutions: [
       { width: 1080, height: 1080, label: "1080×1080 (1:1)" },
       { width: 720, height: 720, label: "720×720 (1:1)" },

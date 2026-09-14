@@ -1,6 +1,7 @@
 import { errorLogWithToast } from "@/lib/error-toast";
 import type { FileStorage } from "@/lib/file-store/file-storage";
 import { ObservableStore, shallowEqual } from "@/lib/store/observable-store";
+import { m } from "@/paraglide/messages";
 
 export interface FileSlotSnapshot<T> {
   file: File | undefined;
@@ -12,7 +13,7 @@ export type FileDecoder<T> = (file: File, signal: AbortSignal) => Promise<T>;
 
 export interface FileSlotOptions<T> {
   key: string;
-  label: string;
+  label: () => string;
   storage: FileStorage;
   decode: FileDecoder<T>;
 }
@@ -27,7 +28,7 @@ interface InFlight {
 /** Only the file is persisted; decoding runs again on load so no decoded format has to survive */
 export class FileSlot<T> extends ObservableStore<FileSlotSnapshot<T>> {
   readonly #key: string;
-  readonly #label: string;
+  readonly #label: () => string;
   readonly #storage: FileStorage;
   readonly #decode: FileDecoder<T>;
   #loading: Promise<void> | undefined;
@@ -87,7 +88,7 @@ export class FileSlot<T> extends ObservableStore<FileSlotSnapshot<T>> {
   #clear(): void {
     this.setSnapshot(EMPTY);
     void this.#storage.remove(this.#key).catch((error) => {
-      errorLogWithToast("Failed to remove file", error);
+      errorLogWithToast(m.file_remove_failed(), error);
     });
   }
 
@@ -108,7 +109,7 @@ export class FileSlot<T> extends ObservableStore<FileSlotSnapshot<T>> {
     } catch (error) {
       if (controller.signal.aborted) return false;
       this.#inFlight = undefined;
-      errorLogWithToast(`Failed to load ${this.#label}`, error);
+      errorLogWithToast(m.file_load_failed({ label: this.#label() }), error);
       options.rollback();
       return false;
     }
@@ -118,7 +119,7 @@ export class FileSlot<T> extends ObservableStore<FileSlotSnapshot<T>> {
     try {
       await this.#storage.write(this.#key, file);
     } catch (error) {
-      errorLogWithToast("Failed to save file", error);
+      errorLogWithToast(m.file_save_failed(), error);
     }
   }
 }

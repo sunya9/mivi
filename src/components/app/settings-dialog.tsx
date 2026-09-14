@@ -24,6 +24,7 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsIndicator, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMessages } from "@/lib/locale/use-messages";
 
 import { AboutContent } from "./about-content";
 import { AppUpdateSettings } from "./app-update-settings";
@@ -32,21 +33,20 @@ import { KeyboardShortcutsContent } from "./keyboard-shortcuts-content";
 
 const navGroups = [
   {
-    label: "Preferences",
-    items: [{ value: "general" as const, name: "General", icon: Palette }],
+    key: "preferences",
+    items: [{ value: "general", icon: Palette }],
   },
   {
-    label: "Help",
+    key: "help",
     items: [
-      { value: "shortcuts" as const, name: "Shortcuts", icon: Keyboard },
-      { value: "about" as const, name: "About", icon: Info },
+      { value: "shortcuts", icon: Keyboard },
+      { value: "about", icon: Info },
     ],
   },
-] satisfies readonly {
-  label: string;
+] as const satisfies readonly {
+  key: string;
   items: readonly {
     value: string;
-    name: string;
     icon: ForwardRefExoticComponent<RefAttributes<SVGSVGElement> & SVGProps<SVGSVGElement>>;
   }[];
 }[];
@@ -97,6 +97,16 @@ function SettingsDialogContent({
   activeTab: SettingsTabValue;
   onTabChange: (tab: SettingsTabValue) => void;
 }) {
+  const m = useMessages();
+  const groupLabels = {
+    preferences: m.settings_group_preferences(),
+    help: m.settings_group_help(),
+  };
+  const itemNames = {
+    general: m.settings_nav_general(),
+    shortcuts: m.settings_nav_shortcuts(),
+    about: m.settings_nav_about(),
+  };
   const modeForTab = useCallback(
     (tab: SettingsTabValue) => {
       return tab === activeTab ? "visible" : "hidden";
@@ -106,16 +116,14 @@ function SettingsDialogContent({
 
   return (
     <>
-      <DialogTitle className="sr-only">Settings</DialogTitle>
-      <DialogDescription className="sr-only">
-        Application settings and information
-      </DialogDescription>
+      <DialogTitle className="sr-only">{m.common_settings()}</DialogTitle>
+      <DialogDescription className="sr-only">{m.settings_description()}</DialogDescription>
       <SidebarProvider className="min-h-0 items-start" style={{ "--sidebar-width": "12rem" }}>
         <Sidebar collapsible="none" className="hidden py-3.5 md:flex">
           <SidebarContent>
             {navGroups.map((group) => (
-              <SidebarGroup key={group.label}>
-                <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+              <SidebarGroup key={group.key}>
+                <SidebarGroupLabel>{groupLabels[group.key]}</SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {group.items.map((item) => (
@@ -126,7 +134,7 @@ function SettingsDialogContent({
                           onClick={() => onTabChange(item.value)}
                         >
                           <item.icon />
-                          <span>{item.name}</span>
+                          <span>{itemNames[item.value]}</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
@@ -161,11 +169,12 @@ interface SettingsContentProps {
 }
 
 export function SettingsContent({ className }: SettingsContentProps) {
+  const m = useMessages();
   return (
     <Tabs defaultValue="general" className={className}>
-      <TabsList variant="line-indicator" className="w-full" aria-label="Settings">
-        <TabsTrigger value="general">General</TabsTrigger>
-        <TabsTrigger value="about">About</TabsTrigger>
+      <TabsList variant="line-indicator" className="w-full" aria-label={m.common_settings()}>
+        <TabsTrigger value="general">{m.settings_nav_general()}</TabsTrigger>
+        <TabsTrigger value="about">{m.settings_nav_about()}</TabsTrigger>
         <TabsIndicator />
       </TabsList>
       <div>

@@ -13,7 +13,7 @@ const file = new File(["m"], "test.mid", { type: "audio/midi" });
 function setup(parsed: MidiTracks = testMidiTracks) {
   const slot = new FileSlot<MidiTracks>({
     key: "midi",
-    label: "MIDI file",
+    label: () => "MIDI file",
     storage: new MemoryFileStorage(),
     decode: async () => parsed,
   });
@@ -47,7 +47,7 @@ test("layers persisted settings over a parsed file with the same hash", async ()
 test("applies a file that was already decoded before binding", () => {
   const slot = new FileSlot<MidiTracks>({
     key: "midi",
-    label: "MIDI file",
+    label: () => "MIDI file",
     storage: new MemoryFileStorage(),
     decode: async () => testMidiTracks,
   });

@@ -21,7 +21,7 @@ function deferredDecoder() {
 
 function createSlot(decode: FileDecoder<string> = async (f) => `decoded:${f.name}`) {
   const storage = new MemoryFileStorage();
-  const slot = new FileSlot({ key: "slot", label: "test file", storage, decode });
+  const slot = new FileSlot({ key: "slot", label: () => "test file", storage, decode });
   return { slot, storage };
 }
 

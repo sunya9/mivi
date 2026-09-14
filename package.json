@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "generate-pwa-assets": "pwa-assets-generator",
+    "i18n:compile": "paraglide-js compile --project ./project.inlang --outdir ./src/paraglide --emit-ts-declarations --strategy baseLocale",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt",
@@ -15,7 +16,8 @@
     "typecheck": "tsc -b",
     "test": "vitest",
     "bench:memory": "VITE_BENCH=1 vitest run tests/bench/memory-benchmark.browser.ts --silent=false",
-    "knip": "knip"
+    "knip": "knip",
+    "prepare": "pnpm i18n:compile"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -41,6 +43,7 @@
   },
   "devDependencies": {
     "@codecov/vite-plugin": "^2.0.1",
+    "@inlang/paraglide-js": "^2.25.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

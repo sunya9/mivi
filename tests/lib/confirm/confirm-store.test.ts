@@ -10,8 +10,6 @@ test("confirm opens the dialog with defaults filled in", () => {
     open: true,
     title: "Title",
     description: "Desc",
-    confirmLabel: "Confirm",
-    cancelLabel: "Cancel",
     variant: "default",
   });
 });

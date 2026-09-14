@@ -9,8 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
+import { useMessages } from "@/lib/locale/use-messages";
 
 export function ConfirmDialogHost() {
+  const m = useMessages();
   const { confirmStore } = useAppContext();
   const state = useStore(confirmStore, (snapshot) => snapshot);
   return (
@@ -22,10 +24,10 @@ export function ConfirmDialogHost() {
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => confirmStore.resolve(false)}>
-            {state.cancelLabel}
+            {state.cancelLabel ?? m.common_cancel()}
           </Button>
           <Button variant={state.variant} onClick={() => confirmStore.resolve(true)} autoFocus>
-            {state.confirmLabel}
+            {state.confirmLabel ?? m.common_confirm()}
           </Button>
         </DialogFooter>
       </DialogContent>

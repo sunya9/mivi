@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ComponentProps } from "react";
 import { createMockPwaState } from "tests/pwa-mock";
+import { AppContextWrapper } from "tests/test-providers";
 import { expect, test, vi } from "vitest";
 
 import { FooterPanel } from "@/components/app/footer-panel";
@@ -15,6 +16,7 @@ function renderFooter(pwaState?: Partial<PwaState>) {
     <PwaContext value={createMockPwaState(pwaState)}>
       <FooterPanel onOpenSettings={onOpenSettings} />
     </PwaContext>,
+    { wrapper: AppContextWrapper },
   );
   return { onOpenSettings };
 }

@@ -11,8 +11,8 @@ interface PhaseTimer {
   baseline: number;
 }
 
-export interface ActivePhase {
-  name: string;
+export interface ActivePhase<T extends string = string> {
+  name: T;
   etaSeconds: number | undefined;
 }
 
@@ -23,11 +23,11 @@ export class ExportProgressTracker<T extends string> {
   readonly #phases: readonly Phase<T>[];
   #counts = new Map<T, number>();
   #timers = new Map<T, PhaseTimer>();
-  #onProgress: (progress: number, activePhase?: ActivePhase) => void;
+  #onProgress: (progress: number, activePhase?: ActivePhase<T>) => void;
 
   constructor(
     phases: readonly Phase<T>[],
-    onProgress: (progress: number, activePhase?: ActivePhase) => void,
+    onProgress: (progress: number, activePhase?: ActivePhase<T>) => void,
   ) {
     this.#phases = phases;
     this.#onProgress = onProgress;
@@ -63,7 +63,7 @@ export class ExportProgressTracker<T extends string> {
     });
 
     const lastActive = active.at(-1);
-    const activePhase: ActivePhase | undefined = lastActive
+    const activePhase: ActivePhase<T> | undefined = lastActive
       ? {
           name: lastActive.name,
           etaSeconds: this.#getEtaSeconds(

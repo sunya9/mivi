@@ -5,6 +5,7 @@ import { FormRow } from "@/components/common/form-row";
 import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { useMessages } from "@/lib/locale/use-messages";
 import { RendererConfig, PianoRollConfig } from "@/lib/renderers/renderer-config";
 import { DeepPartial } from "@/lib/type-utils";
 
@@ -22,6 +23,7 @@ export function PianoRollConfigPanel({
   minNote,
   maxNote,
 }: Props) {
+  const m = useMessages();
   const setPianoRollConfig = useCallback(
     (pianoRollConfig: DeepPartial<PianoRollConfig>) => onUpdateRendererConfig({ pianoRollConfig }),
     [onUpdateRendererConfig],
@@ -29,7 +31,7 @@ export function PianoRollConfigPanel({
   return (
     <>
       <SliderRow
-        label={<span>Time Window: {pianoRollConfig.timeWindow}s</span>}
+        label={<span>{m.time_window({ value: pianoRollConfig.timeWindow })}</span>}
         value={[pianoRollConfig.timeWindow]}
         min={0.1}
         max={20}
@@ -37,7 +39,7 @@ export function PianoRollConfigPanel({
         onValueChange={([value]) => setPianoRollConfig({ timeWindow: value })}
       />
       <SliderRow
-        label={<span>Note Height: {pianoRollConfig.noteHeight}px</span>}
+        label={<span>{m.note_height({ value: pianoRollConfig.noteHeight })}</span>}
         value={[pianoRollConfig.noteHeight]}
         min={1}
         max={40}
@@ -45,7 +47,7 @@ export function PianoRollConfigPanel({
         onValueChange={([value]) => setPianoRollConfig({ noteHeight: value })}
       />
       <SliderRow
-        label={<span>Note Corner Radius: {pianoRollConfig.noteCornerRadius}px</span>}
+        label={<span>{m.note_corner_radius({ value: pianoRollConfig.noteCornerRadius })}</span>}
         value={[pianoRollConfig.noteCornerRadius]}
         min={0}
         max={10}
@@ -53,7 +55,7 @@ export function PianoRollConfigPanel({
         onValueChange={([value]) => setPianoRollConfig({ noteCornerRadius: value })}
       />
       <SliderRow
-        label={<span>Note Margin: {pianoRollConfig.noteMargin}px</span>}
+        label={<span>{m.note_margin({ value: pianoRollConfig.noteMargin })}</span>}
         value={[pianoRollConfig.noteMargin]}
         min={0}
         max={5}
@@ -61,7 +63,7 @@ export function PianoRollConfigPanel({
         onValueChange={([value]) => setPianoRollConfig({ noteMargin: +value })}
       />
       <SliderRow
-        label={<span>Note Vertical Margin: {pianoRollConfig.noteVerticalMargin}px</span>}
+        label={<span>{m.note_vertical_margin({ value: pianoRollConfig.noteVerticalMargin })}</span>}
         value={[pianoRollConfig.noteVerticalMargin]}
         min={0}
         max={10}
@@ -72,11 +74,14 @@ export function PianoRollConfigPanel({
         label={
           <span className="flex flex-wrap gap-x-2">
             <span>
-              View Range: {pianoRollConfig.viewRangeBottom} - {pianoRollConfig.viewRangeTop}
+              {m.view_range({
+                bottom: pianoRollConfig.viewRangeBottom,
+                top: pianoRollConfig.viewRangeTop,
+              })}
             </span>
             {minNote !== undefined && maxNote !== undefined && (
               <span className="text-muted-foreground">
-                (Detected range: {minNote} - {maxNote})
+                {m.detected_range({ min: minNote, max: maxNote })}
               </span>
             )}
           </span>
@@ -98,7 +103,7 @@ export function PianoRollConfigPanel({
       />
       <Separator />
       <SliderRow
-        label={<span>Playhead Position: {pianoRollConfig.playheadPosition}%</span>}
+        label={<span>{m.playhead_position({ value: pianoRollConfig.playheadPosition })}</span>}
         value={[pianoRollConfig.playheadPosition]}
         min={0}
         max={75}
@@ -106,7 +111,7 @@ export function PianoRollConfigPanel({
         onValueChange={([value]) => setPianoRollConfig({ playheadPosition: value })}
       />
       <FormRow
-        label={<span>Playhead Border</span>}
+        label={<span>{m.playhead_border()}</span>}
         controller={({ id }) => (
           <Switch
             id={id}
@@ -118,7 +123,7 @@ export function PianoRollConfigPanel({
       {pianoRollConfig.showPlayhead && (
         <>
           <FormRow
-            label={<span>Playhead Border Color</span>}
+            label={<span>{m.playhead_border_color()}</span>}
             controller={({ id }) => (
               <ColorPickerInput
                 id={id}
@@ -128,7 +133,7 @@ export function PianoRollConfigPanel({
             )}
           />
           <SliderRow
-            label={<span>Playhead Border Width: {pianoRollConfig.playheadWidth}px</span>}
+            label={<span>{m.playhead_border_width({ value: pianoRollConfig.playheadWidth })}</span>}
             value={[pianoRollConfig.playheadWidth]}
             min={1}
             max={10}
@@ -138,7 +143,9 @@ export function PianoRollConfigPanel({
           <SliderRow
             label={
               <span>
-                Playhead Border Opacity: {Math.round(pianoRollConfig.playheadOpacity * 100)}%
+                {m.playhead_border_opacity({
+                  value: Math.round(pianoRollConfig.playheadOpacity * 100),
+                })}
               </span>
             }
             value={[pianoRollConfig.playheadOpacity]}
@@ -156,7 +163,7 @@ export function PianoRollConfigPanel({
         afterRipple={
           <>
             <FormRow
-              label={<span>Note Press Effect</span>}
+              label={<span>{m.note_press_effect()}</span>}
               controller={({ id }) => (
                 <Switch
                   id={id}
@@ -170,7 +177,9 @@ export function PianoRollConfigPanel({
             {pianoRollConfig.showNotePressEffect && (
               <>
                 <SliderRow
-                  label={<span>Press Depth: {pianoRollConfig.notePressDepth}px</span>}
+                  label={
+                    <span>{m.note_press_depth({ value: pianoRollConfig.notePressDepth })}</span>
+                  }
                   value={[pianoRollConfig.notePressDepth]}
                   min={1}
                   max={10}
@@ -182,7 +191,9 @@ export function PianoRollConfigPanel({
                 <SliderRow
                   label={
                     <span>
-                      Press Animation Duration: {pianoRollConfig.pressAnimationDuration}sec
+                      {m.note_press_animation_duration({
+                        value: pianoRollConfig.pressAnimationDuration,
+                      })}
                     </span>
                   }
                   value={[pianoRollConfig.pressAnimationDuration]}
