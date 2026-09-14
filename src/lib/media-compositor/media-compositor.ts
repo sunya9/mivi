@@ -19,6 +19,7 @@ import { drawFrame } from "@/lib/renderers/draw-frame";
 import { RecorderResources } from "./recorder-resources";
 
 const keyFrameEveryFrames = 60;
+const audioLeadSeconds = 1;
 const videoBitrate = 10_000_000;
 const audioBitrate = 192_000;
 
@@ -97,29 +98,26 @@ export class MediaCompositor {
   }
 
   async composite() {
-    const input = new Input({
+    using input = new Input({
       source: new BlobSource(this.#resources.audioSource.file),
       formats: ALL_FORMATS,
     });
     const audio = await this.#initAudioConversion(input);
-    try {
-      await this.#output.start();
-      await audio.execute();
-      this.#emit("Audio", this.#duration);
-      await this.#renderVideo();
-      await this.#output.finalize();
-    } finally {
-      input.dispose();
-    }
+    await this.#output.start();
+    await this.#renderVideo(audio);
+    await audio.execute();
+    this.#emit("Audio", this.#duration);
+    await this.#output.finalize();
   }
 
   async #initAudioConversion(input: Input) {
     const track = await input.getPrimaryAudioTrack();
     if (!track) throw new Error("No audio track found in file");
 
+    const codec = await track.getCodec();
     const supportedCodecs = this.#outputFormat.outputFormat.getSupportedAudioCodecs();
     const audio: ConversionAudioOptions =
-      track.codec !== null && supportedCodecs.includes(track.codec)
+      codec !== null && supportedCodecs.includes(codec)
         ? {}
         : {
             codec: this.#outputFormat.audioCodec,
@@ -130,6 +128,7 @@ export class MediaCompositor {
       input,
       output: this.#output,
       composable: true,
+      tracks: "primary",
       video: { discard: true },
       audio,
     });
@@ -143,7 +142,7 @@ export class MediaCompositor {
     return conversion;
   }
 
-  async #renderVideo() {
+  async #renderVideo(audio: Conversion) {
     const ctx = this.#canvas.getContext("2d");
     if (!ctx) throw new Error("Failed to get context");
 
@@ -155,9 +154,16 @@ export class MediaCompositor {
     const frameDuration = 1 / this.#fps;
 
     const precomputedFFT = this.#precomputeFFT();
+    let audioUntil = 0;
 
     for (let i = 0; i < this.#totalVideoFrames; i++) {
       const currentTime = i * frameDuration;
+
+      if (currentTime >= audioUntil) {
+        audioUntil = currentTime + audioLeadSeconds;
+        // oxlint-disable-next-line no-await-in-loop -- keeps the audio at most one second ahead of the video
+        await audio.execute({ until: audioUntil });
+      }
 
       drawFrame(ctx, {
         config,

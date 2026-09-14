@@ -1,4 +1,11 @@
-import { AudioSample, AudioSampleSource, BufferTarget, Output, WavOutputFormat } from "mediabunny";
+import {
+  AudioSample,
+  AudioSampleSource,
+  BufferTarget,
+  Mp4OutputFormat,
+  Output,
+  WavOutputFormat,
+} from "mediabunny";
 
 import { SerializedAudio } from "@/lib/audio/audio";
 import { RecorderResources } from "@/lib/media-compositor/recorder-resources";
@@ -6,9 +13,8 @@ import { MidiTracks } from "@/lib/midi/midi";
 import type { VideoFormat } from "@/lib/muxer/video-format";
 import { RendererConfig, getDefaultRendererConfig } from "@/lib/renderers/renderer-config";
 
-export function createTestSerializedAudio(): SerializedAudio {
+export function createTestSerializedAudio(duration = 0.5): SerializedAudio {
   const sampleRate = 44100;
-  const duration = 0.5;
   const length = Math.floor(sampleRate * duration);
   const channels = [new Int16Array(length), new Int16Array(length)];
 
@@ -20,22 +26,37 @@ export function createTestSerializedAudio(): SerializedAudio {
   return { channels, duration, length, sampleRate, numberOfChannels: 2 };
 }
 
-export async function createTestAudioFile(serialized: SerializedAudio): Promise<File> {
+export async function createTestAudioFile(
+  serialized: SerializedAudio,
+  audioTracks = 1,
+): Promise<File> {
   const { channels, numberOfChannels, sampleRate, length } = serialized;
+  const wav = audioTracks === 1;
   const target = new BufferTarget();
-  const output = new Output({ format: new WavOutputFormat(), target });
-  const source = new AudioSampleSource({ codec: "pcm-s16" });
-  output.addAudioTrack(source);
+  const output = new Output({
+    format: wav ? new WavOutputFormat() : new Mp4OutputFormat(),
+    target,
+  });
+  const sources = Array.from({ length: audioTracks }, () => {
+    const source = new AudioSampleSource({ codec: "pcm-s16" });
+    output.addAudioTrack(source);
+    return source;
+  });
   await output.start();
 
   const data = new Int16Array(numberOfChannels * length);
   channels.forEach((channel, i) => data.set(channel, i * length));
-  await source.add(
-    new AudioSample({ data, format: "s16-planar", numberOfChannels, sampleRate, timestamp: 0 }),
-  );
+  for (const source of sources) {
+    // oxlint-disable-next-line no-await-in-loop
+    await source.add(
+      new AudioSample({ data, format: "s16-planar", numberOfChannels, sampleRate, timestamp: 0 }),
+    );
+  }
   await output.finalize();
-  if (!target.buffer) throw new Error("WAV output was not finalized");
-  return new File([target.buffer], "test.wav", { type: "audio/wav" });
+  if (!target.buffer) throw new Error("Audio output was not finalized");
+  return wav
+    ? new File([target.buffer], "test.wav", { type: "audio/wav" })
+    : new File([target.buffer], "test.m4a", { type: "audio/mp4" });
 }
 
 export function createTestMidiTracks(): MidiTracks {
@@ -86,15 +107,15 @@ function createTestRendererConfig(format: VideoFormat): RendererConfig {
   };
 }
 
-export async function createTestRecorderResources(format: VideoFormat): Promise<RecorderResources> {
-  const serialized = createTestSerializedAudio();
+export async function createTestRecorderResources(
+  format: VideoFormat,
+  { duration = 0.5, audioTracks = 1 } = {},
+): Promise<RecorderResources> {
+  const serialized = createTestSerializedAudio(duration);
+  const file = await createTestAudioFile(serialized, audioTracks);
   return {
     midiTracks: createTestMidiTracks(),
-    audioSource: {
-      name: "test.wav",
-      file: await createTestAudioFile(serialized),
-      serialized,
-    },
+    audioSource: { name: file.name, file, serialized },
     rendererConfig: createTestRendererConfig(format),
   };
 }
