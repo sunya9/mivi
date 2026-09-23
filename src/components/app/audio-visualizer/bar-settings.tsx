@@ -48,7 +48,10 @@ export function BarSettings({
           <SelectRow
             label={<span>Bar Style</span>}
             value={config.barStyle}
-            onValueChange={(value) => setConfig({ barStyle: value ?? undefined })}
+            onValueChange={(value) => {
+              if (value == null) return;
+              setConfig({ barStyle: value });
+            }}
             items={audioVisualizerBarStyleOptions}
             placeholder="Select style"
           >

@@ -1,140 +1,133 @@
-import { useCallback } from "react";
-
 import { FormRow } from "@/components/common/form-row";
 import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { RendererConfig, CometConfig } from "@/lib/renderers/renderer-config";
-import { DeepPartial } from "@/lib/type-utils";
+import { CometConfig } from "@/lib/renderers/renderer-config";
 
 interface Props {
-  cometConfig: CometConfig;
-  onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
+  config: CometConfig;
+  onChange: (partial: Partial<CometConfig>) => void;
   minNote?: number;
   maxNote?: number;
 }
 
-export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote, maxNote }: Props) {
-  const setCometConfig = useCallback(
-    (cometConfig: DeepPartial<CometConfig>) => onUpdateRendererConfig({ cometConfig }),
-    [onUpdateRendererConfig],
-  );
+export function CometConfigPanel({ config, onChange, minNote, maxNote }: Props) {
   return (
     <>
       <SliderRow
-        label={<span>Fall Angle: {cometConfig.fallAngle}°</span>}
-        value={[cometConfig.fallAngle]}
+        label={<span>Fall Angle: {config.fallAngle}°</span>}
+        value={[config.fallAngle]}
         min={0}
         max={360}
         step={5}
-        onValueChange={([value]) => setCometConfig({ fallAngle: value })}
+        onValueChange={([value]) => onChange({ fallAngle: value })}
       />
       <SliderRow
-        label={<span>Angle Randomness: ±{cometConfig.angleRandomness}°</span>}
-        value={[cometConfig.angleRandomness]}
+        label={<span>Angle Randomness: ±{config.angleRandomness}°</span>}
+        value={[config.angleRandomness]}
         min={0}
         max={45}
         step={1}
-        onValueChange={([value]) => setCometConfig({ angleRandomness: value })}
+        onValueChange={([value]) => onChange({ angleRandomness: value })}
       />
       <SliderRow
-        label={<span>Fall Distance: {cometConfig.fallDistancePercent}%</span>}
-        value={[cometConfig.fallDistancePercent]}
+        label={<span>Fall Distance: {config.fallDistancePercent}%</span>}
+        value={[config.fallDistancePercent]}
         min={10}
         max={200}
         step={5}
-        onValueChange={([value]) => setCometConfig({ fallDistancePercent: value })}
+        onValueChange={([value]) => onChange({ fallDistancePercent: value })}
       />
       <SliderRow
-        label={<span>Fall Duration: {cometConfig.fallDuration}s</span>}
-        value={[cometConfig.fallDuration]}
+        label={<span>Fall Duration: {config.fallDuration}s</span>}
+        value={[config.fallDuration]}
         min={0.01}
         max={5.0}
         step={0.01}
-        onValueChange={([value]) => setCometConfig({ fallDuration: value })}
+        onValueChange={([value]) => onChange({ fallDuration: value })}
       />
       <SliderRow
-        label={<span>Fade Out Duration: {cometConfig.fadeOutDuration}s</span>}
-        value={[cometConfig.fadeOutDuration]}
+        label={<span>Fade Out Duration: {config.fadeOutDuration}s</span>}
+        value={[config.fadeOutDuration]}
         min={0.01}
         max={2.0}
         step={0.01}
-        onValueChange={([value]) => setCometConfig({ fadeOutDuration: value })}
+        onValueChange={([value]) => onChange({ fadeOutDuration: value })}
       />
       <Separator />
       <SliderRow
-        label={<span>Comet Size: {cometConfig.cometSize}px</span>}
-        value={[cometConfig.cometSize]}
+        label={<span>Comet Size: {config.cometSize}px</span>}
+        value={[config.cometSize]}
         min={2}
         max={50}
         step={1}
-        onValueChange={([value]) => setCometConfig({ cometSize: value })}
+        onValueChange={([value]) => onChange({ cometSize: value })}
       />
       <SliderRow
-        label={<span>Start Position X: {cometConfig.startPositionX}%</span>}
-        value={[cometConfig.startPositionX]}
+        label={<span>Start Position X: {config.startPositionX}%</span>}
+        value={[config.startPositionX]}
         min={0}
         max={100}
         step={5}
-        onValueChange={([value]) => setCometConfig({ startPositionX: value })}
+        onValueChange={([value]) => onChange({ startPositionX: value })}
       />
       <SliderRow
-        label={<span>Start Position Y: {cometConfig.startPositionY}%</span>}
-        value={[cometConfig.startPositionY]}
+        label={<span>Start Position Y: {config.startPositionY}%</span>}
+        value={[config.startPositionY]}
         min={0}
         max={100}
         step={5}
-        onValueChange={([value]) => setCometConfig({ startPositionY: value })}
+        onValueChange={([value]) => onChange({ startPositionY: value })}
       />
       <Separator />
       <SliderRow
-        label={<span>Trail Length: {cometConfig.trailLength}s</span>}
-        value={[cometConfig.trailLength]}
+        label={<span>Trail Length: {config.trailLength}s</span>}
+        value={[config.trailLength]}
         min={0.01}
         max={3.0}
         step={0.01}
-        onValueChange={([value]) => setCometConfig({ trailLength: value })}
+        onValueChange={([value]) => onChange({ trailLength: value })}
       />
       <SliderRow
-        label={<span>Trail Width: {cometConfig.trailWidth}px</span>}
-        value={[cometConfig.trailWidth]}
+        label={<span>Trail Width: {config.trailWidth}px</span>}
+        value={[config.trailWidth]}
         min={1}
         max={10}
         step={1}
-        onValueChange={([value]) => setCometConfig({ trailWidth: value })}
+        onValueChange={([value]) => onChange({ trailWidth: value })}
       />
       <SliderRow
-        label={<span>Trail Opacity: {Math.round(cometConfig.trailOpacity * 100)}%</span>}
-        value={[cometConfig.trailOpacity]}
+        label={<span>Trail Opacity: {Math.round(config.trailOpacity * 100)}%</span>}
+        value={[config.trailOpacity]}
         min={0.1}
         max={1.0}
         step={0.05}
-        onValueChange={([value]) => setCometConfig({ trailOpacity: value })}
+        onValueChange={([value]) => onChange({ trailOpacity: value })}
       />
       <Separator />
       <SliderRow
-        label={<span>Note Spacing: {cometConfig.spacingMargin}px</span>}
-        value={[cometConfig.spacingMargin]}
+        label={<span>Note Spacing: {config.spacingMargin}px</span>}
+        value={[config.spacingMargin]}
         min={0}
         max={50}
         step={1}
-        onValueChange={([value]) => setCometConfig({ spacingMargin: value })}
+        onValueChange={([value]) => onChange({ spacingMargin: value })}
       />
       <SliderRow
-        label={<span>Spacing Randomness: {cometConfig.spacingRandomness}px</span>}
-        value={[cometConfig.spacingRandomness]}
+        label={<span>Spacing Randomness: {config.spacingRandomness}px</span>}
+        value={[config.spacingRandomness]}
         min={0}
         max={20}
         step={1}
-        onValueChange={([value]) => setCometConfig({ spacingRandomness: value })}
+        onValueChange={([value]) => onChange({ spacingRandomness: value })}
       />
       <FormRow
         label={<span>Reverse Stacking</span>}
         controller={({ id }) => (
           <Switch
             id={id}
-            checked={cometConfig.reverseStacking}
-            onCheckedChange={(checked) => setCometConfig({ reverseStacking: checked })}
+            checked={config.reverseStacking}
+            onCheckedChange={(checked) => onChange({ reverseStacking: checked })}
           />
         )}
       />
@@ -143,7 +136,7 @@ export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote,
         label={
           <span className="flex flex-wrap gap-x-2">
             <span>
-              View Range: {cometConfig.viewRangeBottom} - {cometConfig.viewRangeTop}
+              View Range: {config.viewRangeBottom} - {config.viewRangeTop}
             </span>
             {minNote !== undefined && maxNote !== undefined && (
               <span className="text-muted-foreground">
@@ -152,7 +145,7 @@ export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote,
             )}
           </span>
         }
-        value={[cometConfig.viewRangeBottom, cometConfig.viewRangeTop]}
+        value={[config.viewRangeBottom, config.viewRangeTop]}
         min={0}
         max={127}
         step={1}
@@ -161,7 +154,7 @@ export function CometConfigPanel({ cometConfig, onUpdateRendererConfig, minNote,
           Math.max(127, maxNote ? maxNote + 10 : 127),
         ]}
         onValueChange={([bottom, top]) =>
-          setCometConfig({
+          onChange({
             viewRangeBottom: bottom,
             viewRangeTop: top,
           })

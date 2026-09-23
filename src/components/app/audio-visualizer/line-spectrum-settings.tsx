@@ -4,19 +4,22 @@ import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 
-import { AudioVisualizerSectionProps } from "./types";
+import { LineSpectrumSectionProps } from "./types";
 
-export function LineSpectrumSettings({ config, setConfig }: AudioVisualizerSectionProps) {
+export function LineSpectrumSettings({
+  lineSpectrumConfig: config,
+  setLineSpectrumConfig: setConfig,
+}: LineSpectrumSectionProps) {
   return (
     <>
       <Separator />
       <SliderRow
-        label={<span>Smoothness: {Math.round(config.lineSpectrumConfig.tension * 100)}%</span>}
-        value={[config.lineSpectrumConfig.tension]}
+        label={<span>Smoothness: {Math.round(config.tension * 100)}%</span>}
+        value={[config.tension]}
         min={0}
         max={1}
         step={0.1}
-        onValueChange={([value]) => setConfig({ lineSpectrumConfig: { tension: value } })}
+        onValueChange={([value]) => setConfig({ tension: value })}
       />
       <Separator />
       <FormRow
@@ -24,12 +27,12 @@ export function LineSpectrumSettings({ config, setConfig }: AudioVisualizerSecti
         controller={({ id }) => (
           <Switch
             id={id}
-            checked={config.lineSpectrumConfig.stroke}
-            onCheckedChange={(checked) => setConfig({ lineSpectrumConfig: { stroke: checked } })}
+            checked={config.stroke}
+            onCheckedChange={(checked) => setConfig({ stroke: checked })}
           />
         )}
       />
-      {config.lineSpectrumConfig.stroke && (
+      {config.stroke && (
         <>
           <FormRow
             label={<span>Stroke Color</span>}
@@ -37,30 +40,26 @@ export function LineSpectrumSettings({ config, setConfig }: AudioVisualizerSecti
               <ColorPickerInput
                 id={id}
                 aria-label="Stroke Color"
-                value={config.lineSpectrumConfig.strokeColor}
-                onChange={(value) => setConfig({ lineSpectrumConfig: { strokeColor: value } })}
+                value={config.strokeColor}
+                onChange={(value) => setConfig({ strokeColor: value })}
               />
             )}
           />
           <SliderRow
-            label={<span>Line Width: {config.lineSpectrumConfig.lineWidth}px</span>}
-            value={[config.lineSpectrumConfig.lineWidth]}
+            label={<span>Line Width: {config.lineWidth}px</span>}
+            value={[config.lineWidth]}
             min={1}
             max={10}
             step={1}
-            onValueChange={([value]) => setConfig({ lineSpectrumConfig: { lineWidth: value } })}
+            onValueChange={([value]) => setConfig({ lineWidth: value })}
           />
           <SliderRow
-            label={
-              <span>
-                Stroke Opacity: {Math.round(config.lineSpectrumConfig.strokeOpacity * 100)}%
-              </span>
-            }
-            value={[config.lineSpectrumConfig.strokeOpacity]}
+            label={<span>Stroke Opacity: {Math.round(config.strokeOpacity * 100)}%</span>}
+            value={[config.strokeOpacity]}
             min={0}
             max={1}
             step={0.1}
-            onValueChange={([value]) => setConfig({ lineSpectrumConfig: { strokeOpacity: value } })}
+            onValueChange={([value]) => setConfig({ strokeOpacity: value })}
           />
         </>
       )}
