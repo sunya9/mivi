@@ -1,9 +1,9 @@
 import { use } from "react";
 
-import { useFileStore } from "@/lib/file-store/use-file-store";
+import { useAppContext } from "@/contexts/app-context";
 
 export function FileStoreGate({ children }: { children: React.ReactNode }) {
-  const store = useFileStore();
-  use(store.preload());
+  const { fileStore } = useAppContext();
+  use(fileStore.preload());
   return children;
 }

@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 
 import { FileStore } from "@/lib/file-store/file-store";
 import { MemoryFileStorage } from "@/lib/file-store/memory-file-storage";
-import { FileStoreContext, useFileSlot, useFileStore } from "@/lib/file-store/use-file-store";
+import { useFileSlot } from "@/lib/file-store/use-file-slot";
 import type { MidiTracks } from "@/lib/midi/midi";
 
 const file = new File(["m"], "m.mid", { type: "audio/midi" });
@@ -27,12 +27,8 @@ function createStore() {
 async function renderSlotHook(store: FileStore) {
   let rendered!: RenderHookResult<ReturnType<typeof useFileSlot<MidiTracks>>, unknown>;
   await act(async () => {
-    rendered = renderHook(() => useFileSlot(useFileStore().midi), {
-      wrapper: ({ children }) => (
-        <FileStoreContext value={store}>
-          <Suspense fallback={null}>{children}</Suspense>
-        </FileStoreContext>
-      ),
+    rendered = renderHook(() => useFileSlot(store.midi), {
+      wrapper: ({ children }) => <Suspense fallback={null}>{children}</Suspense>,
     });
     expect(rendered.result.current).toBeNull();
     await store.preload();

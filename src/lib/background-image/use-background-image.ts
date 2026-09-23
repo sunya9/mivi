@@ -1,10 +1,11 @@
 import { useCallback } from "react";
 
 import { toast } from "@/components/ui/toast";
-import { useFileSlot, useFileStore } from "@/lib/file-store/use-file-store";
+import { useAppContext } from "@/contexts/app-context";
+import { useFileSlot } from "@/lib/file-store/use-file-slot";
 
 export function useSetBackgroundImageFile() {
-  const { backgroundImage } = useFileStore();
+  const { backgroundImage } = useAppContext().fileStore;
   return useCallback(
     async (file: File | undefined) => {
       const loaded = await backgroundImage.setFile(file);
@@ -15,7 +16,7 @@ export function useSetBackgroundImageFile() {
 }
 
 export function useBackgroundImage() {
-  const { backgroundImage } = useFileStore();
+  const { backgroundImage } = useAppContext().fileStore;
   const { file: backgroundImageFile, decoded: backgroundImageBitmap } =
     useFileSlot(backgroundImage);
   const setBackgroundImageFile = useSetBackgroundImageFile();

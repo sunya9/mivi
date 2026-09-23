@@ -4,7 +4,6 @@ import { HotkeysProvider } from "react-hotkeys-hook";
 
 import { AppContext, type AppContextValue } from "@/contexts/app-context";
 import { PwaContext } from "@/contexts/pwa-context";
-import { FileStoreContext } from "@/lib/file-store/use-file-store";
 import { PLAYER_HOTKEYS_SCOPE } from "@/lib/hotkeys";
 import { usePwaState } from "@/lib/pwa/use-pwa-state";
 
@@ -22,18 +21,16 @@ export function Providers({ appContextValue, children }: ProvidersProps) {
   const pwaUpdateState = usePwaState();
 
   return (
-    <FileStoreContext value={fileStore}>
-      <AppContext value={appContextValue}>
-        <PwaContext value={pwaUpdateState}>
-          <HotkeysProvider initiallyActiveScopes={[PLAYER_HOTKEYS_SCOPE]}>
-            <ErrorBoundary fallbackRender={Fallback} onReset={fileStore.reset}>
-              <Suspense fallback={<Loading />}>
-                <FileStoreGate>{children}</FileStoreGate>
-              </Suspense>
-            </ErrorBoundary>
-          </HotkeysProvider>
-        </PwaContext>
-      </AppContext>
-    </FileStoreContext>
+    <AppContext value={appContextValue}>
+      <PwaContext value={pwaUpdateState}>
+        <HotkeysProvider initiallyActiveScopes={[PLAYER_HOTKEYS_SCOPE]}>
+          <ErrorBoundary fallbackRender={Fallback} onReset={fileStore.reset}>
+            <Suspense fallback={<Loading />}>
+              <FileStoreGate>{children}</FileStoreGate>
+            </Suspense>
+          </ErrorBoundary>
+        </HotkeysProvider>
+      </PwaContext>
+    </AppContext>
   );
 }
