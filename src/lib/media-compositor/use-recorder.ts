@@ -28,7 +28,7 @@ export function useRecorder() {
           : undefined;
       const backgroundImageBitmap = fileStore.backgroundImage.getSnapshot().decoded;
       const rendererType = rendererConfig.type;
-      const audioVisualizerStyle = rendererConfig.audioVisualizerConfig.style;
+      const audioVisualizerStyle = rendererConfig.audioVisualizerStyle;
 
       // Audio is always required
       if (!audioSource) {

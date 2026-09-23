@@ -39,10 +39,7 @@ async function createVisualizerResources(): Promise<RecorderResources> {
       resolution: { width: 320, height: 240, label: "320×240 (4:3)" },
       fps: 24 as const,
       format: "webm" as const,
-      audioVisualizerConfig: {
-        ...config.audioVisualizerConfig,
-        style: "bars" as const,
-      },
+      audioVisualizerStyle: "bars" as const,
     },
   };
 }
@@ -106,7 +103,7 @@ test("audio is advanced in lockstep with video rendering", async () => {
 
 test("every phase reports its total once composite finishes", async () => {
   const resources = await createTestRecorderResources("webm");
-  expect(resources.rendererConfig.audioVisualizerConfig.style).toBe("none");
+  expect(resources.rendererConfig.audioVisualizerStyle).toBe("none");
 
   const { phases, completed } = await compositeToFile(resources);
 

@@ -114,7 +114,6 @@ export interface LineSpectrumConfig {
 }
 
 export interface AudioVisualizerConfig extends SpectrumEnvelopeOptions {
-  style: AudioVisualizerStyle;
   fftSize: AudioVisualizerFFTSize;
   minFrequency: number;
   maxFrequency: number;
@@ -146,6 +145,7 @@ export interface RendererConfig extends BackgroundConfig {
   pianoRollConfig: PianoRollConfig;
   verticalPianoRollConfig: VerticalPianoRollConfig;
   cometConfig: CometConfig;
+  audioVisualizerStyle: AudioVisualizerStyle;
   audioVisualizerConfig: AudioVisualizerConfig;
   audioVisualizerLayer: AudioVisualizerLayer;
 }
@@ -245,8 +245,8 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     angleRandomness: 15,
     reverseStacking: false,
   },
+  audioVisualizerStyle: "none",
   audioVisualizerConfig: {
-    style: "none",
     fftSize: 2048,
     ...DEFAULT_SPECTRUM_ENVELOPE,
     minFrequency: 20,
