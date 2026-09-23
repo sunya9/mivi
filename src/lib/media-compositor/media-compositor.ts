@@ -15,6 +15,7 @@ import { precomputeFFTData, getFrameAtTime } from "@/lib/audio/fft-precompute";
 import { OUTPUT_FORMATS, type OutputFormatConfig } from "@/lib/muxer/output-format";
 import { createRenderer } from "@/lib/renderers/create-renderer";
 import { drawFrame } from "@/lib/renderers/draw-frame";
+import { selectAudioAnalyzerConfig } from "@/lib/renderers/renderer-config";
 
 import { RecorderResources } from "./recorder-resources";
 
@@ -182,16 +183,16 @@ export class MediaCompositor {
   }
 
   #precomputeFFT() {
-    const { audioVisualizerStyle, audioVisualizerConfig } = this.#rendererConfig;
-    if (audioVisualizerStyle === "none") {
+    const analyzer = selectAudioAnalyzerConfig(this.#rendererConfig);
+    if (!analyzer) {
       this.#emit("FFT", this.#totalVideoFrames);
       return null;
     }
 
     return precomputeFFTData(this.#serializedAudio, this.#fps, {
-      fftSize: audioVisualizerConfig.fftSize,
-      attackTime: audioVisualizerConfig.attackTime,
-      releaseTime: audioVisualizerConfig.releaseTime,
+      fftSize: analyzer.fftSize,
+      attackTime: analyzer.attackTime,
+      releaseTime: analyzer.releaseTime,
       onProgress: (current) => this.#emit("FFT", current),
     });
   }
