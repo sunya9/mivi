@@ -1,6 +1,12 @@
-import { expect, test } from "vitest";
+import "fake-indexeddb/auto";
+import { IDBFactory } from "fake-indexeddb";
+import { afterEach, expect, test } from "vitest";
 
 import { purgeLegacyStorage } from "@/lib/storage-migration";
+
+afterEach(() => {
+  indexedDB = new IDBFactory();
+});
 
 function openDatabase(name: string) {
   return new Promise<void>((resolve, reject) => {

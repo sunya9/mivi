@@ -139,7 +139,12 @@ export default defineConfig(({ mode }) => ({
     },
     coverage: {
       include: ["src/**/*.ts", "src/**/*.tsx"],
-      exclude: [...(configDefaults.coverage.exclude || []), "src/components/ui/**", "dev-dist"],
+      exclude: [
+        ...(configDefaults.coverage.exclude || []),
+        "src/main.tsx",
+        "src/components/ui/**",
+        "dev-dist",
+      ],
     },
     projects: [
       {
