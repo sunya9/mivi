@@ -7,17 +7,20 @@ import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 
-import { AudioVisualizerSectionProps } from "./types";
+import { AudioVisualizerSectionProps, LineSpectrumSectionProps } from "./types";
 
 export function ColorSettings({
   config,
   setConfig,
+  lineSpectrumConfig,
+  setLineSpectrumConfig,
   isCircular,
   showFill,
-}: AudioVisualizerSectionProps & {
-  isCircular: boolean;
-  showFill: boolean;
-}) {
+}: AudioVisualizerSectionProps &
+  LineSpectrumSectionProps & {
+    isCircular: boolean;
+    showFill: boolean;
+  }) {
   return (
     <>
       <Separator />
@@ -27,8 +30,8 @@ export function ColorSettings({
           controller={({ id }) => (
             <Switch
               id={id}
-              checked={config.lineSpectrumConfig.fill}
-              onCheckedChange={(checked) => setConfig({ lineSpectrumConfig: { fill: checked } })}
+              checked={lineSpectrumConfig.fill}
+              onCheckedChange={(checked) => setLineSpectrumConfig({ fill: checked })}
             />
           )}
         />
@@ -49,7 +52,10 @@ export function ColorSettings({
             <SelectRow
               label={<span>Gradient Direction</span>}
               value={config.gradientDirection}
-              onValueChange={(value) => setConfig({ gradientDirection: value ?? undefined })}
+              onValueChange={(value) => {
+                if (value == null) return;
+                setConfig({ gradientDirection: value });
+              }}
               items={gradientDirectionOptions}
               placeholder="Select direction"
             >
@@ -98,16 +104,14 @@ export function ColorSettings({
           )}
         />
       )}
-      {showFill && config.lineSpectrumConfig.fill && (
+      {showFill && lineSpectrumConfig.fill && (
         <SliderRow
-          label={
-            <span>Fill Opacity: {Math.round(config.lineSpectrumConfig.fillOpacity * 100)}%</span>
-          }
-          value={[config.lineSpectrumConfig.fillOpacity]}
+          label={<span>Fill Opacity: {Math.round(lineSpectrumConfig.fillOpacity * 100)}%</span>}
+          value={[lineSpectrumConfig.fillOpacity]}
           min={0}
           max={1}
           step={0.1}
-          onValueChange={([value]) => setConfig({ lineSpectrumConfig: { fillOpacity: value } })}
+          onValueChange={([value]) => setLineSpectrumConfig({ fillOpacity: value })}
         />
       )}
       <SliderRow

@@ -9,7 +9,11 @@ import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent, TabsIndicator } from "@/components/ui/tabs";
 import { useAppContext } from "@/contexts/app-context";
-import { useRendererConfig, useUpdateRendererConfig } from "@/hooks/use-renderer-config";
+import {
+  useRendererConfig,
+  useRendererSection,
+  useUpdateRendererConfig,
+} from "@/hooks/use-renderer-config";
 import { useStore } from "@/hooks/use-store";
 import { RendererType } from "@/lib/renderers/renderer-config";
 
@@ -21,46 +25,25 @@ function useMidiNoteRange() {
 }
 
 function PianoRollSection() {
-  const pianoRollConfig = useRendererConfig((config) => config.pianoRollConfig);
-  return (
-    <PianoRollConfigPanel
-      pianoRollConfig={pianoRollConfig}
-      onUpdateRendererConfig={useUpdateRendererConfig()}
-      {...useMidiNoteRange()}
-    />
-  );
+  const [config, onChange] = useRendererSection("pianoRollConfig");
+  return <PianoRollConfigPanel config={config} onChange={onChange} {...useMidiNoteRange()} />;
 }
 
 function VerticalPianoRollSection() {
-  const verticalPianoRollConfig = useRendererConfig((config) => config.verticalPianoRollConfig);
+  const [config, onChange] = useRendererSection("verticalPianoRollConfig");
   return (
-    <VerticalPianoRollConfigPanel
-      verticalPianoRollConfig={verticalPianoRollConfig}
-      onUpdateRendererConfig={useUpdateRendererConfig()}
-      {...useMidiNoteRange()}
-    />
+    <VerticalPianoRollConfigPanel config={config} onChange={onChange} {...useMidiNoteRange()} />
   );
 }
 
 function CometSection() {
-  const cometConfig = useRendererConfig((config) => config.cometConfig);
-  return (
-    <CometConfigPanel
-      cometConfig={cometConfig}
-      onUpdateRendererConfig={useUpdateRendererConfig()}
-      {...useMidiNoteRange()}
-    />
-  );
+  const [config, onChange] = useRendererSection("cometConfig");
+  return <CometConfigPanel config={config} onChange={onChange} {...useMidiNoteRange()} />;
 }
 
 function AudioVisualizerSection() {
-  const audioVisualizerConfig = useRendererConfig((config) => config.audioVisualizerConfig);
-  return (
-    <AudioVisualizerConfigPanel
-      audioVisualizerConfig={audioVisualizerConfig}
-      onUpdateRendererConfig={useUpdateRendererConfig()}
-    />
-  );
+  const [config, onChange] = useRendererSection("audioVisualizerConfig");
+  return <AudioVisualizerConfigPanel config={config} onChange={onChange} />;
 }
 
 interface RendererOption {
@@ -94,7 +77,10 @@ export function VisualizerStylePane() {
               <SelectRow
                 label={<span>Style</span>}
                 value={type}
-                onValueChange={(value) => onUpdateRendererConfig({ type: value ?? undefined })}
+                onValueChange={(value) => {
+                  if (value == null) return;
+                  onUpdateRendererConfig({ type: value });
+                }}
                 items={RENDERER_OPTIONS}
                 placeholder="Select visualization style"
                 valueClassName="display w-auto"

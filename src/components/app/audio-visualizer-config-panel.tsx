@@ -1,10 +1,7 @@
-import { useCallback } from "react";
-
 import { audioVisualizerStyleOptions } from "@/components/app/renderer-options";
 import { SelectRow } from "@/components/common/select-row";
 import { SelectContent, SelectItem } from "@/components/ui/select";
-import { AudioVisualizerConfig, RendererConfig } from "@/lib/renderers/renderer-config";
-import { DeepPartial } from "@/lib/type-utils";
+import { AudioVisualizerConfig, LineSpectrumConfig } from "@/lib/renderers/renderer-config";
 
 import { AnalyzerSettings } from "./audio-visualizer/analyzer-settings";
 import { BarSettings } from "./audio-visualizer/bar-settings";
@@ -13,21 +10,15 @@ import { GeneralSettings } from "./audio-visualizer/general-settings";
 import { LineSpectrumSettings } from "./audio-visualizer/line-spectrum-settings";
 
 interface Props {
-  audioVisualizerConfig: AudioVisualizerConfig;
-  onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
+  config: AudioVisualizerConfig;
+  onChange: (partial: Partial<AudioVisualizerConfig>) => void;
 }
 
-export function AudioVisualizerConfigPanel({
-  audioVisualizerConfig,
-  onUpdateRendererConfig,
-}: Props) {
-  const setConfig = useCallback(
-    (config: DeepPartial<AudioVisualizerConfig>) =>
-      onUpdateRendererConfig({ audioVisualizerConfig: config }),
-    [onUpdateRendererConfig],
-  );
+export function AudioVisualizerConfigPanel({ config, onChange }: Props) {
+  const setLineSpectrumConfig = (partial: Partial<LineSpectrumConfig>) =>
+    onChange({ lineSpectrumConfig: { ...config.lineSpectrumConfig, ...partial } });
 
-  const style = audioVisualizerConfig.style;
+  const style = config.style;
   const isEnabled = style !== "none";
   const isCircular = style === "circular";
   const showBarSettings = style === "bars" || style === "lineSpectrum" || isCircular;
@@ -38,7 +29,10 @@ export function AudioVisualizerConfigPanel({
       <SelectRow
         label={<span>Style</span>}
         value={style}
-        onValueChange={(value) => setConfig({ style: value ?? undefined })}
+        onValueChange={(value) => {
+          if (value == null) return;
+          onChange({ style: value });
+        }}
         items={audioVisualizerStyleOptions}
         placeholder="Select style"
       >
@@ -52,24 +46,23 @@ export function AudioVisualizerConfigPanel({
       </SelectRow>
       {isEnabled && (
         <>
-          <GeneralSettings
-            config={audioVisualizerConfig}
-            setConfig={setConfig}
-            isCircular={isCircular}
-          />
-          {showBarSettings && (
-            <BarSettings config={audioVisualizerConfig} setConfig={setConfig} style={style} />
-          )}
+          <GeneralSettings config={config} setConfig={onChange} isCircular={isCircular} />
+          {showBarSettings && <BarSettings config={config} setConfig={onChange} style={style} />}
           {showLineSpectrumSettings && (
-            <LineSpectrumSettings config={audioVisualizerConfig} setConfig={setConfig} />
+            <LineSpectrumSettings
+              lineSpectrumConfig={config.lineSpectrumConfig}
+              setLineSpectrumConfig={setLineSpectrumConfig}
+            />
           )}
           <ColorSettings
-            config={audioVisualizerConfig}
-            setConfig={setConfig}
+            config={config}
+            setConfig={onChange}
+            lineSpectrumConfig={config.lineSpectrumConfig}
+            setLineSpectrumConfig={setLineSpectrumConfig}
             isCircular={isCircular}
             showFill={showLineSpectrumSettings}
           />
-          <AnalyzerSettings config={audioVisualizerConfig} setConfig={setConfig} />
+          <AnalyzerSettings config={config} setConfig={onChange} />
         </>
       )}
     </>

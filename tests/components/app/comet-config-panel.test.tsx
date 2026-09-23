@@ -7,14 +7,13 @@ import { expect, test, vi } from "vitest";
 
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
 type Props = ComponentProps<typeof CometConfigPanel>;
-const onUpdateRendererConfig: Props["onUpdateRendererConfig"] =
-  vi.fn<Props["onUpdateRendererConfig"]>();
+const onChange: Props["onChange"] = vi.fn<Props["onChange"]>();
 const cometConfig = rendererConfig.cometConfig;
 async function renderPane(overrideProps?: Props) {
   await customRender(
     <CometConfigPanel
-      onUpdateRendererConfig={onUpdateRendererConfig}
-      cometConfig={cometConfig}
+      onChange={onChange}
+      config={cometConfig}
       minNote={testMidiTracks.minNote}
       maxNote={testMidiTracks.maxNote}
       {...overrideProps}
@@ -31,10 +30,8 @@ test("should render Comet component", async () => {
   expect(fallAngleSlider).toBeInTheDocument();
   await userEvent.click(fallAngleSlider);
   await userEvent.keyboard("{arrowleft}");
-  expect(onUpdateRendererConfig).toHaveBeenCalledExactlyOnceWith({
-    cometConfig: {
-      fallAngle: 130,
-    },
+  expect(onChange).toHaveBeenCalledExactlyOnceWith({
+    fallAngle: 130,
   });
 });
 
@@ -55,15 +52,11 @@ test.each([
 ])("%s slider updates %s", async (label, key) => {
   await renderPane();
   await nudgeSlider(label);
-  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
-    cometConfig: expect.objectContaining({ [key]: expect.any(Number) }),
-  });
+  expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ [key]: expect.any(Number) }));
 });
 
 test("reverse stacking switch updates reverseStacking", async () => {
   await renderPane();
   await userEvent.click(screen.getByRole("switch", { name: "Reverse Stacking" }));
-  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
-    cometConfig: { reverseStacking: !cometConfig.reverseStacking },
-  });
+  expect(onChange).toHaveBeenLastCalledWith({ reverseStacking: !cometConfig.reverseStacking });
 });

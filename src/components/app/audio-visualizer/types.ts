@@ -1,7 +1,11 @@
-import { AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
-import { DeepPartial } from "@/lib/type-utils";
+import { AudioVisualizerConfig, LineSpectrumConfig } from "@/lib/renderers/renderer-config";
 
 export interface AudioVisualizerSectionProps {
   config: AudioVisualizerConfig;
-  setConfig: (config: DeepPartial<AudioVisualizerConfig>) => void;
+  setConfig: (config: Partial<AudioVisualizerConfig>) => void;
+}
+
+export interface LineSpectrumSectionProps {
+  lineSpectrumConfig: LineSpectrumConfig;
+  setLineSpectrumConfig: (config: Partial<LineSpectrumConfig>) => void;
 }
