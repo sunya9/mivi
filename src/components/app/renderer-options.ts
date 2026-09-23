@@ -8,7 +8,6 @@ import {
   type AudioVisualizerBarStyle,
   type AudioVisualizerLayer,
   type AudioVisualizerPosition,
-  type AudioVisualizerStyle,
   type GradientDirection,
   type PianoRollConfig,
 } from "@/lib/renderers/renderer-config";
@@ -17,13 +16,6 @@ interface Option<T> {
   value: T;
   label: string;
 }
-
-export const audioVisualizerStyleOptions = [
-  { value: "none", label: "None" },
-  { value: "bars", label: "Bars" },
-  { value: "lineSpectrum", label: "Line Spectrum" },
-  { value: "circular", label: "Circular" },
-] as const satisfies readonly Option<AudioVisualizerStyle>[];
 
 export const audioVisualizerPositionOptions = [
   { value: "top", label: "Top" },

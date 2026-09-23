@@ -8,7 +8,9 @@ type RendererConfigSection =
   | "pianoRollConfig"
   | "verticalPianoRollConfig"
   | "cometConfig"
-  | "audioVisualizerConfig";
+  | "barsConfig"
+  | "lineSpectrumConfig"
+  | "circularConfig";
 
 export function useRendererConfig<S>(
   selector: (config: RendererConfig) => S,

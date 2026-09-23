@@ -1,7 +1,7 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { Resolution } from "@/lib/muxer/resolution";
 import type { RendererContext } from "@/lib/renderers/renderer";
-import { type AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
+import { type AudioVisualizerPosition, type BarsConfig } from "@/lib/renderers/renderer-config";
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
 import { createSpectrumFillStyle, resolveBaseY } from "./spectrum-style";
@@ -28,8 +28,8 @@ function drawBar(
   baseY: number,
   width: number,
   height: number,
-  style: AudioVisualizerConfig["barStyle"],
-  position: AudioVisualizerConfig["position"],
+  style: BarsConfig["barStyle"],
+  position: AudioVisualizerPosition,
   mirror: boolean,
   mirrorOpacity: number,
   canvasHeight: number,
@@ -87,7 +87,7 @@ function drawBar(
 export function drawBarSpectrum(
   ctx: RendererContext,
   frequencyData: FrequencyData,
-  config: AudioVisualizerConfig,
+  config: BarsConfig,
   resolution: Resolution,
 ): void {
   const canvasWidth = resolution.width;
@@ -99,7 +99,7 @@ export function drawBarSpectrum(
     barPadding,
     barMinHeight,
     barStyle,
-    barOpacity,
+    opacity,
     position,
     height: heightPercent,
     mirror,
@@ -121,7 +121,7 @@ export function drawBarSpectrum(
   const baseY = resolveBaseY(position, canvasHeight);
 
   ctx.save();
-  ctx.globalAlpha = barOpacity;
+  ctx.globalAlpha = opacity;
   ctx.fillStyle = createSpectrumFillStyle(ctx, config, canvasWidth, canvasHeight);
 
   const binsPerBar = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);

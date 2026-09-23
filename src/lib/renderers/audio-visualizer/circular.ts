@@ -1,7 +1,7 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { Resolution } from "@/lib/muxer/resolution";
 import type { RendererContext } from "@/lib/renderers/renderer";
-import { type AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
+import { type CircularConfig } from "@/lib/renderers/renderer-config";
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
 
@@ -9,7 +9,7 @@ import { calculateBandAmplitudes } from "./band-amplitudes";
 export function drawCircular(
   ctx: RendererContext,
   frequencyData: FrequencyData,
-  config: AudioVisualizerConfig,
+  config: CircularConfig,
   resolution: Resolution,
 ): void {
   const canvasWidth = resolution.width;
@@ -23,8 +23,8 @@ export function drawCircular(
     gradientStartColor,
     gradientEndColor,
     singleColor,
-    barOpacity,
-    height: heightPercent,
+    opacity,
+    size,
     mirror,
     mirrorOpacity,
     minFrequency,
@@ -33,14 +33,14 @@ export function drawCircular(
 
   const centerX = canvasWidth / 2;
   const centerY = canvasHeight / 2;
-  const maxRadius = (Math.min(canvasWidth, canvasHeight) * heightPercent) / 100 / 2;
+  const maxRadius = (Math.min(canvasWidth, canvasHeight) * size) / 100 / 2;
   const innerRadius = maxRadius * 0.3;
 
   const circumference = 2 * Math.PI * innerRadius;
   const barWidth = Math.max(1, (circumference / barCount) * 0.6);
 
   ctx.save();
-  ctx.globalAlpha = barOpacity;
+  ctx.globalAlpha = opacity;
 
   const amplitudes = calculateBandAmplitudes(frequencyData, barCount, minFrequency, maxFrequency);
 
