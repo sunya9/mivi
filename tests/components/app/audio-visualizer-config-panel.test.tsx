@@ -14,6 +14,7 @@ const audioVisualizerConfig = rendererConfig.audioVisualizerConfig;
 async function renderPane(overrideProps?: Partial<Props>) {
   await customRender(
     <AudioVisualizerConfigPanel
+      style="bars"
       onChange={onChange}
       config={audioVisualizerConfig}
       {...overrideProps}
@@ -21,39 +22,13 @@ async function renderPane(overrideProps?: Partial<Props>) {
   );
 }
 
-// Render tests
-test("renders style selector", async () => {
-  await renderPane();
-  expect(screen.getByRole("combobox", { name: "Style" })).toBeInTheDocument();
-});
-
-test("should change style when style is selected", async () => {
-  await renderPane();
-  const styleTrigger = screen.getByRole("combobox", { name: "Style" });
-  await userEvent.click(styleTrigger);
-  const barsOption = screen.getByRole("option", { name: "Bars" });
-  await userEvent.click(barsOption);
-  expect(onChange).toHaveBeenCalledWith({ style: "bars" });
-});
-
-test("should not show position selector when style is none", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "none" },
-  });
-  expect(screen.queryByRole("combobox", { name: "Position" })).not.toBeInTheDocument();
-});
-
 test("should show position selector when style is bars", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "bars" },
-  });
+  await renderPane();
   expect(screen.getByRole("combobox", { name: "Position" })).toBeInTheDocument();
 });
 
 test("position options should be in order: Top, Center, Bottom", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "bars" },
-  });
+  await renderPane();
   const positionTrigger = screen.getByRole("combobox", { name: "Position" });
   await userEvent.click(positionTrigger);
 
@@ -64,9 +39,7 @@ test("position options should be in order: Top, Center, Bottom", async () => {
 });
 
 test("should call onChange when position is changed", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "bars" },
-  });
+  await renderPane();
   const positionTrigger = screen.getByRole("combobox", { name: "Position" });
   await userEvent.click(positionTrigger);
   const topOption = screen.getByRole("option", { name: "Top" });
@@ -75,66 +48,40 @@ test("should call onChange when position is changed", async () => {
 });
 
 test("should show bar count slider when style is bars", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "bars" },
-  });
+  await renderPane();
   expect(screen.getByText(/Bar Count:/)).toBeInTheDocument();
 });
 
 test("should show mirror switch when style is enabled", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "bars" },
-  });
+  await renderPane();
   expect(screen.getByRole("switch", { name: "Mirror" })).toBeInTheDocument();
 });
 
 test("should toggle mirror when switch is clicked", async () => {
-  await renderPane({
-    config: {
-      ...audioVisualizerConfig,
-      style: "bars",
-      mirror: false,
-    },
-  });
+  await renderPane({ config: { ...audioVisualizerConfig, mirror: false } });
   const switchEl = screen.getByRole("switch", { name: "Mirror" });
   await userEvent.click(switchEl);
   expect(onChange).toHaveBeenCalledWith({ mirror: true });
 });
 
 test("should show use gradient switch when style is enabled", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "bars" },
-  });
+  await renderPane();
   expect(screen.getByRole("switch", { name: "Use Gradient" })).toBeInTheDocument();
 });
 
 test("should show gradient direction when use gradient is enabled", async () => {
-  await renderPane({
-    config: {
-      ...audioVisualizerConfig,
-      style: "bars",
-      useGradient: true,
-    },
-  });
+  await renderPane({ config: { ...audioVisualizerConfig, useGradient: true } });
   expect(screen.getByRole("combobox", { name: "Gradient Direction" })).toBeInTheDocument();
 });
 
 test("should show single color picker when use gradient is disabled", async () => {
-  await renderPane({
-    config: {
-      ...audioVisualizerConfig,
-      style: "bars",
-      useGradient: false,
-    },
-  });
+  await renderPane({ config: { ...audioVisualizerConfig, useGradient: false } });
   expect(screen.getByRole("textbox", { name: "Color" })).toBeInTheDocument();
 });
 
 // Line Spectrum specific tests
 test("should show line spectrum settings when style is lineSpectrum", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "lineSpectrum" },
-  });
+  await renderPane({ style: "lineSpectrum" });
   expect(screen.getByText(/Smoothness:/)).toBeInTheDocument();
   expect(screen.getByRole("switch", { name: "Stroke" })).toBeInTheDocument();
   expect(screen.getByRole("switch", { name: "Fill" })).toBeInTheDocument();
@@ -142,13 +89,10 @@ test("should show line spectrum settings when style is lineSpectrum", async () =
 
 test("should show stroke color picker when stroke is enabled for lineSpectrum", async () => {
   await renderPane({
+    style: "lineSpectrum",
     config: {
       ...audioVisualizerConfig,
-      style: "lineSpectrum",
-      lineSpectrumConfig: {
-        ...audioVisualizerConfig.lineSpectrumConfig,
-        stroke: true,
-      },
+      lineSpectrumConfig: { ...audioVisualizerConfig.lineSpectrumConfig, stroke: true },
     },
   });
   expect(screen.getByRole("textbox", { name: "Stroke Color" })).toBeInTheDocument();
@@ -156,13 +100,10 @@ test("should show stroke color picker when stroke is enabled for lineSpectrum", 
 
 test("should not show stroke color picker when stroke is disabled", async () => {
   await renderPane({
+    style: "lineSpectrum",
     config: {
       ...audioVisualizerConfig,
-      style: "lineSpectrum",
-      lineSpectrumConfig: {
-        ...audioVisualizerConfig.lineSpectrumConfig,
-        stroke: false,
-      },
+      lineSpectrumConfig: { ...audioVisualizerConfig.lineSpectrumConfig, stroke: false },
     },
   });
   expect(screen.queryByRole("textbox", { name: "Stroke Color" })).not.toBeInTheDocument();
@@ -170,30 +111,23 @@ test("should not show stroke color picker when stroke is disabled", async () => 
 
 // Circular specific tests
 test("should not show position selector when style is circular", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "circular" },
-  });
+  await renderPane({ style: "circular" });
   expect(screen.queryByRole("combobox", { name: "Position" })).not.toBeInTheDocument();
 });
 
 test("should show size label instead of height when style is circular", async () => {
-  await renderPane({
-    config: { ...audioVisualizerConfig, style: "circular" },
-  });
-  // For circular, the height slider shows "Size" instead of "Height"
+  await renderPane({ style: "circular" });
   expect(screen.getByText(/Size:/)).toBeInTheDocument();
 });
 
 const barsConfig = {
   ...audioVisualizerConfig,
-  style: "bars" as const,
   mirror: true,
   useGradient: true,
 };
 
 const lineSpectrumConfig = {
   ...audioVisualizerConfig,
-  style: "lineSpectrum" as const,
   lineSpectrumConfig: { ...audioVisualizerConfig.lineSpectrumConfig, stroke: true, fill: true },
 };
 
@@ -219,7 +153,7 @@ test.each([
   [/^Stroke Opacity/, "strokeOpacity"],
   [/^Fill Opacity/, "fillOpacity"],
 ])("%s slider updates lineSpectrumConfig.%s", async (label, key) => {
-  await renderPane({ config: lineSpectrumConfig });
+  await renderPane({ style: "lineSpectrum", config: lineSpectrumConfig });
   await nudgeSlider(label);
   expect(onChange).toHaveBeenLastCalledWith({
     lineSpectrumConfig: expect.objectContaining({ [key]: expect.any(Number) }),
@@ -230,7 +164,7 @@ test.each([
   ["Stroke", "stroke"],
   ["Fill", "fill"],
 ])("%s switch updates lineSpectrumConfig.%s", async (label, key) => {
-  await renderPane({ config: lineSpectrumConfig });
+  await renderPane({ style: "lineSpectrum", config: lineSpectrumConfig });
   await userEvent.click(screen.getByRole("switch", { name: label }));
   expect(onChange).toHaveBeenLastCalledWith({
     lineSpectrumConfig: { ...lineSpectrumConfig.lineSpectrumConfig, [key]: false },
@@ -238,7 +172,7 @@ test.each([
 });
 
 test("stroke color picker updates lineSpectrumConfig.strokeColor", async () => {
-  await renderPane({ config: lineSpectrumConfig });
+  await renderPane({ style: "lineSpectrum", config: lineSpectrumConfig });
   pickColor("Stroke Color", "#123456");
   expect(onChange).toHaveBeenLastCalledWith({
     lineSpectrumConfig: { ...lineSpectrumConfig.lineSpectrumConfig, strokeColor: "#123456" },

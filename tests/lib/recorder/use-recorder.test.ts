@@ -83,7 +83,7 @@ test("should allow recording without MIDI when renderer type is none and audio v
     rendererConfig: {
       ...rendererConfig,
       type: "none",
-      audioVisualizerConfig: { ...rendererConfig.audioVisualizerConfig, style: "bars" },
+      audioVisualizerStyle: "bars",
     },
   });
   vi.mocked(runRecorder).mockImplementationOnce(resolveSoon);
@@ -105,7 +105,7 @@ test("should show error when renderer type is none and audio visualizer is also 
     rendererConfig: {
       ...rendererConfig,
       type: "none",
-      audioVisualizerConfig: { ...rendererConfig.audioVisualizerConfig, style: "none" },
+      audioVisualizerStyle: "none",
     },
   });
 

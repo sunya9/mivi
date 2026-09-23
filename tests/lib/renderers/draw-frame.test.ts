@@ -47,12 +47,7 @@ test.each(["front", "back"] as const)(
     const config = { ...getDefaultRendererConfig(), audioVisualizerLayer };
     const frequencyData = createFrequencyData();
     drawFrame(ctx, { config, renderer, tracks: [], currentTime: 0, frequencyData });
-    expect(mockDrawAudioVisualizer).toHaveBeenCalledExactlyOnceWith(
-      ctx,
-      frequencyData,
-      config.audioVisualizerConfig,
-      config.resolution,
-    );
+    expect(mockDrawAudioVisualizer).toHaveBeenCalledExactlyOnceWith(ctx, frequencyData, config);
   },
 );
 
