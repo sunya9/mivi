@@ -1,10 +1,11 @@
 import { useCallback } from "react";
 
 import { toast } from "@/components/ui/toast";
-import { useFileSlot, useFileStore } from "@/lib/file-store/use-file-store";
+import { useAppContext } from "@/contexts/app-context";
+import { useFileSlot } from "@/lib/file-store/use-file-slot";
 
 export function useSetAudioFile() {
-  const { audio } = useFileStore();
+  const { audio } = useAppContext().fileStore;
   return useCallback(
     async (file: File | undefined) => {
       const loaded = await audio.setFile(file);
@@ -15,7 +16,7 @@ export function useSetAudioFile() {
 }
 
 export function useAudio() {
-  const { audio } = useFileStore();
+  const { audio } = useAppContext().fileStore;
   const { file: audioFile, decoding: isDecoding } = useFileSlot(audio);
   const setAudioFile = useSetAudioFile();
 
