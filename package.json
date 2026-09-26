@@ -31,7 +31,7 @@
     "comlink": "^4.4.2",
     "es-toolkit": "^1.52.0",
     "lucide-react": "^1.48.0",
-    "mediabunny": "^1.56.1",
+    "mediabunny": "^1.59.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-error-boundary": "^6.1.6",
