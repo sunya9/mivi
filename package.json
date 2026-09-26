@@ -34,7 +34,7 @@
     "mediabunny": "^1.56.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-error-boundary": "^6.1.5",
+    "react-error-boundary": "^6.1.6",
     "react-hotkeys-hook": "^5.3.3",
     "standardized-audio-context": "^25.3.77",
     "tailwindcss": "^4.3.3"
