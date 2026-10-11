@@ -182,8 +182,8 @@ export class MediaCompositor {
   }
 
   #precomputeFFT() {
-    const { audioVisualizerConfig } = this.#rendererConfig;
-    if (audioVisualizerConfig.style === "none") {
+    const { audioVisualizerStyle, audioVisualizerConfig } = this.#rendererConfig;
+    if (audioVisualizerStyle === "none") {
       this.#emit("FFT", this.#totalVideoFrames);
       return null;
     }

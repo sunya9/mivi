@@ -1,7 +1,6 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type { Resolution } from "@/lib/muxer/resolution";
 import type { RendererContext } from "@/lib/renderers/renderer";
-import { type AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
+import { type RendererConfig } from "@/lib/renderers/renderer-config";
 
 import { drawBarSpectrum } from "./bar-spectrum";
 import { drawCircular } from "./circular";
@@ -10,22 +9,22 @@ import { drawLineSpectrum } from "./line-spectrum";
 export function drawAudioVisualizer(
   ctx: RendererContext,
   frequencyData: FrequencyData | null,
-  config: AudioVisualizerConfig,
-  resolution: Resolution,
+  config: RendererConfig,
 ): void {
-  if (config.style === "none" || !frequencyData) return;
+  const { audioVisualizerStyle: style, audioVisualizerConfig, resolution } = config;
+  if (style === "none" || !frequencyData) return;
 
   ctx.save();
 
-  switch (config.style) {
+  switch (style) {
     case "bars":
-      drawBarSpectrum(ctx, frequencyData, config, resolution);
+      drawBarSpectrum(ctx, frequencyData, audioVisualizerConfig, resolution);
       break;
     case "lineSpectrum":
-      drawLineSpectrum(ctx, frequencyData, config, resolution);
+      drawLineSpectrum(ctx, frequencyData, audioVisualizerConfig, resolution);
       break;
     case "circular":
-      drawCircular(ctx, frequencyData, config, resolution);
+      drawCircular(ctx, frequencyData, audioVisualizerConfig, resolution);
       break;
   }
 

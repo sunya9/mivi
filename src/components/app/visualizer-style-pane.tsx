@@ -1,6 +1,7 @@
 import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
 import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
+import { audioVisualizerStyleOptions } from "@/components/app/renderer-options";
 import { VerticalPianoRollConfigPanel } from "@/components/app/vertical-piano-roll-config-panel";
 import { SelectRow } from "@/components/common/select-row";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,7 +16,7 @@ import {
   useUpdateRendererConfig,
 } from "@/hooks/use-renderer-config";
 import { useStore } from "@/hooks/use-store";
-import { RendererType } from "@/lib/renderers/renderer-config";
+import { AudioVisualizerStyle, RendererType } from "@/lib/renderers/renderer-config";
 
 function useMidiNoteRange() {
   const { midiTracksStore } = useAppContext();
@@ -41,9 +42,9 @@ function CometSection() {
   return <CometConfigPanel config={config} onChange={onChange} {...useMidiNoteRange()} />;
 }
 
-function AudioVisualizerSection() {
+function AudioVisualizerSection({ style }: { style: Exclude<AudioVisualizerStyle, "none"> }) {
   const [config, onChange] = useRendererSection("audioVisualizerConfig");
-  return <AudioVisualizerConfigPanel config={config} onChange={onChange} />;
+  return <AudioVisualizerConfigPanel style={style} config={config} onChange={onChange} />;
 }
 
 interface RendererOption {
@@ -59,10 +60,70 @@ const RENDERER_OPTIONS: RendererOption[] = [
   { value: "comet", label: "Comet", Section: CometSection },
 ];
 
-export function VisualizerStylePane() {
+function MidiStyleTab() {
   const type = useRendererConfig((config) => config.type);
   const onUpdateRendererConfig = useUpdateRendererConfig();
   const Section = RENDERER_OPTIONS.find((option) => option.value === type)?.Section;
+  return (
+    <>
+      <SelectRow
+        label={<span>Style</span>}
+        value={type}
+        onValueChange={(value) => {
+          if (value == null) return;
+          onUpdateRendererConfig({ type: value });
+        }}
+        items={RENDERER_OPTIONS}
+        placeholder="Select visualization style"
+        valueClassName="display w-auto"
+      >
+        <SelectContent align="end">
+          {RENDERER_OPTIONS.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </SelectRow>
+      {Section && (
+        <>
+          <Separator />
+          <Section />
+        </>
+      )}
+    </>
+  );
+}
+
+function AudioStyleTab() {
+  const style = useRendererConfig((config) => config.audioVisualizerStyle);
+  const onUpdateRendererConfig = useUpdateRendererConfig();
+  return (
+    <>
+      <SelectRow
+        label={<span>Style</span>}
+        value={style}
+        onValueChange={(value) => {
+          if (value == null) return;
+          onUpdateRendererConfig({ audioVisualizerStyle: value });
+        }}
+        items={audioVisualizerStyleOptions}
+        placeholder="Select style"
+      >
+        <SelectContent align="end">
+          {audioVisualizerStyleOptions.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </SelectRow>
+      {style !== "none" && <AudioVisualizerSection style={style} />}
+    </>
+  );
+}
+
+export function VisualizerStylePane() {
   return (
     <Tabs defaultValue="visualizer" className="h-full gap-0 pt-4">
       <TabsList variant="line-indicator" className="mx-6 flex w-auto" aria-label="Style">
@@ -74,31 +135,7 @@ export function VisualizerStylePane() {
         <ScrollArea className="h-full" orientation="vertical">
           <Card variant="transparent">
             <CardContent className="space-y-4">
-              <SelectRow
-                label={<span>Style</span>}
-                value={type}
-                onValueChange={(value) => {
-                  if (value == null) return;
-                  onUpdateRendererConfig({ type: value });
-                }}
-                items={RENDERER_OPTIONS}
-                placeholder="Select visualization style"
-                valueClassName="display w-auto"
-              >
-                <SelectContent align="end">
-                  {RENDERER_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </SelectRow>
-              {Section && (
-                <>
-                  <Separator />
-                  <Section />
-                </>
-              )}
+              <MidiStyleTab />
             </CardContent>
           </Card>
         </ScrollArea>
@@ -107,7 +144,7 @@ export function VisualizerStylePane() {
         <ScrollArea className="h-full" orientation="vertical">
           <Card variant="transparent">
             <CardContent className="space-y-4">
-              <AudioVisualizerSection />
+              <AudioStyleTab />
             </CardContent>
           </Card>
         </ScrollArea>
