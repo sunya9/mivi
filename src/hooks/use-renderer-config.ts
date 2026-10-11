@@ -3,8 +3,12 @@ import { useCallback } from "react";
 import { useAppContext } from "@/contexts/app-context";
 import { useStore } from "@/hooks/use-store";
 import { RendererConfig } from "@/lib/renderers/renderer-config";
-import { mergeShared } from "@/lib/store/merge-shared";
-import { DeepPartial } from "@/lib/type-utils";
+
+type RendererConfigSection =
+  | "pianoRollConfig"
+  | "verticalPianoRollConfig"
+  | "cometConfig"
+  | "audioVisualizerConfig";
 
 export function useRendererConfig<S>(
   selector: (config: RendererConfig) => S,
@@ -17,9 +21,26 @@ export function useRendererConfig<S>(
 export function useUpdateRendererConfig() {
   const { rendererConfigStore } = useAppContext();
   return useCallback(
-    (partial: DeepPartial<RendererConfig>) => {
-      rendererConfigStore.set((prev) => mergeShared(prev, partial));
+    (partial: Partial<RendererConfig>) => {
+      rendererConfigStore.set((prev) => ({ ...prev, ...partial }));
     },
     [rendererConfigStore],
   );
+}
+
+export function useRendererSection<S extends RendererConfigSection>(
+  section: S,
+): [RendererConfig[S], (partial: Partial<RendererConfig[S]>) => void] {
+  const { rendererConfigStore } = useAppContext();
+  const config = useStore(rendererConfigStore, (c) => c[section]);
+  const update = useCallback(
+    (partial: Partial<RendererConfig[S]>) => {
+      rendererConfigStore.set((prev) => ({
+        ...prev,
+        [section]: { ...prev[section], ...partial },
+      }));
+    },
+    [rendererConfigStore, section],
+  );
+  return [config, update];
 }
