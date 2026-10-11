@@ -1,9 +1,10 @@
 import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
+import { AudioAnalyzerConfig } from "@/lib/renderers/renderer-config";
 
-import { AudioVisualizerSectionProps } from "./types";
+import { ConfigFieldsProps } from "./types";
 
-export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionProps) {
+export function AudioAnalyzerFields({ config, onChange }: ConfigFieldsProps<AudioAnalyzerConfig>) {
   return (
     <>
       <Separator />
@@ -13,7 +14,7 @@ export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionPr
         min={0}
         max={300}
         step={10}
-        onValueChange={([value]) => setConfig({ attackTime: value })}
+        onValueChange={([value]) => onChange({ attackTime: value })}
       />
       <SliderRow
         label={<span>Release: {config.releaseTime}ms</span>}
@@ -21,7 +22,7 @@ export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionPr
         min={0}
         max={1000}
         step={10}
-        onValueChange={([value]) => setConfig({ releaseTime: value })}
+        onValueChange={([value]) => onChange({ releaseTime: value })}
       />
       <SliderRow
         label={
@@ -33,7 +34,7 @@ export function AnalyzerSettings({ config, setConfig }: AudioVisualizerSectionPr
         min={20}
         max={20000}
         step={100}
-        onValueChange={([min, max]) => setConfig({ minFrequency: min, maxFrequency: max })}
+        onValueChange={([min, max]) => onChange({ minFrequency: min, maxFrequency: max })}
       />
     </>
   );

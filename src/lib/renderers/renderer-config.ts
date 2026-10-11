@@ -103,7 +103,41 @@ export type GradientDirection =
   | "to-top"
   | "to-top-right";
 
-export interface LineSpectrumConfig {
+export interface AudioAnalyzerConfig extends SpectrumEnvelopeOptions {
+  fftSize: AudioVisualizerFFTSize;
+  minFrequency: number;
+  maxFrequency: number;
+}
+
+export interface SpectrumColorConfig {
+  useGradient: boolean;
+  gradientStartColor: string;
+  gradientEndColor: string;
+  singleColor: string;
+  opacity: number;
+}
+
+export interface SpectrumPlacementConfig {
+  position: AudioVisualizerPosition;
+  height: number;
+  mirror: boolean;
+  mirrorOpacity: number;
+}
+
+export interface LinearSpectrumConfig
+  extends AudioAnalyzerConfig, SpectrumColorConfig, SpectrumPlacementConfig {
+  gradientDirection: GradientDirection;
+  barCount: number;
+}
+
+export interface BarsConfig extends LinearSpectrumConfig {
+  barGap: number;
+  barPadding: number;
+  barStyle: AudioVisualizerBarStyle;
+  barMinHeight: number;
+}
+
+export interface LineSpectrumConfig extends LinearSpectrumConfig {
   lineWidth: number;
   tension: number;
   stroke: boolean;
@@ -113,26 +147,13 @@ export interface LineSpectrumConfig {
   fillOpacity: number;
 }
 
-export interface AudioVisualizerConfig extends SpectrumEnvelopeOptions {
-  fftSize: AudioVisualizerFFTSize;
-  minFrequency: number;
-  maxFrequency: number;
-  barCount: number;
-  barGap: number;
-  barPadding: number;
-  barMinHeight: number;
-  barStyle: AudioVisualizerBarStyle;
-  useGradient: boolean;
-  gradientDirection: GradientDirection;
-  gradientStartColor: string;
-  gradientEndColor: string;
-  singleColor: string;
-  barOpacity: number;
-  position: AudioVisualizerPosition;
-  height: number;
+export interface CircularConfig extends AudioAnalyzerConfig, SpectrumColorConfig {
+  size: number;
   mirror: boolean;
   mirrorOpacity: number;
-  lineSpectrumConfig: LineSpectrumConfig;
+  barCount: number;
+  barStyle: AudioVisualizerBarStyle;
+  barMinHeight: number;
 }
 
 export interface RendererConfig extends BackgroundConfig {
@@ -146,9 +167,46 @@ export interface RendererConfig extends BackgroundConfig {
   verticalPianoRollConfig: VerticalPianoRollConfig;
   cometConfig: CometConfig;
   audioVisualizerStyle: AudioVisualizerStyle;
-  audioVisualizerConfig: AudioVisualizerConfig;
+  barsConfig: BarsConfig;
+  lineSpectrumConfig: LineSpectrumConfig;
+  circularConfig: CircularConfig;
   audioVisualizerLayer: AudioVisualizerLayer;
 }
+
+export function selectAudioAnalyzerConfig(config: RendererConfig): AudioAnalyzerConfig | null {
+  switch (config.audioVisualizerStyle) {
+    case "bars":
+      return config.barsConfig;
+    case "lineSpectrum":
+      return config.lineSpectrumConfig;
+    case "circular":
+      return config.circularConfig;
+    case "none":
+      return null;
+  }
+}
+
+const getDefaultAudioAnalyzerConfig = (): AudioAnalyzerConfig => ({
+  fftSize: 2048,
+  ...DEFAULT_SPECTRUM_ENVELOPE,
+  minFrequency: 20,
+  maxFrequency: 20000,
+});
+
+const getDefaultSpectrumColorConfig = (): SpectrumColorConfig => ({
+  useGradient: true,
+  gradientStartColor: "#3b82f6",
+  gradientEndColor: "#8b5cf6",
+  singleColor: "#3b82f6",
+  opacity: 0.8,
+});
+
+const getDefaultSpectrumPlacementConfig = (): SpectrumPlacementConfig => ({
+  position: "bottom",
+  height: 30,
+  mirror: false,
+  mirrorOpacity: 0.5,
+});
 
 const getDefaultNoteEffectsConfig = (): NoteEffectsConfig => ({
   showRippleEffect: true,
@@ -246,35 +304,40 @@ export const getDefaultRendererConfig = (): RendererConfig => ({
     reverseStacking: false,
   },
   audioVisualizerStyle: "none",
-  audioVisualizerConfig: {
-    fftSize: 2048,
-    ...DEFAULT_SPECTRUM_ENVELOPE,
-    minFrequency: 20,
-    maxFrequency: 20000,
+  barsConfig: {
+    ...getDefaultAudioAnalyzerConfig(),
+    ...getDefaultSpectrumColorConfig(),
+    ...getDefaultSpectrumPlacementConfig(),
+    gradientDirection: "to-top",
     barCount: 64,
     barGap: 20,
     barPadding: 5,
-    barMinHeight: 2,
     barStyle: "rounded",
-    useGradient: true,
+    barMinHeight: 2,
+  },
+  lineSpectrumConfig: {
+    ...getDefaultAudioAnalyzerConfig(),
+    ...getDefaultSpectrumColorConfig(),
+    ...getDefaultSpectrumPlacementConfig(),
     gradientDirection: "to-top",
-    gradientStartColor: "#3b82f6",
-    gradientEndColor: "#8b5cf6",
-    singleColor: "#3b82f6",
-    barOpacity: 0.8,
-    position: "bottom",
-    height: 30,
+    barCount: 64,
+    lineWidth: 2,
+    tension: 0.4,
+    stroke: true,
+    strokeColor: "#ffffff",
+    strokeOpacity: 1,
+    fill: false,
+    fillOpacity: 0.3,
+  },
+  circularConfig: {
+    ...getDefaultAudioAnalyzerConfig(),
+    ...getDefaultSpectrumColorConfig(),
+    size: 30,
     mirror: false,
     mirrorOpacity: 0.5,
-    lineSpectrumConfig: {
-      lineWidth: 2,
-      tension: 0.4,
-      stroke: true,
-      strokeColor: "#ffffff",
-      strokeOpacity: 1,
-      fill: false,
-      fillOpacity: 0.3,
-    },
+    barCount: 64,
+    barStyle: "rounded",
+    barMinHeight: 2,
   },
   audioVisualizerLayer: "back",
 });

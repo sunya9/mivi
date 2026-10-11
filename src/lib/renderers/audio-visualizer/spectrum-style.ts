@@ -1,6 +1,7 @@
 import type { RendererContext } from "@/lib/renderers/renderer";
 import {
-  type AudioVisualizerConfig,
+  type AudioVisualizerPosition,
+  type LinearSpectrumConfig,
   type GradientDirection,
 } from "@/lib/renderers/renderer-config";
 
@@ -33,7 +34,7 @@ export function getGradientCoords(
   }
 }
 
-export function resolveBaseY(position: AudioVisualizerConfig["position"], height: number): number {
+export function resolveBaseY(position: AudioVisualizerPosition, height: number): number {
   switch (position) {
     case "bottom":
       return height;
@@ -46,7 +47,7 @@ export function resolveBaseY(position: AudioVisualizerConfig["position"], height
 
 export function createSpectrumFillStyle(
   ctx: RendererContext,
-  config: AudioVisualizerConfig,
+  config: LinearSpectrumConfig,
   width: number,
   height: number,
 ): string | CanvasGradient {
