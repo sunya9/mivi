@@ -20,7 +20,10 @@ export function GeneralSettings({
         <SelectRow
           label={<span>Position</span>}
           value={config.position}
-          onValueChange={(value) => setConfig({ position: value ?? undefined })}
+          onValueChange={(value) => {
+            if (value == null) return;
+            setConfig({ position: value });
+          }}
           items={audioVisualizerPositionOptions}
           placeholder="Select position"
         >

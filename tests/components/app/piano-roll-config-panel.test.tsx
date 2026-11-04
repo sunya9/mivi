@@ -8,15 +8,14 @@ import { expect, test, vi } from "vitest";
 import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
 
 type Props = ComponentProps<typeof PianoRollConfigPanel>;
-const onUpdateRendererConfig: Props["onUpdateRendererConfig"] =
-  vi.fn<Props["onUpdateRendererConfig"]>();
+const onChange: Props["onChange"] = vi.fn<Props["onChange"]>();
 const pianoRollConfig = rendererConfig.pianoRollConfig;
 
 async function renderPane(overrideProps?: Partial<Props>) {
   await customRender(
     <PianoRollConfigPanel
-      onUpdateRendererConfig={onUpdateRendererConfig}
-      pianoRollConfig={pianoRollConfig}
+      onChange={onChange}
+      config={pianoRollConfig}
       minNote={testMidiTracks.minNote}
       maxNote={testMidiTracks.maxNote}
       {...overrideProps}
@@ -57,28 +56,22 @@ test("toggle playhead border", async () => {
   await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Playhead Border" });
   await userEvent.click(switchEl);
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: { showPlayhead: false },
-  });
+  expect(onChange).toHaveBeenCalledWith({ showPlayhead: false });
 });
 
 test("toggle ripple effect", async () => {
   await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Ripple Effect" });
   await userEvent.click(switchEl);
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: { showRippleEffect: !pianoRollConfig.showRippleEffect },
-  });
+  expect(onChange).toHaveBeenCalledWith({ showRippleEffect: !pianoRollConfig.showRippleEffect });
 });
 
 test("toggle note press effect", async () => {
   await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Note Press Effect" });
   await userEvent.click(switchEl);
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: {
-      showNotePressEffect: !pianoRollConfig.showNotePressEffect,
-    },
+  expect(onChange).toHaveBeenCalledWith({
+    showNotePressEffect: !pianoRollConfig.showNotePressEffect,
   });
 });
 
@@ -86,27 +79,21 @@ test("toggle note flash effect", async () => {
   await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Note Flash Effect" });
   await userEvent.click(switchEl);
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: { showNoteFlash: !pianoRollConfig.showNoteFlash },
-  });
+  expect(onChange).toHaveBeenCalledWith({ showNoteFlash: !pianoRollConfig.showNoteFlash });
 });
 
 test("toggle rough edge", async () => {
   await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Rough Edge" });
   await userEvent.click(switchEl);
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: { showRoughEdge: !pianoRollConfig.showRoughEdge },
-  });
+  expect(onChange).toHaveBeenCalledWith({ showRoughEdge: !pianoRollConfig.showRoughEdge });
 });
 
 test("toggle noise texture", async () => {
   await renderPane();
   const switchEl = screen.getByRole("switch", { name: "Noise Texture" });
   await userEvent.click(switchEl);
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: { showNoiseTexture: !pianoRollConfig.showNoiseTexture },
-  });
+  expect(onChange).toHaveBeenCalledWith({ showNoiseTexture: !pianoRollConfig.showNoiseTexture });
 });
 
 // Slider value change tests
@@ -118,9 +105,7 @@ test("time window slider updates value", async () => {
   const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: { timeWindow: pianoRollConfig.timeWindow + 0.1 },
-  });
+  expect(onChange).toHaveBeenCalledWith({ timeWindow: pianoRollConfig.timeWindow + 0.1 });
 });
 
 test("note height slider updates value", async () => {
@@ -131,9 +116,7 @@ test("note height slider updates value", async () => {
   const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: { noteHeight: pianoRollConfig.noteHeight + 1 },
-  });
+  expect(onChange).toHaveBeenCalledWith({ noteHeight: pianoRollConfig.noteHeight + 1 });
 });
 
 test("note corner radius slider updates value", async () => {
@@ -144,10 +127,8 @@ test("note corner radius slider updates value", async () => {
   const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: {
-      noteCornerRadius: pianoRollConfig.noteCornerRadius + 0.5,
-    },
+  expect(onChange).toHaveBeenCalledWith({
+    noteCornerRadius: pianoRollConfig.noteCornerRadius + 0.5,
   });
 });
 
@@ -159,9 +140,7 @@ test("note margin slider updates value", async () => {
   const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: { noteMargin: pianoRollConfig.noteMargin + 0.5 },
-  });
+  expect(onChange).toHaveBeenCalledWith({ noteMargin: pianoRollConfig.noteMargin + 0.5 });
 });
 
 test("playhead position slider updates value", async () => {
@@ -172,17 +151,15 @@ test("playhead position slider updates value", async () => {
   const slider = within(group).getByRole("slider", { hidden: true });
   slider.focus();
   await userEvent.keyboard("{ArrowRight}");
-  expect(onUpdateRendererConfig).toHaveBeenCalledWith({
-    pianoRollConfig: {
-      playheadPosition: pianoRollConfig.playheadPosition + 1,
-    },
+  expect(onChange).toHaveBeenCalledWith({
+    playheadPosition: pianoRollConfig.playheadPosition + 1,
   });
 });
 
 // Conditional fields tests
 test("playhead border fields shown when showPlayhead is true", async () => {
   await renderPane({
-    pianoRollConfig: { ...pianoRollConfig, showPlayhead: true },
+    config: { ...pianoRollConfig, showPlayhead: true },
   });
   expect(screen.getByText("Playhead Border Color")).toBeInTheDocument();
   expect(
@@ -192,7 +169,7 @@ test("playhead border fields shown when showPlayhead is true", async () => {
 
 test("ripple fields shown when showRippleEffect is true", async () => {
   await renderPane({
-    pianoRollConfig: { ...pianoRollConfig, showRippleEffect: true },
+    config: { ...pianoRollConfig, showRippleEffect: true },
   });
   expect(screen.getByRole("switch", { name: "Use Custom Ripple Color" })).toBeInTheDocument();
   expect(
@@ -202,7 +179,7 @@ test("ripple fields shown when showRippleEffect is true", async () => {
 
 test("flash mode select is rendered with current value", async () => {
   await renderPane({
-    pianoRollConfig: { ...pianoRollConfig, showNoteFlash: true },
+    config: { ...pianoRollConfig, showNoteFlash: true },
   });
   const trigger = screen.getByRole("combobox", { name: "Flash Mode" });
   expect(trigger).toBeInTheDocument();
@@ -211,7 +188,7 @@ test("flash mode select is rendered with current value", async () => {
 
 test("flash mode select only references label ids that exist", async () => {
   await renderPane({
-    pianoRollConfig: { ...pianoRollConfig, showNoteFlash: true },
+    config: { ...pianoRollConfig, showNoteFlash: true },
   });
   const trigger = screen.getByRole("combobox", { name: "Flash Mode" });
   for (const id of trigger.getAttribute("aria-labelledby")?.split(" ") ?? []) {
@@ -221,7 +198,7 @@ test("flash mode select only references label ids that exist", async () => {
 
 test("flash duration slider shown when flash mode is duration", async () => {
   await renderPane({
-    pianoRollConfig: {
+    config: {
       ...pianoRollConfig,
       showNoteFlash: true,
       noteFlashMode: "duration",
@@ -262,36 +239,28 @@ test.each([
   [/^Noise Grain Size/, "noiseGrainSize"],
   [/^Noise Color Variance/, "noiseColorVariance"],
 ])("%s slider updates %s", async (label, key) => {
-  await renderPane({ pianoRollConfig: everySectionOn });
+  await renderPane({ config: everySectionOn });
   await nudgeSlider(label);
-  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
-    pianoRollConfig: expect.objectContaining({ [key]: expect.any(Number) }),
-  });
+  expect(onChange).toHaveBeenLastCalledWith(expect.objectContaining({ [key]: expect.any(Number) }));
 });
 
 test.each([
   ["Playhead Border Color", "playheadColor"],
   ["Ripple Color", "rippleColor"],
 ])("%s picker updates %s", async (label, key) => {
-  await renderPane({ pianoRollConfig: everySectionOn });
+  await renderPane({ config: everySectionOn });
   pickColor(label, "#123456");
-  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
-    pianoRollConfig: { [key]: "#123456" },
-  });
+  expect(onChange).toHaveBeenLastCalledWith({ [key]: "#123456" });
 });
 
 test("use custom ripple color switch updates useCustomRippleColor", async () => {
-  await renderPane({ pianoRollConfig: everySectionOn });
+  await renderPane({ config: everySectionOn });
   await userEvent.click(screen.getByRole("switch", { name: "Use Custom Ripple Color" }));
-  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
-    pianoRollConfig: { useCustomRippleColor: false },
-  });
+  expect(onChange).toHaveBeenLastCalledWith({ useCustomRippleColor: false });
 });
 
 test("flash mode select updates noteFlashMode", async () => {
-  await renderPane({ pianoRollConfig: everySectionOn });
+  await renderPane({ config: everySectionOn });
   await chooseAnotherOption("Flash Mode");
-  expect(onUpdateRendererConfig).toHaveBeenLastCalledWith({
-    pianoRollConfig: { noteFlashMode: "on" },
-  });
+  expect(onChange).toHaveBeenLastCalledWith({ noteFlashMode: "on" });
 });

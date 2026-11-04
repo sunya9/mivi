@@ -103,7 +103,7 @@ export type GradientDirection =
   | "to-top"
   | "to-top-right";
 
-interface LineSpectrumConfig {
+export interface LineSpectrumConfig {
   lineWidth: number;
   tension: number;
   stroke: boolean;

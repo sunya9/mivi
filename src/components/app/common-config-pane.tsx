@@ -147,11 +147,10 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             <SelectRow
               label={<span>Image Fit</span>}
               value={rendererConfig.backgroundImageFit}
-              onValueChange={(value) =>
-                onUpdateRendererConfig({
-                  backgroundImageFit: value ?? undefined,
-                })
-              }
+              onValueChange={(value) => {
+                if (value == null) return;
+                onUpdateRendererConfig({ backgroundImageFit: value });
+              }}
               items={backgroundImageFitOptions}
               placeholder="Select image fit"
             >
@@ -166,11 +165,10 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             <SelectRow
               label={<span>Image Position</span>}
               value={rendererConfig.backgroundImagePosition}
-              onValueChange={(value) =>
-                onUpdateRendererConfig({
-                  backgroundImagePosition: value ?? undefined,
-                })
-              }
+              onValueChange={(value) => {
+                if (value == null) return;
+                onUpdateRendererConfig({ backgroundImagePosition: value });
+              }}
               items={backgroundImagePositions}
               placeholder="Select image position"
             >
@@ -185,11 +183,10 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
             <SelectRow
               label={<span>Image Repeat</span>}
               value={rendererConfig.backgroundImageRepeat}
-              onValueChange={(value) =>
-                onUpdateRendererConfig({
-                  backgroundImageRepeat: value ?? undefined,
-                })
-              }
+              onValueChange={(value) => {
+                if (value == null) return;
+                onUpdateRendererConfig({ backgroundImageRepeat: value });
+              }}
               items={backgroundImageRepeats}
               placeholder="Select image repeat"
             >
@@ -221,9 +218,8 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
           onValueChange={(value) => {
             if (value == null) return;
             if (value !== CUSTOM_RESOLUTION_LABEL) {
-              onUpdateRendererConfig({
-                resolution: resolutions.find((r) => r.label === value),
-              });
+              const resolution = resolutions.find((r) => r.label === value);
+              if (resolution) onUpdateRendererConfig({ resolution });
               return;
             }
             const { resolution: current, customResolution } = rendererConfig;
@@ -289,7 +285,10 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
         <SelectRow
           label={<span>Format</span>}
           value={rendererConfig.format}
-          onValueChange={(value) => onUpdateRendererConfig({ format: value ?? undefined })}
+          onValueChange={(value) => {
+            if (value == null) return;
+            onUpdateRendererConfig({ format: value });
+          }}
           items={formatOptions}
           placeholder="Select video format"
         >
@@ -304,11 +303,10 @@ export const CommonConfigPane = memo(function CommonConfigPane() {
         <SelectRow
           label={<span>Audio Visualizer Layer</span>}
           value={rendererConfig.audioVisualizerLayer}
-          onValueChange={(value) =>
-            onUpdateRendererConfig({
-              audioVisualizerLayer: value ?? undefined,
-            })
-          }
+          onValueChange={(value) => {
+            if (value == null) return;
+            onUpdateRendererConfig({ audioVisualizerLayer: value });
+          }}
           items={audioVisualizerLayerOptions}
           placeholder="Select layer"
         >

@@ -1,33 +1,20 @@
-import { useCallback } from "react";
-
 import { ColorPickerInput } from "@/components/common/color-picker-input";
 import { FormRow } from "@/components/common/form-row";
 import { SliderRow } from "@/components/common/slider-row";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { RendererConfig, VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
-import { DeepPartial } from "@/lib/type-utils";
+import { VerticalPianoRollConfig } from "@/lib/renderers/renderer-config";
 
 import { NoteEffectsConfigFields } from "./note-effects-config-fields";
 
 interface Props {
-  verticalPianoRollConfig: VerticalPianoRollConfig;
-  onUpdateRendererConfig: (partial: DeepPartial<RendererConfig>) => void;
+  config: VerticalPianoRollConfig;
+  onChange: (partial: Partial<VerticalPianoRollConfig>) => void;
   minNote?: number;
   maxNote?: number;
 }
 
-export function VerticalPianoRollConfigPanel({
-  verticalPianoRollConfig: config,
-  onUpdateRendererConfig,
-  minNote,
-  maxNote,
-}: Props) {
-  const setConfig = useCallback(
-    (verticalPianoRollConfig: DeepPartial<VerticalPianoRollConfig>) =>
-      onUpdateRendererConfig({ verticalPianoRollConfig }),
-    [onUpdateRendererConfig],
-  );
+export function VerticalPianoRollConfigPanel({ config, onChange, minNote, maxNote }: Props) {
   return (
     <>
       <SliderRow
@@ -36,7 +23,7 @@ export function VerticalPianoRollConfigPanel({
         min={0.5}
         max={10}
         step={0.1}
-        onValueChange={([value]) => setConfig({ timeWindow: value })}
+        onValueChange={([value]) => onChange({ timeWindow: value })}
       />
       <SliderRow
         label={<span>Keyboard Height: {config.keyboardHeight}%</span>}
@@ -44,7 +31,7 @@ export function VerticalPianoRollConfigPanel({
         min={5}
         max={40}
         step={1}
-        onValueChange={([value]) => setConfig({ keyboardHeight: value })}
+        onValueChange={([value]) => onChange({ keyboardHeight: value })}
       />
       <SliderRow
         label={
@@ -63,7 +50,7 @@ export function VerticalPianoRollConfigPanel({
         min={0}
         max={127}
         step={1}
-        onValueChange={([bottom, top]) => setConfig({ viewRangeBottom: bottom, viewRangeTop: top })}
+        onValueChange={([bottom, top]) => onChange({ viewRangeBottom: bottom, viewRangeTop: top })}
       />
       <SliderRow
         label={<span>Note Margin: {config.noteMargin}px</span>}
@@ -71,7 +58,7 @@ export function VerticalPianoRollConfigPanel({
         min={0}
         max={5}
         step={0.5}
-        onValueChange={([value]) => setConfig({ noteMargin: value })}
+        onValueChange={([value]) => onChange({ noteMargin: value })}
       />
       <SliderRow
         label={<span>Note Vertical Margin: {config.noteVerticalMargin}px</span>}
@@ -79,7 +66,7 @@ export function VerticalPianoRollConfigPanel({
         min={0}
         max={10}
         step={0.5}
-        onValueChange={([value]) => setConfig({ noteVerticalMargin: value })}
+        onValueChange={([value]) => onChange({ noteVerticalMargin: value })}
       />
       <SliderRow
         label={<span>Note Corner Radius: {config.noteCornerRadius}px</span>}
@@ -87,7 +74,7 @@ export function VerticalPianoRollConfigPanel({
         min={0}
         max={10}
         step={0.5}
-        onValueChange={([value]) => setConfig({ noteCornerRadius: value })}
+        onValueChange={([value]) => onChange({ noteCornerRadius: value })}
       />
       <FormRow
         label={<span>Darken Black Key Notes</span>}
@@ -95,7 +82,7 @@ export function VerticalPianoRollConfigPanel({
           <Switch
             id={id}
             checked={config.darkenBlackKeyNotes}
-            onCheckedChange={(checked) => setConfig({ darkenBlackKeyNotes: checked })}
+            onCheckedChange={(checked) => onChange({ darkenBlackKeyNotes: checked })}
           />
         )}
       />
@@ -108,7 +95,7 @@ export function VerticalPianoRollConfigPanel({
           min={0.05}
           max={0.6}
           step={0.05}
-          onValueChange={([value]) => setConfig({ blackKeyNoteDarkness: value })}
+          onValueChange={([value]) => onChange({ blackKeyNoteDarkness: value })}
         />
       )}
       <Separator />
@@ -118,7 +105,7 @@ export function VerticalPianoRollConfigPanel({
           <ColorPickerInput
             id={id}
             value={config.whiteKeyColor}
-            onChange={(value) => setConfig({ whiteKeyColor: value })}
+            onChange={(value) => onChange({ whiteKeyColor: value })}
           />
         )}
       />
@@ -128,7 +115,7 @@ export function VerticalPianoRollConfigPanel({
           <ColorPickerInput
             id={id}
             value={config.blackKeyColor}
-            onChange={(value) => setConfig({ blackKeyColor: value })}
+            onChange={(value) => onChange({ blackKeyColor: value })}
           />
         )}
       />
@@ -138,7 +125,7 @@ export function VerticalPianoRollConfigPanel({
           <Switch
             id={id}
             checked={config.showKeyPressHighlight}
-            onCheckedChange={(checked) => setConfig({ showKeyPressHighlight: checked })}
+            onCheckedChange={(checked) => onChange({ showKeyPressHighlight: checked })}
           />
         )}
       />
@@ -149,7 +136,7 @@ export function VerticalPianoRollConfigPanel({
           min={0.1}
           max={1}
           step={0.05}
-          onValueChange={([value]) => setConfig({ keyPressOpacity: value })}
+          onValueChange={([value]) => onChange({ keyPressOpacity: value })}
         />
       )}
       <FormRow
@@ -158,7 +145,7 @@ export function VerticalPianoRollConfigPanel({
           <Switch
             id={id}
             checked={config.showOctaveLabels}
-            onCheckedChange={(checked) => setConfig({ showOctaveLabels: checked })}
+            onCheckedChange={(checked) => onChange({ showOctaveLabels: checked })}
           />
         )}
       />
@@ -168,7 +155,7 @@ export function VerticalPianoRollConfigPanel({
           <Switch
             id={id}
             checked={config.showKeyLines}
-            onCheckedChange={(checked) => setConfig({ showKeyLines: checked })}
+            onCheckedChange={(checked) => onChange({ showKeyLines: checked })}
           />
         )}
       />
@@ -179,7 +166,7 @@ export function VerticalPianoRollConfigPanel({
             <ColorPickerInput
               id={id}
               value={config.keyLineColor}
-              onChange={(value) => setConfig({ keyLineColor: value })}
+              onChange={(value) => onChange({ keyLineColor: value })}
             />
           )}
         />
@@ -191,7 +178,7 @@ export function VerticalPianoRollConfigPanel({
           min={0}
           max={0.3}
           step={0.01}
-          onValueChange={([value]) => setConfig({ keyLineOpacity: value })}
+          onValueChange={([value]) => onChange({ keyLineOpacity: value })}
         />
       )}
       <FormRow
@@ -200,7 +187,7 @@ export function VerticalPianoRollConfigPanel({
           <Switch
             id={id}
             checked={config.showOctaveLines}
-            onCheckedChange={(checked) => setConfig({ showOctaveLines: checked })}
+            onCheckedChange={(checked) => onChange({ showOctaveLines: checked })}
           />
         )}
       />
@@ -211,7 +198,7 @@ export function VerticalPianoRollConfigPanel({
             <ColorPickerInput
               id={id}
               value={config.octaveLineColor}
-              onChange={(value) => setConfig({ octaveLineColor: value })}
+              onChange={(value) => onChange({ octaveLineColor: value })}
             />
           )}
         />
@@ -223,7 +210,7 @@ export function VerticalPianoRollConfigPanel({
           min={0}
           max={0.5}
           step={0.01}
-          onValueChange={([value]) => setConfig({ octaveLineOpacity: value })}
+          onValueChange={([value]) => onChange({ octaveLineOpacity: value })}
         />
       )}
       <Separator />
@@ -233,7 +220,7 @@ export function VerticalPianoRollConfigPanel({
           <Switch
             id={id}
             checked={config.showHitLine}
-            onCheckedChange={(checked) => setConfig({ showHitLine: checked })}
+            onCheckedChange={(checked) => onChange({ showHitLine: checked })}
           />
         )}
       />
@@ -245,7 +232,7 @@ export function VerticalPianoRollConfigPanel({
               <ColorPickerInput
                 id={id}
                 value={config.hitLineColor}
-                onChange={(value) => setConfig({ hitLineColor: value })}
+                onChange={(value) => onChange({ hitLineColor: value })}
               />
             )}
           />
@@ -255,7 +242,7 @@ export function VerticalPianoRollConfigPanel({
             min={1}
             max={10}
             step={1}
-            onValueChange={([value]) => setConfig({ hitLineWidth: value })}
+            onValueChange={([value]) => onChange({ hitLineWidth: value })}
           />
           <SliderRow
             label={<span>Hit Line Opacity: {Math.round(config.hitLineOpacity * 100)}%</span>}
@@ -263,12 +250,12 @@ export function VerticalPianoRollConfigPanel({
             min={0}
             max={1}
             step={0.05}
-            onValueChange={([value]) => setConfig({ hitLineOpacity: value })}
+            onValueChange={([value]) => onChange({ hitLineOpacity: value })}
           />
         </>
       )}
       <Separator />
-      <NoteEffectsConfigFields config={config} onChange={setConfig} />
+      <NoteEffectsConfigFields config={config} onChange={onChange} />
     </>
   );
 }
