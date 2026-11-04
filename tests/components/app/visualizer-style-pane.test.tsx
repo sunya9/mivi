@@ -19,6 +19,18 @@ test("renders both style tabs and writes the selected style to the store", async
   expect(appContextValue.rendererConfigStore.getSnapshot().type).toBe("comet");
 });
 
+test("the audio tab writes the selected audio visualizer style and shows its panel", async () => {
+  const { appContextValue } = await renderPanel();
+  await userEvent.click(screen.getByRole("tab", { name: "Audio Style" }));
+  expect(screen.queryByText(/Bar Count:/)).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("combobox", { name: "Style" }));
+  await userEvent.click(screen.getByRole("option", { name: "Bars" }));
+
+  expect(appContextValue.rendererConfigStore.getSnapshot().audioVisualizerStyle).toBe("bars");
+  expect(screen.getByText(/Bar Count:/)).toBeInTheDocument();
+});
+
 test("selecting Vertical Piano Roll shows its config panel", async () => {
   await renderPanel();
 

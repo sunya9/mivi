@@ -17,18 +17,17 @@ export interface Frame {
 // The one place that knows the layer order shared by the preview and the export
 export function drawFrame(ctx: RendererContext, frame: Frame): void {
   const { config, renderer, tracks, currentTime, frequencyData, backgroundImageBitmap } = frame;
-  const { audioVisualizerConfig, resolution } = config;
   const layer = config.audioVisualizerLayer;
 
   drawBackground(ctx, config, backgroundImageBitmap);
 
   if (layer === "back" && frequencyData) {
-    drawAudioVisualizer(ctx, frequencyData, audioVisualizerConfig, resolution);
+    drawAudioVisualizer(ctx, frequencyData, config);
   }
 
   renderer(tracks, currentTime, config);
 
   if (layer === "front" && frequencyData) {
-    drawAudioVisualizer(ctx, frequencyData, audioVisualizerConfig, resolution);
+    drawAudioVisualizer(ctx, frequencyData, config);
   }
 }

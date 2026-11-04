@@ -7,6 +7,8 @@ import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visu
 import {
   getDefaultRendererConfig,
   type AudioVisualizerConfig,
+  type AudioVisualizerStyle,
+  type RendererConfig,
 } from "@/lib/renderers/renderer-config";
 
 const WIDTH = 800;
@@ -70,8 +72,17 @@ function createTestFrequencyData(fftSize: number = 2048): FrequencyData {
   };
 }
 
-function getDefaultAudioConfig(): AudioVisualizerConfig {
-  return getDefaultRendererConfig().audioVisualizerConfig;
+function createRendererConfig(
+  audioVisualizerStyle: AudioVisualizerStyle,
+  overrides: Partial<AudioVisualizerConfig>,
+): RendererConfig {
+  const config = getDefaultRendererConfig();
+  return {
+    ...config,
+    resolution,
+    audioVisualizerStyle,
+    audioVisualizerConfig: { ...config.audioVisualizerConfig, ...overrides },
+  };
 }
 
 // ============================================
@@ -85,17 +96,16 @@ test("bars style - bottom position", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "bars",
-    position: "bottom",
-    mirror: false,
-    useGradient: true,
-    height: 30,
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("bars", {
+      position: "bottom",
+      mirror: false,
+      useGradient: true,
+      height: 30,
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-bars-bottom");
@@ -108,18 +118,17 @@ test("bars style - top position with mirror", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "bars",
-    position: "top",
-    mirror: true,
-    mirrorOpacity: 0.5,
-    useGradient: true,
-    height: 30,
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("bars", {
+      position: "top",
+      mirror: true,
+      mirrorOpacity: 0.5,
+      useGradient: true,
+      height: 30,
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-bars-top-mirror");
@@ -132,18 +141,17 @@ test("bars style - center position single color", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "bars",
-    position: "center",
-    mirror: false,
-    useGradient: false,
-    singleColor: "#22c55e",
-    height: 40,
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("bars", {
+      position: "center",
+      mirror: false,
+      useGradient: false,
+      singleColor: "#22c55e",
+      height: 40,
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-bars-center-single-color");
@@ -160,24 +168,23 @@ test("lineSpectrum style - stroke only", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "lineSpectrum",
-    position: "bottom",
-    height: 30,
-    lineSpectrumConfig: {
-      lineWidth: 2,
-      tension: 0.4,
-      stroke: true,
-      strokeColor: "#ffffff",
-      strokeOpacity: 1,
-      fill: false,
-      fillOpacity: 0.3,
-    },
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("lineSpectrum", {
+      position: "bottom",
+      height: 30,
+      lineSpectrumConfig: {
+        lineWidth: 2,
+        tension: 0.4,
+        stroke: true,
+        strokeColor: "#ffffff",
+        strokeOpacity: 1,
+        fill: false,
+        fillOpacity: 0.3,
+      },
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-line-stroke");
@@ -190,25 +197,24 @@ test("lineSpectrum style - fill with stroke", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "lineSpectrum",
-    position: "bottom",
-    height: 40,
-    useGradient: true,
-    lineSpectrumConfig: {
-      lineWidth: 2,
-      tension: 0.3,
-      stroke: true,
-      strokeColor: "#ffffff",
-      strokeOpacity: 0.8,
-      fill: true,
-      fillOpacity: 0.5,
-    },
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("lineSpectrum", {
+      position: "bottom",
+      height: 40,
+      useGradient: true,
+      lineSpectrumConfig: {
+        lineWidth: 2,
+        tension: 0.3,
+        stroke: true,
+        strokeColor: "#ffffff",
+        strokeOpacity: 0.8,
+        fill: true,
+        fillOpacity: 0.5,
+      },
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-line-fill-stroke");
@@ -221,24 +227,23 @@ test("lineSpectrum style - high tension", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "lineSpectrum",
-    position: "center",
-    height: 50,
-    lineSpectrumConfig: {
-      lineWidth: 3,
-      tension: 0.8,
-      stroke: true,
-      strokeColor: "#f97316",
-      strokeOpacity: 1,
-      fill: false,
-      fillOpacity: 0.3,
-    },
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("lineSpectrum", {
+      position: "center",
+      height: 50,
+      lineSpectrumConfig: {
+        lineWidth: 3,
+        tension: 0.8,
+        stroke: true,
+        strokeColor: "#f97316",
+        strokeOpacity: 1,
+        fill: false,
+        fillOpacity: 0.3,
+      },
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-line-high-tension");
@@ -255,15 +260,14 @@ test("circular style - default", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "circular",
-    barCount: 64,
-    useGradient: true,
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("circular", {
+      barCount: 64,
+      useGradient: true,
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-circular-default");
@@ -276,16 +280,15 @@ test("circular style - high bar count", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "circular",
-    barCount: 128,
-    useGradient: false,
-    singleColor: "#ec4899",
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("circular", {
+      barCount: 128,
+      useGradient: false,
+      singleColor: "#ec4899",
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-circular-high-bars");
@@ -298,17 +301,16 @@ test("circular style - low bar count", async () => {
   const ctx = canvas.getContext("2d")!;
   fillBackground(ctx);
 
-  const config: AudioVisualizerConfig = {
-    ...getDefaultAudioConfig(),
-    style: "circular",
-    barCount: 32,
-    useGradient: true,
-    gradientStartColor: "#06b6d4",
-    gradientEndColor: "#8b5cf6",
-  };
-
-  const frequencyData = createTestFrequencyData();
-  drawAudioVisualizer(ctx, frequencyData, config, resolution);
+  drawAudioVisualizer(
+    ctx,
+    createTestFrequencyData(),
+    createRendererConfig("circular", {
+      barCount: 32,
+      useGradient: true,
+      gradientStartColor: "#06b6d4",
+      gradientEndColor: "#8b5cf6",
+    }),
+  );
 
   const element = page.getByTestId("vrt-canvas");
   await expect(element).toMatchScreenshot("audio-visualizer-circular-low-bars");

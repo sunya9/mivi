@@ -1,29 +1,19 @@
 import { expect, test, vi } from "vitest";
 
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
-import type { Resolution } from "@/lib/muxer/resolution";
 import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visualizer";
-import {
-  getDefaultRendererConfig,
-  type AudioVisualizerConfig,
-} from "@/lib/renderers/renderer-config";
+import { getDefaultRendererConfig, type RendererConfig } from "@/lib/renderers/renderer-config";
 
-const defaultResolution: Resolution = {
-  width: 800,
-  height: 600,
-  label: "800×600",
-};
-
-function setup(overrides: Partial<AudioVisualizerConfig>) {
+function setup(overrides: Partial<RendererConfig>) {
   const canvas = document.createElement("canvas");
   canvas.width = 800;
   canvas.height = 600;
   const ctx = canvas.getContext("2d")!;
   ctx.save = vi.fn<() => void>();
   ctx.restore = vi.fn<() => void>();
-  const config = { ...getDefaultRendererConfig().audioVisualizerConfig, ...overrides };
+  const config = { ...getDefaultRendererConfig(), ...overrides };
   const render = (frequencyData: FrequencyData | null) =>
-    drawAudioVisualizer(ctx, frequencyData, config, defaultResolution);
+    drawAudioVisualizer(ctx, frequencyData, config);
   return { ctx, config, render };
 }
 
@@ -37,7 +27,7 @@ function createFrequencyData(): FrequencyData {
 }
 
 test("should not render when style is none", () => {
-  const { ctx, render } = setup({ style: "none" });
+  const { ctx, render } = setup({ audioVisualizerStyle: "none" });
 
   render(createFrequencyData());
 
@@ -46,7 +36,7 @@ test("should not render when style is none", () => {
 });
 
 test("should not render when frequencyData is null", () => {
-  const { ctx, render } = setup({ style: "bars" });
+  const { ctx, render } = setup({ audioVisualizerStyle: "bars" });
 
   render(null);
 
@@ -56,8 +46,8 @@ test("should not render when frequencyData is null", () => {
 
 test.each(["bars", "lineSpectrum", "circular"] as const)(
   "should call save and restore when rendering %s",
-  (style) => {
-    const { ctx, render } = setup({ style });
+  (audioVisualizerStyle) => {
+    const { ctx, render } = setup({ audioVisualizerStyle });
 
     render(createFrequencyData());
 
@@ -67,9 +57,9 @@ test.each(["bars", "lineSpectrum", "circular"] as const)(
 );
 
 test("draws with the config passed to each call", () => {
-  const { ctx, config } = setup({ style: "none" });
+  const { ctx, config } = setup({ audioVisualizerStyle: "none" });
 
-  drawAudioVisualizer(ctx, createFrequencyData(), { ...config, style: "bars" }, defaultResolution);
+  drawAudioVisualizer(ctx, createFrequencyData(), { ...config, audioVisualizerStyle: "bars" });
 
   expect(ctx.save).toHaveBeenCalled();
   expect(ctx.restore).toHaveBeenCalled();
