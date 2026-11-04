@@ -1,7 +1,8 @@
-import { AudioVisualizerConfigPanel } from "@/components/app/audio-visualizer-config-panel";
+import { BarsConfigPanel } from "@/components/app/bars-config-panel";
+import { CircularConfigPanel } from "@/components/app/circular-config-panel";
 import { CometConfigPanel } from "@/components/app/comet-config-panel";
+import { LineSpectrumConfigPanel } from "@/components/app/line-spectrum-config-panel";
 import { PianoRollConfigPanel } from "@/components/app/piano-roll-config-panel";
-import { audioVisualizerStyleOptions } from "@/components/app/renderer-options";
 import { VerticalPianoRollConfigPanel } from "@/components/app/vertical-piano-roll-config-panel";
 import { SelectRow } from "@/components/common/select-row";
 import { Card, CardContent } from "@/components/ui/card";
@@ -42,22 +43,39 @@ function CometSection() {
   return <CometConfigPanel config={config} onChange={onChange} {...useMidiNoteRange()} />;
 }
 
-function AudioVisualizerSection({ style }: { style: Exclude<AudioVisualizerStyle, "none"> }) {
-  const [config, onChange] = useRendererSection("audioVisualizerConfig");
-  return <AudioVisualizerConfigPanel style={style} config={config} onChange={onChange} />;
+function BarsSection() {
+  const [config, onChange] = useRendererSection("barsConfig");
+  return <BarsConfigPanel config={config} onChange={onChange} />;
 }
 
-interface RendererOption {
-  value: RendererType;
+function LineSpectrumSection() {
+  const [config, onChange] = useRendererSection("lineSpectrumConfig");
+  return <LineSpectrumConfigPanel config={config} onChange={onChange} />;
+}
+
+function CircularSection() {
+  const [config, onChange] = useRendererSection("circularConfig");
+  return <CircularConfigPanel config={config} onChange={onChange} />;
+}
+
+interface StyleOption<Value> {
+  value: Value;
   label: string;
   Section?: () => React.ReactNode;
 }
 
-const RENDERER_OPTIONS: RendererOption[] = [
+const RENDERER_OPTIONS: StyleOption<RendererType>[] = [
   { value: "none", label: "None" },
   { value: "pianoRoll", label: "Piano Roll", Section: PianoRollSection },
   { value: "verticalPianoRoll", label: "Vertical Piano Roll", Section: VerticalPianoRollSection },
   { value: "comet", label: "Comet", Section: CometSection },
+];
+
+const AUDIO_VISUALIZER_OPTIONS: StyleOption<AudioVisualizerStyle>[] = [
+  { value: "none", label: "None" },
+  { value: "bars", label: "Bars", Section: BarsSection },
+  { value: "lineSpectrum", label: "Line Spectrum", Section: LineSpectrumSection },
+  { value: "circular", label: "Circular", Section: CircularSection },
 ];
 
 function MidiStyleTab() {
@@ -98,6 +116,7 @@ function MidiStyleTab() {
 function AudioStyleTab() {
   const style = useRendererConfig((config) => config.audioVisualizerStyle);
   const onUpdateRendererConfig = useUpdateRendererConfig();
+  const Section = AUDIO_VISUALIZER_OPTIONS.find((option) => option.value === style)?.Section;
   return (
     <>
       <SelectRow
@@ -107,18 +126,18 @@ function AudioStyleTab() {
           if (value == null) return;
           onUpdateRendererConfig({ audioVisualizerStyle: value });
         }}
-        items={audioVisualizerStyleOptions}
+        items={AUDIO_VISUALIZER_OPTIONS}
         placeholder="Select style"
       >
         <SelectContent align="end">
-          {audioVisualizerStyleOptions.map((option) => (
+          {AUDIO_VISUALIZER_OPTIONS.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               {option.label}
             </SelectItem>
           ))}
         </SelectContent>
       </SelectRow>
-      {style !== "none" && <AudioVisualizerSection style={style} />}
+      {Section && <Section />}
     </>
   );
 }

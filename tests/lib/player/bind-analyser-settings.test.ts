@@ -1,4 +1,3 @@
-import { rendererConfig } from "tests/fixtures";
 import { createMockStore } from "tests/lib/player/create-mock-store";
 import { expect, test, vi } from "vitest";
 
@@ -12,24 +11,35 @@ function setup() {
   return { rendererConfigStore, playback };
 }
 
-test("applies the current settings on bind", () => {
+test("does nothing while the audio visualizer is off", () => {
   const { playback } = setup();
-  const { fftSize } = rendererConfig.audioVisualizerConfig;
-  expect(playback.configureAnalyser).toHaveBeenCalledExactlyOnceWith({ fftSize });
+  expect(playback.configureAnalyser).not.toHaveBeenCalled();
 });
 
-test("re-applies only when the audio visualizer settings change", () => {
+test("applies the fft size of the style that gets picked", () => {
   const { rendererConfigStore, playback } = setup();
+  const current = rendererConfigStore.getSnapshot();
+
+  rendererConfigStore.set({ ...current, audioVisualizerStyle: "circular" });
+
+  expect(playback.configureAnalyser).toHaveBeenCalledExactlyOnceWith({
+    fftSize: current.circularConfig.fftSize,
+  });
+});
+
+test("re-applies only when the active style's section changes", () => {
+  const { rendererConfigStore, playback } = setup();
+  rendererConfigStore.set({ ...rendererConfigStore.getSnapshot(), audioVisualizerStyle: "bars" });
   const current = rendererConfigStore.getSnapshot();
   vi.clearAllMocks();
 
-  // Unrelated fields keep the same audioVisualizerConfig reference
   rendererConfigStore.set({ ...current, backgroundColor: "#000000" });
-  expect(playback.configureAnalyser).not.toHaveBeenCalled();
-
   rendererConfigStore.set({
     ...current,
-    audioVisualizerConfig: { ...current.audioVisualizerConfig, fftSize: 512 },
+    lineSpectrumConfig: { ...current.lineSpectrumConfig, fftSize: 512 },
   });
+  expect(playback.configureAnalyser).not.toHaveBeenCalled();
+
+  rendererConfigStore.set({ ...current, barsConfig: { ...current.barsConfig, fftSize: 512 } });
   expect(playback.configureAnalyser).toHaveBeenCalledExactlyOnceWith({ fftSize: 512 });
 });

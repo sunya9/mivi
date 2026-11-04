@@ -49,7 +49,7 @@ function setupCtx() {
 test("createSpectrumFillStyle returns the single color when gradients are off", () => {
   const ctx = setupCtx();
   const config = {
-    ...getDefaultRendererConfig().audioVisualizerConfig,
+    ...getDefaultRendererConfig().barsConfig,
     useGradient: false,
     singleColor: "#123456",
   };
@@ -60,7 +60,7 @@ test("createSpectrumFillStyle returns the single color when gradients are off", 
 test("createSpectrumFillStyle builds a two-stop gradient along the configured direction", () => {
   const ctx = setupCtx();
   const config = {
-    ...getDefaultRendererConfig().audioVisualizerConfig,
+    ...getDefaultRendererConfig().barsConfig,
     useGradient: true,
     gradientDirection: "to-top" as const,
     gradientStartColor: "#000000",

@@ -2,10 +2,10 @@ import { cn } from "cn";
 
 import { SerializedAudio } from "@/lib/audio/audio";
 import { computeFFTAtTime } from "@/lib/audio/fft-precompute";
-import { SpectrumEnvelope } from "@/lib/audio/spectrum-envelope";
+import { DEFAULT_SPECTRUM_ENVELOPE, SpectrumEnvelope } from "@/lib/audio/spectrum-envelope";
 import { MidiTracks } from "@/lib/midi/midi";
 import type { AudioPlaybackStore } from "@/lib/player/audio-playback-store";
-import { RendererConfig } from "@/lib/renderers/renderer-config";
+import { RendererConfig, selectAudioAnalyzerConfig } from "@/lib/renderers/renderer-config";
 import { RendererController } from "@/lib/renderers/renderer-controller";
 import type { ReadableStore } from "@/lib/store/observable-store";
 import { FpsCounter } from "@/lib/visualizer/fps-counter";
@@ -46,7 +46,9 @@ export class VisualizerEngine {
     this.#controller = new RendererController(context);
 
     this.#rendererConfig = sources.rendererConfig.getSnapshot();
-    this.#envelope = new SpectrumEnvelope(this.#rendererConfig.audioVisualizerConfig);
+    this.#envelope = new SpectrumEnvelope(
+      selectAudioAnalyzerConfig(this.#rendererConfig) ?? DEFAULT_SPECTRUM_ENVELOPE,
+    );
     this.#controller.setRendererConfig(this.#rendererConfig);
     this.#applyAspectRatio();
     this.#controller.setBackgroundImageBitmap(sources.backgroundImage.getSnapshot());
@@ -96,7 +98,7 @@ export class VisualizerEngine {
     const previous = this.#rendererConfig;
     const config = this.#sources.rendererConfig.getSnapshot();
     this.#rendererConfig = config;
-    this.#envelope.configure(config.audioVisualizerConfig);
+    this.#envelope.configure(selectAudioAnalyzerConfig(config) ?? DEFAULT_SPECTRUM_ENVELOPE);
     this.#controller.setRendererConfig(config);
     if (previous.resolution !== config.resolution) {
       this.#applyAspectRatio();
@@ -183,10 +185,9 @@ export class VisualizerEngine {
     const serializedAudio = this.#sources.serializedAudio.getSnapshot();
     // The analyser only has data during playback; a paused preview falls back to precomputed FFT
     let frequencyData = this.#store.getFrequencyData();
-    if (!frequencyData && usePrecomputedFft && serializedAudio) {
-      frequencyData = computeFFTAtTime(serializedAudio, position, {
-        fftSize: this.#rendererConfig.audioVisualizerConfig.fftSize,
-      });
+    const analyzer = selectAudioAnalyzerConfig(this.#rendererConfig);
+    if (!frequencyData && usePrecomputedFft && serializedAudio && analyzer) {
+      frequencyData = computeFFTAtTime(serializedAudio, position, { fftSize: analyzer.fftSize });
     }
     this.#controller.render(
       midiTracks?.tracks ?? [],

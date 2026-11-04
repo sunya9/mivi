@@ -11,20 +11,20 @@ export function drawAudioVisualizer(
   frequencyData: FrequencyData | null,
   config: RendererConfig,
 ): void {
-  const { audioVisualizerStyle: style, audioVisualizerConfig, resolution } = config;
+  const { audioVisualizerStyle: style, resolution } = config;
   if (style === "none" || !frequencyData) return;
 
   ctx.save();
 
   switch (style) {
     case "bars":
-      drawBarSpectrum(ctx, frequencyData, audioVisualizerConfig, resolution);
+      drawBarSpectrum(ctx, frequencyData, config.barsConfig, resolution);
       break;
     case "lineSpectrum":
-      drawLineSpectrum(ctx, frequencyData, audioVisualizerConfig, resolution);
+      drawLineSpectrum(ctx, frequencyData, config.lineSpectrumConfig, resolution);
       break;
     case "circular":
-      drawCircular(ctx, frequencyData, audioVisualizerConfig, resolution);
+      drawCircular(ctx, frequencyData, config.circularConfig, resolution);
       break;
   }
 

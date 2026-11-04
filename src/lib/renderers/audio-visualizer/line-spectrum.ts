@@ -1,7 +1,10 @@
 import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { Resolution } from "@/lib/muxer/resolution";
 import type { RendererContext } from "@/lib/renderers/renderer";
-import { type AudioVisualizerConfig } from "@/lib/renderers/renderer-config";
+import {
+  type AudioVisualizerPosition,
+  type LineSpectrumConfig,
+} from "@/lib/renderers/renderer-config";
 
 import { calculateBandAmplitudes } from "./band-amplitudes";
 import { createSpectrumFillStyle, resolveBaseY } from "./spectrum-style";
@@ -17,7 +20,7 @@ function generatePoints(
   canvasWidth: number,
   baseY: number,
   visualizerHeight: number,
-  position: AudioVisualizerConfig["position"],
+  position: AudioVisualizerPosition,
 ): Point[] {
   const points: Point[] = [];
 
@@ -141,7 +144,7 @@ function drawSpectrumShape(ctx: RendererContext, baseOpacity: number, shape: Spe
 export function drawLineSpectrum(
   ctx: RendererContext,
   frequencyData: FrequencyData,
-  config: AudioVisualizerConfig,
+  config: LineSpectrumConfig,
   resolution: Resolution,
 ): void {
   const canvasWidth = resolution.width;
@@ -149,22 +152,20 @@ export function drawLineSpectrum(
 
   const {
     barCount,
-    barOpacity,
+    opacity,
     position,
     height: heightPercent,
     mirror,
     mirrorOpacity,
     minFrequency,
     maxFrequency,
-    lineSpectrumConfig: {
-      lineWidth,
-      tension,
-      stroke,
-      strokeColor,
-      strokeOpacity,
-      fill,
-      fillOpacity,
-    },
+    lineWidth,
+    tension,
+    stroke,
+    strokeColor,
+    strokeOpacity,
+    fill,
+    fillOpacity,
   } = config;
 
   const visualizerHeight = (canvasHeight * heightPercent) / 100;
@@ -173,7 +174,7 @@ export function drawLineSpectrum(
   const fillStyle = createSpectrumFillStyle(ctx, config, canvasWidth, canvasHeight);
 
   ctx.save();
-  ctx.globalAlpha = barOpacity;
+  ctx.globalAlpha = opacity;
   ctx.strokeStyle = strokeColor;
   ctx.lineWidth = lineWidth;
   ctx.lineJoin = "round";
@@ -191,7 +192,7 @@ export function drawLineSpectrum(
   );
 
   const shape = { tension, fillStyle, stroke, strokeOpacity, fill, fillOpacity };
-  drawSpectrumShape(ctx, barOpacity, { ...shape, points, baseY });
+  drawSpectrumShape(ctx, opacity, { ...shape, points, baseY });
 
   if (mirror) {
     ctx.save();
@@ -211,7 +212,7 @@ export function drawLineSpectrum(
 
     const mirrorBaseY = position === "bottom" ? 0 : position === "top" ? canvasHeight : baseY;
 
-    drawSpectrumShape(ctx, barOpacity * mirrorOpacity, {
+    drawSpectrumShape(ctx, opacity * mirrorOpacity, {
       ...shape,
       points: mirrorPoints,
       baseY: mirrorBaseY,

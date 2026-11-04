@@ -5,9 +5,10 @@ import type { FrequencyData } from "@/lib/audio/audio-analyzer";
 import type { Resolution } from "@/lib/muxer/resolution";
 import { drawAudioVisualizer } from "@/lib/renderers/audio-visualizer/audio-visualizer";
 import {
+  type BarsConfig,
+  type CircularConfig,
   getDefaultRendererConfig,
-  type AudioVisualizerConfig,
-  type AudioVisualizerStyle,
+  type LineSpectrumConfig,
   type RendererConfig,
 } from "@/lib/renderers/renderer-config";
 
@@ -72,17 +73,23 @@ function createTestFrequencyData(fftSize: number = 2048): FrequencyData {
   };
 }
 
-function createRendererConfig(
-  audioVisualizerStyle: AudioVisualizerStyle,
-  overrides: Partial<AudioVisualizerConfig>,
-): RendererConfig {
-  const config = getDefaultRendererConfig();
-  return {
-    ...config,
-    resolution,
-    audioVisualizerStyle,
-    audioVisualizerConfig: { ...config.audioVisualizerConfig, ...overrides },
-  };
+function rendererConfig(overrides: Partial<RendererConfig>): RendererConfig {
+  return { ...getDefaultRendererConfig(), resolution, ...overrides };
+}
+
+function barsRendererConfig(overrides: Partial<BarsConfig>): RendererConfig {
+  const config = rendererConfig({ audioVisualizerStyle: "bars" });
+  return { ...config, barsConfig: { ...config.barsConfig, ...overrides } };
+}
+
+function lineSpectrumRendererConfig(overrides: Partial<LineSpectrumConfig>): RendererConfig {
+  const config = rendererConfig({ audioVisualizerStyle: "lineSpectrum" });
+  return { ...config, lineSpectrumConfig: { ...config.lineSpectrumConfig, ...overrides } };
+}
+
+function circularRendererConfig(overrides: Partial<CircularConfig>): RendererConfig {
+  const config = rendererConfig({ audioVisualizerStyle: "circular" });
+  return { ...config, circularConfig: { ...config.circularConfig, ...overrides } };
 }
 
 // ============================================
@@ -99,7 +106,7 @@ test("bars style - bottom position", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("bars", {
+    barsRendererConfig({
       position: "bottom",
       mirror: false,
       useGradient: true,
@@ -121,7 +128,7 @@ test("bars style - top position with mirror", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("bars", {
+    barsRendererConfig({
       position: "top",
       mirror: true,
       mirrorOpacity: 0.5,
@@ -144,7 +151,7 @@ test("bars style - center position single color", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("bars", {
+    barsRendererConfig({
       position: "center",
       mirror: false,
       useGradient: false,
@@ -171,18 +178,16 @@ test("lineSpectrum style - stroke only", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("lineSpectrum", {
+    lineSpectrumRendererConfig({
       position: "bottom",
       height: 30,
-      lineSpectrumConfig: {
-        lineWidth: 2,
-        tension: 0.4,
-        stroke: true,
-        strokeColor: "#ffffff",
-        strokeOpacity: 1,
-        fill: false,
-        fillOpacity: 0.3,
-      },
+      lineWidth: 2,
+      tension: 0.4,
+      stroke: true,
+      strokeColor: "#ffffff",
+      strokeOpacity: 1,
+      fill: false,
+      fillOpacity: 0.3,
     }),
   );
 
@@ -200,19 +205,17 @@ test("lineSpectrum style - fill with stroke", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("lineSpectrum", {
+    lineSpectrumRendererConfig({
       position: "bottom",
       height: 40,
       useGradient: true,
-      lineSpectrumConfig: {
-        lineWidth: 2,
-        tension: 0.3,
-        stroke: true,
-        strokeColor: "#ffffff",
-        strokeOpacity: 0.8,
-        fill: true,
-        fillOpacity: 0.5,
-      },
+      lineWidth: 2,
+      tension: 0.3,
+      stroke: true,
+      strokeColor: "#ffffff",
+      strokeOpacity: 0.8,
+      fill: true,
+      fillOpacity: 0.5,
     }),
   );
 
@@ -230,18 +233,16 @@ test("lineSpectrum style - high tension", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("lineSpectrum", {
+    lineSpectrumRendererConfig({
       position: "center",
       height: 50,
-      lineSpectrumConfig: {
-        lineWidth: 3,
-        tension: 0.8,
-        stroke: true,
-        strokeColor: "#f97316",
-        strokeOpacity: 1,
-        fill: false,
-        fillOpacity: 0.3,
-      },
+      lineWidth: 3,
+      tension: 0.8,
+      stroke: true,
+      strokeColor: "#f97316",
+      strokeOpacity: 1,
+      fill: false,
+      fillOpacity: 0.3,
     }),
   );
 
@@ -263,7 +264,7 @@ test("circular style - default", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("circular", {
+    circularRendererConfig({
       barCount: 64,
       useGradient: true,
     }),
@@ -283,7 +284,7 @@ test("circular style - high bar count", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("circular", {
+    circularRendererConfig({
       barCount: 128,
       useGradient: false,
       singleColor: "#ec4899",
@@ -304,7 +305,7 @@ test("circular style - low bar count", async () => {
   drawAudioVisualizer(
     ctx,
     createTestFrequencyData(),
-    createRendererConfig("circular", {
+    circularRendererConfig({
       barCount: 32,
       useGradient: true,
       gradientStartColor: "#06b6d4",
