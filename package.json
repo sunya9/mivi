@@ -35,7 +35,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-error-boundary": "^6.1.6",
-    "react-hotkeys-hook": "^5.3.3",
+    "react-hotkeys-hook": "^5.4.0",
     "standardized-audio-context": "^25.3.77",
     "tailwindcss": "^4.3.3"
   },
