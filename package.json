@@ -37,7 +37,7 @@
     "react-error-boundary": "^6.1.6",
     "react-hotkeys-hook": "^5.4.0",
     "standardized-audio-context": "^25.3.77",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.5"
   },
   "devDependencies": {
     "@codecov/vite-plugin": "^2.0.1",
